@@ -363,8 +363,8 @@ Item {
                         {type: "text", message: "Player is out of usable pokemon!", delay: 1000},
                         {type: "opponent-won", delay: 100}
                     ]
+                    sequenceTimer.start()
                 }
-                sequenceTimer.start()
                 break
 
             case "attempt-catch":
