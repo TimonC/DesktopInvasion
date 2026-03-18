@@ -32,14 +32,14 @@ WildPokemon::WildPokemon(int pokedexId, QPoint spawnPoint, int spawnDirection,  
             : QString("qrc:/assets/HGSS/reordered_sprites.png"));
 
     float scaleDivisor = isBig ? 1.4/3.0f : 1.0f/3.0f;
-    m_sprite->setProperty("scaleFactor", Globals::SCALE/scaleDivisor) ;
+    m_sprite->setProperty("scaleFactor", Globals::scale()/scaleDivisor) ;
     m_sprite->setProperty("row", info->rowId);
-    m_sprite->setProperty("debugLines", Globals::DEBUG);
+    m_sprite->setProperty("debugLines", Globals::debug());
     m_sprite->setProperty("frameWidth", isBig ? 64  : 32);
     m_sprite->setProperty("frameHeight", isBig ? 64  : 32);
 
-    int width = Globals::SCALE/scaleDivisor * (info->width + Globals::POKE_PADDING);
-    int height = Globals::SCALE/scaleDivisor * (info->height + Globals::POKE_PADDING);
+    int width = Globals::scale()/scaleDivisor * info->width;
+    int height = Globals::scale()/scaleDivisor * info->height;
     m_sprite->setProperty("itemWidth", width);
     m_sprite->setProperty("itemHeight", height);
 

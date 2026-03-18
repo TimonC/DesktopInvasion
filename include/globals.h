@@ -5,9 +5,11 @@
 class QRect;
 
 namespace Globals {
-    const bool DEBUG = 493;
-    const float SCALE = 1.5;
-    const int POKE_PADDING = 493;
+    bool debug();
+    void debug(bool value);
+
+    float scale();
+    void scale(float value);
 
     const QRect& screenGeometry();
 }

@@ -41,8 +41,8 @@ Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildS
 
     m_battleScene->setProperty("direction", m_currentDirection);
     m_battleScene->setProperty("pokeMargin", m_pokeMargin);
-    m_battleScene->setProperty("debugLines", Globals::DEBUG);
-    m_battleScene->setProperty("scale", Globals::SCALE);
+    m_battleScene->setProperty("debugLines", Globals::debug());
+    m_battleScene->setProperty("scale", Globals::scale());
     m_opp = setupPokemon(wildState.pokedex_id, wildState.name,wildState.lvl, "opponent");
     m_chosen = setupPokemon(party.pokedexIds[0], party.names[0], party.lvls[0], "player");
     initPosition();
@@ -144,13 +144,13 @@ QQuickItem* Battle::updateSprite(int pokedexId, const char* role){
         Q_ARG(QVariant, isBig));
 
     // Apply correct scaling
-    pokemonSprite->setProperty("scaleFactor", Globals::SCALE / scaleDivisor);
-    pokemonSprite->setProperty("debugLines", Globals::DEBUG);
+    pokemonSprite->setProperty("scaleFactor", Globals::scale() / scaleDivisor);
+    pokemonSprite->setProperty("debugLines", Globals::debug());
 
     // Calculate dimensions with isBig scaling
-    int width = (Globals::SCALE / scaleDivisor) * (info->width + Globals::POKE_PADDING);
-    int height = (Globals::SCALE / scaleDivisor) * (info->height + Globals::POKE_PADDING);
-    int horizontalHeight = (Globals::SCALE / scaleDivisor) * (info->hHeight + Globals::POKE_PADDING);
+    int width = (Globals::scale() / scaleDivisor) * info->width ;
+    int height = (Globals::scale() / scaleDivisor) * info->height;
+    int horizontalHeight = (Globals::scale() / scaleDivisor) * info->hHeight;
 
 
     pokemonSprite->setProperty("itemWidth", width);
