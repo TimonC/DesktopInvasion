@@ -10,6 +10,10 @@ build/
 AppDir/
 data/
 
+.qt
+.cache
+compile_commands.json
+
 *.log
 
 __pycache__/
@@ -20,6 +24,3 @@ __pycache__/
 
 *.user
 *.autosave
-.qt
-.cache
-compile_commands.json
