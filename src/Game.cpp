@@ -3,7 +3,6 @@
 #include <globals.h>
 #include <Player.h>
 #include <QTimer>
-#include <utils/connectWithQML.h>
 
 Game::Game(QQmlApplicationEngine* engine, QObject* parent) : QObject(parent) {
     m_menu = new GameMenu();
@@ -12,10 +11,7 @@ Game::Game(QQmlApplicationEngine* engine, QObject* parent) : QObject(parent) {
     connect(&Globals::getPlayer(), &Player::startABattle,
             this, &Game::handleBattleStart);
 
-    // Create C++ SystemTrayIcon instead of using QML
     m_trayIcon = new SystemTrayIcon(this);
-
-    // Connect to C++ signal instead of QML
     connect(m_trayIcon, &SystemTrayIcon::gameActive,
             this, &Game::setGameActive);
 }
@@ -36,11 +32,11 @@ void Game::setSpawnActive(bool active) {
 
 void Game::setGameActive(bool active){
     if(active){
-        m_activeBattle->close();
-        m_wildPokemon->close();
+        if(m_activeBattle) m_activeBattle->show();
+        if(m_wildPokemon) m_wildPokemon->show();
     }else{
-        m_activeBattle->show();
-        m_wildPokemon->show();
+        if(m_activeBattle) m_activeBattle->hide();
+        if(m_wildPokemon) m_wildPokemon->hide();
     }
 }
 
