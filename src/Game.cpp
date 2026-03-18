@@ -81,12 +81,25 @@ QVariantMap Game::pokemonToMenuState(int slot, const PokemonState &p){
     entry["slot"]   = slot;
     entry["iconId"] = p.pokedex_id-1;
     entry["name"] = QString::fromStdString(p.name);
+    entry["level"] = p.lvl;
 
     const AssetInfo* info = Lookup::getSpriteInfo(p.pokedex_id);
     entry["rowId"] = info->rowId;
     entry["isBig"] = info->spriteSheet == SpriteSheet::Big;
+
     const Poke *poke = Lookup::getPoke(p.pokedex_id);
+    auto stats = PokeMath::calculatePokeStats(p.lvl, poke->base_stats, PokeTypes::getNatureMultipliers(p.nature));
+    QVariantList statsList;
+    for (int value : stats) {
+        statsList.append(value);
+    }
+    std::uniform_int_distribution<int> dist(0, 27);
     entry["pokeName"] = QString::fromStdString(poke->name);
+    entry["type1"] = QString::fromStdString(PokeTypes::typeToString(poke->types[0]));
+    entry["type2"] = QString::fromStdString(PokeTypes::typeToString(poke->types[1]));
+    entry["flavorText"] = Lookup::getFlavorText(p.pokedex_id, dist(m_rng));
+    qDebug() << entry["flavorText"];
+    entry["stats"] = statsList;
 
     for(int eligible = 0; eligible < poke->eligible_evolve_count; eligible++){
         if(p.lvl >= poke->eligible_evolves[eligible].level){

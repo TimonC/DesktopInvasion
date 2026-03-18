@@ -32,4 +32,5 @@ extern const std::string_view kPokeFlavorx[494];
 extern const std::string_view kPokeFlavory[494];
 extern const std::string_view kPokeFlavoryellow[494];
 
-#endif // DATA_POKE_FLAVOR_H
+
+#endif

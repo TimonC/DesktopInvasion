@@ -4,6 +4,7 @@
 #include <data_poke_asset.h>
 #include <data_poke.h>
 #include <data_move.h>
+#include <data_poke_flavor.h>
 
 namespace Lookup {
     const int MAX_POKEDEX_ID = 493;
@@ -20,6 +21,23 @@ namespace Lookup {
         return (pokeDexId >= 1 && pokeDexId <= MAX_POKEDEX_ID) ? kAssetInfo[pokeDexId - 1] : nullptr;
     }
 
+    inline QString getFlavorText(int pokeDexId, int gameId) {
+        static const std::string_view* const FLAVOR_ARRAYS[28] = {
+            kPokeFlavoryellow, kPokeFlavorred, kPokeFlavorblue,
+            kPokeFlavorgold, kPokeFlavorsilver, kPokeFlavorcrystal,
+            kPokeFlavorruby, kPokeFlavorsapphire, kPokeFlavoremerald,
+            kPokeFlavorfirered, kPokeFlavorleafgreen, kPokeFlavordiamond,
+            kPokeFlavorpearl, kPokeFlavorplatinum, kPokeFlavorheartgold,
+            kPokeFlavorsoulsilver, kPokeFlavorblack, kPokeFlavorwhite,
+            kPokeFlavorblack_2, kPokeFlavorwhite_2, kPokeFlavorx,
+            kPokeFlavory, kPokeFlavoromega_ruby, kPokeFlavoralpha_sapphire,
+            kPokeFlavorsword, kPokeFlavorshield, kPokeFlavorlets_go_pikachu,
+            kPokeFlavorlets_go_eevee
+        };
+
+        const std::string_view& flavor = FLAVOR_ARRAYS[gameId][pokeDexId];
+        return QString::fromUtf8(flavor.data(), flavor.size());
+    }
 }
 
 #endif
