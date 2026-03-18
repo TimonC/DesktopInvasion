@@ -370,29 +370,54 @@ void Game::createInitialPokemon() {
         m_partyIds[0] = pokemonId1;
     }
 
-    PokemonState dusknoir;
-
-    dusknoir.pokedex_id = 383;
-    dusknoir.name = "Oysterhead";
-    dusknoir.pokeball_id = 2;
+    PokemonState wailord;
+    wailord.pokedex_id = 321;
+    wailord.name = "Wailord";
+    wailord.pokeball_id = 0;
 
     for (int i = 0; i < 6; i++) {
-        dusknoir.ivs[i] = 32;
-        dusknoir.evs[i] = 50;
+        wailord.ivs[i] = 32;
+        wailord.evs[i] = 50;
     }
 
-    dusknoir.nature = Nature::Hardy;
-    dusknoir.lvl = 10;
-    dusknoir.moves[0] = 14;
-    dusknoir.moves[1] = 104;
-    dusknoir.moves[2] = 426;
-    dusknoir.moves[3] = 434;
+    wailord.nature = Nature::Hardy;
+    wailord.lvl = 10;
+    wailord.moves[0] = 202;
+    wailord.moves[1] = 28;
+    wailord.moves[2] = 339;
+    wailord.moves[3] = 260;
 
-    int pokemonId = m_db.createPokemon(dusknoir);
+
+    int pokemonId2 = m_db.createPokemon(wailord);
+    if (pokemonId2 > 0) {
+        qDebug() << "Created wailord with database ID:" << pokemonId2;
+        m_db.setPartyPokemon(1, pokemonId2);
+        m_partyIds[1] = pokemonId2;
+    }
+
+    PokemonState groudon;
+
+    groudon.pokedex_id = 383;
+    groudon.name = "Oysterhead";
+    groudon.pokeball_id = 2;
+
+    for (int i = 0; i < 6; i++) {
+        groudon.ivs[i] = 32;
+        groudon.evs[i] = 50;
+    }
+
+    groudon.nature = Nature::Hardy;
+    groudon.lvl = 10;
+    groudon.moves[0] = 14;
+    groudon.moves[1] = 104;
+    groudon.moves[2] = 426;
+    groudon.moves[3] = 434;
+
+    int pokemonId = m_db.createPokemon(groudon);
     if (pokemonId > 0) {
-        qDebug() << "Created dusknoir with database ID:" << pokemonId;
-        m_db.setPartyPokemon(1, pokemonId);
-        m_partyIds[1] = pokemonId;
+        qDebug() << "Created groudon with database ID:" << pokemonId;
+        m_db.setPartyPokemon(2, pokemonId);
+        m_partyIds[2] = pokemonId;
     }
 }
 void Game::updatePartyXP(std::array<int, 6> spread) {
