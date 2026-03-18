@@ -84,7 +84,7 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
     resetDeltaState(m_battleOpponent->delta);
     resetDeltaState(m_battleParty[m_chosenIndex]->delta);
 
-    std::uniform_int_distribution<int> moveChoiceDist(0, 3);
+    static std::uniform_int_distribution<int> moveChoiceDist(0, 3);
     int opponentMoveIndex = moveChoiceDist(m_rng);
 
     const Move* opponentMove = m_battleOpponent->pokeState.moves[opponentMoveIndex];
@@ -126,8 +126,7 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
             playerSpeed = PokeMath::applyStatModifier(playerSpeed, playerModifier);
 
            if(playerSpeed == oppSpeed){
-               std::uniform_int_distribution<int> speedTieDist(0, 1);
-               playerFirst = speedTieDist(m_rng)==0;
+               playerFirst = PokeMath::checkSpeedTie(m_rng);
            }else{
                playerFirst = playerSpeed > oppSpeed;
            }
@@ -160,6 +159,20 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
                 applyBattleResult(playerResult);
                 turnResult.effects.insert(turnResult.effects.end(), playerResult.effects.begin(), playerResult.effects.end());
             }
+        }
+
+        // Increment ailment counters at end of turn
+        if(player->battleState.confused == Ailment::Confusion) {
+            player->battleState.confusedCounter++;
+        }
+        if(m_battleOpponent->battleState.confused == Ailment::Confusion) {
+            m_battleOpponent->battleState.confusedCounter++;
+        }
+        if(player->battleState.statusCondition != Ailment::Null) {
+            player->battleState.conditionCounter++;
+        }
+        if(m_battleOpponent->battleState.statusCondition != Ailment::Null) {
+            m_battleOpponent->battleState.conditionCounter++;
         }
 
         BattleActionResult playerEndResult = applyEndOfTurnEffects(player);
@@ -248,8 +261,7 @@ BattleActionResult BattleMoveHandler::canBattlerMove(Battler* caster) {
     }
 
     if (caster->battleState.confused == Ailment::Confusion) {
-        std::uniform_int_distribution<int> confuseDist(1, 2);
-        if (confuseDist(m_rng) == 1) {
+        if (PokeMath::calculateConfusionHit(m_rng)) {
             PokeMath::DamageParams confP;
             confP.lvl = caster->pokeState.lvl;
             confP.power = 40;
@@ -317,8 +329,7 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
                     caster->pokeState.name + " used " + std::string(_move->name) + "!");
 
     if (_move->accuracy < 100) {
-        std::uniform_int_distribution<int> accuracyDist(1, 100);
-        if (accuracyDist(m_rng) > _move->accuracy) {
+        if (!PokeMath::checkAccuracy(_move->accuracy, m_rng)) {
             result.addEffect(BattleActionResult::MISS, caster, target);
             result.addEffect(BattleActionResult::TEXT, caster, nullptr, 0, Ailment::Null, -1, 0,
                             caster->pokeState.name + "'s attack missed!");
@@ -331,10 +342,9 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
         params.lvl = caster->pokeState.lvl;
         params.power = _move->power;
 
-        std::uniform_int_distribution<int> critDist(1, 16/(1+_move->crit_rate));
-        bool crit = critDist(m_rng) == 1;
-        if (crit) {
+        if (PokeMath::checkCriticalHit(_move->crit_rate, m_rng)) {
             result.addEffect(BattleActionResult::CRITICAL, caster, target);
+            params.critical = 150;
         }
 
         int attackStatIndex = 1;
@@ -348,8 +358,7 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
         params.attack = caster->pokeState.stats[attackStatIndex];
         params.defense = target->pokeState.stats[attackStatIndex + 1];
 
-        if(crit){
-            params.critical = 150;
+        if(params.critical == 150){
             if (atkModifier < 0) atkModifier = 0;
             if (defModifier > 0) defModifier = 0;
         }
@@ -421,9 +430,8 @@ BattleActionResult BattleMoveHandler::applySecondaryEffects(const Move* _move, B
     bool statApplied = true;
 
     if(_move->category != MoveCategory::NonDamaging){
-        std::uniform_int_distribution<int> effectDist(1, 100);
-        ailmentApplied = effectDist(m_rng) <= _move->ailment_chance;
-        statApplied = effectDist(m_rng) <= _move->stat_chance;
+        ailmentApplied = PokeMath::checkSecondaryEffect(_move->ailment_chance, m_rng);
+        statApplied = PokeMath::checkSecondaryEffect(_move->stat_chance, m_rng);
     }
 
     if (ailmentApplied && _move->ailment != Ailment::Null) {
@@ -451,8 +459,7 @@ BattleActionResult BattleMoveHandler::applySecondaryEffects(const Move* _move, B
     }
 
     if (damageLanded && _move->flinch_chance > 0) {
-        std::uniform_int_distribution<int> flinchDist(1, 100);
-        if (flinchDist(m_rng) <= _move->flinch_chance) {
+        if (PokeMath::checkSecondaryEffect(_move->flinch_chance, m_rng)) {
             result.addEffect(BattleActionResult::FLINCH, nullptr, target);
             target->delta.flinched = true;
         }
