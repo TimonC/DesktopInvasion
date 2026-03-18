@@ -58,18 +58,6 @@ void testPokespawnRandomness() {
     std::cout << "Max: " << maxCount << " (ID " << maxId << ")\n";
 }
 void testVariantMapper() {
-    std::cout << "Testing VariantMapper...\n";
-
-    // Debug: print actual values
-    std::cout << "Actual values:\n";
-    std::cout << "ID 415 = " << VariantMapper::pokedexID2IconID(415, 0) << "\n";
-    std::cout << "ID 420 = " << VariantMapper::pokedexID2IconID(420, 0) << "\n";
-    std::cout << "ID 422 = " << VariantMapper::pokedexID2IconID(422, 0) << "\n";
-    std::cout << "ID 423 = " << VariantMapper::pokedexID2IconID(423, 0) << "\n";
-    std::cout << "ID 450 = " << VariantMapper::pokedexID2IconID(450, 0) << "\n";
-
-    // Now test with corrected values
-    std::cout << "\nTesting with corrected values...\n";
 
     // Test basic non-variant
     assert(VariantMapper::pokedexID2IconID(25, 0) == 25);

@@ -237,7 +237,7 @@ Item {
         sprite.statusBar.visible = true
     }
     function setPartyMember(partyIdx, iconId, pokemonName) {
-       battleMenu.setPartyMember(partyIdx, iconId, pokemonName);
+       battleMenu._setPartyMember(partyIdx, iconId, pokemonName);
     }
 
 

@@ -60,10 +60,9 @@ void Battle::setupParty(const std::vector<std::pair<int, std::string>>& party){
 
     for(size_t i = 0; i < party.size(); ++i){
         QMetaObject::invokeMethod(m_battleScene, "setPartyMember",
-            Q_ARG(int, static_cast<int>(i)),
-            Q_ARG(int, party[i].first),
-            Q_ARG(QString, QString::fromStdString(party[i].second)));
-    }
+            Q_ARG(QVariant, QVariant(static_cast<int>(i))),
+            Q_ARG(QVariant, QVariant(party[i].first)),
+            Q_ARG(QVariant, QVariant(QString::fromStdString(party[i].second))));}
 }
 QQuickItem* Battle::setupPokemon(const PokemonInfo* info, const char* role) {
     QQuickItem* pokemonSprite = m_battleScene->property(role).value<QQuickItem*>();
