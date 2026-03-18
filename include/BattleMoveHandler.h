@@ -9,6 +9,7 @@
 #include <array>
 #include <QVariant>
 #include <vector>
+#include <unordered_set>
 
 struct BattleStateDelta{
     bool switchedIn = false;
@@ -125,7 +126,7 @@ public slots:
 
 private:
     int m_chosenIndex = 0;
-    std::vector<int> m_includedPartyIndices = {};
+    std::unordered_set<int> m_includedPartyIndices;
 
     Battler* createBattler(const PokemonState& state);
     BattleActionResult applyMove(const Move* _move, Battler* caster, Battler* target);
@@ -159,6 +160,7 @@ private:
     std::array<Battler*, 6> m_battleParty;
     int m_partyPokemonSentOut[6] = {-1,-1,-1,-1,-1,-1};
     std::mt19937 m_rng;
+    std::uniform_int_distribution<int> m_moveChoiceDist;
 
     static const int ms_moveUsedText = 800;
     static const int ms_ailmentText = 800;

@@ -9,19 +9,25 @@
 
 BattleMoveHandler::BattleMoveHandler(const PokemonState& wildState, const std::array<PokemonState, 6>& partyStates)
     : m_rng(std::random_device{}())
+    , m_moveChoiceDist(0, 3)  // Initialize distribution
 {
     qDebug() << "BattleMoveHandler constructor called!";
     m_battleOpponent = createBattler(wildState);
     for (int i = 0; i < 6; i++) {
         m_battleParty[i] = createBattler(partyStates[i]);
     }
-    m_includedPartyIndices.push_back(m_chosenIndex);
+    m_includedPartyIndices.insert(m_chosenIndex);
 }
 
 BattleMoveHandler::~BattleMoveHandler() {
     qDebug() << "BattleMoveHandler destructor called!";
     delete m_battleOpponent;
-    for (auto& ptr : m_battleParty) delete ptr;
+    for (auto& ptr : m_battleParty) {
+        if (ptr) {
+            delete ptr;
+            ptr = nullptr;
+        }
+    }
 }
 
 Battler* BattleMoveHandler::createBattler(const PokemonState& state) {
@@ -55,8 +61,7 @@ std::array<int, 6> BattleMoveHandler::getExperienceSpread(){
     std::array<int,6> spread = {-1,-1,-1,-1,-1,-1};
     int includedCount = 0;
 
-    for(int index = 0; index < m_includedPartyIndices.size(); index++){
-        int partyIndex = m_includedPartyIndices[index];
+    for(int partyIndex : m_includedPartyIndices){
         Battler* member = m_battleParty[partyIndex];
         if(member->battleState.currentHealth >= 0 && member->pokeState.lvl<100){
             includedCount++;
@@ -64,8 +69,7 @@ std::array<int, 6> BattleMoveHandler::getExperienceSpread(){
     }
 
     int xp = PokeMath::calculateExperience(m_battleOpponent->pokeState.lvl, includedCount, m_battleOpponent->pokeState.baseXP);
-    for(int index = 0; index < m_includedPartyIndices.size(); index++){
-        int partyIndex = m_includedPartyIndices[index];
+    for(int partyIndex : m_includedPartyIndices){
         Battler* member = m_battleParty[partyIndex];
         if(member->battleState.currentHealth > 0 && member->pokeState.lvl<100){
             spread[partyIndex] = xp;
@@ -82,11 +86,12 @@ QString BattleMoveHandler::switchPartyMember(int newChosenIndex){
     currentMember->battleState.confusedCounter = -1;
 
     m_chosenIndex = newChosenIndex;
-    m_includedPartyIndices.push_back(m_chosenIndex);
+    m_includedPartyIndices.insert(m_chosenIndex);
 
     Battler* newMember = m_battleParty[m_chosenIndex];
     return ailmentToLabel(newMember->battleState.statusCondition);
 }
+
 void BattleMoveHandler::resetDeltaState(BattleStateDelta& delta) {
     delta = BattleStateDelta();
 }
@@ -125,19 +130,24 @@ QVariantList BattleMoveHandler::processEndOfTurnEffects() {
 }
 
 void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
-    std::string actionStr = _action.toStdString();
-    const char* action = actionStr.data();
+    QChar actionChar = _action.isEmpty() ? QChar() : _action[0];
 
-    assert((!std::strcmp(action, "Switch") || !std::strcmp(action, "Fight") || !std::strcmp(action, "Catch"))
-           && "Action must be 'Switch', 'Fight' or 'Catch'");
-    assert(actionIndex>-1 && actionIndex<6 && "actionIndex must be between 0 and 5 inclusive");
-    assert((!std::strcmp(action,"Switch") || actionIndex<4) && "actionIndex for non-switch action must be between 0 and 3 inclusive");
+    if (actionChar != 'S' && actionChar != 'F' && actionChar != 'C') {
+        qFatal("Action must be 'Switch', 'Fight' or 'Catch'");
+    }
+
+    if(actionIndex < 0 || actionIndex >= 6) {
+        qFatal("actionIndex must be between 0 and 5 inclusive");
+    }
+
+    if(actionChar != 'S' && actionIndex >= 4) {
+        qFatal("actionIndex for non-switch action must be between 0 and 3 inclusive");
+    }
 
     resetDeltaState(m_battleOpponent->delta);
     resetDeltaState(m_battleParty[m_chosenIndex]->delta);
 
-    static std::uniform_int_distribution<int> moveChoiceDist(0, 3);
-    int opponentMoveIndex = moveChoiceDist(m_rng);
+    int opponentMoveIndex = m_moveChoiceDist(m_rng);
 
     const Move* opponentMove = m_battleOpponent->pokeState.moves[opponentMoveIndex];
     Battler* player = m_battleParty[m_chosenIndex];
@@ -152,10 +162,10 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
 
     QVariantList s;
 
-    if(action[0]=='S'){
+    if(actionChar == 'S'){
        switchedIn = actionIndex;
        m_chosenIndex = actionIndex;
-    } else if(action[0]=='C'){
+    } else if(actionChar == 'C'){
         shakes = PokeMath::calculateBallShakes(m_rng, m_battleOpponent->pokeState.stats[0], m_battleOpponent->battleState.currentHealth, m_battleOpponent->pokeState.catchRate);
         m_battleOpponent->delta.flinched = false;
         player->delta.flinched = false;
@@ -164,7 +174,7 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
         s.append(createCatchAction(shakes, ms_catchStart));
     }
 
-    if(action[0]=='F'){
+    if(actionChar == 'F'){
         if (playerMove->priority == opponentMove->priority){
             int oppSpeed = m_battleOpponent->pokeState.stats[5];
             if(m_battleOpponent->battleState.statusCondition==Ailment::Paralysis) oppSpeed = oppSpeed/2;
@@ -189,25 +199,30 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
         player->delta.isFirst = playerFirst;
 
         BattleActionResult turnResult;
+        turnResult.effects.reserve(20);  // Pre-allocate reasonable capacity
 
         if(playerFirst){
             BattleActionResult playerResult = applyMove(playerMove, player, m_battleOpponent);
             applyBattleResult(playerResult);
+            turnResult.effects.reserve(turnResult.effects.size() + playerResult.effects.size());
             turnResult.effects.insert(turnResult.effects.end(), playerResult.effects.begin(), playerResult.effects.end());
 
             if(m_battleOpponent->battleState.currentHealth > 0 && !m_battleOpponent->delta.flinched) {
                 BattleActionResult opponentResult = applyMove(opponentMove, m_battleOpponent, player);
                 applyBattleResult(opponentResult);
+                turnResult.effects.reserve(turnResult.effects.size() + opponentResult.effects.size());
                 turnResult.effects.insert(turnResult.effects.end(), opponentResult.effects.begin(), opponentResult.effects.end());
             }
         } else {
             BattleActionResult opponentResult = applyMove(opponentMove, m_battleOpponent, player);
             applyBattleResult(opponentResult);
+            turnResult.effects.reserve(turnResult.effects.size() + opponentResult.effects.size());
             turnResult.effects.insert(turnResult.effects.end(), opponentResult.effects.begin(), opponentResult.effects.end());
 
             if(player->battleState.currentHealth > 0 && !player->delta.flinched) {
                 BattleActionResult playerResult = applyMove(playerMove, player, m_battleOpponent);
                 applyBattleResult(playerResult);
+                turnResult.effects.reserve(turnResult.effects.size() + playerResult.effects.size());
                 turnResult.effects.insert(turnResult.effects.end(), playerResult.effects.begin(), playerResult.effects.end());
             }
         }
@@ -232,11 +247,12 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
 
         QVariantList endSequence = processEndOfTurnEffects();
 
-        if(action[0]=='C' && shakes == 4){
+        if(actionChar == 'C' && shakes == 4){
             s.append(createEndAction());
         } else {
             QVariantList attackSequence = generateSequenceFromResult(opponentResult);
-            s = s + attackSequence;
+            s.reserve(s.size() + attackSequence.size() + endSequence.size() + 1);
+            s.append(attackSequence);
             s.append(endSequence);
             s.append(createEndAction());
         }
@@ -337,23 +353,28 @@ BattleActionResult BattleMoveHandler::canBattlerMove(Battler* caster) {
 BattleActionResult BattleMoveHandler::applyEndOfTurnEffects(Battler* battler) {
     BattleActionResult result;
 
-    if (battler->battleState.statusCondition == Ailment::Burn) {
-        int burnDamage = PokeMath::calculateBurnDamage(battler->pokeState.stats[0]);
-        result.addEffect(BattleActionResult::CHANGE_HEALTH, nullptr, battler, burnDamage);
-        result.addEffect(BattleActionResult::TEXT, battler, nullptr, 0, Ailment::Null, -1, 0,
-                        battler->pokeState.name + " is hurt by its burn!");
-    }
-
-    if (battler->battleState.statusCondition == Ailment::Poison || battler->battleState.statusCondition == Ailment::Toxic) {
-        int counter = -1;
-        if(battler->battleState.statusCondition == Ailment::Toxic) {
-            counter = battler->battleState.conditionCounter;
+    switch(battler->battleState.statusCondition) {
+        case Ailment::Burn: {
+            int burnDamage = PokeMath::calculateBurnDamage(battler->pokeState.stats[0]);
+            result.addEffect(BattleActionResult::CHANGE_HEALTH, nullptr, battler, burnDamage);
+            result.addEffect(BattleActionResult::TEXT, battler, nullptr, 0, Ailment::Null, -1, 0,
+                            battler->pokeState.name + " is hurt by its burn!");
+            break;
         }
-        int poisonDamage = PokeMath::calculatePoisonDamage(battler->pokeState.stats[0], counter);
-        result.addEffect(BattleActionResult::CHANGE_HEALTH, nullptr, battler, poisonDamage);
-        std::string ailment = battler->battleState.statusCondition == Ailment::Toxic ? "bad poison" : "poison";
-        result.addEffect(BattleActionResult::TEXT, battler, nullptr, 0, Ailment::Null, -1, 0,
-                        battler->pokeState.name + " is hurt by its " + ailment + "!");
+        case Ailment::Poison:
+        case Ailment::Toxic: {
+            int counter = (battler->battleState.statusCondition == Ailment::Toxic) ?
+                         battler->battleState.conditionCounter : -1;
+            int poisonDamage = PokeMath::calculatePoisonDamage(battler->pokeState.stats[0], counter);
+            result.addEffect(BattleActionResult::CHANGE_HEALTH, nullptr, battler, poisonDamage);
+            std::string ailment = (battler->battleState.statusCondition == Ailment::Toxic) ?
+                                 "bad poison" : "poison";
+            result.addEffect(BattleActionResult::TEXT, battler, nullptr, 0, Ailment::Null, -1, 0,
+                            battler->pokeState.name + " is hurt by its " + ailment + "!");
+            break;
+        }
+        default:
+            break;
     }
 
     return result;
@@ -364,6 +385,7 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
     checkRemoveAilment(*caster, result);
 
     BattleActionResult canMoveResult = canBattlerMove(caster);
+    result.effects.reserve(result.effects.size() + canMoveResult.effects.size());
     result.effects.insert(result.effects.end(), canMoveResult.effects.begin(), canMoveResult.effects.end());
 
     if (!canMoveResult.moveExecuted) {
@@ -457,10 +479,12 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
         }
 
         BattleActionResult secondaryResult = applySecondaryEffects(_move, target, damage > 0);
+        result.effects.reserve(result.effects.size() + secondaryResult.effects.size());
         result.effects.insert(result.effects.end(), secondaryResult.effects.begin(), secondaryResult.effects.end());
 
     } else {
         BattleActionResult secondaryResult = applySecondaryEffects(_move, target, true);
+        result.effects.reserve(result.effects.size() + secondaryResult.effects.size());
         result.effects.insert(result.effects.end(), secondaryResult.effects.begin(), secondaryResult.effects.end());
     }
 
@@ -819,7 +843,6 @@ QVariantMap BattleMoveHandler::createCatchAction(int shakes, int delay) {
     action["shakes"] = shakes;
     action["delay"] = delay;
 
-    // Store the appropriate text based on shakes
     if (shakes == 0) {
         action["message"] = "Oh no! The Pokémon broke free!";
     } else if (shakes < 4) {

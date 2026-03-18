@@ -22,7 +22,7 @@ Item {
     property int pokeNameFontSize:9
     property int buttonFontSize:9
     property int moveFontSize:8
-    property int textBarFontSize: 16
+    property int textBarFontSize: 15
 
     property bool debugLines: false
 
