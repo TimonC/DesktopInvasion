@@ -27,7 +27,7 @@ const PokemonInfo kPokemonList[] = {
     {22, 22, 1,"Fearow"},
     {23, 23, 1,"Ekans"},
     {24, 24, 1,"Arbok"},
-    {25, 25, 1,"Pikachu"},
+    {25, 25, 1,"Pikachu"}, //DOUBLE PIKACHU
     {26, 27, 1,"Raichu"},
     {27, 28, 1,"Sandshrew"},
     {28, 29, 1,"Sandslash"},
@@ -176,8 +176,8 @@ const PokemonInfo kPokemonList[] = {
 {169, 18, 2,"Crobat"},
 {170, 19, 2,"Chinchou"},
 {171, 20, 2,"Lanturn"},
-{172, 21, 2,"Pichu"},
-{173, 23, 2,"Cleffa"},  // Skip one after Pichu
+{172, 21, 2,"Pichu"}, // DOUBLE
+{173, 23, 2,"Cleffa"},
 {174, 24, 2,"Igglybuff"},
 {175, 25, 2,"Togepi"},
 {176, 26, 2,"Togetic"},
@@ -234,7 +234,7 @@ const PokemonInfo kPokemonList[] = {
 {201, 77, 2,"Unown_27"},
 {201, 78, 2,"Unown_28"},
 {202, 79, 2,"Wobbuffet"},
-{203, 81, 2,"Girafarig"},  // Skip one after Wobbuffet
+{203, 81, 2,"Girafarig"},  // DOUBLE
 {204, 82, 2,"Pineco"},
 {205, 83, 2,"Forretress"},
 {206, 84, 2,"Dunsparce"},
@@ -245,7 +245,7 @@ const PokemonInfo kPokemonList[] = {
     {211, 88, 2,"Qwilfish"},
     {212, 89, 2,"Scizor"},
     {213, 90, 2,"Shuckle"},
-    {214, 91, 2,"Heracross"},
+    {214, 91, 2,"Heracross"}, // DOUBLE
     {215, 93, 2,"Sneasel"},
     {216, 94, 2,"Teddiursa"},
     {217, 95, 2,"Ursaring"},
@@ -280,8 +280,8 @@ const PokemonInfo kPokemonList[] = {
     {246, 124, 2,"Larvitar"},
     {247, 125, 2,"Pupitar"},
     {248, 126, 2,"Tyranitar"},
-    /* {249, 126, 2,"Lugia"}, */
-    /* {250, 127, 2,"Ho-oh"}, */
+    /* {249, 126, 2,"Lugia"}, */ //SKIP LUGIA
+    /* {250, 127, 2,"Ho-oh"}, */ //SKIP HO-OH
     {251, 127, 2,"Celebi"},
 
     {252, 0, 3,"Treecko"},
@@ -353,7 +353,7 @@ const PokemonInfo kPokemonList[] = {
     {318, 66, 3,"Carvanha"},
     {319, 67, 3,"Sharpedo"},
     {320, 68, 3,"Wailmer"},
-    // SKIP WAILORD {321, 000, 3,"Wailord"},
+    /* {321, 000, 3,"Wailord"}, */ // SKIP WAILORD
     {322, 69, 3,"Numel"},
     {323, 70, 3,"Camerupt"},
     {324, 71, 3,"Torkoal"},
@@ -531,18 +531,18 @@ const PokemonInfo kPokemonList[] = {
     {480, 107, 4, "Uxie"},
     {481, 108, 4, "Mesprit"},
     {482, 109, 4, "Azelf"},
-    /* {483, 110, 4, "Dialga"}, */
-    /* {484, 111, 4, "Palkia"}, */
+    /* {483, 110, 4, "Dialga"}, */ //SKIP DIALGA
+    /* {484, 111, 4, "Palkia"}, */ //SKIP PALKA
     {485, 110, 4, "Heatran"},
-    /* {486, 113, 4, "Regigigas"}, */
-    /* {487, 114, 4, "Giratina"}, */
+    /* {486, 113, 4, "Regigigas"}, */ //SKIP REGIGIGAS
+    /* {487, 114, 4, "Giratina"}, */  //SKIP GIRATINA
     {488, 111, 4, "Cresselia"},
     {489, 112, 4, "Phione"},
     {490, 113, 4, "Manaphy"},
     {491, 114, 4, "Darkrai"},
     {492, 115, 4, "Shaymin_normal"},
     {492, 116, 4, "Shaymin_sky"},
-    /* {493, 120, 4, "Arceus"}, */
+    /* {493, 120, 4, "Arceus"}, */  //SKIP ARCEUS
 };
 
 const int kPokemonCount = sizeof(kPokemonList) / sizeof(kPokemonList[0]);
