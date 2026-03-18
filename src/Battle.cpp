@@ -1,7 +1,7 @@
 #include "BattleMoveHandler.h"
-#include "PokeMath/calculatePokeStats.h"
 #include <Battle.h>
 #include <globals.h>
+#include <PokeMath.h>
 #include <QTimer>
 #include <qglobal.h>
 #include <qobjectdefs.h>
@@ -43,7 +43,7 @@ Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildS
 
     setupParty(party);
 
-    int opponentHealth = calculateHealth(wildState.lvl,
+    int opponentHealth = PokeMath::calculateHealth(wildState.lvl,
         Globals::getPoke(wildState.pokedex_id)->base_stats[0],
         wildState.ivs[0],
         wildState.evs[0]);
@@ -60,7 +60,7 @@ Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildS
 }
 void Battle::handleSwitchedPokemon(int partyIndex, int generation, int spriteId){
     updateSprite(spriteId, generation, "player");
-    m_battleMoveHandler.get()->m_chosenPartyIndex=partyIndex;
+    m_battleMoveHandler.get()->switchPartyMember(partyIndex);
 }
 
 void Battle::executeActionSequence(QVariantList sequence) {

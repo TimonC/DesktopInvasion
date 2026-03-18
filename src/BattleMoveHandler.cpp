@@ -1,11 +1,9 @@
 #include <BattleMoveHandler.h>
-#include "PokeMath/calculatePokeStats.h"
 #include "data_move.h"
 #include <cstring>
 #include <globals.h>
 #include <qdebug.h>
-#include <PokeMath/processCatchAttempt.h>
-#include <PokeMath/calculateDamage.h>
+#include <PokeMath.h>
 #include <PokemonTypes.h>
 
 
@@ -29,13 +27,6 @@ Battler* BattleMoveHandler::createBattler(const PokemonState& state) {
     Battler* battler = new Battler();
     battler->pokeState.name = state.name;
     battler->pokeState.lvl = state.lvl;
-    battler->pokeState.stats = calculatePokeStats(
-        state.lvl,
-        poke->base_stats,
-        state.ivs,
-        state.evs,
-        PokemonTypes::getNatureMultipliers(state.nature)
-    );
     battler->pokeState.types[0] = &poke->types[0];
     battler->pokeState.types[1] = &poke->types[1];
 
@@ -43,7 +34,21 @@ Battler* BattleMoveHandler::createBattler(const PokemonState& state) {
         battler->pokeState.moves[i] = Globals::getMove(state.moves[i]);
     }
 
+    battler->pokeState.stats = PokeMath::calculatePokeStats(
+        state.lvl,
+        poke->base_stats,
+        state.ivs,
+        state.evs,
+        PokemonTypes::getNatureMultipliers(state.nature)
+    );
     return battler;
+}
+
+void BattleMoveHandler::switchPartyMember(int newChosenIndex){
+    m_battleParty[m_chosenIndex]->battleState.statModifiers= {0, 0, 0, 0, 0};
+    m_battleParty[m_chosenIndex]->battleState.confused=Ailment::Null;
+    m_battleParty[m_chosenIndex]->battleState.confusedCounter = -1;
+    m_chosenIndex=newChosenIndex;
 }
 
 void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
@@ -56,57 +61,58 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
     int opponentMoveIndex = rand()%2;
 
     const Move* opponentMove = m_battleOpponent->pokeState.moves[opponentMoveIndex];
-    const Move* playerMove = m_battleParty[m_chosenPartyIndex]->pokeState.moves[actionIndex];
+    const Move* playerMove = m_battleParty[m_chosenIndex]->pokeState.moves[actionIndex];
 
     m_battleOpponent->delta = {};
-    m_battleParty[m_chosenPartyIndex]->delta = {};
+    m_battleParty[m_chosenIndex]->delta = {};
 
     m_battleOpponent->battleState.lastMoveIndex = opponentMoveIndex;
-    m_battleParty[m_chosenPartyIndex]->battleState.lastMoveIndex = actionIndex;
+    m_battleParty[m_chosenIndex]->battleState.lastMoveIndex = actionIndex;
 
     int switchedIn = -1;
     bool playerFirst = true;
     int shakes = -1;
 
     if(action[0]=='S'){
+
        switchedIn = actionIndex;
     } else if(action[0]=='C'){
-        shakes = processCatchAttempt(m_rng, m_battleOpponent->pokeState.stats[0], m_battleOpponent->battleState.currentHealth, 50);
+        shakes = PokeMath::calculateBallShakes(m_rng, m_battleOpponent->pokeState.stats[0], m_battleOpponent->battleState.currentHealth, 50);
     }
 
     if(action[0]=='F'){
         if (playerMove->priority == opponentMove->priority){
-           playerFirst = m_battleOpponent->pokeState.stats[5] < m_battleParty[m_chosenPartyIndex]->pokeState.stats[5];
+           playerFirst = m_battleOpponent->pokeState.stats[5] < m_battleParty[m_chosenIndex]->pokeState.stats[5];
         } else {
            playerFirst = opponentMove->priority < playerMove->priority;
         }
         m_battleOpponent->delta.isFirst = !playerFirst;
-        m_battleParty[m_chosenPartyIndex]->delta.isFirst = playerFirst;
+        m_battleParty[m_chosenIndex]->delta.isFirst = playerFirst;
 
         if(playerFirst){
-            applyMove(playerMove, m_battleParty[m_chosenPartyIndex], m_battleOpponent);
+            applyMove(playerMove, m_battleParty[m_chosenIndex], m_battleOpponent);
             if(m_battleOpponent->battleState.currentHealth > 0 && !m_battleOpponent->delta.flinched) {
-                applyMove(opponentMove, m_battleOpponent, m_battleParty[m_chosenPartyIndex]);
+                applyMove(opponentMove, m_battleOpponent, m_battleParty[m_chosenIndex]);
             }
-            m_battleParty[m_chosenPartyIndex]->delta.flinched = false;
+            m_battleParty[m_chosenIndex]->delta.flinched = false;
         } else {
-            applyMove(opponentMove, m_battleOpponent, m_battleParty[m_chosenPartyIndex]);
-            if(m_battleParty[m_chosenPartyIndex]->battleState.currentHealth > 0 && !m_battleParty[m_chosenPartyIndex]->delta.flinched) {
-                applyMove(playerMove, m_battleParty[m_chosenPartyIndex], m_battleOpponent);
+            applyMove(opponentMove, m_battleOpponent, m_battleParty[m_chosenIndex]);
+            if(m_battleParty[m_chosenIndex]->battleState.currentHealth > 0 && !m_battleParty[m_chosenIndex]->delta.flinched) {
+                applyMove(playerMove, m_battleParty[m_chosenIndex], m_battleOpponent);
             }
             m_battleOpponent->delta.flinched = false;
         }
-        applyEndOfTurnEffects(m_battleParty[m_chosenPartyIndex]);
+        applyEndOfTurnEffects(m_battleParty[m_chosenIndex]);
         applyEndOfTurnEffects(m_battleOpponent);
 
     } else {
         assert(playerFirst && "Player should always go first if it isn't fighting");
-        applyMove(opponentMove, m_battleOpponent, m_battleParty[m_chosenPartyIndex]);
-        applyEndOfTurnEffects(m_battleParty[m_chosenPartyIndex]);
+        applyMove(opponentMove, m_battleOpponent, m_battleParty[m_chosenIndex]);
+        applyEndOfTurnEffects(m_battleParty[m_chosenIndex]);
         applyEndOfTurnEffects(m_battleOpponent);
     }
 
-    QVariantList sequence = generateActionSequence(*m_battleOpponent, *m_battleParty[m_chosenPartyIndex], playerFirst, switchedIn, shakes);
+    QVariantList sequence = generateActionSequence(*m_battleOpponent, *m_battleParty[m_chosenIndex], playerFirst, switchedIn, shakes);
 
     logActionSequence(sequence);
 
@@ -184,7 +190,7 @@ void BattleMoveHandler::applyMove(const Move* _move, Battler* caster, Battler* t
     }
 
     if(_move->category != MoveCategory::NonDamaging){
-        DamageParams params;
+        PokeMath::DamageParams params;
         params.lvl = caster->pokeState.lvl;
         params.power = _move->power;
 
@@ -238,7 +244,7 @@ void BattleMoveHandler::applyMove(const Move* _move, Battler* caster, Battler* t
             params.type2 = 100;
         }
 
-        int damage = calculateDamage(params, m_rng);
+        int damage = PokeMath::calculateDamage(params, m_rng);
         caster->delta.damage = damage;
 
         target->battleState.currentHealth = std::max(0, target->battleState.currentHealth - damage);

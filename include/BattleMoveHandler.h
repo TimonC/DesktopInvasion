@@ -40,16 +40,18 @@ struct BattleStateDelta{
 struct PokeState{
     std::string name;
     int lvl;
-    std::array<int, 6> stats;
+    int xpForWinner;
     const Type* types[2];
     const Move* moves[4];
-    int xpForWinner = 100;
+    std::array<int, 6> stats;
 };
 
 struct BattleState{
-    int currentHealth = 100;
+    int currentHealth = -1;
     Ailment statusCondition = Ailment::Null;
     Ailment confused = Ailment::Null;
+    int statusConditionCounter = -1;
+    int confusedCounter = -1;
     std::array<int, 5> statModifiers = {0, 0, 0, 0, 0};
     int lastMoveIndex = -1;
 };
@@ -65,7 +67,8 @@ class BattleMoveHandler : public QObject{
 public:
     BattleMoveHandler(const PokemonState& wildState, const std::array<PokemonState, 6>& partyStates);
     ~BattleMoveHandler();
-    int m_chosenPartyIndex = 0;
+    void switchPartyMember(int newChosenIndex);
+
 
 signals:
     void actionSequenceReady(QVariantList sequence);
@@ -74,6 +77,7 @@ public slots:
     void startActionRound(int playerMoveIndex, QString action);
 
 private:
+    int m_chosenIndex = 0;
     Battler* createBattler(const PokemonState& state);
     void applyMove(const Move* _move, Battler* caster, Battler* target);
     void applySecondaryEffects(const Move* _move, Battler* target);

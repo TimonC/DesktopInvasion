@@ -1,14 +1,14 @@
-#include "Game.h"
-#include "PokemonTypes.h"
-#include "SystemTrayIcon.h"
-#include "WildPokemon.h"
-#include "gamestate.h"
-#include "globals.h"
+#include <Game.h>
+#include <PokemonTypes.h>
+#include <SystemTrayIcon.h>
+#include <WildPokemon.h>
+#include <gamestate.h>
+#include <globals.h>
+#include <PokeMath.h>
 #include <QTimer>
 #include <QDebug>
 #include <cstring>
 #include <form_mapper.h>
-#include <PokeMath/calculatePokeStats.h>
 #include "BattleMoveHandler.h"
 
 Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
@@ -224,7 +224,7 @@ Party Game::getParty() {
         party.lvls[i] = pokemon.lvl;
         party.gens[i] = info->generation;
         party.ballIds[i] = pokemon.pokeball_id;
-        party.healthTotals[i] = calculateHealth(pokemon.lvl, Globals::getPoke(info->pokedexId)->base_stats[0], pokemon.ivs[0], pokemon.evs[0]);
+        party.healthTotals[i] = PokeMath::calculateHealth(pokemon.lvl, Globals::getPoke(info->pokedexId)->base_stats[0], pokemon.ivs[0], pokemon.evs[0]);
 
         for (int moveSlot = 0; moveSlot<4; moveSlot++){
            int moveId = pokemon.moves[moveSlot];
