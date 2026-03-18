@@ -14,7 +14,6 @@ void Player::_iChooseYou(Pokemon* opp, Pokemon* chosen){
     auto battle = std::make_unique<Battlescene>(opp, chosen);
     battle->updateTextbar("It's a battle...!");
 
-
     chosen->show();
     battle->show();
 

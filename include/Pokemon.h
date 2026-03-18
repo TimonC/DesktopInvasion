@@ -16,6 +16,7 @@ public:
     virtual void startRoaming(){};
     void useMove();
     void attacked();
+    QQuickItem* m_sprite;
 
 public slots:
     virtual QPoint movePos(QPoint delta, bool boundsCheck=true);
@@ -23,7 +24,6 @@ public slots:
 protected:
     QString getRandomSpriteSheet();
     void setSize(int size);
-    QQuickItem* m_sprite;
     int m_currentDirection;
 
     int m_minX = 1e5;
