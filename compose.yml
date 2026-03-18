@@ -12,7 +12,6 @@ services:
       - ./src:/app/src
       - ./include:/app/include
       - ./sprites:/app/sprites
-      - ./assets:/app/assets
       - /dev/dri:/dev/dri
     stdin_open: true
     tty: true
