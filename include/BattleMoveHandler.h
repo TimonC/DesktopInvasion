@@ -160,19 +160,19 @@ private:
     std::mt19937 &m_rng;
     std::uniform_int_distribution<int> m_moveChoiceDist;
 
-    int ms_moveUsedText = 800;
-    int ms_ailmentText = 800;
-    int ms_statusConditionText = 800;
-    int ms_attackAnimation = 800;
-    int ms_healthChange = 1000;
-    int ms_takeDamage = 400;
-    int ms_criticalHitText = 800;
-    int ms_effectivenessText = 800;
-    int ms_drainEffectText = 800;
-    int ms_catchStart = 1000;
-    int ms_ballUsed = 400;
-    int ms_failCatch = 800;
-    int ms_successCatch = 800;
+    static constexpr int ms_moveUsedText = 800;
+    static constexpr int ms_ailmentText = 800;
+    static constexpr int ms_statusConditionText = 800;
+    static constexpr int ms_attackAnimation = 800;
+    static constexpr int ms_healthChange = 1000;
+    static constexpr int ms_takeDamage = 400;
+    static constexpr int ms_criticalHitText = 800;
+    static constexpr int ms_effectivenessText = 800;
+    static constexpr int ms_drainEffectText = 800;
+    static constexpr int ms_catchStart = 1000;
+    static constexpr int ms_ballUsed = 400;
+    static constexpr int ms_failCatch = 800;
+    static constexpr int ms_successCatch = 800;
 };
 
 #endif

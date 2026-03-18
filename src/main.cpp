@@ -16,6 +16,7 @@
 int main(int argc, char *argv[]) {
     const char* valgrindMode = std::getenv("VALGRIND_MODE");
     bool isValgrindMode = (valgrindMode && strcmp(valgrindMode, "1") == 0);
+
     const char* env =  getenv("DOCKER_ENV");
     bool isDev = (env && strcmp(env, "dev") == 0);
 

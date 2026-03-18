@@ -175,7 +175,7 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
 
     } else if(actionChar == 'C'){
         shakes = PokeMath::calculateBallShakes(m_rng, m_battleOpponent->pokeState.stats[0], m_battleOpponent->battleState.currentHealth, m_battleOpponent->pokeState.catchRate);
-        s.append(createTextAction("Player used one Poké Ball!", ms_ballUsed));
+        s.append(createTextAction(QStringLiteral("Player used one Poké Ball!"), ms_ballUsed));
         s.append(createCatchAction(shakes, ms_catchStart));
     }
 
@@ -301,14 +301,14 @@ BattleActionResult BattleMoveHandler::canBattlerMove(Battler* caster) {
 
     if (caster->battleState.statusCondition == Ailment::Sleep) {
         result.addEffect(BattleActionResult::TEXT, caster, nullptr, 0, Ailment::Null, -1, 0,
-                        caster->pokeState.name + " is fast asleep!");
+                        (caster->pokeState.name + " is fast asleep!").c_str());
         result.moveExecuted = false;
         return result;
     }
 
     if (caster->battleState.statusCondition == Ailment::Freeze) {
         result.addEffect(BattleActionResult::TEXT, caster, nullptr, 0, Ailment::Null, -1, 0,
-                        caster->pokeState.name + " is frozen solid!");
+                        (caster->pokeState.name + " is frozen solid!").c_str());
         result.moveExecuted = false;
         return result;
     }
@@ -316,7 +316,7 @@ BattleActionResult BattleMoveHandler::canBattlerMove(Battler* caster) {
     if (caster->battleState.statusCondition == Ailment::Paralysis) {
         if (!PokeMath::calculateParalysisHit(m_rng)) {
             result.addEffect(BattleActionResult::TEXT, caster, nullptr, 0, Ailment::Null, -1, 0,
-                            caster->pokeState.name + " is paralyzed! It can't move!");
+                            (caster->pokeState.name + " is paralyzed! It can't move!").c_str());
             result.moveExecuted = false;
             return result;
         }
@@ -324,7 +324,7 @@ BattleActionResult BattleMoveHandler::canBattlerMove(Battler* caster) {
 
     if (caster->battleState.confused == Ailment::Confusion) {
         result.addEffect(BattleActionResult::TEXT, caster, nullptr, 0, Ailment::Null, -1, 0,
-                        caster->pokeState.name + " is confused!");
+                        (caster->pokeState.name + " is confused!").c_str());
 
         if (PokeMath::calculateConfusionHit(m_rng)) {
             PokeMath::DamageParams confP;
@@ -363,7 +363,7 @@ BattleActionResult BattleMoveHandler::applyEndOfTurnEffects(Battler* battler) {
             int burnDamage = PokeMath::calculateBurnDamage(battler->pokeState.stats[0]);
             result.addEffect(BattleActionResult::CHANGE_HEALTH, nullptr, battler, burnDamage);
             result.addEffect(BattleActionResult::TEXT, battler, nullptr, 0, Ailment::Null, -1, 0,
-                            battler->pokeState.name + " is hurt by its burn!");
+                            (battler->pokeState.name + " is hurt by its burn!").c_str());
             break;
         }
         case Ailment::Poison:
@@ -375,7 +375,7 @@ BattleActionResult BattleMoveHandler::applyEndOfTurnEffects(Battler* battler) {
             std::string ailment = (battler->battleState.statusCondition == Ailment::Toxic) ?
                                  "bad poison" : "poison";
             result.addEffect(BattleActionResult::TEXT, battler, nullptr, 0, Ailment::Null, -1, 0,
-                            battler->pokeState.name + " is hurt by its " + ailment + "!");
+                            (battler->pokeState.name + " is hurt by its " + ailment + "!").c_str());
             break;
         }
         default:
@@ -399,7 +399,7 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
     std::string moveName = _move->name;
     moveName.erase(std::remove(moveName.begin(), moveName.end(), '-'), moveName.end());
     result.addEffect(BattleActionResult::TEXT, caster, nullptr, 0, Ailment::Null, -1, 0,
-                    caster->pokeState.name + " used " + moveName + "!");
+                    (caster->pokeState.name + " used " + moveName + "!").c_str());
 
     int accModifier = caster->battleState.statModifiers[5] + target->battleState.statModifiers[6];
     accModifier = std::min(std::max(accModifier,-6),6);
@@ -511,7 +511,7 @@ BattleActionResult BattleMoveHandler::applySecondaryEffects(const Move* _move, B
     if (ailmentApplied && _move->ailment != Ailment::Null) {
         if(_move->ailment == Ailment::Confusion){
             if(target->battleState.confused == Ailment::Confusion) {
-                result.addEffect(BattleActionResult::TEXT, nullptr, target, 0, Ailment::Null, -1, 0, "But it failed!");
+                result.addEffect(BattleActionResult::TEXT, nullptr, target, 0, Ailment::Null, -1, 0, QStringLiteral("But it failed!").toStdString());
             } else {
                 result.addEffect(BattleActionResult::CONFUSION_ADDED, nullptr, target);
                 target->battleState.confused = Ailment::Confusion;
@@ -521,7 +521,7 @@ BattleActionResult BattleMoveHandler::applySecondaryEffects(const Move* _move, B
         } else {
             if(target->battleState.statusCondition != Ailment::Null) {
                 if(_move->category == MoveCategory::NonDamaging) {
-                    result.addEffect(BattleActionResult::TEXT, nullptr, target, 0, Ailment::Null, -1, 0, "But it failed!");
+                    result.addEffect(BattleActionResult::TEXT, nullptr, target, 0, Ailment::Null, -1, 0, QStringLiteral("But it failed!").toStdString());
                 }
             } else {
                 result.addEffect(BattleActionResult::STATUS_APPLIED, nullptr, target, 0, _move->ailment);
@@ -555,10 +555,10 @@ BattleActionResult BattleMoveHandler::applySecondaryEffects(const Move* _move, B
                 if(actualChange == 0) {
                     if(_move->stat_changes[i] > 0) {
                         result.addEffect(BattleActionResult::TEXT, nullptr, &statGetter, 0, Ailment::Null, -1, 0,
-                                        statGetter.pokeState.name + "'s " + getStatName(i).toStdString() + " won't go any higher!");
+                                        (statGetter.pokeState.name + "'s " + getStatName(i).toStdString() + " won't go any higher!").c_str());
                     } else {
                         result.addEffect(BattleActionResult::TEXT, nullptr, &statGetter, 0, Ailment::Null, -1, 0,
-                                        statGetter.pokeState.name + "'s " + getStatName(i).toStdString() + " won't go any lower!");
+                                        (statGetter.pokeState.name + "'s " + getStatName(i).toStdString() + " won't go any lower!").c_str());
                     }
                 } else {
                     result.addEffect(BattleActionResult::STAT_CHANGED, nullptr, &statGetter, 0, Ailment::Null, i, actualChange);
@@ -630,10 +630,10 @@ QVariantList BattleMoveHandler::generateSequenceFromResult(const BattleActionRes
     QVariantList sequence;
 
     for (const auto& effect : result.effects) {
-        QString sourceName = effect.source ? QString::fromStdString(effect.source->pokeState.name) : "";
-        QString targetName = effect.target ? QString::fromStdString(effect.target->pokeState.name) : "";
-        QString sourceRole = effect.source ? (effect.source == m_battleOpponent ? "opponent" : "player") : "";
-        QString targetRole = effect.target ? (effect.target == m_battleOpponent ? "opponent" : "player") : "";
+        QString sourceName = effect.source ? QString::fromStdString(effect.source->pokeState.name) : QString();
+        QString targetName = effect.target ? QString::fromStdString(effect.target->pokeState.name) : QString();
+        QString sourceRole = effect.source ? (effect.source == m_battleOpponent ? QStringLiteral("opponent") : QStringLiteral("player")) : QString();
+        QString targetRole = effect.target ? (effect.target == m_battleOpponent ? QStringLiteral("opponent") : QStringLiteral("player")) : QString();
 
         switch(effect.type) {
             case BattleActionResult::TEXT:
@@ -660,40 +660,40 @@ QVariantList BattleMoveHandler::generateSequenceFromResult(const BattleActionRes
 
             case BattleActionResult::DRAIN:
                 if (!sourceRole.isEmpty() && effect.amount > 0) {
-                    sequence.append(createTextAction(sourceName + " drained health!", ms_drainEffectText));
+                    sequence.append(createTextAction(sourceName + QStringLiteral(" drained health!"), ms_drainEffectText));
                     sequence.append(createChangeHealthAction(sourceRole, effect.amount, ms_healthChange));
                 }
                 break;
 
             case BattleActionResult::CRITICAL:
-                sequence.append(createTextAction("A critical hit!", ms_criticalHitText));
+                sequence.append(createTextAction(QStringLiteral("A critical hit!"), ms_criticalHitText));
                 break;
 
             case BattleActionResult::SUPER_EFFECTIVE:
-                sequence.append(createTextAction("It's super effective!", ms_effectivenessText));
+                sequence.append(createTextAction(QStringLiteral("It's super effective!"), ms_effectivenessText));
                 break;
 
             case BattleActionResult::NOT_VERY_EFFECTIVE:
-                sequence.append(createTextAction("It's not very effective...", ms_effectivenessText));
+                sequence.append(createTextAction(QStringLiteral("It's not very effective..."), ms_effectivenessText));
                 break;
 
             case BattleActionResult::NO_EFFECT:
-                sequence.append(createTextAction("It doesn't affect " + targetName + "...", ms_effectivenessText));
+                sequence.append(createTextAction(QStringLiteral("It doesn't affect ") + targetName + QStringLiteral("..."), ms_effectivenessText));
                 break;
 
             case BattleActionResult::MISS:
-                sequence.append(createTextAction(sourceName + "'s attack missed!", ms_statusConditionText));
+                sequence.append(createTextAction(sourceName + QStringLiteral("'s attack missed!"), ms_statusConditionText));
                 break;
 
             case BattleActionResult::FLINCH:
-                sequence.append(createTextAction(targetName + " flinched!", ms_statusConditionText));
+                sequence.append(createTextAction(targetName + QStringLiteral(" flinched!"), ms_statusConditionText));
                 break;
 
             case BattleActionResult::STATUS_APPLIED:
                 if (effect.target) {
                     sequence.append(createStatusCondition(targetRole, effect.ailment, false));
                     QString ailmentText = ailmentToApplicationText(effect.ailment);
-                    sequence.append(createTextAction(targetName + " " + ailmentText, ms_statusConditionText));
+                    sequence.append(createTextAction(targetName + QStringLiteral(" ") + ailmentText, ms_statusConditionText));
                 }
                 break;
 
@@ -706,22 +706,22 @@ QVariantList BattleMoveHandler::generateSequenceFromResult(const BattleActionRes
                 break;
 
             case BattleActionResult::CONFUSION_ADDED:
-                sequence.append(createTextAction(targetName + " became confused!", ms_statusConditionText));
+                sequence.append(createTextAction(targetName + QStringLiteral(" became confused!"), ms_statusConditionText));
                 break;
 
             case BattleActionResult::CONFUSION_REMOVED:
-                sequence.append(createTextAction(targetName + " snapped out of confusion!", ms_statusConditionText));
+                sequence.append(createTextAction(targetName + QStringLiteral(" snapped out of confusion!"), ms_statusConditionText));
                 break;
 
             case BattleActionResult::CONFUSION_SELF_HIT:
                 if (effect.amount > 0) {
-                    sequence.append(createTextAction("It hurt itself in its confusion!", ms_ailmentText));
+                    sequence.append(createTextAction(QStringLiteral("It hurt itself in its confusion!"), ms_ailmentText));
                     if (!targetRole.isEmpty()) {
                         sequence.append(createChangeHealthAction(targetRole, -effect.amount, ms_healthChange));
                     }
                 } else {
-                    sequence.append(createTextAction("It hurt itself in its confusion!", ms_ailmentText));
-                    sequence.append(createTextAction("But it had no effect!", ms_statusConditionText));
+                    sequence.append(createTextAction(QStringLiteral("It hurt itself in its confusion!"), ms_ailmentText));
+                    sequence.append(createTextAction(QStringLiteral("But it had no effect!"), ms_statusConditionText));
                 }
                 break;
 
@@ -729,13 +729,13 @@ QVariantList BattleMoveHandler::generateSequenceFromResult(const BattleActionRes
                 if (effect.statIndex >= 0 && effect.statIndex < 7) {
                     QString statName = getStatName(effect.statIndex);
                     if(effect.statChange == 1) {
-                        sequence.append(createTextAction(targetName + "'s " + statName + " rose!", ms_statusConditionText));
+                        sequence.append(createTextAction(targetName + QStringLiteral("'s ") + statName + QStringLiteral(" rose!"), ms_statusConditionText));
                     } else if(effect.statChange >= 2) {
-                        sequence.append(createTextAction(targetName + "'s " + statName + " rose sharply!", ms_statusConditionText));
+                        sequence.append(createTextAction(targetName + QStringLiteral("'s ") + statName + QStringLiteral(" rose sharply!"), ms_statusConditionText));
                     } else if(effect.statChange == -1) {
-                        sequence.append(createTextAction(targetName + "'s " + statName + " fell!", ms_statusConditionText));
+                        sequence.append(createTextAction(targetName + QStringLiteral("'s ") + statName + QStringLiteral(" fell!"), ms_statusConditionText));
                     } else if(effect.statChange <= -2) {
-                        sequence.append(createTextAction(targetName + "'s " + statName + " harshly fell!", ms_statusConditionText));
+                        sequence.append(createTextAction(targetName + QStringLiteral("'s ") + statName + QStringLiteral(" harshly fell!"), ms_statusConditionText));
                     }
                 }
                 break;
@@ -753,116 +753,122 @@ QVariantList BattleMoveHandler::generateActionSequence(Battler& opponent, Battle
 
 QString BattleMoveHandler::ailmentToApplicationText(Ailment ailment){
     switch(ailment) {
-        case Ailment::Burn: return "was burned!";
-        case Ailment::Freeze: return "was frozen solid!";
-        case Ailment::Paralysis: return "is paralyzed!";
-        case Ailment::Poison: return "was poisoned!";
-        case Ailment::Toxic: return "was badly poisoned!";
-        case Ailment::Sleep: return "fell asleep!";
-        case Ailment::Confusion: return "became confused!";
-        default: return "";
+        case Ailment::Burn: return QStringLiteral("was burned!");
+        case Ailment::Freeze: return QStringLiteral("was frozen solid!");
+        case Ailment::Paralysis: return QStringLiteral("is paralyzed!");
+        case Ailment::Poison: return QStringLiteral("was poisoned!");
+        case Ailment::Toxic: return QStringLiteral("was badly poisoned!");
+        case Ailment::Sleep: return QStringLiteral("fell asleep!");
+        case Ailment::Confusion: return QStringLiteral("became confused!");
+        default: return QString();
     }
 };
 
 QString BattleMoveHandler::ailmentToRemovalText(Ailment ailment, const QString& pokemonName){
     switch(ailment) {
-        case Ailment::Burn: return pokemonName + " is no longer burned!";
-        case Ailment::Freeze: return pokemonName + " thawed out!";
-        case Ailment::Paralysis: return pokemonName + " is no longer paralyzed!";
-        case Ailment::Poison: return pokemonName + " is no longer poisoned!";
-        case Ailment::Toxic: return pokemonName + " is no longer poisoned!";
-        case Ailment::Sleep: return pokemonName + " woke up!";
-        default: return "";
+        case Ailment::Burn: return pokemonName + QStringLiteral(" is no longer burned!");
+        case Ailment::Freeze: return pokemonName + QStringLiteral(" thawed out!");
+        case Ailment::Paralysis: return pokemonName + QStringLiteral(" is no longer paralyzed!");
+        case Ailment::Poison: return pokemonName + QStringLiteral(" is no longer poisoned!");
+        case Ailment::Toxic: return pokemonName + QStringLiteral(" is no longer poisoned!");
+        case Ailment::Sleep: return pokemonName + QStringLiteral(" woke up!");
+        default: return QString();
     }
 };
 
 QString BattleMoveHandler::ailmentToHurtText(Ailment ailment){
     switch(ailment) {
-        case Ailment::Burn: return "burn";
-        case Ailment::Poison: return "poison";
-        case Ailment::Toxic: return "poison";
-        default: return "";
+        case Ailment::Burn: return QStringLiteral("burn");
+        case Ailment::Poison: return QStringLiteral("poison");
+        case Ailment::Toxic: return QStringLiteral("poison");
+        default: return QString();
     }
 };
 
 QString BattleMoveHandler::getStatName(int statIndex) {
     static const QString statNames[7] = {
-        "attack", "defense", "special attack", "special defense", "speed", "accuracy", "evasion"
+        QStringLiteral("attack"),
+        QStringLiteral("defense"),
+        QStringLiteral("special attack"),
+        QStringLiteral("special defense"),
+        QStringLiteral("speed"),
+        QStringLiteral("accuracy"),
+        QStringLiteral("evasion")
     };
-    return (statIndex >= 0 && statIndex < 7) ? statNames[statIndex] : "Stat";
+    return (statIndex >= 0 && statIndex < 7) ? statNames[statIndex] : QStringLiteral("Stat");
 }
 
 const QString BattleMoveHandler::ailmentToLabel(Ailment ailment){
     switch(ailment){
-        case Ailment::Burn: return "BRN";
-        case Ailment::Freeze: return "FRZ";
-        case Ailment::Paralysis: return "PAR";
-        case Ailment::Sleep: return "SLP";
-        case Ailment::Poison: return "PSN";
-        case Ailment::Toxic: return "PSN";
-        case Ailment::Null: return "";
-        default: return "";
+        case Ailment::Burn: return QStringLiteral("BRN");
+        case Ailment::Freeze: return QStringLiteral("FRZ");
+        case Ailment::Paralysis: return QStringLiteral("PAR");
+        case Ailment::Sleep: return QStringLiteral("SLP");
+        case Ailment::Poison: return QStringLiteral("PSN");
+        case Ailment::Toxic: return QStringLiteral("PSN");
+        case Ailment::Null: return QString();
+        default: return QString();
     }
 }
 QVariantMap BattleMoveHandler::createStatusCondition(const QString& role, Ailment ailment, bool remove){
     QVariantMap action;
-    action["type"] = "status-condition";
-    action["role"] = role;
-    action["remove"] = remove;
-    action["label"] = ailmentToLabel(ailment);
+    action[QStringLiteral("type")] = QStringLiteral("status-condition");
+    action[QStringLiteral("role")] = role;
+    action[QStringLiteral("remove")] = remove;
+    action[QStringLiteral("label")] = ailmentToLabel(ailment);
     return action;
 };
 
 QVariantMap BattleMoveHandler::createEndAction() {
     QVariantMap action;
-    action["type"] = "end";
+    action[QStringLiteral("type")] = QStringLiteral("end");
     return action;
 }
 
 QVariantMap BattleMoveHandler::createTextAction(const QString& message, int delay) {
     QVariantMap action;
-    action["type"] = "text";
-    action["message"] = message;
-    action["delay"] = delay;
+    action[QStringLiteral("type")] = QStringLiteral("text");
+    action[QStringLiteral("message")] = message;
+    action[QStringLiteral("delay")] = delay;
     return action;
 }
 
 QVariantMap BattleMoveHandler::createAttackAction(const QString& role, int delay) {
     QVariantMap action;
-    action["type"] = "attack";
-    action["role"] = role;
-    action["delay"] = delay;
+    action[QStringLiteral("type")] = QStringLiteral("attack");
+    action[QStringLiteral("role")] = role;
+    action[QStringLiteral("delay")] = delay;
     return action;
 }
 
 QVariantMap BattleMoveHandler::createTakeDamageAction(const QString& role, int delay) {
     QVariantMap action;
-    action["type"] = "take-damage";
-    action["role"] = role;
-    action["delay"] = delay;
+    action[QStringLiteral("type")] = QStringLiteral("take-damage");
+    action[QStringLiteral("role")] = role;
+    action[QStringLiteral("delay")] = delay;
     return action;
 }
 
 QVariantMap BattleMoveHandler::createChangeHealthAction(const QString& role, int amount, int delay) {
     QVariantMap action;
-    action["type"] = "change-health";
-    action["role"] = role;
-    action["amount"] = amount;
-    action["delay"] = delay;
+    action[QStringLiteral("type")] = QStringLiteral("change-health");
+    action[QStringLiteral("role")] = role;
+    action[QStringLiteral("amount")] = amount;
+    action[QStringLiteral("delay")] = delay;
     return action;
 }
 QVariantMap BattleMoveHandler::createCatchAction(int shakes, int delay) {
     QVariantMap action;
-    action["type"] = "attempt-catch";
-    action["shakes"] = shakes;
-    action["delay"] = delay;
+    action[QStringLiteral("type")] = QStringLiteral("attempt-catch");
+    action[QStringLiteral("shakes")] = shakes;
+    action[QStringLiteral("delay")] = delay;
 
     if (shakes == 0) {
-        action["message"] = "Oh no! The Pokémon broke free!";
+        action[QStringLiteral("message")] = QStringLiteral("Oh no! The Pokémon broke free!");
     } else if (shakes < 4) {
-        action["message"] = "Aww! It appeared to be caught!";
+        action[QStringLiteral("message")] = QStringLiteral("Aww! It appeared to be caught!");
     } else {
-        action["message"] = "Gotcha! " + QString::fromStdString(m_battleOpponent->pokeState.name) + " was caught!";
+        action[QStringLiteral("message")] = QStringLiteral("Gotcha! ") + QString::fromStdString(m_battleOpponent->pokeState.name) + QStringLiteral(" was caught!");
     }
 
     return action;
