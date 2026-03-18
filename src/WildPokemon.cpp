@@ -73,29 +73,30 @@ void WildPokemon::handleDoubleClick(){
 }
 
 void WildPokemon::startBattle(){
+    m_moveTimer->disconnect();
+    m_decisionTimer->disconnect();
     m_hitbox->showButton(false);
     m_hitbox->hide();
 
     switch(m_currentDirection){
         case 0:
-            if(y()<50) m_currentDirection=2;
+            if(y() < 32) direction(2);
             break;
         case 1:
-            if(x()<50) m_currentDirection=3;
+            if(x() < 32) direction(3);
             break;
         case 2:
-            if(y() + height() > screenSize().y() - 50) m_currentDirection = 0;
+            if(y()  > screenSize().height() - 32) direction(0);
             break;
         case 3:
-            if(x() + width() > screenSize().x() - 50) m_currentDirection = 1;
+            if(x()  > screenSize().width() - 32) direction(1);
+            break;
+        default:
             break;
     }
 
-    direction(m_currentDirection);
-    getPlayer().iChooseYou(this);
 
-    m_moveTimer->disconnect();
-    m_decisionTimer->disconnect();
+    getPlayer().iChooseYou(this);
 }
 
 

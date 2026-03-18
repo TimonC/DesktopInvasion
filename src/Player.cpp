@@ -17,7 +17,7 @@ void Player::_iChooseYou(Pokemon* opp, Pokemon* chosen){
     opp->raise();
     chosen->show();
     battle->show();
-
+    battle->raise();
     m_activeBattles.push_back(std::move(battle));
 
     qDebug() << "I choose you!";
