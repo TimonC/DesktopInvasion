@@ -1,5 +1,4 @@
 import QtQuick 2.15
-import QtQuick.Layouts 1.15
 import "../Style/PokeColor.js" as PokeColor
 
 Item {
@@ -101,14 +100,15 @@ Item {
                     Repeater {
                         model: pokeData ? [pokeData.type1, pokeData.type2].filter(t => t && t !== "None") : []
                         Rectangle {
-                            width: typeWidth
+                            width: typeWidth*1.5
                             height: fontSizeMd + 6
                             radius: 4
                             color: PokeColor.typeColor(modelData)
                             Text {
                                 id: lbl; anchors.centerIn: parent
                                 text: PokeColor.typeColor(modelData)=="transparent" ? "" : modelData
-                                font.family: bodyFont; font.pixelSize: fontSizeSm
+                                font.family: mainFont
+                                font.pixelSize: fontSizeSm
                                 color: "#ffffff"
                             }
                         }
@@ -198,27 +198,32 @@ Item {
                         Row {
                             spacing: 8
                             Rectangle {
-                                width: typeWidth
+                                width: typeWidth*1.5
                                 height: fontSizeMd + 4
                                 radius: 3
-                                color: PokeColor.typeColor(modelData.type) ?? "#888"
+                                color: PokeColor.typeColor(modelData.type)
                                 anchors.verticalCenter: parent.verticalCenter
                                 Text {
-                                    id: pill; anchors.centerIn: parent
+                                    id: pill
+                                    anchors.centerIn: parent
                                     text: modelData.type
-                                    font.family: bodyFont; font.pixelSize: fontSizeSm
+                                    font.family: mainFont
+                                    font.pixelSize: fontSizeSm
                                     color: "#ffffff"
                                 }
                             }Text {
                                 width: typeWidth*1.8
                                 text: modelData.name
-                                font.family: bodyFont; font.pixelSize: fontSizeMd
+                                font.family: bodyFont
+                                font.pixelSize: fontSizeMd
                                 color: root.textColor
                             }
                             Text {
                                 text: "Pow: " + modelData.power + "   Acc: " + modelData.accuracy
-                                font.family: bodyFont; font.pixelSize: fontSizeSm*0.9
-                                color: "#aaaaaa"; anchors.verticalCenter: parent.verticalCenter
+                                font.family: bodyFont
+                                font.pixelSize: fontSizeSm*0.9
+                                color: "#aaaaaa"
+                                anchors.verticalCenter: parent.verticalCenter
                             }
 
                         }
@@ -226,7 +231,7 @@ Item {
                             height: fontSizeSm*3
                             width: parent.width
                             text:  modelData.flavor
-                            font.family: bodyFont;
+                            font.family: bodyFont
                             font.pixelSize: fontSizeSm
                             color: "#888888";
                             wrapMode: Text.WordWrap
