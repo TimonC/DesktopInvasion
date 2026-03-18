@@ -30,22 +30,6 @@ Item {
     layer.enabled: true
     z: 1
 signal battleSceneLoaded(var battleSceneItem)
-    // MouseArea {
-    //     id: mouseArea
-    //     anchors.fill: parent
-    //     enabled: true
-    //     hoverEnabled: true
-    // }
-
-    // RoundButton {
-    //     id: battleButton
-    //     text: "BATTLE"
-    //     anchors.top: parent.top
-    //     visible: false
-    //     enabled: false
-    //     z: 10000
-    //     onClicked: console.log("Battle clicked!")
-    // }
 
     Item {
         id: spriteContainer

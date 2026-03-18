@@ -17,8 +17,6 @@ Battle::Battle(int opp_direction, QPoint opp_pos, const PokemonInfo* opp_info, c
 
     // Load the PokemonSprite as root
     setSource(QUrl("qrc:/sprites/PokemonSprite.qml"));
-
-
     m_opp = rootObject();
     if (m_opp) {
         qDebug() << "Root object loaded successfully";
@@ -30,7 +28,6 @@ Battle::Battle(int opp_direction, QPoint opp_pos, const PokemonInfo* opp_info, c
         m_opp->setProperty("direction",m_currentDirection);
 
         // Activate the battle scene
-
     QObject::connect(m_opp, SIGNAL(battleSceneLoaded(QVariant)),
                      this, SLOT(onBattleSceneLoaded(QVariant)));
 
