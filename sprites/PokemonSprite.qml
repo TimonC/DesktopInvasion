@@ -22,7 +22,7 @@ Item {
     height: itemHeight
     clip: true
 
-    MouseArea{
+    MouseArea {
         id: mouseArea
         anchors.fill: parent
     }
@@ -32,6 +32,7 @@ Item {
         source: "qrc:/sprites/OpeningButtons.qml"
         asynchronous: true
         active: true
+        z: 9999
 
         onItemChanged: {
             item.visible = Qt.binding(() => root.openingButtons);
@@ -39,27 +40,33 @@ Item {
         }
     }
 
-    SequentialAnimation on y {
+    SequentialAnimation {
         id: jumpAnim
         running: jumping
         loops: 1
         onStopped: jumping = false
 
         PropertyAnimation {
-            to: root.y - 5 * scaleFactor;
-            duration: 150;
+            target: sprite
+            property: "y"
+            to: spriteOffsetY - 5 * scaleFactor
+            duration: 150
             easing.type: Easing.OutQuad
         }
         PropertyAnimation {
-            to: root.y;
-            duration: 150;
+            target: sprite
+            property: "y"
+            to: spriteOffsetY
+            duration: 150
             easing.type: Easing.InQuad
         }
     }
 
     AnimatedSprite {
+        id: sprite
         x: spriteOffsetX
         y: spriteOffsetY
+        z: 9997
         scale: scaleFactor
 
         source: spriteSheet
@@ -72,7 +79,7 @@ Item {
         antialiasing: false
 
         frameX: {
-            switch(animation) {
+            switch (animation) {
                 case 0: return 0;
                 case 1: return frameWidth * frameCount;
                 case 2: return frameWidth * frameCount * 2;
@@ -83,3 +90,4 @@ Item {
         frameY: row * frameHeight
     }
 }
+

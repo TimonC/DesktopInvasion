@@ -1,8 +1,8 @@
 import QtQuick.Controls 2.15
 
 RoundButton {
-    text: "\u2713" // Unicode Character 'CHECK MARK'
-    onClicked: textArea.readOnly = true
+    text: "BATTLE" // Unicode Character 'CHECK MARK'
+    z: 9999
     visible: false
     enabled: false
 }

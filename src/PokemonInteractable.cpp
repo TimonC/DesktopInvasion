@@ -51,7 +51,6 @@ PokemonInteractable::PokemonInteractable(QWindow *parent, int row)
     m_moveTimer->setInterval(50); // 20fps
     connect(m_moveTimer, &QTimer::timeout, this, &PokemonInteractable::moveStep);
 
-    m_openingTimer->setInterval(0);
     connect(m_openingTimer, &QTimer::timeout, this, &PokemonInteractable::stopOpening);
 
     m_decisionTimer->start();
