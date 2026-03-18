@@ -72,16 +72,17 @@ void Game::handleMenuClosed(){
 };
 
 void Game::setGameActive(bool active) {
-    /* static bool processing = false; */
-    /* if (processing) return; */
+    static bool processing = false;
+    if (processing) return;
 
     m_gameUsedToBeActive = active;
 
-    /* processing = true; */
+    processing = true;
 
+        // Singleshot to ensure we're in next event loop iteration
+    QTimer::singleShot(0, this, nullptr);
     if (active){
-            // Singleshot to ensure we're in next event loop iteration
-        QTimer::singleShot(0, this, &Game::spawnPokemon);
+        spawnPokemon();
     }
     else{
         updateWildPokemonPosToBattlePos();
@@ -95,10 +96,8 @@ void Game::setGameActive(bool active) {
             m_activeBattle->setSceneVisibility(false);
             safelyRemoveBattleScene();
         }
-            //Wait for deletions to complete
-        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
     }
-    /* processing = false; */
+    processing = false;
 }
 
 void Game::initializeGame() {
@@ -128,55 +127,6 @@ void Game::initializeGame() {
     }
 }
 
-void Game::createInitialPokemon() {
-    PokemonState duskull;
-    duskull.pokedex_id = 355;
-    duskull.name = "Duskull";
-
-    for (int i = 0; i < 6; i++) {
-        duskull.ivs[i] = 32;
-        duskull.evs[i] = 50;
-    }
-
-    duskull.nature = Nature::Hardy;
-    duskull.lvl = 10;
-    duskull.moves[0] = 1;
-    duskull.moves[1] = 14;
-    duskull.moves[2] = 425 ;
-    duskull.moves[3] = 424;
-
-    int pokemonId = m_db.createPokemon(duskull);
-    if (pokemonId > 0) {
-        qDebug() << "Created Duskull with database ID:" << pokemonId;
-        m_db.setPartyPokemon(0, pokemonId);
-        m_partyIds[0] = pokemonId;
-    }
-
-    PokemonState dusclops;
-    dusclops.pokedex_id = 356;
-    dusclops.name = "Dusclops";
-    dusclops.pokeball_id = 1;
-
-    for (int i = 0; i < 6; i++) {
-        dusclops.ivs[i] = 32;
-        dusclops.evs[i] = 50;
-    }
-
-    dusclops.nature = Nature::Hardy;
-    dusclops.lvl = 10;
-    dusclops.moves[0] = 1;
-    dusclops.moves[1] = 14;
-    dusclops.moves[2] = 425;
-    dusclops.moves[3] = 53;
-
-    int pokemonId2 = m_db.createPokemon(dusclops);
-    if (pokemonId2 > 0) {
-        qDebug() << "Created Dusclops with database ID:" << pokemonId2;
-        m_db.setPartyPokemon(1, pokemonId2);
-        m_partyIds[1] = pokemonId;
-    }
-
-}
 
 void Game::loadParty() {
     GameState state = m_db.loadGameState();
@@ -223,7 +173,6 @@ void Game::spawnPokemon() {
         PokemonState newWild;
         newWild.pokedex_id = m_wildPokemonInfo->pokedexId;
         newWild.name = m_wildPokemonInfo->name;
-
         newWild.lvl = 10;
 
         for (int i = 0; i < 6; i++) {
@@ -404,4 +353,54 @@ void Game::updateWildPokemonPosToBattlePos() {
                           (m_activeBattle->position() - m_activeBattle->m_origin);
         m_wildPokemon->setPosition(newOppPos);
     }
+}
+
+void Game::createInitialPokemon() {
+    PokemonState duskull;
+    duskull.pokedex_id = 355;
+    duskull.name = "Duskull";
+
+    for (int i = 0; i < 6; i++) {
+        duskull.ivs[i] = 32;
+        duskull.evs[i] = 50;
+    }
+
+    duskull.nature = Nature::Hardy;
+    duskull.lvl = 10;
+    duskull.moves[0] = 1;
+    duskull.moves[1] = 14;
+    duskull.moves[2] = 425 ;
+    duskull.moves[3] = 424;
+
+    int pokemonId = m_db.createPokemon(duskull);
+    if (pokemonId > 0) {
+        qDebug() << "Created Duskull with database ID:" << pokemonId;
+        m_db.setPartyPokemon(0, pokemonId);
+        m_partyIds[0] = pokemonId;
+    }
+
+    PokemonState dusclops;
+    dusclops.pokedex_id = 356;
+    dusclops.name = "Dusclops";
+    dusclops.pokeball_id = 1;
+
+    for (int i = 0; i < 6; i++) {
+        dusclops.ivs[i] = 32;
+        dusclops.evs[i] = 50;
+    }
+
+    dusclops.nature = Nature::Hardy;
+    dusclops.lvl = 10;
+    dusclops.moves[0] = 1;
+    dusclops.moves[1] = 14;
+    dusclops.moves[2] = 425;
+    dusclops.moves[3] = 53;
+
+    int pokemonId2 = m_db.createPokemon(dusclops);
+    if (pokemonId2 > 0) {
+        qDebug() << "Created Dusclops with database ID:" << pokemonId2;
+        m_db.setPartyPokemon(1, pokemonId2);
+        m_partyIds[1] = pokemonId;
+    }
+
 }
