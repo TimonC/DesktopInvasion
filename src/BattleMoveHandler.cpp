@@ -18,7 +18,6 @@ BattleMoveHandler::BattleMoveHandler(const PokemonState& wildState, const std::a
         m_battleParty[i] = createBattler(partyStates[i]);
     }
     m_includedPartyIndices.insert(m_chosenIndex);
-
 }
 
 BattleMoveHandler::~BattleMoveHandler() {

@@ -31,9 +31,9 @@ GameMenu::GameMenu()
 
 bool GameMenu::event(QEvent *event) {
     if (event->type() == QEvent::WindowDeactivate) {
-        /* emit menuClosed(); */
-        /* hide(); */
-        /* return true; */
+        emit menuClosed();
+        hide();
+        return true;
     }
     return QQuickView::event(event);
 }

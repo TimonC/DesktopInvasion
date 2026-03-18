@@ -29,11 +29,11 @@ Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
 
     m_spawnTimer->setInterval(m_spawnDelay_ms);
     connect(m_spawnTimer, &QTimer::timeout, this, &Game::spawnPokemon);
-    /* m_spawnTimer->start(); */
-    m_spawnTimer->stop();
+    m_spawnTimer->start();
 
+    /* m_spawnTimer->stop(); */
     /* handleMenuOpen(); */
-    m_menu->activate();
+    /* m_menu->activate(); */
 }
 
 Game::~Game() {
@@ -178,25 +178,36 @@ void Game::spawnPokemon() {
 }
 
 void Game::handleBattleStart() {
-    if (!m_wildPokemon || m_activeBattle) return;
+    if (!m_wildPokemon || m_activeBattle) {
+        qDebug() << "Early return: m_wildPokemon=" << (m_wildPokemon != nullptr)
+                 << "m_activeBattle=" << (m_activeBattle != nullptr);
+        return;
+    }
 
     m_spawnPoint = m_wildPokemon->position();
     m_spawnDirection = m_wildPokemon->m_currentDirection;
+    qDebug() << "Spawn point:" << m_spawnPoint << "Direction:" << m_spawnDirection;
 
     PokemonState wildState = m_db.getWildPokemon();
+    qDebug() << "Wild Pokemon ID:" << wildState._id << "Pokedex ID:" << wildState.pokedex_id;
+
     std::vector<PokemonState> partyVec;
     for (const auto& poke : m_party) {
-        if (poke._id>0) {
+        if (poke._id > 0) {
             partyVec.push_back(poke);
+            qDebug() << "Party member:" << QString::fromStdString(poke.name)
+                     << "ID:" << poke._id << "Level:" << poke.lvl;
         }
     }
+    qDebug() << "Total party members:" << partyVec.size();
 
     auto battleMoveHandler = std::make_unique<BattleMoveHandler>(wildState, m_party, m_rng);
 
     Party battleParty;
     for(int slot = 0; slot < 6; ++slot) {
         const PokemonState& pokemon = m_party[slot];
-        if(pokemon._id>0) continue;
+        if(pokemon._id <= 0) continue;
+        qDebug() << "Processing slot" << slot << ":" << QString::fromStdString(pokemon.name);
 
         const AssetInfo* info = Lookup::getSpriteInfo(pokemon.pokedex_id);
         battleParty.pokedexIds[slot] = pokemon.pokedex_id;
@@ -215,14 +226,15 @@ void Game::handleBattleStart() {
     }
 
     m_activeBattle = new Battle(m_spawnPoint, m_spawnDirection, wildState, battleParty, std::move(battleMoveHandler));
+
     connect(m_activeBattle, &Battle::battleEnded, this, &Game::handleBattleEnd);
     connect(m_activeBattle, &Battle::_updatePartyXP, this, &Game::updatePartyXP);
 
     QTimer::singleShot(80, this, [this]() {
+        qDebug() << "Removing wild pokemon after delay";
         safelyRemoveWildPokemon();
     });
 
-    qDebug() << "Starting battle...";
 }
 
 void Game::handleBattleEnd(const char* endState, bool removeWild) {
