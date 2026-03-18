@@ -1,92 +1,101 @@
-#ifndef POKEMONDATABASE_H
-#define POKEMONDATABASE_H
+#pragma once
+
 #include <PokeTypes.h>
 #include <string>
 #include <array>
 #include <vector>
+#include <unordered_map>
+#include <optional>
 #include <QSqlQuery>
 
-// Constants for fixed sizes
-constexpr int PARTY_SIZE = 6;
-constexpr int BOX_SIZE = 20;
-constexpr int MAX_BOXES = 50;  // Example: 50 boxes * 20 = 1000 Pokémon capacity
+constexpr int PARTY_SIZE  = 6;
+constexpr int BOX_SIZE    = 16;   // 4x4
+constexpr int MAX_BOXES   = 99;
 
 struct PokemonState {
-    int _id = -1;
-    int pokedex_id;
-    int variant_id = 0;
-    int pokeball_id = 0;
+    int  _id        = -1;
+    int  pokedex_id = 0;
+    int  variant_id = 0;
+    int  pokeball_id= 0;
     std::string name;
-    int lvl = 1;
-    int currentXP = 0;
-    Nature nature;
-    int moves[4] = {-1, -1, -1, -1};
+    int  lvl        = 1;
+    int  currentXP  = 0;
+    Nature nature   = Nature::Hardy;
+    int  moves[4]   = {0,0,0,0};
+    bool hasExpShare= false;
 
-    // EXP Share flag
-    bool hasExpShare = false;
-
-    // Location tracking
-    enum Location {
-        WILD = -1,
-        PARTY = 0,
-        BOX = 1
-    };
-    Location location = BOX;
-    int box_number = 0;      // 0 for party, 1+ for boxes
-    int slot_index = 0;      // 0-5 for party, 0-19 for box
+    bool empty() const { return pokedex_id == 0; }
 };
 
 struct GameState {
-    int _id = 1;
-    int player_sprite_id = 0;
-    std::string name = "Player";
-    int current_box = 0;     // Which box is currently being viewed
-    int unlocked_boxes = 10; // How many boxes are available
+    int  save_id         = 1;
+    int  player_sprite_id= 0;
+    std::string name     = "Player";
+    int  current_box     = 0;
+    int  unlocked_boxes  = 10;
+};
+
+// Pending change for deferred menu writes
+struct PendingSlotChange {
+    enum Kind { PartySet, PartySwap, PCSet, PCSwap, PCToParty, PartyToPC };
+    Kind kind;
+    int  a_box=-1, a_slot=-1;
+    int  b_box=-1, b_slot=-1;
+    std::optional<PokemonState> data; // for Set operations
 };
 
 class PokemonDatabase {
 public:
     static PokemonDatabase& instance();
 
-    // Core database operations
-    bool initialize(const std::string& dbPath = "");
+    bool initialize(const std::string& dbPath = "", int save_id = 1);
     void shutdown();
 
-    // Pokémon operations
-    PokemonState getPokemon(int id);
-    int createPokemon(const PokemonState& pokemon);
-    bool updatePokemon(const PokemonState& pokemon);
-    bool deletePokemon(int id);
+    // --- Wild (always cached) ---
+    const PokemonState&                     wild()                     const { return m_wild; }
+    void                                    setWild(const PokemonState& p);
+    void                                    clearWild();
 
-    // Batch operations
-    bool batchUpdatePokemon(const std::vector<PokemonState>& updates);
-    std::vector<PokemonState> getPokemonInBox(int box_number);
-    std::vector<PokemonState> getMultiplePokemon(const std::vector<int>& ids);
+    // --- Party (always cached) ---
+    const std::array<PokemonState,PARTY_SIZE>& party()                 const { return m_party; }
+    void                                    setPartySlot(int slot, const PokemonState& p);
+    void                                    clearPartySlot(int slot);
+    void                                    swapPartySlots(int a, int b);
 
-    // UI-friendly operations
-    std::array<PokemonState, PARTY_SIZE> getParty();
-    std::array<PokemonState, BOX_SIZE> getBox(int box_number);
+    // --- PC (demand-loaded, box-granular) ---
+    void                                    loadBox(int box);
+    void                                    prefetchBox(int box);       // non-blocking hint
+    bool                                    isBoxLoaded(int box)       const;
+    const std::array<PokemonState,BOX_SIZE>& getBox(int box)           const; // asserts loaded
+    void                                    setPCSlot(int box, int slot, const PokemonState& p);
+    void                                    swapPCSlots(int boxA, int slotA, int boxB, int slotB);
 
-    // Location-based operations
-    bool moveToParty(int pokemon_id, int party_slot);
-    bool moveToBox(int pokemon_id, int box_number, int box_slot);
-    bool swapPokemon(int id1, int id2);
+    // --- Catch during gameplay (immediate PC write) ---
+    // Places caught pokemon in first available box/slot. Returns {box, slot} or {-1,-1}.
+    std::pair<int,int>                      catchWildPokemon(int pokeball_id);
 
-    // Special slots
-    PokemonState getWildPokemon();
-    void spawnWildPokemon(const PokemonState& templatePokemon);
-    int catchWildPokemon(int pokeball_id);
-    bool clearWild();
+    // --- Game state ---
+    GameState                               loadGameState();
+    bool                                    saveGameState(const GameState& state);
 
-    // Game state
-    GameState loadGameState();
-    bool saveGameState(const GameState& state);
+    // --- Menu session (deferred writes) ---
+    void                                    beginMenuSession();
+    void                                    queuePartyChange(int slot, const PokemonState& p);
+    void                                    queuePartySwap(int slotA, int slotB);
+    void                                    queuePCChange(int box, int slot, const PokemonState& p);
+    void                                    queuePCSwap(int boxA, int slotA, int boxB, int slotB);
+    void                                    queuePCToParty(int box, int slot, int partySlot);
+    void                                    queuePartyToPC(int partySlot, int box, int slot);
+    void                                    commitMenuSession();
+    void                                    rollbackMenuSession();
 
-    // Convenience
-    int countPokemonInBox(int box_number);
-    int getNextAvailableSlot(int box_number);
-    bool toggleExpShare(int pokemon_id);
-    std::vector<int> getPartyExpShareIds();
+    // --- Exp share (gameplay utility) ---
+    bool                                    toggleExpShare(int partySlot);
+    std::vector<int>                        partyExpShareSlots();
+
+    // --- Multi-save ---
+    std::vector<GameState>                  listSaves();
+    bool                                    switchSave(int save_id);
 
 private:
     PokemonDatabase() = default;
@@ -95,12 +104,31 @@ private:
     PokemonDatabase& operator=(const PokemonDatabase&) = delete;
 
     void createTables();
-    void ensureWildSlotExists();
-    PokemonState queryToPokemon(const QSqlQuery& query);
-    void bindPokemonParams(QSqlQuery& query, const PokemonState& pokemon);
-    void updateLocation(int id, PokemonState::Location loc, int box_num, int slot_idx);
+    void initFixedSlots();
+    void loadWildAndParty();
 
-    bool m_initialized = false;
-    std::string m_dbPath;
+    PokemonState rowToPokemon(const QSqlQuery& q);
+    void         writePokemonToRow(QSqlQuery& q, const PokemonState& p, bool bindSlotParams);
+    void         dbWriteWild(const PokemonState& p);
+    void         dbWritePartySlot(int slot, const PokemonState& p);
+    void         dbWritePCSlot(int box, int slot, const PokemonState& p);
+    void         dbDeletePCSlot(int box, int slot);
+    std::pair<int,int> firstFreePC();
+
+    bool                                          m_initialized = false;
+    int                                           m_saveId      = 1;
+    std::string                                   m_dbPath;
+
+    // Caches
+    PokemonState                                  m_wild;
+    std::array<PokemonState, PARTY_SIZE>          m_party;
+    std::unordered_map<int,
+        std::array<PokemonState, BOX_SIZE>>       m_boxCache;
+
+    // Menu session
+    bool                                          m_inMenuSession = false;
+    std::vector<PendingSlotChange>                m_pendingChanges;
+    // Snapshot for rollback
+    PokemonState                                  m_wildSnapshot;
+    std::array<PokemonState, PARTY_SIZE>          m_partySnapshot;
 };
-#endif
