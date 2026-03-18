@@ -297,23 +297,8 @@ Rectangle {
             }
         }
 
-        replaceEnter: Transition {
-            PropertyAnimation {
-                property: "opacity"
-                from: 0
-                to: 1
-                duration: 10
-            }
-        }
-
-        replaceExit: Transition {
-            PropertyAnimation {
-                property: "opacity"
-                from: 1
-                to: 0
-                duration: 10
-            }
-        }
+        replaceEnter: null
+        replaceExit: null
     }
 
     Component {
