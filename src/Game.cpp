@@ -199,7 +199,7 @@ void Game::handleBattleEnd(const char* endState) {
             } else {
                 qWarning() << "Failed to add XP to Pokemon ID:" << m_partyIds[0];
             }
-            if(m_db.clearWild()){
+            if( m_db.clearWild()){
                 qDebug() << "Cleared wild pokemon instance";
             }else{
                 qWarning() << "Failed to clear wild pokemon";
@@ -216,7 +216,6 @@ void Game::handleBattleEnd(const char* endState) {
                 qDebug() << caughtName << "caught! Database ID:" << caughtId;
 
                 // Add to first empty party slot
-                //
                 for (int i = 0; i < 6; i++) {
                     if (m_partyIds[i] == 0) {
                         m_db.setPartyPokemon(i, caughtId);
@@ -239,6 +238,7 @@ void Game::handleBattleEnd(const char* endState) {
             m_wildPokemon->deleteLater();
             m_wildPokemon = nullptr;
         }
+        m_spawnPoint = QPoint(-1,-1);
         m_spawnTimer->start();
 
     } else {
