@@ -1,23 +1,80 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import "StyleSheet/PokeType.js" as PokeType
 
 Rectangle {
     id: root
     color: "transparent"
-    property int frameSize: 32
+
+    property int frameSize: 0
     property int buttonWidth: frameSize * 2
     property int buttonHeight: frameSize * 0.75
-    property int buttonFontSize: 0
-    property int textBarFontSize: 0
-    property int gridSpacing: frameSize * 0.1
+    property int gridSpacing: 3
     property int menuHeight: 0
     property int menuWidth: 0
-    property int pokeSpriteId: 3
+
+    property int buttonFontSize: 0
+    property int moveFontSize: 0
+    property int textBarFontSize: 0
+
+    // Font properties
+    property string menuFontFamily: ""
+    property string textBarFontFamily: ""
+
+    // Color properties - consolidated for consistent styling
+    property color menuTextColor: "black"
+    property color textBarTextColor: "black"
+
+    // Background colors
+    property color textBarBackgroundColor: "white"
+    property color textBarBorderColor: "black"
+
+    // Button colors
+    property color attackButtonColor: "red"
+    property color switchButtonColor: "green"
+    property color catchButtonColor: "yellow"
+    property color runButtonColor: "blue"
+
+    // Disabled state colors (shared between attackContent and switchContent)
+    property color disabledBorderColor: "#d0d0d0"
+    property color disabledBackgroundColor: "#e0e0e0"
+    property color disabledTextColor: "#a0a0a0"
+    property color placeholderTextColor: "#a0a0a0"
+
+    // Enabled border colors
+    property color enabledBorderColor: "#e0e0e0"
+    property color selectedBorderColor: "darkgrey"
+
+    // Health indicator colors (for switchContent)
+    property color highHealthColor: "#4CAF50"      // Green for >= 50% health
+    property color mediumHealthColor: "#FF9800"    // Orange for >= 25% health
+    property color lowHealthColor: "#FF0000"       // Red for > 0% health
+    property color faintedHealthColor: "#8B0000"   // Dark red for 0% health
+
+    // Opacity values
+    property real enabledOpacity: 0.6
+    property real disabledOpacity: 0.3
+    property real selectedIconScale: 1.1
+    property real normalIconOpacity: 1.0
+    property real faintedIconOpacity: 0.5
+
+    // Back button colors
+    property color backButtonColor: "lightblue"
+    property color forceSwitchBackButtonColor: "#b0bec5"
+
+    // Catch content colors
+    property color catchButtonBackground: "white"
+    property color catchButtonPressedBackground: "#f0f0f0"
+    property color catchButtonBorderColor: "black"
+    property color ballCountTextColor: "darkgrey"
+
     property double spriteScale: 1
-    property int pokeSpriteWidth: 16
-    property int pokeSpriteHeight: 23
-    property string spriteSheet: "qrc:/assets/HGSS/Pokeballs_transparent_reordered.png"
-    property int selectedIndex: 0 //for switch menu
+    property int ballSpriteWidth: 16
+    property int ballSpriteHeight: 23
+    property string ballSpriteSheet: "qrc:/assets/HGSS/Pokeballs_transparent_reordered.png"
+    property var nrOfBalls: [1000, 0, 0, 0]
+
+    property int selectedIndex: 0
     property bool forceSwitchMode: false
 
     signal attackChosen(int attackId)
@@ -68,16 +125,46 @@ Rectangle {
             return stack.currentItem.text
         }
     }
-
     function forceSwitch() {
         forceSwitchMode = true
         stack.replace(switchSelection)
     }
-
     function resetToRoot() {
         forceSwitchMode = false
         stack.replace(rootSelection)
     }
+
+    Component {
+        id: textBarComponent
+        Rectangle {
+            id: textBar
+            color: root.textBarBackgroundColor
+            border.color: root.textBarBorderColor
+            border.width: 2
+            property string text: ""
+            height: root.menuHeight
+            width: root.menuWidth
+            radius: 5
+            Text {
+                id: textBarText
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.rightMargin: parent.width * 0.2
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                anchors.margins: 6
+                text: textBar.text
+                font.pixelSize: root.textBarFontSize
+                font.family: root.textBarFontFamily
+                color: root.textBarTextColor
+                verticalAlignment: Text.AlignVCenter
+                wrapMode: Text.WordWrap
+                maximumLineCount: 2
+                elide: Text.ElideRight
+            }
+        }
+    }
+
     StackView {
         id: stack
         initialItem: textBarComponent
@@ -132,34 +219,7 @@ Rectangle {
             }
         }
     }
-    Component {
-        id: textBarComponent
-        Rectangle {
-            id: textBar
-            color: "white"
-            border.color: "black"
-            border.width: 2
-            property string text: ""
-            height: root.menuHeight
-            width: root.menuWidth
-            radius: 5
-            Text {
-                id: textBarText
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.rightMargin: parent.width * 0.2
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
-                anchors.margins: 6
-                text: textBar.text
-                font.pixelSize: root.textBarFontSize
-                verticalAlignment: Text.AlignVCenter
-                wrapMode: Text.WordWrap
-                maximumLineCount: 2
-                elide: Text.ElideRight
-            }
-        }
-    }
+
 
     Component {
         id: rootSelection
@@ -170,32 +230,36 @@ Rectangle {
                 spacing: root.gridSpacing
                 RoundButton {
                     text: "Attack"
-                    palette.button: "red"
+                    palette.button: root.attackButtonColor
                     font.pixelSize: root.buttonFontSize
+                    font.family: root.menuFontFamily
                     width: root.buttonWidth
                     height: root.buttonHeight
                     onClicked: stack.push(attackSelection)
                 }
                 RoundButton {
                     text: "Switch"
-                    palette.button: "green"
+                    palette.button: root.switchButtonColor
                     font.pixelSize: root.buttonFontSize
+                    font.family: root.menuFontFamily
                     width: root.buttonWidth
                     height: root.buttonHeight
                     onClicked: stack.push(switchSelection)
                 }
                 RoundButton {
                     text: "Catch"
-                    palette.button: "yellow"
+                    palette.button: root.catchButtonColor
                     font.pixelSize: root.buttonFontSize
+                    font.family: root.menuFontFamily
                     width: root.buttonWidth
                     height: root.buttonHeight
                     onClicked: stack.push(catchSelection)
                 }
                 RoundButton {
                     text: "Run"
-                    palette.button: "blue"
+                    palette.button: root.runButtonColor
                     font.pixelSize: root.buttonFontSize
+                    font.family: root.menuFontFamily
                     width: root.buttonWidth
                     height: root.buttonHeight
                     onClicked: stack.push(runSelection)
@@ -205,184 +269,344 @@ Rectangle {
     }
 
     Component {
-        id: attackSelection
-        Item {
-            Row {
-                anchors.centerIn: parent
-                spacing: root.gridSpacing
-                Grid {
-                    columns: 2
-                    spacing: root.gridSpacing
-                    Repeater {
-                        model: 4
-                        Move {
-                            buttonWidth: root.buttonWidth
-                            buttonHeight: root.buttonHeight
-                            name: party.moves[0][index].name || ""
-                            type: party.moves[0][index].type || "Null"
-                            onClicked: root.attackChosen(index)
-                        }
+        id: attackContent
+        Grid {
+            columns: 2
+            rows: 2
+            spacing: root.gridSpacing/2
+
+            property real cellWidth: (parent.width - spacing) / 2
+            property real cellHeight: (parent.height - spacing) / 2
+
+            Repeater {
+                model: 4
+                Rectangle {
+                    id: moveRect
+                    width: cellWidth
+                    height: cellHeight
+                    color: "transparent"
+                    radius: 4
+
+                    property string moveName: party.moves[0][index].name || "---"
+                    property string moveType: party.moves[0][index].type || "Null"
+                    property bool moveEnabled: moveType !== "Null"
+                    property color typeColor: moveEnabled ? PokeType.typeColor(moveType) : root.disabledBorderColor
+
+                    border.color: moveEnabled ? typeColor : root.disabledBorderColor
+                    border.width: 2
+
+                    Rectangle {
+                        anchors.fill: parent
+                        anchors.margins: 2
+                        radius: parent.radius - 2
+                        opacity: moveEnabled ? root.enabledOpacity : root.disabledOpacity
+                        color: moveEnabled ? typeColor : root.disabledBackgroundColor
                     }
-                }
-                Loader {
-                    anchors.verticalCenter: parent.verticalCenter
-                    sourceComponent: backButton
+
+                    Text {
+                        anchors.centerIn: parent
+                        width: Math.max(0, parent.width - 8)
+                        text: moveName
+                        font.pixelSize: root.moveFontSize
+                        font.weight: Font.DemiBold
+                        font.family: root.menuFontFamily
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                        wrapMode: Text.Wrap
+                        maximumLineCount: 2
+                        elide: Text.ElideRight
+                        lineHeight: 0.9
+                        color: moveEnabled ? "white" : root.disabledTextColor
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        anchors.margins: 2
+                        enabled: moveEnabled
+                        onClicked: root.attackChosen(index)
+                    }
                 }
             }
         }
     }
 
     Component {
-        id: switchSelection
-        Item {
-            id: switchRoot
-            Row {
-                anchors.centerIn: parent
-                spacing: root.gridSpacing*2
-                Grid {
-                    columns: 3
-                    rows: 2
-                    spacing:  0
-                    Repeater {
-                        model: 6
-                        Rectangle {
-                            width: root.menuWidth*0.2
-                            height: root.menuHeight*0.5
-                            visible: root.party.iconIds[index] >= 0
-                            color: "transparent"
-                            radius: 4
-                            border.color: root.selectedIndex === index ? "darkgrey" : "#e0e0e0"
-                            border.width: root.selectedIndex === index ? 0.5 : 2
-                            Rectangle {
-                                anchors.fill: parent
-                                radius: parent.radius
-                                opacity: root.selectedIndex === index ? 0.4 : 0.6
-                                color:   root.selectedIndex === index ? "grey" :
-                                         (party.healthRatios[index] >= 0.5 ? "#4CAF50" :
-                                         (party.healthRatios[index] >= 0.25 ? "#FF9800" :
-                                         (party.healthRatios[index] > 0 ? "#FF0000" : "#8B0000")))
-                            }
-                            PokemonIcon {
-                                anchors.centerIn: parent
-                                frameIndex: root.party.iconIds[index]
-                                scale: root.selectedIndex === index ? 1.1 : 1
-                            }
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: {
-                                    if(root.selectedIndex !== index && party.healthRatios[index] > 0){
-                                        root.switchChosen(root.selectedIndex, index)
-                                        root.selectedIndex = index
-                                    }
-                                }
+        id: switchContent
+        Grid {
+            columns: 3
+            rows: 2
+            spacing: root.gridSpacing
+
+            property real cellWidth: (parent.width - spacing * 2) / 3
+            property real cellHeight: (parent.height - spacing) / 2
+
+            Repeater {
+                model: 6
+                Rectangle {
+                    width: cellWidth
+                    height: cellHeight
+                    color: "transparent"
+                    radius: 4
+                    border.color: (root.party.iconIds[index] >= 0 && party.healthRatios[index] > 0)
+                                  ? (root.selectedIndex === index ? root.selectedBorderColor : root.enabledBorderColor)
+                                  : root.disabledBorderColor
+                    border.width: root.selectedIndex === index ? 0.5 : 2
+
+                    Rectangle {
+                        anchors.fill: parent
+                        anchors.margins: 2
+                        radius: parent.radius - 2
+                        opacity: root.party.iconIds[index] >= 0 ? root.enabledOpacity : root.disabledOpacity
+                        color: root.party.iconIds[index] >= 0
+                               ? (party.healthRatios[index] >= 0.5 ? root.highHealthColor :
+                                  (party.healthRatios[index] >= 0.25 ? root.mediumHealthColor :
+                                  (party.healthRatios[index] > 0 ? root.lowHealthColor : root.faintedHealthColor)))
+                               : root.disabledBackgroundColor
+                    }
+
+                    Item {
+                        anchors.centerIn: parent
+                        width: 40
+                        height: 30
+                        visible: root.party.iconIds[index] >= 0
+
+                        Image {
+                            id: iconFrame
+                            anchors.centerIn: parent
+                            source: "qrc:/assets/HGSS/PokemonIcons_filtered_reordered.png"
+                            sourceClipRect: Qt.rect(0, root.party.iconIds[index] * 30, 40, 30)
+                            property int frameIndex: root.party.iconIds[index]
+
+                            width: 40
+                            height: 30
+
+                            smooth: false
+                            antialiasing: false
+
+                            scale: root.selectedIndex === index ? root.selectedIconScale : 1
+                            opacity: party.healthRatios[index] > 0 ? root.normalIconOpacity : root.faintedIconOpacity
+                        }
+                    }
+
+                    Text {
+                        anchors.centerIn: parent
+                        visible: root.party.iconIds[index] < 0
+                        text: "---"
+                        font.pixelSize: root.buttonFontSize
+                        font.family: root.menuFontFamily
+                        color: root.placeholderTextColor
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        anchors.margins: 2
+                        enabled: !root.forceSwitchMode ||
+                                 (root.selectedIndex !== index &&
+                                  root.party.iconIds[index] >= 0 &&
+                                  party.healthRatios[index] > 0)
+                        onClicked: {
+                            if(root.selectedIndex !== index &&
+                               root.party.iconIds[index] >= 0 &&
+                               party.healthRatios[index] > 0){
+                                root.switchChosen(root.selectedIndex, index)
+                                root.selectedIndex = index
                             }
                         }
                     }
                 }
-                Loader {
-                    anchors.verticalCenter: parent.verticalCenter
-                    sourceComponent: backButton
-                }
             }
         }
     }
+
     Component {
-        id: catchSelection
-        Item {
-            RoundButton {
-                id: pokeballButton
-                anchors.centerIn: parent
-                width: root.buttonWidth * 1.6
-                height: root.buttonHeight * 0.9
-                radius: height / 2
-                background: Rectangle {
-                    radius: parent.radius
-                    color: pokeballButton.pressed ? "#f0f0f0" : "white"
-                    border.color: "black"
-                    border.width: 2
-                }
-                contentItem: Item {
-                    Image {
-                        id: pokeImage
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.verticalCenterOffset: 0.58
-                        anchors.left: parent.left
-                        source: root.spriteSheet
-                        width: root.pokeSpriteWidth * root.spriteScale
-                        height: root.pokeSpriteHeight * root.spriteScale
-                        sourceClipRect: Qt.rect(0, root.pokeSpriteHeight * root.pokeSpriteId,
-                                               root.pokeSpriteWidth, root.pokeSpriteHeight)
-                        smooth: false
-                        antialiasing: false
-                    }
-                    Text {
-                        id: ballName
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.left: pokeImage.right
-                        anchors.leftMargin: 4
-                        text: "Pokeball"
-                        font.pixelSize: root.buttonFontSize
-                    }
-                    Text {
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.left: ballName.right
-                        anchors.leftMargin: 4
-                        text: "inf"
-                        font.pixelSize: root.buttonFontSize
-                        color: "darkgrey"
-                    }
-                }
-                onClicked: root.catchChosen(3)
-            }
-            Loader {
-                anchors.right: parent.right
-                anchors.verticalCenter: parent.verticalCenter
-                sourceComponent: backButton
-            }
-        }
-    }
-    Component {
-        id: runSelection
-        Item {
-            Grid {
-                anchors.centerIn: parent
-                columns: 2
-                spacing: root.gridSpacing
+        id: catchContent
+        Grid {
+            columns: 2
+            rows: 2
+            spacing: root.gridSpacing
+
+            property real cellWidth: (parent.width - spacing) / 2
+            property real cellHeight: (parent.height - spacing) / 2
+
+            Repeater {
+                model: 4
                 RoundButton {
-                    palette.button: "blue"
-                    text: "Confirm"
-                    width: root.buttonWidth
-                    height: root.buttonHeight
-                    onClicked: root.runChosen()
-                }
-                Loader {
-                    sourceComponent: backButton
+                    width: cellWidth
+                    height: cellHeight
+                    radius: height / 2
+                    enabled: root.nrOfBalls[index] > 0
+                    opacity: root.nrOfBalls[index] > 0 ? 1.0 : 0.5
+                    background: Rectangle {
+                        radius: parent.radius
+                        color: parent.pressed ? root.catchButtonPressedBackground : root.catchButtonBackground
+                        border.color: root.catchButtonBorderColor
+                        border.width: 2
+                    }
+                    contentItem: Item {
+                        anchors.fill: parent
+                        anchors.margins: 4
+
+                        Image {
+                            id: ballIcon
+                            anchors.verticalCenter: parent.verticalCenter
+                            anchors.left: parent.left
+                            source: root.ballSpriteSheet
+                            width: root.ballSpriteWidth * root.spriteScale
+                            height: root.ballSpriteHeight * root.spriteScale
+                            sourceClipRect: Qt.rect(0, root.ballSpriteHeight * index,
+                                                   root.ballSpriteWidth, root.ballSpriteHeight)
+                            smooth: false
+                            antialiasing: false
+                            opacity: root.nrOfBalls[index] > 0 ? 1.0 : 0.3
+                        }
+                        Text {
+                            anchors.verticalCenter: parent.verticalCenter
+                            anchors.left: ballIcon.right
+                            anchors.leftMargin: 8
+                            anchors.right: countText.left
+                            anchors.rightMargin: 4
+                            text: ["Pokeball", "Great Ball", "Ultra Ball", "Master Ball"][index]
+                            font.pixelSize: root.buttonFontSize
+                            font.family: root.menuFontFamily
+                            color: root.menuTextColor
+                            elide: Text.ElideRight
+                        }
+                        Text {
+                            id: countText
+                            anchors.verticalCenter: parent.verticalCenter
+                            anchors.right: parent.right
+                            anchors.rightMargin: 8
+                            text: root.nrOfBalls[index] > 999 ? "∞" : root.nrOfBalls[index]
+                            font.pixelSize: root.buttonFontSize
+                            font.family: root.menuFontFamily
+                            color: root.ballCountTextColor
+                        }
+                    }
+                    onClicked: root.catchChosen(index)
                 }
             }
         }
     }
+
+    Component {
+        id: runContent
+        RoundButton {
+            anchors.centerIn: parent
+            palette.button: root.runButtonColor
+            text: "Confirm"
+            width: root.buttonWidth
+            height: root.buttonHeight
+            font.pixelSize: root.buttonFontSize
+            font.family: root.menuFontFamily
+            onClicked: root.runChosen()
+        }
+    }
+
     Component {
         id: backButton
         Rectangle {
             width: root.buttonHeight
             height: root.buttonHeight
             radius: 3
-
-            // Visual feedback
-            color: root.forceSwitchMode ? "#b0bec5" : "lightblue"
+            color: root.forceSwitchMode ? root.forceSwitchBackButtonColor : root.backButtonColor
             opacity: root.forceSwitchMode ? 0.5 : 1.0
-
             Text {
                 anchors.centerIn: parent
                 text: "←"
                 color: "white"
                 font.pixelSize: root.buttonFontSize
+                font.family: root.menuFontFamily
             }
-
             MouseArea {
                 anchors.fill: parent
                 enabled: !root.forceSwitchMode
                 onClicked: stack.pop()
+            }
+        }
+    }
+
+    Component {
+        id: selectionTemplate
+        Item {
+            property alias content: contentLoader.sourceComponent
+
+            anchors.fill: parent
+            anchors.margins: root.gridSpacing
+
+            Rectangle {
+                id: container
+                anchors.fill: parent
+                color: "transparent"
+
+                Row {
+                    id: mainRow
+                    anchors.fill: parent
+                    spacing: root.gridSpacing
+
+                    Item {
+                        id: contentContainer
+                        height: parent.height
+                        width: parent.width - backButtonContainer.width - parent.spacing
+
+                        Loader {
+                            id: contentLoader
+                            anchors.fill: parent
+                            anchors.margins: root.gridSpacing
+                        }
+                    }
+
+                    Item {
+                        id: backButtonContainer
+                        width: root.buttonHeight + root.gridSpacing * 2
+                        height: parent.height
+
+                        Loader {
+                            sourceComponent: backButton
+                            anchors.centerIn: parent
+                            width: root.buttonHeight
+                            height: root.buttonHeight
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Component {
+        id: attackSelection
+        Loader {
+            sourceComponent: selectionTemplate
+            onLoaded: {
+                item.content = attackContent
+            }
+        }
+    }
+    Component {
+        id: switchSelection
+        Loader {
+            sourceComponent: selectionTemplate
+            onLoaded: {
+                item.content = switchContent
+            }
+        }
+    }
+    Component {
+        id: catchSelection
+        Loader {
+            sourceComponent: selectionTemplate
+            onLoaded: {
+                item.content = catchContent
+            }
+        }
+    }
+    Component {
+        id: runSelection
+        Loader {
+            sourceComponent: selectionTemplate
+            onLoaded: {
+                item.content = runContent
             }
         }
     }

@@ -8,6 +8,7 @@ Item {
     property alias currentHealthRatio: progressBar.value
     property real animationSpeed: 1000
     property int pokeNameFontSize: 0
+    property string fontFamily: ""
     property alias pokeName: textBarText.text
 
     Rectangle {
@@ -32,6 +33,7 @@ Item {
             text: "Pokemon"
             font.bold: true
             font.pixelSize: root.pokeNameFontSize
+            font.family: root.fontFamily
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignRight
 

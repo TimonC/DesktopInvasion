@@ -238,7 +238,10 @@ Party Game::getParty() {
 
         for (int moveSlot = 0; moveSlot<4; moveSlot++){
            int moveId = pokemon.moves[moveSlot];
-           if(moveId<1) continue;
+           if(moveId<1) {
+                qDebug() << party.moves[i][moveSlot].type.c_str();
+               continue;
+            };
            const Move* _move = Globals::getMove(moveId);
            party.moves[i][moveSlot] = {_move->name, typeToString(_move->type)};
         };

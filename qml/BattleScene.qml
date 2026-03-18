@@ -7,15 +7,22 @@ Item {
     // Properties
     property int frameSize: 32
     property int menuWidth: frameSize * 6
-    property int menuHeight: 60
+    property int menuHeight: frameSize * 2
     property int statusBarWidth: frameSize*2.5
     property int statusBarHeight: 25
     property int buttonWidth: frameSize * 2
     property int buttonHeight: frameSize * 0.75
     property int gridSpacing: frameSize * 0.1
-    property int pokeNameFontSize: frameSize * 0.40
-    property int buttonFontSize: frameSize * 0.40
-    property int textBarFontSize: frameSize * 0.45
+
+    property int pokeNameFontSize: 12
+    property int buttonFontSize: 12
+    property int moveFontSize: 9
+    property int textBarFontSize: 14
+
+    property string textBarFontFamily: "Arial"
+    property string menuFontFamily: "Arial"
+    property string statusBarFontFamily: "Arial"
+
     property bool debugLines: false
     property int direction: 0
     property bool safePokemonSwitch: true
@@ -61,7 +68,7 @@ Item {
                 break
             case 1:
                 sprite.x = root.width - (sprite.containerOffsetX + sprite.width)
-                sprite.y = root.height - (sprite.height + menuHeight*1.2) //arbitrary 0.2 increase to raise the sprites
+                sprite.y = root.height - (sprite.height + menuHeight)
                 sprite.statusBar.x = root.width - root.frameSize/2 - root.statusBarWidth
                 sprite.statusBar.y = 0
                 break
@@ -73,7 +80,7 @@ Item {
                 break
             case 3:
                 sprite.x = sprite.containerOffsetX
-                sprite.y = root.height - (sprite.height + menuHeight*1.2)
+                sprite.y = root.height - (sprite.height + menuHeight)
                 sprite.statusBar.x = root.frameSize/2
                 sprite.statusBar.y = 0
                 break
@@ -106,6 +113,7 @@ Item {
     StatusBar {
         id: statusBarOpponent
         pokeNameFontSize: root.pokeNameFontSize
+        fontFamily: root.statusBarFontFamily
         width: root.statusBarWidth
         height: root.statusBarHeight
     }
@@ -121,6 +129,7 @@ Item {
     StatusBar {
         id: statusBarPlayer
         pokeNameFontSize: root.pokeNameFontSize
+        fontFamily: root.statusBarFontFamily
         width: root.statusBarWidth
         height: root.statusBarHeight
     }
@@ -187,8 +196,6 @@ Item {
     BattleMenu {
         id: battleMenu
         frameSize: root.frameSize
-        buttonFontSize: root.buttonFontSize
-        textBarFontSize: root.textBarFontSize
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
         height: root.menuHeight
@@ -198,6 +205,13 @@ Item {
         gridSpacing: root.gridSpacing
         menuHeight: root.menuHeight
         menuWidth: root.menuWidth
+
+        buttonFontSize: root.buttonFontSize
+        moveFontSize: root.moveFontSize
+        textBarFontSize: root.textBarFontSize
+        textBarFontFamily: root.textBarFontFamily
+        menuFontFamily: root.menuFontFamily
+
         onAttackChosen: function(attackId) {
             if (attackId === 0) {
                 var playerFirst = Math.random() < 0.5;
