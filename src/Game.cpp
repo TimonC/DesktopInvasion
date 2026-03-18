@@ -189,9 +189,15 @@ void Game::handlePCSwap(int placex, int posx, int placey, int posy){
 
 void Game::handleNameChange(int placex, int posx, QString name){
     m_db.renamePokemon(placex, posx, name.toStdString());
+    m_db.commitMenuSession();
+    m_menu->loadParty(partyToVariantList(), false);
+    m_db.beginMenuSession();
 }
 void Game::handleMoveChange(int placex, int posx, int moveSlot, int moveId){
     m_db.setPokemonMove(placex, posx, moveSlot, moveId);
+    m_db.commitMenuSession();
+    m_menu->loadParty(partyToVariantList(), false);
+    m_db.beginMenuSession();
 }
 
 void Game::handleMenuOpen() {
@@ -205,7 +211,7 @@ void Game::handleMenuOpen() {
     m_menu->activate();
 
     // Push party and bootstrap boxes
-    m_menu->loadParty(partyToVariantList());
+    m_menu->loadParty(partyToVariantList(), true);
     pushBoxToMenu(0);
     pushBoxToMenu(1);
     pushBoxToMenu(98);

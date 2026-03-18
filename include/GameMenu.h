@@ -1,9 +1,11 @@
-#pragma once
+#ifndef GAMEMENU_H
+#define GAMEMENU_H
 
 #include <QQuickView>
 #include <QCursor>
 #include <QVariantList>
 #include <PokemonDatabase.h>
+#include <data_move.h>
 
 class GameMenu : public QQuickView {
     Q_OBJECT
@@ -14,8 +16,7 @@ public:
     };
     void activate();
 
-    // Called by Game — emit signals that QML listens to via Connections
-    void loadParty(const QVariantList& data);
+    void loadParty(const QVariantList& data, bool displayFirst);
     void loadBox(int boxIndex, const QVariantList& data);
     void showBox(int boxIndex);
 
@@ -30,8 +31,7 @@ signals:
     void nameChangeRequested(int xplace, int xpos, QString name);
     void moveChangeRequested(int xplace, int xpos, int moveSlot, int moveId);
 
-    // Game -> QML (QML listens via Connections { target: menuBridge })
-    void partyDataReady(QVariantList data);
+    void partyDataReady(QVariantList data, bool displayFirst);
     void boxDataReady(int boxIndex, QVariantList data);
     void showBoxRequested(int boxIndex);
 
@@ -43,3 +43,5 @@ private:
     QCursor  m_pointerCursor;
     QObject* qmlRoot();
 };
+
+#endif

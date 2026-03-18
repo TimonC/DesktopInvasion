@@ -79,12 +79,12 @@ Rectangle {
     Connections {
         target: menuBridge
 
-        function onPartyDataReady(data) {
+        function onPartyDataReady(data, displayFirst) {
             pc.loadParty(data)
             var map = {}
             for (var i = 0; i < data.length; i++) map[data[i].slot] = data[i]
             partyPokes = map
-            pc._display([-1, 0])
+            if(displayFirst) pc._display([-1, 0])
         }
 
         function onBoxDataReady(boxIndex, data) {

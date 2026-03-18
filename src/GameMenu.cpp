@@ -47,6 +47,7 @@ GameMenu::GameMenu()
 
 }
 
+
 bool GameMenu::event(QEvent* event) {
     if (event->type() == QEvent::WindowDeactivate || event->type() == QEvent::Close) {
         QMetaObject::invokeMethod(m_menuRoot, "goToDefaultMenu");
@@ -89,8 +90,8 @@ void GameMenu::setDefaults(Defaults &d)
 // These are Q_INVOKABLE so QML can also call them directly if needed,
 // but primarily Game calls them and they emit signals that QML listens to.
 
-void GameMenu::loadParty(const QVariantList& data) {
-    emit partyDataReady(data);
+void GameMenu::loadParty(const QVariantList& data, bool displayFirst = true) {
+    emit partyDataReady(data, displayFirst);
 }
 
 void GameMenu::loadBox(int boxIndex, const QVariantList& data) {
