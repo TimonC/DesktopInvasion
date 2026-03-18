@@ -85,10 +85,11 @@ Item {
     function positionSpriteAndStatusBar(sprite) {
         switch(sprite.direction) {
             case 0:
-                sprite.x = Math.round((root.width - root.statusBarWidth - sprite.width)/2 + (sprite.verticalWidth/2 - sprite.hCenterUp))
+                // sprite.x = Math.round((root.width - root.statusBarWidth - sprite.width)/2 + (sprite.verticalWidth/2 - sprite.hCenterUp))
+                sprite.x = Math.round((root.statusBarWidth + root.width - sprite.width)/2 + (sprite.verticalWidth/2 - sprite.hCenterUp))
                 sprite.y = Math.round(root.height - root.menuHeight - sprite.height - root.frameSize/4)
-                sprite.statusBar.x = Math.round(root.width - root.statusBarWidth)
-                sprite.statusBar.y = Math.round(root.height - root.menuHeight - root.statusBarHeight/2 - root.frameSize*2)
+                sprite.statusBar.x = root.menuWidth/15
+                sprite.statusBar.y = Math.round(root.height - root.menuHeight - root.statusBarHeight - root.frameSize*2)
                 break
             case 1:
                 sprite.x = Math.round(root.width - root.frameSize/2 - root.statusBarWidth/2 - sprite.width/2)
@@ -97,10 +98,10 @@ Item {
                 sprite.statusBar.y = 0
                 break
             case 2:
-                sprite.x = Math.round((root.width - root.statusBarWidth - sprite.width)/2 + (sprite.verticalWidth/2 - sprite.hCenterDown))
+                sprite.x = Math.round((root.statusBarWidth + root.width - sprite.width)/2 + (sprite.verticalWidth/2 - sprite.hCenterUp))
                 sprite.y = Math.round(root.statusBarHeight/2)
-                sprite.statusBar.x = Math.round(root.width - root.statusBarWidth)
-                sprite.statusBar.y = Math.round(sprite.y)
+                sprite.statusBar.x = root.menuWidth/15
+                sprite.statusBar.y = Math.round(root.statusBarHeight/4)
                 break
             case 3:
                 sprite.x = Math.round(root.frameSize/2 + root.statusBarWidth/2 - sprite.width/2)
@@ -262,6 +263,12 @@ Item {
         textBarFontSize: root.textBarFontSize
         textBarFontFamily: root.textBarFontFamily
         menuFontFamily: root.menuFontFamily
+        mainButtonRadius: 0.5  // 50% of height for fully round buttons
+        moveButtonRadius: Math.round(frameSize * 0.125)
+        switchButtonRadius: Math.round(frameSize * 0.125)
+        ballButtonRadius: Math.round(frameSize * 0.125)
+        runButtonRadius: Math.round(frameSize * 0.75)
+        textBarRadius: Math.round(frameSize * 0.15625)
         opponentName: root.opponentName
         onActionRound: function(actionIndex, actionType) {
             root.signalToStartActionRound(actionIndex, actionType)
