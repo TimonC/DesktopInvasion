@@ -236,7 +236,7 @@ Item {
                 break;
 
             case "change-health":
-                let currentHealthRatio = step.defender.statusBar.incrementHealth(-33);
+                let currentHealthRatio = step.defender.statusBar.incrementHealth(-75);
                 sequenceTimer.interval = step.delay;
 
                 if(currentHealthRatio==0){

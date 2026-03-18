@@ -57,6 +57,6 @@ Item {
         id: healthAnimation
         target: progressBar
         property: "value"
-        easing.type: Easing.InOutQuad
+        // easing.type: Easing.InOutQuad
     }
 }
