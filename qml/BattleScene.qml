@@ -56,6 +56,10 @@ Item {
         opponent.statusBar.totalHealth  = opponentTotalHealth
         player.statusBar.totalHealth    = playerTotalHealth
     }
+
+    function updatePlayerStatusAilment(label){
+        player.statusBar.changeStatusCondition(label, label=="")
+    }
     //Relative positioning of elements
     function positionSpriteAndStatusBar(sprite) {
         // Clear all anchors first

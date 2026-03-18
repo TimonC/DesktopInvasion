@@ -114,7 +114,7 @@ public:
     ~BattleMoveHandler();
     BattleMoveHandler(const BattleMoveHandler&) = delete;
     BattleMoveHandler& operator=(const BattleMoveHandler&) = delete;
-    void switchPartyMember(int newChosenIndex);
+    QString switchPartyMember(int newChosenIndex);
 
 signals:
     void actionSequenceReady(QVariantList sequence);
@@ -149,6 +149,7 @@ private:
     QString ailmentToApplicationText(Ailment ailment);
     QString ailmentToHurtText(Ailment ailment);
     QString ailmentToRemovalText(Ailment ailment, const QString& pokemonName);
+    const QString ailmentToLabel(Ailment ailment);
     QString getStatName(int statIndex);
 
     Battler* m_battleOpponent;
@@ -156,8 +157,8 @@ private:
     int m_partyPokemonSentOut[6] = {-1,-1,-1,-1,-1,-1};
     std::mt19937 m_rng;
 
-    static const int ms_moveUsedText = 300;
-    static const int ms_ailmentText = 300;
+    static const int ms_moveUsedText = 500;
+    static const int ms_ailmentText = 500;
     static const int ms_statusConditionText = 500;
     static const int ms_attackAnimation = 500;
     static const int ms_healthChange = 1000;
@@ -165,7 +166,7 @@ private:
     static const int ms_effectivenessText = 800;
     static const int ms_drainEffectText = 800;
     static const int ms_catchStart = 1000;
-    static const int ms_ballUsed = 300;
+    static const int ms_ballUsed = 500;
     static const int ms_failCatch = 1000;
     static const int ms_successCatch = 1000;
 };

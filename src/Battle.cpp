@@ -60,7 +60,9 @@ Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildS
 }
 void Battle::handleSwitchedPokemon(int partyIndex, int generation, int spriteId){
     updateSprite(spriteId, generation, "player");
-    m_battleMoveHandler.get()->switchPartyMember(partyIndex);
+    QString label = m_battleMoveHandler.get()->switchPartyMember(partyIndex);
+    QMetaObject::invokeMethod(m_battleScene, "updatePlayerStatusAilment", Q_ARG(QVariant, label));
+
 }
 
 void Battle::executeActionSequence(QVariantList sequence) {
