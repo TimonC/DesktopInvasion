@@ -78,32 +78,40 @@ void WildPokemon::startBattle(){
     m_hitbox->showButton(false);
     m_hitbox->hide();
 
-    const int BOUNDARY_MARGIN = 16;
+    const int BOUNDARY_MARGIN = 14;
 
     QRect screen = screenSize();
     int screenRight = screen.x() + screen.width();
     int screenBottom = screen.y() + screen.height();
 
-    if (y() < BOUNDARY_MARGIN*2.5) {
+    QPoint delta(0, 0);
+
+    if (y() < BOUNDARY_MARGIN*2) {
         direction(2);
-        movePos(QPoint(0, BOUNDARY_MARGIN));
+        delta += QPoint(0, BOUNDARY_MARGIN);
     }
-    else if (x() < BOUNDARY_MARGIN) {
+
+    if (x() < BOUNDARY_MARGIN) {
         direction(3);
-        movePos(QPoint(BOUNDARY_MARGIN, 0));
+        delta += QPoint(BOUNDARY_MARGIN, 0);
     }
-    else if (y() + height() > screenBottom - BOUNDARY_MARGIN) {
+
+    if (y() + height() > screenBottom - BOUNDARY_MARGIN) {
         direction(0);
-        movePos(QPoint(0, -BOUNDARY_MARGIN));
+        delta += QPoint(0, -BOUNDARY_MARGIN);
     }
-    else if (x() + width() > screenRight - BOUNDARY_MARGIN) {
+
+    if (x() + width() > screenRight - BOUNDARY_MARGIN) {
         direction(1);
-        movePos(QPoint(-BOUNDARY_MARGIN, 0));
+        delta += QPoint(-BOUNDARY_MARGIN, 0);
+    }
+
+    if (!delta.isNull()) {
+        movePos(delta);
     }
 
     getPlayer().iChooseYou(this);
 }
-
 
 void WildPokemon::makeRandomDecision(){
     int decision = QRandomGenerator::global()->bounded(8);
