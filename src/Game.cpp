@@ -87,8 +87,11 @@ QVariantMap Game::pokemonToMenuState(int slot, const PokemonState &p){
     QVariantMap entry;
     entry["slot"]   = slot;
     entry["iconId"] = p.pokedex_id-1;
+    entry["name"] = QString::fromStdString(p.name);
 
     const Poke *poke = Lookup::getPoke(p.pokedex_id);
+    entry["pokeName"] = QString::fromStdString(poke->name);
+
     for(int eligible = 0; eligible < poke->eligible_evolve_count; eligible++){
         if(p.lvl >= poke->eligible_evolves[eligible].level){
              /* const Pokemontate &eligibleState = p; TODO make copy constructor for pokemonstate */

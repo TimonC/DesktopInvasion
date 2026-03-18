@@ -52,6 +52,9 @@ Item {
 
     signal activateSwapMode()
 
+    // --- Display
+    signal display(var pcPos)
+
     function toggleSwapMode() {
         if (inSwapMode) {
             inSwapMode  = false
@@ -274,16 +277,19 @@ Item {
             onClicked: {
                 if (!pokemonSlot.iconVisible) return
                 if (!root.inSwapMode) {
-                    console.log("display!", pokemonSlot.pcPos)
+                    root.display(pokemonSlot.pcPos)
                     return
                 }
 
                 if (root.swapSource === null) {
                     root.swapSource = pokemonSlot.pcPos
+                    root.display(pokemonSlot.pcPos)
+                    return
                 } else {
                     root._executeSwap(root.swapSource, pokemonSlot.pcPos)
                     root.swapRequested(root.swapSource, pokemonSlot.pcPos)
                     root.toggleSwapMode()
+                    return
                 }
             }
         }

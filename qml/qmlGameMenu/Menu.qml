@@ -19,6 +19,11 @@ Rectangle {
     property bool   showDebugOutlines:   true
     property color  debugOutlineColor:   "#FFD700"
     property double leftSideWidthRatio:  0.5
+    readonly property int pcRows:       4
+    readonly property int pcColumns:    4
+    property var partyPokes: ({})
+    property var boxPokes: ({})
+    property alias displayName:  rightText.text
 
     MouseArea{
         onClicked: {
@@ -36,11 +41,24 @@ Rectangle {
         function onPartyDataReady(data) {
             console.log("[Menu] party arrived, count:", data.length)
             pc.loadParty(data)
+            var map = {}
+            for (var i = 0; i < data.length; i++)
+                map[data[i].slot] = data[i]
+            partyPokes = map
+            displayName =partyPokes[0].name
         }
+
         function onBoxDataReady(boxIndex, data) {
             console.log("[Menu] box", boxIndex, "arrived, count:", data.length)
             pc.loadBox(boxIndex, data)
+            var arr = new Array(pcRows * pcColumns)
+            for (var i = 0; i < data.length; i++)
+                arr[data[i].slot] = data[i]
+            var updated = Object.assign({}, boxPokes)
+            updated[boxIndex] = arr
+            boxPokes = updated
         }
+
         function onShowBoxRequested(boxIndex) {
             console.log("[Menu] showBox", boxIndex)
             pc.showBox(boxIndex)
@@ -51,7 +69,48 @@ Rectangle {
     Connections {
         target: pc
         function onPreloadBoxRequested(boxIndex) { menuBridge.preloadBoxRequested(boxIndex) }
-        function onSwapRequested(posx, posy) { menuBridge.swapRequested(posx[0], posx[1], posy[0], posy[1]) }
+        function onSwapRequested(posx, posy) {
+            // First, do the C++ swap
+            menuBridge.swapRequested(posx[0], posx[1], posy[0], posy[1])
+
+            // Then update QML by creating new objects
+            var newParty = Object.assign({}, partyPokes)
+            var newBoxes = Object.assign({}, boxPokes)
+
+            // Get the values
+            var x = posx[0] == -1 ? partyPokes[posx[1]] : boxPokes[posx[0]][posx[1]]
+            var y = posy[0] == -1 ? partyPokes[posy[1]] : boxPokes[posy[0]][posy[1]]
+
+            // Swap in the new objects
+            if(posx[0] == -1) {
+                newParty[posx[1]] = y
+            } else {
+                var arrX = newBoxes[posx[0]].slice()
+                arrX[posx[1]] = y
+                newBoxes[posx[0]] = arrX
+            }
+
+            if(posy[0] == -1) {
+                newParty[posy[1]] = x
+            } else {
+                var arrY = newBoxes[posy[0]].slice()
+                arrY[posy[1]] = x
+                newBoxes[posy[0]] = arrY
+            }
+
+            // Assign back - this triggers the redraw!
+            partyPokes = newParty
+            boxPokes = newBoxes
+        }
+        function onDisplay(pcPos){
+            if(pcPos[0]==-1){
+                displayName = partyPokes[pcPos[1]].name
+            }else if(pcPos[0]>-1){
+                displayName = boxPokes[pcPos[0]][pcPos[1]].name
+            }else{
+                console.log("ERROR faulty display pos")
+            }
+        }
 
     }
 
@@ -116,6 +175,7 @@ Rectangle {
             PokeView {}
 
             Text {
+                id: rightText
                 anchors.centerIn: parent
                 text: "Right Panel"
                 color: root.textColor
