@@ -12,7 +12,7 @@ Item {
     property string statusBarFontFamily: "Press Start 2P"
     property int frameSize: 32
     property int menuWidth: frameSize * 6.5
-    property int menuHeight: frameSize * 2.5
+    property int menuHeight: frameSize * 2.25
     property int statusBarWidth: frameSize*2.5
     property int statusBarHeight: frameSize*1.2
     property int buttonWidth: frameSize * 2.25

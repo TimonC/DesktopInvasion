@@ -222,7 +222,7 @@ Rectangle {
             border.width: root.borderWidth
             property string text: ""
 
-            height: root.menuHeight*0.75
+            height: root.menuHeight
             width: root.menuWidth
             radius: 5
 
@@ -652,7 +652,7 @@ Rectangle {
                             sourceComponent: backButton
                             anchors.centerIn: parent
                             width: root.buttonHeight
-                            height: root.menuHeight*0.7
+                            height: root.menuHeight
                         }
                     }
 
