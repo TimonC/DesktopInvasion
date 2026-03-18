@@ -165,7 +165,7 @@ Item {
         menuWidth: root.menuWidth
         onAttackChosen: function(attackId) {
             if (attackId === 0) {
-                var playerFirst = false// Math.random() < 0.5;
+                var playerFirst =  Math.random() < 0.5;
                 startAttackChain(playerFirst)
             } else {
                 console.error("Invalid attack id:", attackId)
@@ -364,7 +364,7 @@ Item {
 
 
     function processCatchAttempt() {
-        var failure = Math.random() > 0.5
+        var failure = Math.random() < 0.1
 
         if (failure) {
             // Release the pokemon

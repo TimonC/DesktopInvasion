@@ -1,6 +1,5 @@
 #ifndef BATTLE_H
 #define BATTLE_H
-
 #include <DesktopScene.h>
 #include <pokemon_data.h>
 #include <QQuickView>
@@ -10,21 +9,26 @@
 class Battle : public DesktopScene
 {
     Q_OBJECT
-
 public:
     explicit Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent = nullptr);
+    ~Battle() { qDebug() << "Battle destructor called!"; }
+
     void updateTextbar(const std::string& text);
     QQuickView* initCorners();
     QQuickView *m_corners = nullptr;
     void direction(int direction) override;
 
 signals:
-    void removeWildPokemon(const PokemonInfo* info);
+    void battleEnded(Battle* battle, WildPokemon* opp, bool removeWild);
+
 private slots:
     void handleDrag(bool isDragged) override;
-    void resetOpp(WildPokemon* opp);
-private:
+    void handleRunChosen();
+    void handleOpponentWon();
+    void handlePlayerWon();
+    void handlePokemonCaught();
 
+private:
     template<typename Signal, typename Slot>
     inline void connectWithQML(Signal signal, Slot slot) {
         QObject* helper = new QObject(m_battleScene);
@@ -34,6 +38,10 @@ private:
 
     int m_pokeMargin = 2;
     void initPosition();
+
+    // Store the wild pokemon reference
+    WildPokemon* m_oppReference = nullptr;
+
     // Store initial positions for perfect sync
     QPoint m_initialOppPos;
 
@@ -46,5 +54,4 @@ private:
     QPoint m_origin;
     QQuickItem *m_ui = nullptr;
 };
-
 #endif

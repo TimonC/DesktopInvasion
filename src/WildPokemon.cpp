@@ -13,7 +13,7 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
     , m_moveTimer(new QTimer(this))
     , m_moveSpeed(1 + std::rand()%2000/1000)
 {
-
+    qDebug() << "WildPokemon constructor called!";
     const QRect& screen = Globals::screenGeometry();
     setPosition(QPoint(screen.width()/2, screen.height()/2));
 

@@ -4,52 +4,87 @@
 
 Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent)
     : DesktopScene(parent)
+    , m_oppReference(opp)
     , m_initialOppPos(opp->position())
     , m_opp_info(opp->info)
     , m_chosen_info(chosen_info)
 {
     qDebug() << "Battle constructor called!";
     m_currentDirection = opp->m_currentDirection;
+
     // Load the PokemonSprite as root
     setSource(QUrl("qrc:/qml/BattleScene.qml"));
     m_battleScene = rootObject();
     assert(m_battleScene);
 
-     //Below code is not memory safe, assumes opp exist as long as battlescene exists
-    QTimer::singleShot(2, [this,opp]() {//just to make sure its all smooth
+    // Hide opponent immediately
+    QTimer::singleShot(2, this, [opp]() {
         opp->hide();
     });
 
-    QObject* helper = new QObject(this);
-    connectWithQML(SIGNAL(runChosen()), [this, opp]() {
-                        resetOpp(opp);
-                    });
+    // Use connectWithQML for clean signal handling
+    connectWithQML(SIGNAL(runChosen()), [this]() {
+        handleRunChosen();
+    });
 
-    connectWithQML(SIGNAL(opponentWon()), [this, opp]() {
-                        resetOpp(opp);
-            });
-    connectWithQML(SIGNAL(playerWon()), [this, opp]() {
-                        removeWildPokemon(opp->info);
-            });
-    connectWithQML(SIGNAL(pokemonCaught()), [this, opp]() {
-                        removeWildPokemon(opp->info);
-            });
+    connectWithQML(SIGNAL(opponentWon()), [this]() {
+        handleOpponentWon();
+    });
 
-    m_battleScene->setProperty("direction",m_currentDirection);
+    connectWithQML(SIGNAL(playerWon()), [this]() {
+        handlePlayerWon();
+    });
+
+    connectWithQML(SIGNAL(pokemonCaught()), [this]() {
+        handlePokemonCaught();
+    });
+
+    m_battleScene->setProperty("direction", m_currentDirection);
     m_battleScene->setProperty("pokeMargin", m_pokeMargin);
     m_battleScene->setProperty("debugLines", Globals::DEBUG);
-    m_opp = setupPokemon(m_opp_info, "opponent"); //these are the only valid strings
-    m_chosen = setupPokemon(m_chosen_info, "player");//no enums here, only hopes and dreams
+    m_opp = setupPokemon(m_opp_info, "opponent");
+    m_chosen = setupPokemon(m_chosen_info, "player");
     initPosition();
     show();
 }
 
-void Battle::resetOpp(WildPokemon* opp){
-                QPoint delta =  position() - m_origin;
-                opp->setPosition(opp->position() + delta);
-                opp->startRoaming();
-                opp->show();
-                this->close();
+void Battle::handleRunChosen() {
+    QPoint currentBattlePos = position();
+    QPoint delta = currentBattlePos - m_origin;
+    QPoint newOppPos = m_oppReference->position() + delta;
+
+    // Delay slightly for smooth transition
+    QTimer::singleShot(2, this, [this, newOppPos]() {
+        if (m_oppReference) {  // Safety check
+            m_oppReference->setPosition(newOppPos);
+            m_oppReference->startRoaming();
+            m_oppReference->show();
+        }
+        emit battleEnded(this, m_oppReference, false);
+    });
+}
+
+void Battle::handleOpponentWon() {
+    QPoint currentBattlePos = position();
+    QPoint delta = currentBattlePos - m_origin;
+    QPoint newOppPos = m_oppReference->position() + delta;
+
+    QTimer::singleShot(2, this, [this, newOppPos]() {
+        if (m_oppReference) {  // Safety check
+            m_oppReference->setPosition(newOppPos);
+            m_oppReference->startRoaming();
+            m_oppReference->show();
+        }
+        emit battleEnded(this, m_oppReference, false);
+    });
+}
+
+void Battle::handlePlayerWon() {
+    emit battleEnded(this, m_oppReference, true);
+}
+
+void Battle::handlePokemonCaught() {
+    emit battleEnded(this, m_oppReference, true);
 }
 
 QQuickItem* Battle::setupPokemon(const PokemonInfo* info, const char* role) {
@@ -85,16 +120,15 @@ QQuickItem* Battle::setupPokemon(const PokemonInfo* info, const char* role) {
     return pokemonSprite;
 }
 
-
 void Battle::initPosition() {
     QQuickItem* rootItem = qobject_cast<QQuickItem*>(m_battleScene);
     QQuickItem* opponentItem = m_battleScene->findChild<QQuickItem*>("opponent");
-        //has to be QPointF for the method, but since we set offets as integer in qml it gives smooth transition
+    // has to be QPointF for the method, but since we set offsets as integer in qml it gives smooth transition
     QPointF spriteOffset = opponentItem->mapToItem(rootItem, QPointF(0, 0));
 
     m_origin = m_initialOppPos + QPoint(-spriteOffset.x(), -spriteOffset.y());
     setPosition(m_origin);
 }
 
-void Battle::direction(int direction){m_currentDirection=direction;};
-void Battle::handleDrag(bool isDragged){m_isDragged = isDragged;};
+void Battle::direction(int direction) { m_currentDirection = direction; }
+void Battle::handleDrag(bool isDragged) { m_isDragged = isDragged; }
