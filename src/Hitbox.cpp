@@ -35,8 +35,7 @@ void Hitbox::mousePressEvent(QMouseEvent* event) {
 void Hitbox::mouseMoveEvent(QMouseEvent* event){
     if (event->buttons() & Qt::LeftButton){
         QPoint currentPos = event->globalPosition().toPoint();
-        QPoint deltas = currentPos - m_oldpos;
-        emit drag(deltas);
+        emit drag(currentPos-m_oldpos);
         m_oldpos = currentPos;
     }
 

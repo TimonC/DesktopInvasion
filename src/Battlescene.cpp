@@ -54,7 +54,6 @@ Battlescene::Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent)
             m_chosen->direction(1);
             break;
     }
-    /* m_opp->setPosition(m_opp->position()-m_origin); */
 
     // Set m_chosen side
     QMetaObject::invokeMethod(ui, "set_chosen_side", Q_ARG(QVariant, m_opp->direction()));
@@ -86,3 +85,29 @@ void Battlescene::updateTextbar(const std::string &text){
         QMetaObject::invokeMethod(m_ui, "update_text_bar", Q_ARG(QVariant, qText));
     }
 };
+
+
+void Battlescene::mousePressEvent(QMouseEvent* event) {
+    if (Qt::LeftButton) {
+        m_oldpos = event->globalPosition().toPoint();
+    }
+}
+
+void Battlescene::mouseMoveEvent(QMouseEvent* event){
+    if (event->buttons() & Qt::LeftButton){
+        QPoint currentPos = event->globalPosition().toPoint();
+        drag(currentPos-m_oldpos);
+        m_oldpos = currentPos;
+    }
+}
+void Battlescene::drag(QPoint delta){
+    QPoint pos = position();
+    if (pos.x() + delta.x() < 0 || pos.x() + delta.x() > getScreenGeometry().width() - width())
+        delta.setX(0);
+    if (pos.y() + delta.y() < 0 || pos.y() + delta.y() > getScreenGeometry().height() - height())
+        delta.setY(0);
+
+    setPosition(pos + delta);
+    m_chosen->movePos(delta);
+    m_opp->movePos(delta);
+}

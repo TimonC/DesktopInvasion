@@ -17,6 +17,9 @@ public:
     void useMove();
     void attacked();
 
+public slots:
+    virtual QPoint movePos(QPoint delta);
+
 protected:
     void setSize(int size);
     QQuickItem* m_sprite;

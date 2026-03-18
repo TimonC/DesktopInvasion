@@ -19,9 +19,9 @@ WildPokemon::WildPokemon(QWindow *parent, int row)
 {
 
     m_hitbox->offset =QPoint(width()/3.5, height()/3);
-    move(QPoint(getScreenGeometry().width()/2, getScreenGeometry().height()/2));
+    movePos(QPoint(getScreenGeometry().width()/2, getScreenGeometry().height()/2));
 
-    connect(m_hitbox, &Hitbox::drag, this, &WildPokemon::move);
+    connect(m_hitbox, &Hitbox::drag, this, &WildPokemon::movePos);
     connect(m_hitbox, &Hitbox::isDragged, this, &WildPokemon::handleDrag);
     connect(m_hitbox->m_mouseArea, SIGNAL(doubleClicked(QQuickMouseEvent*)), this, SLOT(handleDoubleClick()));
     connect(m_hitbox->m_battleButton, SIGNAL(clicked()), this, SLOT(startBattle()));
@@ -94,15 +94,9 @@ void WildPokemon::makeRandomDecision(){
     }
 }
 
-QPoint WildPokemon::move(QPoint deltas) {
-    QPoint pos = position() + deltas;
-    int constrainedX = qMax(0, qMin(pos.x(), getScreenGeometry().width() - SPRITE_SIZE));
-    int constrainedY = qMax(0, qMin(pos.y(), getScreenGeometry().height() - SPRITE_SIZE));
-    QPoint newPos(constrainedX, constrainedY);
-
-    setPosition(newPos);
+QPoint WildPokemon::movePos(QPoint delta) {
+    QPoint newPos = Pokemon::movePos(delta);
     m_hitbox->setPosition(QPoint(newPos.x(), newPos.y()) + m_hitbox->offset);
-
     return newPos;
 }
 
@@ -110,10 +104,10 @@ void WildPokemon::moveStep(){
     QPoint newPos;
 
     switch (m_currentDirection) {
-        case 0: newPos = move(QPoint(0, -m_moveSpeed)); break;
-        case 1: newPos = move(QPoint(-m_moveSpeed, 0)); break;
-        case 2: newPos = move(QPoint(0, m_moveSpeed)); break;
-        case 3: newPos = move(QPoint(m_moveSpeed, 0)); break;
+        case 0: newPos = movePos(QPoint(0, -m_moveSpeed)); break;
+        case 1: newPos = movePos(QPoint(-m_moveSpeed, 0)); break;
+        case 2: newPos = movePos(QPoint(0, m_moveSpeed)); break;
+        case 3: newPos = movePos(QPoint(m_moveSpeed, 0)); break;
     }
 
     if (newPos.x() == 0 || newPos.x() == getScreenGeometry().width() - SPRITE_SIZE ||

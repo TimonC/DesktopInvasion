@@ -16,10 +16,15 @@ public:
 private slots:
     void run();
     void attack();
+protected:
+    void mousePressEvent(QMouseEvent* event) override;
+    void mouseMoveEvent(QMouseEvent*  event) override;
 private:
+    void drag(QPoint delta);
     Pokemon* m_chosen;
     Pokemon* m_opp;
     QPoint m_origin;
+    QPoint m_oldpos;
     int m_direction;
     QQuickItem *m_ui = nullptr;
 };
