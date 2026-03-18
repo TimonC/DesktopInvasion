@@ -47,7 +47,7 @@ Rectangle {
             for (var i = 0; i < data.length; i++)
                 map[data[i].slot] = data[i]
             partyPokes = map
-            displayName =partyPokes[0].name
+            updateDisplay([-1,0])
         }
 
         function onBoxDataReady(boxIndex, data) {
@@ -105,15 +105,31 @@ Rectangle {
             boxPokes = newBoxes
         }
         function onDisplay(pcPos){
+            updateDisplay(pcPos)
+        }
+
+    }
+    function updateDisplay(pcPos){
             if(pcPos[0]==-1 && partyPokes[pcPos[1]]){
                 displayName = partyPokes[pcPos[1]].name
+                rightPanel.rowId = partyPokes[pcPos[1]].rowId
+
+                var isBig = partyPokes[pcPos[1]].isBig
+                rightPanel.spriteSheet = isBig ? "qrc:/assets/HGSS/reordered_sprites_big.png" :  "qrc:/assets/HGSS/reordered_sprites.png"
+                rightPanel.frameWidth = isBig ? 64 : 32
+                rightPanel.frameHeight = isBig ? 64 : 32
+                rightPanel.scaleFactor = isBig ? 4 : 6
             }else if(pcPos[0]>-1 && boxPokes[pcPos[0]][pcPos[1]]){
                 displayName = boxPokes[pcPos[0]][pcPos[1]].name
+                var isBig = boxPokes[pcPos[0]][pcPos[1]].isBig
+                rightPanel.spriteSheet = isBig ? "qrc:/assets/HGSS/reordered_sprites_big.png" :  "qrc:/assets/HGSS/reordered_sprites.png"
+                rightPanel.frameWidth = isBig ? 64 : 32
+                rightPanel.frameHeight = isBig ? 64 : 32
+                rightPanel.scaleFactor = isBig ? 4 : 6
+                rightPanel.rowId = boxPokes[pcPos[0]][pcPos[1]].rowId
             }else{
                 console.log("ERROR faulty display pos")
             }
-        }
-
     }
 
     RowLayout {
@@ -175,8 +191,33 @@ Rectangle {
             border.color: root.showDebugOutlines ? root.debugOutlineColor : "transparent"
             border.width: root.showDebugOutlines ? 2 : 0
 
+            property real scaleFactor: 6
+            property int frameWidth: 32
+            property int frameHeight: 32
+            property int frameCount: 2
+            property int frameRate: 4
+            property int rowId: 0
+            property string spriteSheet: "qrc:/assets/HGSS/reordered_sprites.png"
             PokeView {}
 
+            AnimatedSprite {
+                id: sprite
+                anchors.centerIn: parent
+                width: rightPanel.frameWidth * rightPanel.scaleFactor
+                height: rightPanel.frameHeight * rightPanel.scaleFactor
+                running: true
+                source: rightPanel.spriteSheet
+                frameWidth: rightPanel.frameWidth
+                frameHeight: rightPanel.frameHeight
+                frameCount: rightPanel.frameCount
+                frameRate: rightPanel.frameRate
+                currentFrame: Math.random() < 0.5 ? 0 : 1
+                interpolate: false
+                smooth: false
+                antialiasing: false
+                frameX: rightPanel.frameWidth * 4
+                frameY: rightPanel.rowId * rightPanel.frameHeight
+            }
             Text {
                 id: rightText
                 anchors.centerIn: parent
