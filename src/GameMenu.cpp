@@ -11,7 +11,7 @@ GameMenu::GameMenu(QWindow *parent)
     setFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     setSource(QUrl("qrc:/qml/Menu.qml"));
     setTitle("DesktopInvasion");
-    setModality(Qt::ApplicationModal);
+    /* setModality(Qt::ApplicationModal); */
 
     QRect screenGeometry = Globals::screenGeometry();
     setPosition(QPoint(
@@ -24,11 +24,7 @@ GameMenu::GameMenu(QWindow *parent)
 
 bool GameMenu::event(QEvent *event) {
     if (event->type() == QEvent::WindowDeactivate) {
-        // Menu lost focus - close it
-        QTimer::singleShot(10, this, [this]() {
-            emit menuClosed();
-            this->hide();
-        });
+        emit menuClosed();
         return true;
     }
     return QQuickView::event(event);

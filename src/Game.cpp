@@ -198,8 +198,9 @@ void Game::spawnPokemon() {
 
     if (m_wildPokemonInfo) {
         m_wildPokemon = new WildPokemon(m_wildPokemonInfo, m_spawnPoint, m_spawnDirection);
-        connect(m_wildPokemon, &WildPokemon::startABattle,
-                this, &Game::handleBattleStart);
+
+        connect(m_wildPokemon, &WildPokemon::startABattle, this, &Game::handleBattleStart);
+
         m_wildPokemon->show();
         m_spawnTimer->stop();
     }
