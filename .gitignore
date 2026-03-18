@@ -37,3 +37,6 @@ __pycache__/
 
 *.user
 *.autosave
+build_output/
+*.AppImage
+qrc_resources.cpp
