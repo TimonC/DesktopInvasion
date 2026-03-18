@@ -9,70 +9,60 @@ Rectangle {
     property int frameSize: 0
     property int buttonWidth: frameSize * 2
     property int buttonHeight: frameSize * 0.75
-    property int gridSpacing: 3
     property int menuHeight: 0
     property int menuWidth: 0
 
     property int buttonFontSize: 0
     property int moveFontSize: 0
     property int textBarFontSize: 0
-
-    // Font properties
     property string menuFontFamily: ""
     property string textBarFontFamily: ""
 
-    // Color properties - consolidated for consistent styling
-    property color menuTextColor: "black"
-    property color textBarTextColor: "black"
+    property int borderWidth: 1
+    property int gridSpacing: 3
+    property color borderColor: "darkgrey"
 
-    // Background colors
+    property color textBarTextColor: "black"
+    property color menuTextColor: "black"
+    property color attackTextColor: "white"
+
     property color textBarBackgroundColor: "white"
     property color textBarBorderColor: "black"
 
-    // Button colors
     property color attackButtonColor: "red"
     property color switchButtonColor: "green"
     property color catchButtonColor: "yellow"
     property color runButtonColor: "blue"
 
-    // Disabled state colors (shared between attackContent and switchContent)
-    property color disabledBorderColor: "#d0d0d0"
-    property color disabledBackgroundColor: "#e0e0e0"
-    property color disabledTextColor: "#a0a0a0"
+    property color disabledBorderColor: "#999999"
+    property color disabledBackgroundColor: "#b0b0b0"
     property color placeholderTextColor: "#a0a0a0"
+    property real enabledOpacity: 1
+    property real disabledOpacity: 0.5
 
-    // Enabled border colors
-    property color enabledBorderColor: "#e0e0e0"
-    property color selectedBorderColor: "darkgrey"
+    property color highHealthColor: "#4CAF50"
+    property color mediumHealthColor: "#FF9800"
+    property color lowHealthColor: "#FF0000"
+    property color faintedHealthColor: "#8B0000"
 
-    // Health indicator colors (for switchContent)
-    property color highHealthColor: "#4CAF50"      // Green for >= 50% health
-    property color mediumHealthColor: "#FF9800"    // Orange for >= 25% health
-    property color lowHealthColor: "#FF0000"       // Red for > 0% health
-    property color faintedHealthColor: "#8B0000"   // Dark red for 0% health
-
-    // Opacity values
-    property real enabledOpacity: 0.6
-    property real disabledOpacity: 0.3
     property real selectedIconScale: 1.1
     property real normalIconOpacity: 1.0
-    property real faintedIconOpacity: 0.5
+    property real faintedIconOpacity: 0.8
 
-    // Back button colors
     property color backButtonColor: "lightblue"
     property color forceSwitchBackButtonColor: "#b0bec5"
 
-    // Catch content colors
     property color catchButtonBackground: "white"
     property color catchButtonPressedBackground: "#f0f0f0"
     property color catchButtonBorderColor: "black"
-    property color ballCountTextColor: "darkgrey"
+    property color ballCountTextColor: "black"
 
     property double spriteScale: 1
     property int ballSpriteWidth: 16
     property int ballSpriteHeight: 23
     property string ballSpriteSheet: "qrc:/assets/HGSS/Pokeballs_transparent_reordered.png"
     property var nrOfBalls: [1000, 0, 0, 0]
+    property list<string> ballNames: ["Poké Ball", "Great Ball", "Ultra Ball", "Master Ball"]
 
     property int selectedIndex: 0
     property bool forceSwitchMode: false
@@ -140,7 +130,7 @@ Rectangle {
             id: textBar
             color: root.textBarBackgroundColor
             border.color: root.textBarBorderColor
-            border.width: 2
+            border.width: root.borderWidth
             property string text: ""
             height: root.menuHeight
             width: root.menuWidth
@@ -231,6 +221,7 @@ Rectangle {
                 RoundButton {
                     text: "Attack"
                     palette.button: root.attackButtonColor
+                    palette.buttonText: root.menuTextColor
                     font.pixelSize: root.buttonFontSize
                     font.family: root.menuFontFamily
                     width: root.buttonWidth
@@ -240,6 +231,7 @@ Rectangle {
                 RoundButton {
                     text: "Switch"
                     palette.button: root.switchButtonColor
+                    palette.buttonText: root.menuTextColor
                     font.pixelSize: root.buttonFontSize
                     font.family: root.menuFontFamily
                     width: root.buttonWidth
@@ -249,6 +241,7 @@ Rectangle {
                 RoundButton {
                     text: "Catch"
                     palette.button: root.catchButtonColor
+                    palette.buttonText: root.menuTextColor
                     font.pixelSize: root.buttonFontSize
                     font.family: root.menuFontFamily
                     width: root.buttonWidth
@@ -258,6 +251,7 @@ Rectangle {
                 RoundButton {
                     text: "Run"
                     palette.button: root.runButtonColor
+                    palette.buttonText: root.menuTextColor
                     font.pixelSize: root.buttonFontSize
                     font.family: root.menuFontFamily
                     width: root.buttonWidth
@@ -268,12 +262,13 @@ Rectangle {
         }
     }
 
+
     Component {
         id: attackContent
         Grid {
             columns: 2
             rows: 2
-            spacing: root.gridSpacing/2
+            spacing: root.gridSpacing
 
             property real cellWidth: (parent.width - spacing) / 2
             property real cellHeight: (parent.height - spacing) / 2
@@ -281,26 +276,27 @@ Rectangle {
             Repeater {
                 model: 4
                 Rectangle {
-                    id: moveRect
                     width: cellWidth
                     height: cellHeight
-                    color: "transparent"
                     radius: 4
+                    color: "transparent"
 
                     property string moveName: party.moves[0][index].name || "---"
                     property string moveType: party.moves[0][index].type || "Null"
                     property bool moveEnabled: moveType !== "Null"
-                    property color typeColor: moveEnabled ? PokeType.typeColor(moveType) : root.disabledBorderColor
+                    property color baseColor: moveEnabled ? PokeType.typeColor(moveType) : root.disabledBackgroundColor
 
-                    border.color: moveEnabled ? typeColor : root.disabledBorderColor
-                    border.width: 2
+                    border.width: root.borderWidth
+                    border.color: moveEnabled ? PokeType.lighterTypeColor(moveType) : root.disabledBorderColor
 
                     Rectangle {
                         anchors.fill: parent
-                        anchors.margins: 2
                         radius: parent.radius - 2
+                        gradient: Gradient {
+                            GradientStop { position: 0; color: moveEnabled ? PokeType.lighterTypeColor(moveType) : root.disabledBackgroundColor }
+                            GradientStop { position: 1; color: moveEnabled ? PokeType.darkerTypeColor(moveType) : root.disabledBackgroundColor }
+                        }
                         opacity: moveEnabled ? root.enabledOpacity : root.disabledOpacity
-                        color: moveEnabled ? typeColor : root.disabledBackgroundColor
                     }
 
                     Text {
@@ -316,12 +312,12 @@ Rectangle {
                         maximumLineCount: 2
                         elide: Text.ElideRight
                         lineHeight: 0.9
-                        color: moveEnabled ? "white" : root.disabledTextColor
+                        color: moveEnabled ? root.attackTextColor : root.placeholderTextColor
                     }
 
                     MouseArea {
                         anchors.fill: parent
-                        anchors.margins: 2
+                        anchors.margins : root.borderWidth
                         enabled: moveEnabled
                         onClicked: root.attackChosen(index)
                     }
@@ -329,7 +325,6 @@ Rectangle {
             }
         }
     }
-
     Component {
         id: switchContent
         Grid {
@@ -337,7 +332,7 @@ Rectangle {
             rows: 2
             spacing: root.gridSpacing
 
-            property real cellWidth: (parent.width - spacing * 2) / 3
+            property real cellWidth: (parent.width - spacing ) / 3
             property real cellHeight: (parent.height - spacing) / 2
 
             Repeater {
@@ -348,13 +343,13 @@ Rectangle {
                     color: "transparent"
                     radius: 4
                     border.color: (root.party.iconIds[index] >= 0 && party.healthRatios[index] > 0)
-                                  ? (root.selectedIndex === index ? root.selectedBorderColor : root.enabledBorderColor)
+                                  ? (root.selectedIndex === index ? root.borderColor : root.disabledBorderColor)
                                   : root.disabledBorderColor
-                    border.width: root.selectedIndex === index ? 0.5 : 2
+                    border.width: root.borderWidth
 
                     Rectangle {
                         anchors.fill: parent
-                        anchors.margins: 2
+                        anchors.margins: root.borderWidth
                         radius: parent.radius - 2
                         opacity: root.party.iconIds[index] >= 0 ? root.enabledOpacity : root.disabledOpacity
                         color: root.party.iconIds[index] >= 0
@@ -401,7 +396,7 @@ Rectangle {
 
                     MouseArea {
                         anchors.fill: parent
-                        anchors.margins: 2
+                        anchors.margins : root.borderWidth
                         enabled: !root.forceSwitchMode ||
                                  (root.selectedIndex !== index &&
                                   root.party.iconIds[index] >= 0 &&
@@ -422,87 +417,101 @@ Rectangle {
 
     Component {
         id: catchContent
-        Grid {
-            columns: 2
-            rows: 2
-            spacing: root.gridSpacing
+        Item {
+            anchors.fill: parent
 
-            property real cellWidth: (parent.width - spacing) / 2
-            property real cellHeight: (parent.height - spacing) / 2
+            Grid {
+                id: grid
+                columns: 2
+                rows: 2
+                spacing: root.gridSpacing
+                anchors.centerIn: parent
 
-            Repeater {
-                model: 4
-                RoundButton {
-                    width: cellWidth
-                    height: cellHeight
-                    radius: height / 2
-                    enabled: root.nrOfBalls[index] > 0
-                    opacity: root.nrOfBalls[index] > 0 ? 1.0 : 0.5
-                    background: Rectangle {
-                        radius: parent.radius
-                        color: parent.pressed ? root.catchButtonPressedBackground : root.catchButtonBackground
-                        border.color: root.catchButtonBorderColor
-                        border.width: 2
+                property real cellWidth: (parent.width - spacing*2) / 2.5
+                property real cellHeight: (parent.height - spacing) / 2
+
+                Repeater {
+                    model: 4
+                    Rectangle {
+                        width: grid.cellWidth
+                        height: grid.cellHeight
+                        radius: 4
+                        color: "transparent"
+
+                        property bool isEnabled: root.nrOfBalls[index] > 0
+
+                        border.width: root.borderWidth
+                        border.color: isEnabled ? root.borderColor : root.disabledBorderColor
+
+                        Rectangle {
+                            anchors.fill: parent
+                            anchors.margins : root.borderWidth
+                            radius: parent.radius - 2
+                            opacity: isEnabled ? root.enabledOpacity : root.disabledOpacity
+                            gradient: Gradient {
+                                GradientStop { position: 0; color: isEnabled ? PokeType.lighterTypeColor("Normal") : root.disabledBackgroundColor }
+                                GradientStop { position: 1; color: isEnabled ? PokeType.darkerTypeColor("Normal") : root.disabledBackgroundColor }
+                            }
+                        }
+
+                        Row {
+                            anchors.centerIn: parent
+                            spacing: root.gridSpacing
+
+                            Item {
+                                width: root.ballSpriteWidth * root.spriteScale
+                                height: root.ballSpriteHeight * root.spriteScale
+
+                                Image {
+                                    anchors.centerIn: parent
+                                    source: root.ballSpriteSheet
+                                    width: root.ballSpriteWidth * root.spriteScale
+                                    height: root.ballSpriteHeight * root.spriteScale
+                                    sourceClipRect: Qt.rect(0, root.ballSpriteHeight * index,
+                                                           root.ballSpriteWidth, root.ballSpriteHeight)
+                                    smooth: false
+                                    antialiasing: false
+                                    opacity: isEnabled ? 1.0 : 0.5
+                                }
+                            }
+
+                            Text {
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: "×" + (isEnabled ? (root.nrOfBalls[index] > 999 ? "∞" : root.nrOfBalls[index]) : "0")
+                                font.pixelSize: root.moveFontSize
+                                font.family: root.menuFontFamily
+                                font.weight: Font.DemiBold
+                                color: isEnabled ? root.ballCountTextColor : root.placeholderTextColor
+                            }
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            anchors.margins : root.borderWidth
+                            enabled: isEnabled
+                            onClicked: root.catchChosen(index)
+                        }
                     }
-                    contentItem: Item {
-                        anchors.fill: parent
-                        anchors.margins: 4
-
-                        Image {
-                            id: ballIcon
-                            anchors.verticalCenter: parent.verticalCenter
-                            anchors.left: parent.left
-                            source: root.ballSpriteSheet
-                            width: root.ballSpriteWidth * root.spriteScale
-                            height: root.ballSpriteHeight * root.spriteScale
-                            sourceClipRect: Qt.rect(0, root.ballSpriteHeight * index,
-                                                   root.ballSpriteWidth, root.ballSpriteHeight)
-                            smooth: false
-                            antialiasing: false
-                            opacity: root.nrOfBalls[index] > 0 ? 1.0 : 0.3
-                        }
-                        Text {
-                            anchors.verticalCenter: parent.verticalCenter
-                            anchors.left: ballIcon.right
-                            anchors.leftMargin: 8
-                            anchors.right: countText.left
-                            anchors.rightMargin: 4
-                            text: ["Pokeball", "Great Ball", "Ultra Ball", "Master Ball"][index]
-                            font.pixelSize: root.buttonFontSize
-                            font.family: root.menuFontFamily
-                            color: root.menuTextColor
-                            elide: Text.ElideRight
-                        }
-                        Text {
-                            id: countText
-                            anchors.verticalCenter: parent.verticalCenter
-                            anchors.right: parent.right
-                            anchors.rightMargin: 8
-                            text: root.nrOfBalls[index] > 999 ? "∞" : root.nrOfBalls[index]
-                            font.pixelSize: root.buttonFontSize
-                            font.family: root.menuFontFamily
-                            color: root.ballCountTextColor
-                        }
-                    }
-                    onClicked: root.catchChosen(index)
                 }
             }
         }
     }
-
     Component {
-        id: runContent
-        RoundButton {
-            anchors.centerIn: parent
-            palette.button: root.runButtonColor
-            text: "Confirm"
-            width: root.buttonWidth
-            height: root.buttonHeight
-            font.pixelSize: root.buttonFontSize
-            font.family: root.menuFontFamily
-            onClicked: root.runChosen()
+            id: runContent
+            Item {
+                anchors.fill: parent
+                RoundButton {
+                    anchors.centerIn: parent
+                    palette.button: root.runButtonColor
+                    text: "Confirm run"
+                    width: root.buttonWidth*1.8
+                    height: root.buttonHeight
+                    font.pixelSize: root.buttonFontSize
+                    font.family: root.menuFontFamily
+                    onClicked: root.runChosen()
+                }
+            }
         }
-    }
 
     Component {
         id: backButton
@@ -543,7 +552,7 @@ Rectangle {
                 Row {
                     id: mainRow
                     anchors.fill: parent
-                    spacing: root.gridSpacing
+                    // spacing: root.gridSpacing
 
                     Item {
                         id: contentContainer

@@ -234,7 +234,7 @@ Party Game::getParty() {
         party.iconIds[i] = FormMapper::toIconId(pokemon.pokedex_id, 0);
         party.names[i] = pokemon.name;
         party.gens[i] = info->generation;
-        party.ballIds[i] = 3;
+        party.ballIds[i] = 1;
 
         for (int moveSlot = 0; moveSlot<4; moveSlot++){
            int moveId = pokemon.moves[moveSlot];

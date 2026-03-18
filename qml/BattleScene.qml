@@ -16,7 +16,7 @@ Item {
 
     property int pokeNameFontSize: 12
     property int buttonFontSize: 12
-    property int moveFontSize: 9
+    property int moveFontSize: 10
     property int textBarFontSize: 14
 
     property string textBarFontFamily: "Arial"
@@ -221,12 +221,12 @@ Item {
                 console.error("Invalid attack id:", attackId)
             }
         }
-        onCatchChosen: function(pokeSpriteId) {
-            if (pokeSpriteId === 3) {
+        onCatchChosen: function(ballIndex) {
+            if (ballIndex < 0 || ballIndex > 3) {
                 battleMenu.showTextBar()
                 startActionChain("catch")
             } else {
-                console.error("Invalid pokeSprite id:", pokeSpriteId)
+                console.error("Invalid ball index:", ballIndex)
             }
         }
         onRunChosen: function(){
