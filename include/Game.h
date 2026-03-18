@@ -8,6 +8,7 @@
 #include <QQmlApplicationEngine>
 #include <SystemTrayIcon.h>
 #include <qqmlapplicationengine.h>
+#include <QTimer>
 
 class Game : public QObject{
     Q_OBJECT
@@ -18,14 +19,18 @@ public:
 
 private:
     QQmlApplicationEngine* m_engine  =  nullptr;
-    WildPokemon* m_wildPokemon = nullptr;
-    Battle* m_activeBattle = nullptr;
-    const PokemonInfo* m_wildPokemonInfo;
     GameMenu* m_menu;
     SystemTrayIcon* m_trayIcon;
+
+    WildPokemon* m_wildPokemon = nullptr;
+    Battle* m_activeBattle = nullptr;
+    const PokemonInfo* m_wildPokemonInfo = nullptr;
     QPoint m_spawnPoint = QPoint(-1,-1);
     int m_spawnDirection = -1;
-    const int m_spawnDelay_ms = 5000;
+
+    QTimer* m_spawnTimer;
+    const int m_spawnDelay_ms = 2000;
+
     void updateWildPokemonPosToBattlePos();
     void spawnPokemon();
 

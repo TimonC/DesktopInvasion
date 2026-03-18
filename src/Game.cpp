@@ -1,24 +1,30 @@
+#include "SystemTrayIcon.h"
 #include <Game.h>
 #include <WildPokemon.h>
 #include <globals.h>
 #include <Player.h>
 #include <QTimer>
 
-Game::Game(QQmlApplicationEngine* engine, QObject* parent) : QObject(parent) {
-    m_menu = new GameMenu();
-    m_engine  = engine;
-
-    spawnPokemon();
-
+Game::Game(QQmlApplicationEngine* engine, QObject* parent)
+    : QObject(parent)
+    , m_engine(engine)
+    , m_menu(new GameMenu)
+    , m_trayIcon(new SystemTrayIcon(this))
+    , m_spawnTimer(new QTimer(this))
+{
     connect(&Globals::getPlayer(), &Player::startABattle,
             this, &Game::handleBattleStart);
 
-    m_trayIcon = new SystemTrayIcon(this);
     connect(m_trayIcon, &SystemTrayIcon::gameActive,
             this, &Game::setGameActive);
+
+    m_spawnTimer->setInterval(m_spawnDelay_ms);
+    connect(m_spawnTimer, &QTimer::timeout, this, &Game::spawnPokemon);
+    m_spawnTimer->start();
 }
 
 Game::~Game() {
+    disconnect();
     if (m_activeBattle) {
         m_activeBattle->disconnect();
         m_activeBattle->deleteLater();
@@ -37,7 +43,7 @@ Game::~Game() {
 void Game::spawnPokemon(){
     if(m_wildPokemon){
         m_wildPokemon->disconnect();
-        delete m_wildPokemon;
+        m_wildPokemon->deleteLater();
         m_wildPokemon = nullptr;
     }
 
@@ -47,6 +53,8 @@ void Game::spawnPokemon(){
         m_wildPokemonInfo = Globals::getPokemonInfo();
         m_wildPokemon = new WildPokemon(m_wildPokemonInfo);
     }
+    m_wildPokemon->show();
+    m_spawnTimer->stop();
 };
 
 
@@ -102,11 +110,7 @@ void Game::handleBattleEnd(bool removeWild) {
         m_wildPokemon->deleteLater();
         m_wildPokemon = nullptr;
 
-        //Delay until the new spawn
-        QTimer::singleShot(m_spawnDelay_ms, this, [this]() {
-            m_wildPokemonInfo = Globals::getPokemonInfo();
-            m_wildPokemon = new WildPokemon(m_wildPokemonInfo);
-        });
+        m_spawnTimer->start();
     }else{
         m_activeBattle->handleDrag(false);
         updateWildPokemonPosToBattlePos();
