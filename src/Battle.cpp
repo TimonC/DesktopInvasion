@@ -29,12 +29,11 @@ Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent
                         resetOpp(opp);
             });
     connectWithQML(SIGNAL(playerWon()), [this, opp]() {
-                        opp->close();
-                        this->close();
+                        emit removeWildPokemon(opp->info);
             });
     connectWithQML(SIGNAL(pokemonCaught()), [this, opp]() {
                         opp->close();
-                        this->close();
+                        emit removeWildPokemon(opp->info);
             });
 
     m_battleScene->setProperty("direction",m_currentDirection);
@@ -46,7 +45,8 @@ Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent
     show();
 }
 
-
+void Battle::removeWildPokemon(const PokemonInfo* info){
+}
 
 void Battle::resetOpp(WildPokemon* opp){
                 QPoint delta =  position() - m_origin;

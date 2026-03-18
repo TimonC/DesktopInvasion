@@ -17,6 +17,9 @@ public:
     QQuickView* initCorners();
     QQuickView *m_corners = nullptr;
     void direction(int direction) override;
+
+signals:
+    void removeWildPokemon(const PokemonInfo* info);
 private slots:
     void handleDrag(bool isDragged) override;
     void resetOpp(WildPokemon* opp);

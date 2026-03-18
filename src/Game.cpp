@@ -4,7 +4,7 @@
 #include <QLoggingCategory>
 #include <globals.h>
 
-Game::Game(){
+Game::Game(QObject* parent) : QObject(parent){
     m_menu = new GameMenu();
     pushWildPokemon(Globals::getPokemonInfo());
 }
