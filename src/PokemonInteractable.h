@@ -15,7 +15,7 @@ private slots:
     void moveStep();
     void onClick();
     void stopOpening();
-
+    void startBattle();
 private:
     QTimer* m_decisionTimer;
     QTimer* m_moveTimer;

@@ -34,16 +34,18 @@ PokemonInteractable::PokemonInteractable(QWindow *parent, int row)
     int height = m_scaleFactor*32;
     m_wildPokemon->setProperty("itemWidth", width);
     m_wildPokemon->setProperty("itemHeight", height);
+    setWidth(width);
+    setHeight(height);
 
     m_wildPokemon->setProperty("spriteOffsetX", 32);
     m_wildPokemon->setProperty("spriteOffsetY",32/2);
 
     QQuickItem* mouseArea = m_wildPokemon->property("mouseArea").value<QQuickItem*>();
     connect(mouseArea, SIGNAL(clicked(QQuickMouseEvent*)), this, SLOT(onClick()));
-
     m_screenGeometry = QGuiApplication::primaryScreen()->geometry();
-    setX((m_screenGeometry.width() - SPRITE_SIZE) / 2);
-    setY((m_screenGeometry.height() - SPRITE_SIZE) / 2);
+
+    setX(std::rand()%m_screenGeometry.width());
+    setY(std::rand()%m_screenGeometry.height());
 
     m_decisionTimer->setInterval(1000 + QRandomGenerator::global()->bounded(2000));
     connect(m_decisionTimer, &QTimer::timeout, this, &PokemonInteractable::makeRandomDecision);
@@ -53,10 +55,15 @@ PokemonInteractable::PokemonInteractable(QWindow *parent, int row)
 
     connect(m_openingTimer, &QTimer::timeout, this, &PokemonInteractable::stopOpening);
 
+    /* connect(m-wildPokemon */
     m_decisionTimer->start();
     makeRandomDecision();
 }
 
+void PokemonInteractable::startBattle(){
+    setWidth(m_scaleFactor*32*4);
+    setHeight(m_scaleFactor*32*4);
+}
 
 
 void PokemonInteractable::onClick(){

@@ -6,7 +6,7 @@ xhost +local:root 2>/dev/null || true
 : "${XDG_RUNTIME_DIR:=/tmp/xdg}"
 mkdir -p "$XDG_RUNTIME_DIR"
 chmod 0700 "$XDG_RUNTIME_DIR"
-
+/
 rm -rf build/*
 mkdir -p build
 cd build
