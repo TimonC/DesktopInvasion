@@ -23,7 +23,7 @@ Item {
             anchors.rightMargin: 4
 
             color: "white"
-            style: Text.Outline;
+            style: Text.Outline
             styleColor: "black"
             renderType: Text.NativeRendering //magic way to make outline nicer
             smooth: true

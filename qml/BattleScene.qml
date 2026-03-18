@@ -50,8 +50,8 @@ Item {
 
 
     Component.onCompleted: {
-        positionSpriteAndStatusBar(player);
-        positionSpriteAndStatusBar(opponent);
+        positionSpriteAndStatusBar(player)
+        positionSpriteAndStatusBar(opponent)
 
         // Schedule for next event loop
         Qt.callLater(function() {
@@ -123,7 +123,7 @@ Item {
             catchAttemptTimer.start()
         }
         onPokemonInsideBall:{
-            pokeBallOpponent.circleShrink();
+            pokeBallOpponent.circleShrink()
             opponent.visible=false
         }
     }
@@ -165,8 +165,8 @@ Item {
         menuWidth: root.menuWidth
         onAttackChosen: function(attackId) {
             if (attackId === 0) {
-                var playerFirst = false;// Math.random() < 0.5;
-                startAttackChain(playerFirst);
+                var playerFirst = false// Math.random() < 0.5;
+                startAttackChain(playerFirst)
             } else {
                 console.error("Invalid attack id:", attackId)
             }
@@ -177,11 +177,11 @@ Item {
                 // Calculate center X of opponent sprite (this becomes x1)
                 var coords = calculateBallCoords(opponent)
                 // Start the animation
-                pokeBallOpponent.visible = true;
+                pokeBallOpponent.visible = true
 
                 battleMenu.showTextBar()
                 battleMenu.updateText("Player used one Poké Ball!")
-                pokeBallOpponent.throwAt(coords[0], coords[1], coords[2], coords[3]);
+                pokeBallOpponent.throwAt(coords[0], coords[1], coords[2], coords[3])
             } else {
                 console.error("Invalid pokeSprite id:", pokeSpriteId)
             }
@@ -245,26 +245,26 @@ Item {
     }
 
     function scheduleNext(delay, func) {
-        sequenceTimer.interval = delay;
-        sequenceTimer.callback = func;
-        sequenceTimer.start();
+        sequenceTimer.interval = delay
+        sequenceTimer.callback = func
+        sequenceTimer.start()
     }
 
     // Build and start the attack sequence
     function startAttackChain(playerFirst) {
-        if (root.attackInProgress) return;
+        if (root.attackInProgress) return
 
-        battleMenu.showTextBar();
-        root.attackInProgress = true;
-        root.currentAttackIndex = 0;
+        battleMenu.showTextBar()
+        root.attackInProgress = true
+        root.currentAttackIndex = 0
 
         // Build attack sequence
-        var firstAttacker = playerFirst ? player : opponent;
-        var firstDefender = playerFirst ? opponent : player;
-        var firstAttackerName = playerFirst ? playerName : opponentName;
-        var secondAttacker = playerFirst ? opponent : player;
-        var secondDefender = playerFirst ? player : opponent;
-        var secondAttackerName = playerFirst ? opponentName : playerName;
+        var firstAttacker = playerFirst ? player : opponent
+        var firstDefender = playerFirst ? opponent : player
+        var firstAttackerName = playerFirst ? playerName : opponentName
+        var secondAttacker = playerFirst ? opponent : player
+        var secondDefender = playerFirst ? player : opponent
+        var secondAttackerName = playerFirst ? opponentName : playerName
 
         root.attackSequence = [
             // First turn
@@ -281,55 +281,55 @@ Item {
             { type: "text", message: "It's super effective!", delay: 1200 },
             // End
             { type: "end" }
-        ];
+        ]
 
-        executeNextStep();
+        executeNextStep()
     }
 
     // Execute the next step in the sequence
     function executeNextStep() {
         if (root.currentAttackIndex >= root.attackSequence.length) {
-            endAttackChain();
-            return;
+            endAttackChain()
+            return
         }
 
-        var step = root.attackSequence[root.currentAttackIndex];
-        root.currentAttackIndex++;
+        var step = root.attackSequence[root.currentAttackIndex]
+        root.currentAttackIndex++
 
         switch(step.type) {
             case "text":
-                battleMenu.updateText(step.message);
-                sequenceTimer.interval = step.delay;
-                sequenceTimer.start();
-                break;
+                battleMenu.updateText(step.message)
+                sequenceTimer.interval = step.delay
+                sequenceTimer.start()
+                break
             case "attack":
-                step.attacker.actionForward.running = true;
-                sequenceTimer.interval = step.delay;
-                sequenceTimer.start();
-                break;
+                step.attacker.actionForward.running = true
+                sequenceTimer.interval = step.delay
+                sequenceTimer.start()
+                break
             case "damage":
-                step.defender.takeDamage.running = true;
-                sequenceTimer.interval = step.delay;
-                sequenceTimer.start();
-                break;
+                step.defender.takeDamage.running = true
+                sequenceTimer.interval = step.delay
+                sequenceTimer.start()
+                break
             case "change-health":
-                let currentHealthRatio = step.defender.statusBar.incrementHealth(-75);
-                sequenceTimer.interval = step.delay;
+                let currentHealthRatio = step.defender.statusBar.incrementHealth(-75)
+                sequenceTimer.interval = step.delay
                 if(currentHealthRatio==0){
                     root.attackSequence = [
                         {type: "lose-battle", message: step.defender.name + " fainted!", defender: step.defender, delay: 2000 },
                         {type: "battle-over", defender: step.defender, delay: 100 }
                     ]
-                    root.currentAttackIndex = 0;
+                    root.currentAttackIndex = 0
                 }
-                sequenceTimer.start();
-                break;
+                sequenceTimer.start()
+                break
             case "lose-battle":
-                battleMenu.updateText(step.message);
-                step.defender.visible = false;
-                sequenceTimer.interval = step.delay;
-                sequenceTimer.start();
-                break;
+                battleMenu.updateText(step.message)
+                step.defender.visible = false
+                sequenceTimer.interval = step.delay
+                sequenceTimer.start()
+                break
             case "battle-over":
                 if(step.defender==root.opponent){
                     root.playerWon()
@@ -337,17 +337,17 @@ Item {
                     root.opponentWon()
                 }
             case "end":
-                endAttackChain();
-                break;
+                endAttackChain()
+                break
         }
     }
 
     // End the attack sequence
     function endAttackChain() {
-        root.attackInProgress = false;
-        root.attackSequence = [];
-        root.currentAttackIndex = 0;
-        battleMenu.resetToRoot();
+        root.attackInProgress = false
+        root.attackSequence = []
+        root.currentAttackIndex = 0
+        battleMenu.resetToRoot()
     }
 
 
@@ -398,17 +398,17 @@ Item {
 
 
     function calculateBallCoords(sprite){
-            var x1 = sprite.x + (sprite.width / 2) - (root.frameSize/4);
-            var x0 = x1 + 2*(sprite.direction==1 ? -root.frameSize : root.frameSize);
+            var x1 = sprite.x + (sprite.width / 2) - (root.frameSize/4)
+            var x0 = x1 + 2*(sprite.direction==1 ? -root.frameSize : root.frameSize)
             // Y positions
-            var y0 = Math.max(0, sprite.y - pokeBallOpponent.frameHeight);
-            var y1 = sprite.y + sprite.height - pokeBallOpponent.frameHeight;
+            var y0 = Math.max(0, sprite.y - pokeBallOpponent.frameHeight)
+            var y1 = sprite.y + sprite.height - pokeBallOpponent.frameHeight
             return [x0, x1, y0, y1]
     }
 
     function oneShotTimer(duration, onFinish){
             Qt.callLater(function() {
-                var hideTimer = Qt.createQmlObject('import QtQuick 2.15; Timer {}', root)
+                var hideTimer = Qt.createQmlObject('import QtQuick 2.15 Timer {}', root)
                 hideTimer.interval = root.ballTransitionDuration
                 hideTimer.triggered.connect(function() {
                     onFinish()

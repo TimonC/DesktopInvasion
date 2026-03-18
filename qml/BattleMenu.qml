@@ -28,7 +28,7 @@ Rectangle {
     property alias stack: stack
 
     function showTextBar() {
-        stack.replace(textBarComponent);
+        stack.replace(textBarComponent)
     }
 
     function updateText(text) {
@@ -161,7 +161,7 @@ Component {
                     font.pixelSize: root.buttonFontSize
                     width: root.buttonWidth
                     height: root.buttonHeight
-                    onClicked: stack.push(runSelection);
+                    onClicked: stack.push(runSelection)
                 }
             }
         }

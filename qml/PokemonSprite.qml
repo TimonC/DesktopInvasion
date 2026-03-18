@@ -59,12 +59,12 @@ Item {
 
         frameX: {
             switch (direction) {
-                case 0: return 0;
-                case 1: return frameWidth * frameCount;
-                case 2: return frameWidth * frameCount * 2;
-                case 3: return frameWidth * frameCount * 3;
+                case 0: return 0
+                case 1: return frameWidth * frameCount
+                case 2: return frameWidth * frameCount * 2
+                case 3: return frameWidth * frameCount * 3
             }
-            return 0;
+            return 0
         }
         frameY: row * frameHeight
     }
