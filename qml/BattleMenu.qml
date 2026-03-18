@@ -21,6 +21,8 @@ Rectangle {
     property int borderWidth: 2
     property int gridSpacing: 3
 
+    property string opponentName: ""
+
     property color textBarTextColor: "black"
     property color menuTextColor: "white"
     property color attackTextColor: "white"
@@ -65,10 +67,8 @@ Rectangle {
     // Signal to start an action round with the chosen action
     signal startActionRound(int actionIndex, string actionType)
 
-    // Legacy signals (kept for compatibility if needed)
     signal attackChosen(int attackId)
-    signal runChosen()
-    signal catchChosen(int pokeId)
+    signal runChosen(bool removeWild)
     signal switchChosen(int oldPartyIdx, int newPartyIdx)
 
     property alias stack: stack
@@ -545,14 +545,29 @@ Rectangle {
         id: runContent
         Item {
             anchors.fill: parent
-            GradientRoundButton {
-                anchors.centerIn: parent
-                text: "Confirm"
-                buttonColor: root.runButtonColor
-                width: root.buttonWidth * 1.5
-                height: root.buttonHeight
-                onClicked: {
-                    root.runChosen()
+
+            Column {
+                anchors.fill: parent
+                spacing: root.gridSpacing
+
+                GradientRoundButton {
+                    height: parent.height / 2 - parent.spacing / 2
+                    width: parent.width
+                    text: "Escape battle"
+                    buttonColor: root.runButtonColor
+                    onClicked: {
+                        root.runChosen(false)
+                    }
+                }
+
+                GradientRoundButton {
+                    height: parent.height / 2 - parent.spacing / 2
+                    width: parent.width
+                    text: "Remove '" + root.opponentName + "'"
+                    buttonColor: root.runButtonColor
+                    onClicked: {
+                        root.runChosen(true)
+                    }
                 }
             }
         }

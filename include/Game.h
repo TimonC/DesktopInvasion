@@ -50,7 +50,7 @@ private slots:
     void handleMenuOpen();
     void handleMenuClosed();
     void handleBattleStart();
-    void handleBattleEnd(const char* endState);
+    void handleBattleEnd(const char* endState, bool removeWild);
     void setGameActive(bool active = true);
 };
 

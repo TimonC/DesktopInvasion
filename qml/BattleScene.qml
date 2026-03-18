@@ -43,7 +43,7 @@ Item {
     property int runEndDuration: 1000
     property bool catchAttemptActive: false
 
-    signal _battleEnded(string endState);
+    signal _battleEnded(string endState, bool removeWild);
     signal _startActionRound(int actionIndex, string actionState)
     signal switchedPokemon(int generation, int spriteId)
 
@@ -209,17 +209,19 @@ Item {
         textBarFontFamily: root.textBarFontFamily
         menuFontFamily: root.menuFontFamily
 
+        opponentName: root.opponentName
+
         // Forward the startActionRound signal from BattleMenu to BattleScene
         onStartActionRound: function(actionIndex, actionType) {
             root._startActionRound(actionIndex, actionType)
         }
 
         // Legacy signal handlers (can be removed or kept for compatibility)
-        onRunChosen: function(){
+        onRunChosen: function(removeWild){
             battleMenu.showTextBar()
             battleMenu.updateText("Got away safely!")
             root.oneShotTimer(root.runEndDuration, function(){
-                root._battleEnded("PlayerRun")
+                root._battleEnded("PlayerRun", removeWild)
             })
         }
 
@@ -369,19 +371,19 @@ Item {
                 break
 
             case "succeed-catch":
-                root._battleEnded("OpponentCaught")
+                root._battleEnded("OpponentCaught", false)
                 break
             case "battle-over":
                 root.actionInProgress = false
                 root.actionSequence = []
                 root.currentActionIndex = 0
                 if(step.role === "opponent"){
-                    root._battleEnded("PlayerWon")
+                    root._battleEnded("PlayerWon", false)
                 }else{
                     if(battleMenu.party.healthRatios.some(ratio => ratio > 0)){
                         battleMenu.forceSwitch();
                     }else{
-                        root._battleEnded("OpponentWon")
+                        root._battleEnded("OpponentWon", false)
                     }
                 }
                 break

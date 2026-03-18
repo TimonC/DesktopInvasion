@@ -53,13 +53,13 @@ public:
     }
 
 signals:
-    void battleEnded(const char* endState);
+    void battleEnded(const char* endState, bool removeWild);
 
 public slots:
     void handleDrag(bool isDragged) override;
 
 private slots:
-    void handleBattleEnded(QString endState);
+    void handleBattleEnded(QString endState, bool removeWild);
     QQuickItem* updateSprite(int pokedexId, int generation, const char* role = "player");
     void handleSwitchedPokemon(int generation, int spriteId);
     void executeActionSequence(QVariantList sequence);

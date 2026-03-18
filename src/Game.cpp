@@ -224,7 +224,7 @@ void Game::spawnPokemon() {
         newWild.pokedex_id = m_wildPokemonInfo->pokedexId;
         newWild.name = m_wildPokemonInfo->name;
 
-        newWild.lvl = 5;
+        newWild.lvl = 10;
 
         for (int i = 0; i < 6; i++) {
             newWild.ivs[i] = 32;
@@ -312,7 +312,7 @@ void Game::handleBattleStart() {
     qDebug() << "Starting battle...";
 }
 
-void Game::handleBattleEnd(const char* endState) {
+void Game::handleBattleEnd(const char* endState, bool removeWild) {
     if (!endState) {
         qWarning() << "handleBattleEnd called with null endState";
         return;
@@ -326,9 +326,7 @@ void Game::handleBattleEnd(const char* endState) {
     qDebug() << endState;
 
     bool playerWon = (strcmp(endState, "PlayerWon") == 0);
-    bool opponentWon = strcmp(endState, "OpponentWon") == 0;
     bool opponentCaught = (strcmp(endState, "OpponentCaught") == 0);
-    bool removeWild = playerWon || opponentWon || opponentCaught;
 
     if (removeWild) {
         if (opponentCaught) {

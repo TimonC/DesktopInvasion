@@ -35,8 +35,8 @@ Battle::Battle(WildPokemon* opp, PokemonState wildState, Party party, std::uniqu
     connect(m_battleScene, SIGNAL(_startActionRound(int,QString)),
             m_battleMoveHandler.get(), SLOT(startActionRound(int, QString)));
 
-    connect(m_battleScene, SIGNAL(_battleEnded(QString)),
-            this, SLOT(handleBattleEnded(QString)));
+    connect(m_battleScene, SIGNAL(_battleEnded(QString, bool)),
+            this, SLOT(handleBattleEnded(QString, bool)));
 
     connect(m_battleScene, SIGNAL(switchedPokemon(int, int)),
         this, SLOT(handleSwitchedPokemon(int, int)));
@@ -74,8 +74,8 @@ void Battle::executeActionSequence(QVariantList sequence) {
     QMetaObject::invokeMethod(m_battleScene, "executeActionSequence", Q_ARG(QVariant, QVariant(sequence)));
 }
 
-void Battle::handleBattleEnded(QString endState){
-    emit battleEnded(endState.toStdString().data());
+void Battle::handleBattleEnded(QString endState, bool removeWild){
+    emit battleEnded(endState.toStdString().data(), removeWild);
 }
 
 void Battle::setupParty(Party party) {
