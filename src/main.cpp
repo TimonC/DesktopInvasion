@@ -14,6 +14,22 @@
 #include <QQmlContext>
 
 int main(int argc, char *argv[]) {
+    const char* valgrindMode = std::getenv("VALGRIND_MODE");
+    const char* isDev = std::getenv("DOCKER_ENV");
+
+
+    bool isValgrindMode = (valgrindMode && strcmp(valgrindMode, "1") == 0);
+    int timeoutSeconds = 30;
+
+    if (isDev) {
+        qDebug() << "=== RUNNING IN DEV MODE ===";
+
+        if (isValgrindMode) {
+            qDebug() << "=== VALGRIND DEBUG MODE ENABLED ===";
+            qDebug() << "Will auto-exit after" << timeoutSeconds << "seconds";
+        }
+    }
+
     QApplication app(argc, argv);
     // Set organization and application name for proper data paths
     QCoreApplication::setOrganizationName("DesktopInvasion");
@@ -24,8 +40,7 @@ int main(int argc, char *argv[]) {
     float speed = 2;
     Globals::scale(scale);
     Globals::animationSpeed(speed);
-
-    const bool DOOM_TIMER = true;
+    const bool DOOM_TIMER = isDev && isValgrindMode;
     const int DOOM_S = 10;
 
     // Load fonts from QRC once at app startup

@@ -7,6 +7,8 @@ src/data_poke_flavor.cpp
 build_output/**
 app/*
 
+valgrind_logs
+
 CMakeFiles/
 CMakeFiles
 cmake_install.cmake

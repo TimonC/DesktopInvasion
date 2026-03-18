@@ -27,7 +27,6 @@ Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
     m_partyIds.fill(0);
 
 
-
     initializeGame();
 
     connect(m_trayIcon, &SystemTrayIcon::gameActive, this, &Game::setGameActive);

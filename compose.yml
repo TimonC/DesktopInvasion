@@ -7,6 +7,8 @@ services:
       - QT_QPA_PLATFORM=xcb
       - XDG_RUNTIME_DIR=/tmp/xdg
       - TZ=Europe/Berlin
+      - DOCKER_ENV=dev
+      - VALGRIND_MODE=0
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ./src:/app/src
@@ -14,6 +16,8 @@ services:
       - ./qml:/app/qml
       - game_state:/app/data
       - /dev/dri:/dev/dri
+      - ./valgrind_logs:/app/logs
+
     stdin_open: true
     tty: true
     entrypoint: ["./build_dev.sh"]
@@ -22,8 +26,10 @@ services:
     build: .
     container_name: desktopinvasion-prod
     entrypoint: ["./build_prod.sh"]
+    environment:
+      - DOCKER_ENV=prod
+      - VALGRIND_MODE=0
     volumes:
       - ./app/output:/app/output
-
 volumes:
   game_state:

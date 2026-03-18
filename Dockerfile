@@ -20,6 +20,7 @@ RUN apt-get update && apt-get install -y \
     file \
     squashfs-tools \
     libsqlite3-dev \
+    valgrind \
     && rm -rf /var/lib/apt/lists/*
 
 RUN wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage -O /tmp/ld.AppImage \
