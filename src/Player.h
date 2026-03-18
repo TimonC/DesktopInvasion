@@ -8,11 +8,11 @@ class Player: public QObject{
     Q_OBJECT
 
 public:
-        explicit Player(QObject* parent = nullptr) : QObject(parent) {qDebug() << "Player constructor called!";};
+    explicit Player(QObject* parent = nullptr) : QObject(parent) {qDebug() << "Player constructor called!";};
+    Pokemon* iChooseYou(QPoint opp_spot, int direction);
 
-public slots:
-    Pokemon* iChooseYou();
-
+private:
+    Pokemon* m_chosen;
 };
 
 #endif
