@@ -11,38 +11,49 @@
 
 WildPokemon::WildPokemon(QWindow *parent, int row)
     : Pokemon(parent, row)
+    , m_hitbox(new QQuickView(nullptr))
     , m_decisionTimer(new QTimer(this))
     , m_moveTimer(new QTimer(this))
     , m_moveSpeed(1 + QRandomGenerator::global()->bounded(2))
 {
-    QQuickItem* mouseArea = m_sprite->property("mouseArea").value<QQuickItem*>();
-    connect(mouseArea, SIGNAL(doubleClicked(QQuickMouseEvent*)), this, SLOT(onSelect()));
-    connect(mouseArea, SIGNAL(pressed(QQuickMouseEvent*)), this, SLOT(systemMove()));
-
-    m_decisionTimer->setInterval(1000 + QRandomGenerator::global()->bounded(2000));
-
-    m_moveTimer->setInterval(50); // 20fps
-
-    QQuickItem* openingButtons = m_sprite->property("battleButton").value<QQuickItem*>();
-    connect( openingButtons, SIGNAL(clicked()), this, SLOT(startBattle()));
+    setupHitbox();
 
     QRect& screen = getScreenGeometry();
     setX(screen.width()/2);//+ ((std::rand()%2)*2-1) * std::rand()%screen.width()/2);
     setY(screen.height()/2);// + ((std::rand()%2)*2-1) * std::rand()%screen.height()/2);
 
+    m_decisionTimer->setInterval(1000 + QRandomGenerator::global()->bounded(2000));
+    m_moveTimer->setInterval(50); // 20fps
     startRoaming();
 
+    show();
+    m_hitbox->show();
+}
+
+void WildPokemon::setupHitbox(){
+    m_hitbox->setSource(QUrl("qrc:/sprites/Hitbox.qml"));
+    m_hitbox->setFlags(
+              Qt::WindowStaysOnTopHint
+            | Qt::Tool
+            | Qt::WindowDoesNotAcceptFocus
+            | Qt::FramelessWindowHint);
+    m_hitbox->setColor(Qt::transparent);
+    QQuickItem* hitbox_sprite = m_hitbox->rootObject();
+
+    QQuickItem* mouseArea = hitbox_sprite->property("mouseArea").value<QQuickItem*>();
+    connect(mouseArea, SIGNAL(doubleClicked(QQuickMouseEvent*)), this, SLOT(onSelect()));
+    connect(mouseArea, SIGNAL(pressed(QQuickMouseEvent*)), this, SLOT(systemMove()));
+
+
+    QQuickItem* openingButtons = hitbox_sprite->property("battleButton").value<QQuickItem*>();
+    connect( openingButtons, SIGNAL(clicked()), this, SLOT(startBattle()));
 }
 
 void WildPokemon::systemMove(){
-    startSystemMove();
+    m_hitbox->startSystemMove();
 }
 
 void WildPokemon::startRoaming(){
-    Qt::WindowFlags flags = this->flags();
-    flags &= ~Qt::WindowTransparentForInput;
-    this->setFlags(flags);
-
     connect(m_decisionTimer, &QTimer::timeout, this, &WildPokemon::makeRandomDecision);
     connect(m_moveTimer, &QTimer::timeout, this, &WildPokemon::moveStep);
 

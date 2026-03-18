@@ -8,8 +8,9 @@ class WildPokemon : public Pokemon{
 
 public:
     explicit WildPokemon(QWindow *parent = nullptr, int row = 0);
-
     virtual void startRoaming();
+    QQuickView* m_hitbox;
+
 private slots:
     void makeRandomDecision();
     void moveStep();
@@ -20,6 +21,7 @@ public slots:
     void startBattle();
 
 private:
+    void setupHitbox();
     QTimer* m_decisionTimer;
     QTimer* m_moveTimer;
 

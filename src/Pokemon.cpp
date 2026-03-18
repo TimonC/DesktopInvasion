@@ -1,6 +1,7 @@
 #include <QRandomGenerator>
 #include <QGuiApplication>
 #include <QQuickItem>
+#include <qnamespace.h>
 #include "Pokemon.h"
 
 Pokemon::Pokemon(QWindow *parent, int row)
@@ -12,7 +13,8 @@ Pokemon::Pokemon(QWindow *parent, int row)
     setFlags( Qt::WindowStaysOnTopHint
             | Qt::Tool
             | Qt::WindowDoesNotAcceptFocus
-            | Qt::FramelessWindowHint);
+            | Qt::WindowTransparentForInput);
+            /* | Qt::FramelessWindowHint); */
     setColor(Qt::transparent);
 
 
@@ -21,20 +23,23 @@ Pokemon::Pokemon(QWindow *parent, int row)
     m_sprite->setProperty("scaleFactor", m_scaleFactor);
     m_sprite->setProperty("row", m_row);
 
-    setSize(34);
+    setSize(40);
 
-    m_sprite->setProperty("spriteOffsetX", 34);
-    m_sprite->setProperty("spriteOffsetY",34/2);
 
 }
 
 void Pokemon::setSize(int size){
     int width = m_scaleFactor*size;
     int height = m_scaleFactor*size;
+
     m_sprite->setProperty("itemWidth", width);
     m_sprite->setProperty("itemHeight", height);
+
     setWidth(width);
     setHeight(height);
+
+    m_sprite->setProperty("spriteOffsetX", width/3);
+    m_sprite->setProperty("spriteOffsetY", height/4);
 }
 void Pokemon::useMove(){
     m_sprite->setProperty("tackle", true);

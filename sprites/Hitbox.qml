@@ -7,8 +7,8 @@ Item {
     height: 30*2
     visible: true
     z: 3000
-property var mouseArea: mouseArea
-property var battleButton: battleButton
+    property var mouseArea: mouseArea
+    property var battleButton: battleButton
     property bool openingButtons: false
     property bool clickable: true
 
@@ -17,9 +17,6 @@ property var battleButton: battleButton
         anchors.fill: parent
         enabled: clickable
         hoverEnabled: true
-        onClicked: {
-            openingButtons = !openingButtons
-        }
     }
 
     RoundButton {

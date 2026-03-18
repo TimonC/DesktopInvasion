@@ -6,10 +6,8 @@ int main(int argc, char *argv[]) {
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 
     std::unique_ptr<WildPokemon> pok1  = std::make_unique<WildPokemon>(nullptr, std::rand() % 100);
-    pok1->show();
 
     std::unique_ptr<WildPokemon> pok2  = std::make_unique<WildPokemon>(nullptr, std::rand() % 100);
-    pok2->show();
 
     return app.exec();
 }
