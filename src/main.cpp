@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
     QGuiApplication app(argc, argv);
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 
-    const int num_wild        = 3;
+    const int num_wild        = 1;
     const int start_pokedexid = 400;
     /* Globals::DEBUG = true; */
 
@@ -31,6 +31,8 @@ int main(int argc, char *argv[]) {
     }
 
     std::vector<std::unique_ptr<WildPokemon>> wildPokemon;
+    /* const PokemonInfo* pokemonInfo = Globals::getPokemonByPokedexId(407); */
+    /* wildPokemon.push_back(std::make_unique<WildPokemon>(pokemonInfo)); */
     for (int i = start_pokedexid; i < num_wild + start_pokedexid; ++i) {
         const PokemonInfo* pokemonInfo = Globals::getRandomPokemon();
         /* const PokemonInfo* pokemonInfo = Globals::getPokemonByPokedexId(i); */
