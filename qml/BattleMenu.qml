@@ -10,9 +10,10 @@ Rectangle {
     property int buttonWidth: frameSize * 2
     property int buttonHeight: frameSize * 0.75
     property int buttonFontSize: frameSize * 0.4
+    property int textBarFontSize: frameSize * 0.45
     property int gridSpacing: frameSize * 0.1
-    property int menuHeight: 50
-    property int menuWidth: frameSize * 5
+    property int menuHeight:50
+    property int menuWidth: frameSize * 5 * 0.9
 
     property int pokeSpriteId: 3
     property double spriteScale: 1
@@ -93,27 +94,37 @@ Rectangle {
         }
     }
 
-    Component {
-        id: textBarComponent
-        Rectangle {
-            id: textBar
-            color: "white"
-            border.color: "black"
-            border.width: 2
-            property string text: "UNINITIALIZED TEXT!!!!"
-            height: root.menuHeight
-            width: root.menuWidth
-            radius: 5
-            Text {
-                id: textBarText
-                anchors.fill: parent
-                anchors.margins: 6
-                text: textBar.text
-                font.pixelSize: 13
-                verticalAlignment: Text.AlignVCenter
-            }
+Component {
+    id: textBarComponent
+    Rectangle {
+        id: textBar
+        color: "white"
+        border.color: "black"
+        border.width: 2
+        property string text: "UNINITIALIZED TEXT!!!!"
+        height: root.menuHeight
+        width: root.menuWidth
+        anchors.centerIn: parent.center
+        radius: 5
+
+        Text {
+            id: textBarText
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.rightMargin: parent.width * 0.2 //Wrap at 80%
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.margins: 6
+            text: textBar.text
+            font.pixelSize: root.textBarFontSize
+            verticalAlignment: Text.AlignVCenter
+
+            wrapMode: Text.WordWrap
+            maximumLineCount: 2
+            elide: Text.ElideRight
         }
     }
+}
 
     Component {
         id: rootSelection
