@@ -97,7 +97,9 @@ Rectangle {
         id: textBarComponent
         Rectangle {
             id: textBar
-            color: "darkgrey"
+            color: "white"
+            border.color: "black"
+            border.width: 2
             property string text: "UNINITIALIZED TEXT!!!!"
             height: root.menuHeight
             width: root.menuWidth

@@ -8,45 +8,62 @@ Item {
     property alias currentHealthRatio: progressBar.value
     property real animationSpeed: 1000
     width: 32*2
-    height: 24
+    height: 22
     property alias pokeName: textBarText.text
 
-Rectangle {
-    anchors.top: parent.top
-    anchors.right: parent.right
-    width: root.width
-    height: parent.height * 3/4
-    color: "transparent"
+    Rectangle {
+        anchors.top: parent.top
+        anchors.right: parent.right
+        width: root.width
+        height: parent.height * 3/4
+        color: "transparent"
 
-    Text {
-        id: textBarText
-        anchors.fill: parent
-        anchors.rightMargin: 4
+        Text {
+            id: textBarText
+            anchors.fill: parent
+            anchors.rightMargin: 4
 
-        color: "white"
-        style: Text.Outline;
-        styleColor: "black"
-        renderType: Text.NativeRendering //magic way to make outline nicer
-        smooth: true
-        antialiasing: true
+            color: "white"
+            style: Text.Outline;
+            styleColor: "black"
+            renderType: Text.NativeRendering //magic way to make outline nicer
+            smooth: true
+            antialiasing: true
 
-        text: "Pokemon"
-        font.pixelSize: Math.round(parent.height * 0.6)
-        verticalAlignment: Text.AlignVCenter
-        horizontalAlignment: Text.AlignRight
-        elide: Text.ElideRight
+            text: "Pokemon"
+            font.bold: true
+            font.pixelSize: Math.round(parent.height * 0.6)
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignRight
 
+        }
     }
-}
 
-    ProgressBar {
+
+   ProgressBar {
         id: progressBar
-        anchors.bottom: parent.bottom
         width: parent.width
         height: parent.height/4
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom
         value: 1
         from: 0
         to: 1
+        background: Rectangle {
+            anchors.fill: progressBar
+            color: "darkgrey"
+            radius: 4
+            border.width: 1
+            border.color: "black"
+        }
+        contentItem: Rectangle {
+            anchors.left: progressBar.left
+            anchors.bottom: progressBar.bottom
+            height: progressBar.height
+            width: progressBar.width * progressBar.value
+            color: progressBar.value >=0.5 ? "green" :  (progressBar.value >=0.25 ? "yellow" : "red")
+            radius: 4
+        }
     }
 
 
