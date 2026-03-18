@@ -3,8 +3,8 @@ import QtQuick.Controls 2.15
 
 Item {
     id: root
-    width: (chosenSide === 0 || chosenSide === 2) ? frameSize * 5 : frameSize * 8
-    height: (chosenSide === 0 || chosenSide === 2) ? frameSize * 8 : frameSize * 5
+    width: (direction === 0 || direction === 2) ? frameSize * 5 : frameSize * 8
+    height: (direction === 0 || direction === 2) ? frameSize * 8 : frameSize * 5
     layer.enabled: true
 
     // Scaling properties
@@ -13,7 +13,6 @@ Item {
     property int buttonHeight: frameSize * 0.7
     property int buttonFontSize: frameSize * 0.4
     property int gridSpacing: frameSize * 0.1
-    property int chosenSide: 0  // 0=North, 1=East, 2=South, 3=West
 
     property bool debugLines: false
 
@@ -48,13 +47,13 @@ Item {
 
         Connections {
             target: root
-            function onChosenSideChanged() {
+            function onDirectionChanged() {
                 positionSprite(opponentSprite);
             }
         }
     }
 
-    // Player Pokemon - positioned according to chosenSide
+    // Player Pokemon - positioned according to direction
     PokemonSprite {
         id: playerSprite
         objectName: "playerSprite"
@@ -69,7 +68,7 @@ Item {
 
         Connections {
             target: root
-            function onChosenSideChanged() {
+            function onDirectionChanged() {
                 positionSprite(playerSprite);
             }
         }
