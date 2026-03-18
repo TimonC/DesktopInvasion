@@ -5,11 +5,9 @@
 #include <QTimer>
 
 Game::Game(QQmlApplicationEngine* engine, QObject* parent) : QObject(parent) {
-    m_menu = new GameMenu();
-    m_engine  = engine;
+    m_menu = new GameMenu(); m_engine  = engine;
 
-    m_wildPokemonInfo = Globals::getPokemonInfo();
-    m_wildPokemon = new WildPokemon(m_wildPokemonInfo);
+    spawnNewPokemon();
 
     connect(&Globals::getPlayer(), &Player::startABattle,
             this, &Game::handleBattleStart);
@@ -21,14 +19,33 @@ Game::Game(QQmlApplicationEngine* engine, QObject* parent) : QObject(parent) {
 
 Game::~Game() {
     if (m_activeBattle) {
-        m_activeBattle->deleteLater();
+        m_activeBattle->disconnect();
+        delete m_activeBattle;
     }
     if (m_wildPokemon) {
-        m_wildPokemon->deleteLater();
+        m_wildPokemon->disconnect();
+        delete m_wildPokemon;
     }
     delete m_menu;
     delete m_trayIcon;
 }
+
+void Game::spawnPokemon(){
+    if(m_wildPokemon){
+        m_wildPokemon->disconnect();
+        delete m_wildPokemon;
+        m_wildPokemon = nullptr;
+    }
+
+    if(m_wildPokemonInfo){
+        m_wildPokemon = new WildPokemon(m_wildPokemonInfo, m_spawnPoint, m_spawnDirection);
+    }else{
+        m_wildPokemonInfo = Globals::getPokemonInfo();
+        m_wildPokemon = new WildPokemon(m_wildPokemonInfo);
+    }
+};
+
+
 
 void Game::setGameActive(bool active){
     static bool processing = false;
@@ -36,12 +53,7 @@ void Game::setGameActive(bool active){
 
     processing=true;
     if(active){
-        if(m_wildPokemon){
-            m_wildPokemon->disconnect();
-            delete m_wildPokemon;
-            m_wildPokemon = nullptr;
-        }
-        if(m_wildPokemonInfo)m_wildPokemon = new WildPokemon(m_wildPokemonInfo, m_spawnPoint, m_spawnDirection);
+        spawnPokemon();
     }else{
         if(m_activeBattle){
             updateWildPokemonPosToBattlePos();

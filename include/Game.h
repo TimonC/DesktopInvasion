@@ -27,6 +27,7 @@ private:
     int m_spawnDirection = -1;
     const int m_spawnDelay_ms = 5000;
     void updateWildPokemonPosToBattlePos();
+    void spawnPokemon();
 
 private slots:
     void handleBattleStart(Battle* battle);
