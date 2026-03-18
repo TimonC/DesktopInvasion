@@ -5,18 +5,18 @@ Item {
     id: root
 
     // ── Visual config ──────────────────────────────────────────────────────────
-    property string fontFamily:     "sans-serif"
+    property string fontFamily:      "sans-serif"
     property color  partyBackground: "white"
     property color  pcBackground:    "green"
     property color  buttonColor:     "#5294e2"
-    property int    slotWidth:       80
-    property int    slotHeight:      60
+    property int    slotWidth:       80*1.5
+    property int    slotHeight:      60*1.5
     property int    freePartySlot:   -1
 
     readonly property int partyRows:    2
     readonly property int partyColumns: 3
-    readonly property int pcRows:       5
-    readonly property int pcColumns:    6
+    readonly property int pcRows:       4
+    readonly property int pcColumns:    4
     readonly property int maxBoxes:     99
 
     // ── Spacing (single source of truth) ──────────────────────────────────────

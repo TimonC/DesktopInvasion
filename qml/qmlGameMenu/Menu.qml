@@ -16,8 +16,8 @@ Rectangle {
     readonly property int sectionGap:  12
     readonly property int panelGap:    1
 
-    readonly property int trainerH:    300
-    readonly property int pcH:         500
+    readonly property int trainerH:    200
+    readonly property int pcH:         640
     readonly property int pcW:         640
     readonly property int rightPanelW: 640
 
