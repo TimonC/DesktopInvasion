@@ -69,19 +69,24 @@ void Game::handleBattleEnd(Battle* battle, WildPokemon* opp, bool removeWild) {
         m_wildPokemon->deleteLater();
         m_wildPokemon = nullptr;
 
+        //Delay until the new spawn
         QTimer::singleShot(m_spawnDelay_ms, this, [this]() {
             spawnWildPokemon(Globals::getPokemonInfo());
         });
     }else{
-        QPoint newOppPos = opp->position() + battle->position() - battle->m_origin;;
-        opp->setPosition(newOppPos);
-        opp->startRoaming();
+        opp->m_sprite->setProperty("visible", false);
         opp->show();
+        opp->startRoaming();
 
         //Short delay to ensure smooth visual transition
-        QTimer::singleShot(50, this, [this, battle]() {
+        QTimer::singleShot(50, this, [this, battle, opp]() {
+            QPoint newOppPos = opp->position() + battle->position() - battle->m_origin;
+
             battle->deleteLater();
             m_activeBattle = nullptr;
+
+            opp->setPosition(newOppPos);
+            opp->m_sprite->setProperty("visible", true);
         });
     }
 }
