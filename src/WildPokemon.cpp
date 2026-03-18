@@ -20,7 +20,7 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
 {
 
     m_hitbox->offset =QPoint(width()/3.2, height()/2.8);
-    movePos(QPoint(screenSize().width()/2, screenSize().height()/2));
+    movePos(QPoint(screenGeometry().width()/2, screenGeometry().height()/2));
 
     connect(m_hitbox, &Hitbox::drag, this, [this](QPoint delta){
             movePos(delta);
@@ -81,9 +81,8 @@ void WildPokemon::startBattle(){
 
     const int BOUNDARY_MARGIN = 14;
 
-    QRect screen = screenSize();
-    int screenRight = screen.x() + screen.width();
-    int screenBottom = screen.y() + screen.height();
+    int screenRight = screenGeometry().x() + screenGeometry().width();
+    int screenBottom = screenGeometry().y() + screenGeometry().height();
 
     QPoint delta(0, 0);
 

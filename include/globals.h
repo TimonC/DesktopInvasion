@@ -5,9 +5,12 @@
 #include "Player.h"
 #include <QGuiApplication>
 
-static bool DEBUG = false;
+extern bool DEBUG;
+
+const QRect& screenGeometry();
+
 Player& getPlayer();
-QRect screenSize();
 const PokemonInfo* getRandomPokemon();
 const PokemonInfo* findPokemonByPokedexId(int pokedexId);
+
 #endif

@@ -174,19 +174,18 @@ void Battlescene::drag(QPoint& delta){
     }
 
     QPoint newCornersPos = m_corners->position() + delta;
-    QRect availableScreen = screenSize();
 
     // Calculate allowed movement directly
     int allowedX = 0;
     int allowedY = 0;
 
-    if (newCornersPos.x() >= availableScreen.x() &&
-        newCornersPos.x() + m_corners->width() <= availableScreen.right()) {
+    if (newCornersPos.x() >= screenGeometry().x() &&
+        newCornersPos.x() + m_corners->width() <= screenGeometry().right()) {
         allowedX = delta.x();
     }
 
-    if (newCornersPos.y() >= availableScreen.y() &&
-        newCornersPos.y() + m_corners->height() <= availableScreen.bottom()) {
+    if (newCornersPos.y() >= screenGeometry().y() &&
+        newCornersPos.y() + m_corners->height() <= screenGeometry().bottom()) {
         allowedY = delta.y();
     }
 

@@ -1,14 +1,21 @@
 #include "globals.h"
 #include "Player.h"
 #include <QGuiApplication>
-#include <qwindow.h>
+#include <QWindow>
+#include <cstdlib>
+
+bool DEBUG = false;
+
+const QRect& screenGeometry() {
+    static const QRect geometry = QGuiApplication::primaryScreen()->availableGeometry();
+    return geometry;
+}
 
 Player& getPlayer() {
     static std::unique_ptr<Player> player = std::make_unique<Player>();
     return *player;
 }
 
-// Get a random Pokemon by pokedex ID
 const PokemonInfo* getRandomPokemon() {
     // Get all unique pokedex IDs
     QSet<int> availablePokedexIds;
@@ -16,7 +23,6 @@ const PokemonInfo* getRandomPokemon() {
         availablePokedexIds.insert(kPokemonList[i].pokedexId);
     }
 
-    // Convert to list for random access
     QList<int> pokedexIdList = availablePokedexIds.values();
 
     if (pokedexIdList.isEmpty()) {
@@ -29,19 +35,13 @@ const PokemonInfo* getRandomPokemon() {
 
     return findPokemonByPokedexId(randomPokedexId);
 }
+
 const PokemonInfo* findPokemonByPokedexId(int pokedexId) {
     for (int i = 0; i < kPokemonCount; ++i) {
         if (kPokemonList[i].pokedexId == pokedexId) {
-            return &kPokemonList[i]; // return pointer to the entry
+            return &kPokemonList[i];
         }
     }
-    qFatal("Pokemon with spriteId %d not found!", pokedexId);
-    return nullptr; // this line won't be reached
-}
-
-
-
-QRect screenSize(){
-    static QRect availableScreen = QGuiApplication::primaryScreen()->availableGeometry();
-    return availableScreen;
+    qFatal("Pokemon with pokedexId %d not found!", pokedexId);
+    return nullptr;
 }
