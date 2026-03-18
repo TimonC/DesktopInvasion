@@ -9,6 +9,7 @@ namespace Globals {
     extern bool DEBUG;
     extern int SCALE;
     extern int POKE_PADDING;
+    extern const int MAX_POKEDEX_ID;
 
     const QRect& screenGeometry();
     Player& getPlayer();

@@ -3,6 +3,7 @@
 #include <QOpenGLContext>
 #include <globals.h>
 #include <Game.h>
+#include <tests.h>
 
 int main(int argc, char *argv[]) {
 
@@ -10,7 +11,7 @@ int main(int argc, char *argv[]) {
 
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 
-    /* Globals::DEBUG = true; */
+    Globals::DEBUG = true;
 
     QOpenGLContext context;
     if (context.create()) {
@@ -24,7 +25,10 @@ int main(int argc, char *argv[]) {
 
     /* if (!Globals::DEBUG)  loggingCategory::setFilterRules("*.debug=false"); */
 
+    runAllTests();
+
     Game game;
+
 
     return app.exec();
 }

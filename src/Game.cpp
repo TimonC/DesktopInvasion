@@ -6,7 +6,6 @@
 
 Game::Game(){
     m_menu = new GameMenu();
-
     spawnWildPokemon(Globals::getPokemonInfo());
 }
 

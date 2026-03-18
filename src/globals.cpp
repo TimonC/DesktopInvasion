@@ -1,12 +1,10 @@
 #include <globals.h>
 #include <QGuiApplication>
 #include <unordered_map>
-
 namespace Globals {
     bool DEBUG = false;
     int SCALE = 3;
     int POKE_PADDING = 2;
-
     const int MAX_POKEDEX_ID = 493;
 
     const QRect& screenGeometry() {
@@ -25,8 +23,13 @@ namespace Globals {
 
         if (lookup.empty()) {
             for (int i = 0; i < kPokemonCount; ++i) {
-                lookup[kPokemonList[i].pokedexId] = &kPokemonList[i];
-                pokemonVector.push_back(&kPokemonList[i]);
+
+                int pokedexId = kPokemonList[i].pokedexId;
+                if(lookup.find(pokedexId)==lookup.end()){
+                    lookup[pokedexId] = &kPokemonList[i];
+                    pokemonVector.push_back(&kPokemonList[i]);
+                }
+
             }
         }
 
