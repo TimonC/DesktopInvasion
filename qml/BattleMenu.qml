@@ -219,7 +219,7 @@ Rectangle {
 
             Row {
                 anchors.centerIn: parent
-                spacing: root.gridSpacing
+                spacing: root.gridSpacing*2
 
                 Grid {
                     columns: 3
@@ -235,8 +235,7 @@ Rectangle {
                             color: "transparent"
                             radius: 4
                             border.color: switchRoot.selectedIndex === index ? "#4CAF50" : "#e0e0e0"
-                            border.width: switchRoot.selectedIndex === index ? 3 : 1
-                            scale: switchRoot.selectedIndex === index ? 1 : 0.9
+                            border.width: switchRoot.selectedIndex === index ? 2 : 0.5
 
 
                             Rectangle {
@@ -249,6 +248,7 @@ Rectangle {
                             PokemonIcon {
                                 anchors.centerIn: parent
                                 frameIndex: root.partyMembers[index].iconId
+                                scale: switchRoot.selectedIndex === index ? 1.05 : 1
                             }
 
                             MouseArea {
