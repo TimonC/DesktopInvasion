@@ -48,7 +48,7 @@ Game::~Game() {
 }
 
 void Game::safelyRemoveBattleScene(){
-    assert(m_wildPokemon && "There should be no existing Battle when this is called.");
+    assert(m_activeBattle && "There should be no existing Battle when this is called.");
 
     disconnect(m_activeBattle, nullptr, this, nullptr);
     disconnect(this, nullptr, m_activeBattle, nullptr);
@@ -99,6 +99,8 @@ void Game::setGameActive(bool active) {
             safelyRemoveWildPokemon();
         }
         if (m_activeBattle) {
+            m_spawnPoint = m_activeBattle->position() + m_activeBattle->m_spriteOffset;
+            m_spawnDirection = m_activeBattle->m_currentDirection;
             m_activeBattle->setSceneVisibility(false);
             safelyRemoveBattleScene();
         }
@@ -244,7 +246,7 @@ void Game::handleBattleStart() {
     m_spawnDirection = m_wildPokemon->m_currentDirection;
 
     //Cleanup with delay for smooth transition from WildPokemon to Battle
-    QTimer::singleShot(100, this, [this]() {
+    QTimer::singleShot(200, this, [this]() {
         safelyRemoveWildPokemon();
     });
 
@@ -335,12 +337,14 @@ void Game::handleBattleEnd(const char* endState, bool removeWild) {
     } else {
         // Battle ended without removing wild Pokemon
         m_activeBattle->handleDrag(false);
+        m_spawnPoint = m_activeBattle->position() + m_activeBattle->m_spriteOffset;
+        m_spawnDirection = m_activeBattle->m_currentDirection;
 
         spawnPokemon();
 
         //Cleanup with delay for smooth transition from battlescene to wild pokemon
         QTimer::singleShot(100, this, [this]() {
-            if (m_activeBattle) safelyRemoveBattleScene();
+            safelyRemoveBattleScene();
         });
     }
 }

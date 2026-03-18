@@ -41,6 +41,8 @@ public:
 
     // Store initial positions position swap with WildPokemon
     QPoint m_oppPos;
+    QPoint m_spriteOffset;
+
 
     void setSceneVisibility(bool visibility){
         m_battleScene->setProperty("visible",visibility);

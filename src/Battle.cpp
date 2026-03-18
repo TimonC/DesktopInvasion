@@ -135,10 +135,10 @@ QQuickItem* Battle::updateSprite(int spriteId, int generation, const char* role)
 void Battle::initPosition() {
     QQuickItem* rootItem = qobject_cast<QQuickItem*>(m_battleScene);
     QQuickItem* opponentItem = m_battleScene->findChild<QQuickItem*>("opponent");
-    // has to be QPointF for the method, but since we set offsets as integer in qml it gives smooth transition
-    QPointF spriteOffset = opponentItem->mapToItem(rootItem, QPointF(0, 0));
+    QPointF floatOffset = opponentItem->mapToItem(rootItem, QPointF(0, 0));
+    m_spriteOffset = QPoint(qRound(floatOffset.x()), qRound(floatOffset.y()));
 
-    QPoint origin = m_oppPos + QPoint(-spriteOffset.x(), -spriteOffset.y());
+    QPoint origin = m_oppPos - m_spriteOffset;
     QRect screenGeom = Globals::screenGeometry();
 
     QTimer::singleShot(20, this, [this, screenGeom, origin]() {
