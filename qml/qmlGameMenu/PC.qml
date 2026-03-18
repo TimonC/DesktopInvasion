@@ -3,12 +3,17 @@ import QtQuick.Layouts 1.15
 
 Item {
     id: root
-    anchors.fill: parent
+
+    // --- Fixed size (allocate exactly this in the parent menu) ---
+    // Width:  margin(10) + arrow(36) + spacing(10) + pcGrid(4×80=320) + spacing(10) + arrow(36) + margin(10) = 432
+    // Height: margin(10) + partyRow(2×60=120) + rowGap(10) + pcGrid(4×60=240) + margin(10) = 390
+    implicitWidth:  432
+    implicitHeight: 390
 
     // --- Visual config ---
     property color partyBackground: "white"
     property color pcBackground:    "green"
-    property color arrowColor:      "#5294e2"
+    property color buttonColor:     "#5294e2"
     property int   slotWidth:       80
     property int   slotHeight:      60
     readonly property int partyRows:    2
@@ -17,12 +22,19 @@ Item {
     readonly property int pcColumns:    4
     readonly property int maxBoxes:     99
 
+    // --- Spacing config (single source of truth) ---
+    readonly property int layoutMargin:  10
+    readonly property int layoutSpacing: 10
+
+    // --- Derived button size (same for all PcButtons) ---
+    readonly property int buttonWidth:  36
+    readonly property int buttonHeight: 56
+
     // --- State ---
     property int currentBoxIndex: 0
     property var partyMap: ({})   // slot -> iconId
     property var boxes:    ({})   // boxIndex -> array[16] of iconId|undefined
 
-    // Replaced by C++ calls to loadParty/loadBox/showBox on menu open
     Component.onCompleted: {
         loadBox(0, [])
         showBox(0)
@@ -31,24 +43,39 @@ Item {
     // --- Signals ---
     signal preloadBoxRequested(int boxIndex)
 
-    // --- Main Layout ---
-
-    // Center everything vertically in the available space
-    Item {
+    // ---------------------------------------------------------------
+    // Root grid: two rows (party / pc), proportional heights
+    // ---------------------------------------------------------------
+    GridLayout {
         anchors.fill: parent
-        anchors.margins: 20
+        anchors.margins: root.layoutMargin
 
-        // Party section (top third)
-        Item {
-            id: partySection
-            anchors.top: parent.top
-            anchors.horizontalCenter: parent.horizontalCenter
-            height: partyRows * slotHeight
+        columns:       1
+        rows:          2
+        rowSpacing:    root.layoutSpacing
+        columnSpacing: 0
 
+        // ----------------------------------------------------------
+        // Row 0 – Party row: [S button] [party grid], centred as a unit
+        // ----------------------------------------------------------
+        GridLayout {
+            Layout.row:             0
+            Layout.column:          0
+            Layout.alignment:       Qt.AlignHCenter | Qt.AlignTop
+            Layout.preferredHeight: root.partyRows * root.slotHeight
+
+            columns:       2   // [party grid] [S button]
+            rows:          1
+            columnSpacing: root.layoutSpacing
+            rowSpacing:    0
+
+            // Party grid
             Item {
-                anchors.centerIn: parent
-                width: partyColumns * slotWidth
-                height: partyRows * slotHeight
+                Layout.column:          0
+                Layout.row:             0
+                Layout.alignment:       Qt.AlignVCenter
+                Layout.preferredWidth:  root.partyColumns * root.slotWidth
+                Layout.preferredHeight: root.partyRows    * root.slotHeight
 
                 Rectangle {
                     anchors.fill: parent
@@ -60,86 +87,141 @@ Item {
 
                 Grid {
                     anchors.centerIn: parent
-                    rows: root.partyRows
-                    columns: root.partyColumns
-                    rowSpacing: 0
+                    rows:          root.partyRows
+                    columns:       root.partyColumns
+                    rowSpacing:    0
                     columnSpacing: 0
 
                     Repeater {
                         model: root.partyRows * root.partyColumns
                         PokemonSlot {
                             iconVisible: root.partyMap[index] !== undefined
-                            frameIndex: root.partyMap[index] || 0
+                            frameIndex:  root.partyMap[index] || 0
                         }
                     }
                 }
             }
+
+            // "S" button – inert for now
+            PcButton {
+                Layout.column:          1
+                Layout.row:             0
+                Layout.alignment:       Qt.AlignVCenter
+                Layout.preferredWidth:  root.buttonWidth
+                Layout.preferredHeight: root.buttonHeight
+                label: "S"
+            }
         }
 
-        // PC section (bottom two thirds)
-        Item {
-            id: pcSection
-            anchors.top: partySection.bottom
-            anchors.bottom: parent.bottom
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.topMargin: 20
+        // ----------------------------------------------------------
+        // Row 1 – PC row: [left arrow] [box grid] [right arrow]
+        // fillHeight gives it the larger proportion of vertical space
+        // ----------------------------------------------------------
+        GridLayout {
+            Layout.row:        1
+            Layout.column:     0
+            Layout.fillWidth:  true
+            Layout.fillHeight: true
+            Layout.alignment:  Qt.AlignHCenter | Qt.AlignVCenter
 
-            // Center the PC grid with arrows in the remaining space
+            columns:       3
+            rows:          1
+            columnSpacing: root.layoutSpacing
+            rowSpacing:    0
+
+            // Left arrow
+            PcButton {
+                Layout.column:          0
+                Layout.row:             0
+                Layout.alignment:       Qt.AlignVCenter | Qt.AlignHCenter
+                Layout.preferredWidth:  root.buttonWidth
+                Layout.preferredHeight: root.buttonHeight
+                label: "◀"
+                onClicked: root._slideLeft()
+            }
+
+            // Box grid
             Item {
-                anchors.centerIn: parent
-                width: pcColumns * slotWidth + 80
-                height: pcRows * slotHeight
+                Layout.column:          1
+                Layout.row:             0
+                Layout.alignment:       Qt.AlignCenter
+                Layout.preferredWidth:  root.pcColumns * root.slotWidth
+                Layout.preferredHeight: root.pcRows    * root.slotHeight
 
-                ArrowButton {
-                    anchors.left: parent.left
-                    anchors.verticalCenter: parent.verticalCenter
-                    direction: "left"
-                    onClicked: root._slideLeft()
+                Rectangle {
+                    anchors.fill: parent
+                    color: root.pcBackground
+                    radius: 8
+                    border.color: "#cccccc"
+                    border.width: 1
                 }
 
-                Item {
+                Grid {
                     anchors.centerIn: parent
-                    width: pcColumns * slotWidth
-                    height: pcRows * slotHeight
+                    rows:          root.pcRows
+                    columns:       root.pcColumns
+                    rowSpacing:    0
+                    columnSpacing: 0
 
-                    Rectangle {
-                        anchors.fill: parent
-                        color: root.pcBackground
-                        radius: 8
-                        border.color: "#cccccc"
-                        border.width: 1
-                    }
-
-                    Grid {
-                        anchors.centerIn: parent
-                        rows: root.pcRows
-                        columns: root.pcColumns
-                        rowSpacing: 0
-                        columnSpacing: 0
-
-                        Repeater {
-                            model: root.pcRows * root.pcColumns
-                            PokemonSlot {
-                                property var currentBox: root.boxes[root.currentBoxIndex]
-                                iconVisible: currentBox !== undefined && currentBox[index] !== undefined
-                                frameIndex: (currentBox !== undefined && currentBox[index] !== undefined)
-                                            ? currentBox[index] : 0
-                            }
+                    Repeater {
+                        model: root.pcRows * root.pcColumns
+                        PokemonSlot {
+                            property var currentBox: root.boxes[root.currentBoxIndex]
+                            iconVisible: currentBox !== undefined && currentBox[index] !== undefined
+                            frameIndex:  (currentBox !== undefined && currentBox[index] !== undefined)
+                                         ? currentBox[index] : 0
                         }
                     }
                 }
+            }
 
-                ArrowButton {
-                    anchors.right: parent.right
-                    anchors.verticalCenter: parent.verticalCenter
-                    direction: "right"
-                    onClicked: root._slideRight()
-                }
+            // Right arrow
+            PcButton {
+                Layout.column:          2
+                Layout.row:             0
+                Layout.alignment:       Qt.AlignVCenter | Qt.AlignHCenter
+                Layout.preferredWidth:  root.buttonWidth
+                Layout.preferredHeight: root.buttonHeight
+                label: "▶"
+                onClicked: root._slideRight()
             }
         }
     }
 
-    // --- Components ---
+    // ---------------------------------------------------------------
+    // Components
+    // ---------------------------------------------------------------
+
+    // Base button – shared visuals for every button in this screen.
+    // Wire onClicked for interactive buttons; leave unwired for inert ones.
+    component PcButton: Rectangle {
+        width:  root.buttonWidth
+        height: root.buttonHeight
+        radius: 6
+        property string label:  ""
+        property bool   active: true
+        signal clicked()
+
+        color: active
+               ? (press.pressed ? Qt.darker(root.buttonColor, 1.3) : root.buttonColor)
+               : "#444"
+
+        Text {
+            anchors.centerIn: parent
+            text:           parent.label
+            color:          parent.active ? "white" : "#888"
+            font.pixelSize: 18
+            font.bold:      true
+        }
+
+        MouseArea {
+            id: press
+            anchors.fill: parent
+            enabled:      parent.active
+            onClicked:    parent.clicked()
+            cursorShape:  undefined
+        }
+    }
 
     component PokemonSlot: Rectangle {
         width:  root.slotWidth
@@ -163,40 +245,13 @@ Item {
             id: hoverArea
             anchors.fill: parent
             hoverEnabled: true
-            cursorShape: undefined
+            cursorShape:  undefined
         }
     }
 
-    component ArrowButton: Rectangle {
-        width: 36
-        height: 56
-        radius: 6
-        property string direction: "right"
-        property bool active: true
-        signal clicked()
-
-        color: active
-               ? (press.pressed ? Qt.darker(root.arrowColor, 1.3) : root.arrowColor)
-               : "#444"
-
-        Text {
-            anchors.centerIn: parent
-            text: parent.direction === "left" ? "◀" : "▶"
-            color: parent.active ? "white" : "#888"
-            font.pixelSize: 18
-            font.bold: true
-        }
-
-        MouseArea {
-            id: press
-            anchors.fill: parent
-            enabled: parent.active
-            onClicked: parent.clicked()
-            cursorShape: undefined
-        }
-    }
-
-    // --- Public API ---
+    // ---------------------------------------------------------------
+    // Public API
+    // ---------------------------------------------------------------
     function loadParty(dataList) {
         var map = {}
         for (var i = 0; i < dataList.length; i++)
@@ -218,11 +273,13 @@ Item {
         _requestAdjacentPreloads(boxIndex)
     }
 
-    // --- Internal ---
+    // ---------------------------------------------------------------
+    // Internal
+    // ---------------------------------------------------------------
     function _requestAdjacentPreloads(index) {
-        var left = (index - 1 + maxBoxes) % maxBoxes
+        var left  = (index - 1 + maxBoxes) % maxBoxes
         var right = (index + 1) % maxBoxes
-        if (!boxes.hasOwnProperty(left)) preloadBoxRequested(left)
+        if (!boxes.hasOwnProperty(left))  preloadBoxRequested(left)
         if (!boxes.hasOwnProperty(right)) preloadBoxRequested(right)
     }
 
@@ -240,3 +297,4 @@ Item {
         _requestAdjacentPreloads(next)
     }
 }
+
