@@ -120,7 +120,7 @@ Item{
         height: root.slotHeight
         property bool iconVisible: false
         property int frameIndex: 0
-        color: hoverArea.containsMouse ? "blue" : "transparent"
+        color: (hoverArea.containsMouse && iconVisible) ? "blue" : "transparent"
         Image {
             anchors.fill: parent
             visible: iconVisible
