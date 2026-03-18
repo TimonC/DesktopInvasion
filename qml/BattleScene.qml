@@ -408,7 +408,7 @@ Item {
 
     function oneShotTimer(duration, onFinish){
             Qt.callLater(function() {
-                var hideTimer = Qt.createQmlObject('import QtQuick 2.15 Timer {}', root)
+                var hideTimer = Qt.createQmlObject('import QtQuick 2.15; Timer {}', root)
                 hideTimer.interval = root.ballTransitionDuration
                 hideTimer.triggered.connect(function() {
                     onFinish()
