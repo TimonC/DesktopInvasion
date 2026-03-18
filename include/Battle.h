@@ -1,3 +1,4 @@
+// Battle.h
 #ifndef BATTLE_H
 #define BATTLE_H
 #include <DesktopScene.h>
@@ -62,7 +63,7 @@ private slots:
     void handleSwitchedPokemon(int generation, int spriteId) {
         updateSprite(spriteId, generation, "player");
     }
-    void playActionRound(Battler& opponent, Battler& player, bool playerFirst, int switchedIn, int shakes);
+    void executeActionSequence(QVariantList sequence);
 
 private:
     void setupParty(Party party);

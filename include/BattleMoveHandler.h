@@ -7,6 +7,7 @@
 #include <qtmetamacros.h>
 #include <random>
 #include <array>
+#include <QVariant>
 
 
 struct BattleStateDelta{
@@ -18,6 +19,7 @@ struct BattleStateDelta{
     bool miss = false;
 
     bool superEffective = false;
+    bool notVeryEffective = false;  // Added this
     bool critical = false;
 
     bool flinched = false;
@@ -35,6 +37,7 @@ struct BattleStateDelta{
 };
 
 struct PokeState{
+    std::string name;
     int lvl;
     std::array<int, 6> stats;
     const Type* types[2];
@@ -63,14 +66,33 @@ public:
     BattleMoveHandler(const PokemonState& wildState, const std::array<PokemonState, 6>& partyStates);
 
 signals:
-    void actionRoundOver(Battler& opponent, Battler& player, bool playerFirst = true, int switchedIn = -1, int shakes = -1);
+    void actionSequenceReady(QVariantList sequence);
 
 public slots:
-    void startActionRound(int playerMoveIndex, const char* action);
+    void startActionRound(int playerMoveIndex, QString action);
 
 private:
     Battler* createBattler(const PokemonState& state);
     void applyMove(const Move* moveToApply, Battler* caster, Battler* target);
+    bool canBattlerMove(Battler* caster);
+    int calculateConfusionDamage(int level);
+    int calculateTypeEffectiveness(const Move* move, Battler* target);
+    int applyStatModifier(int baseStat, int modifier);
+
+    // Sequence generation methods
+    QVariantList generateActionSequence(Battler& opponent, Battler& player, bool playerFirst, int switchedIn, int shakes);
+    void generateMoveSequence(QVariantList& sequence, Battler& attacker, Battler& defender,
+                              const QString& attackerName, const QString& defenderName,
+                              const QString& attackerRole, const QString& defenderRole);
+    QVariantMap createTextAction(const QString& message, int delay);
+    QVariantMap createAttackAction(const QString& role, int delay);
+    QVariantMap createDamageAction(const QString& role, int damage, int delay);
+    QVariantMap createHealthChangeAction(const QString& role, int amount, int delay);
+    QVariantMap createCatchAction(int shakes, bool success);
+    QVariantMap createEndAction();
+    QString ailmentToString(Ailment ailment);
+    void addPostMoveEffects(QVariantList& sequence, Battler& battler, const QString& name, bool isPlayer);
+    QString getStatName(int statIndex);
 
     Battler* m_battleOpponent;
     std::array<Battler*, 6> m_battleParty;

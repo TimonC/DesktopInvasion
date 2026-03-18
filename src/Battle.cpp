@@ -1,3 +1,4 @@
+// Battle.cpp
 #include "BattleMoveHandler.h"
 #include <Battle.h>
 #include <globals.h>
@@ -11,7 +12,6 @@ Battle::Battle(WildPokemon* opp, Party party, std::unique_ptr<BattleMoveHandler>
 {
     qDebug() << "Battle constructor called!";
 
-    connect(m_battleMoveHandler.get(), &BattleMoveHandler::actionRoundOver, this, &Battle::playActionRound);
 
     m_currentDirection = opp->m_currentDirection;
 
@@ -25,9 +25,13 @@ Battle::Battle(WildPokemon* opp, Party party, std::unique_ptr<BattleMoveHandler>
         opp->hide();
     });
 
-    //Signal that a pokemon switch occurred
-    connect(m_battleScene, SIGNAL(switchedPokemon(int, int)),
-            this, SLOT(handleSwitchedPokemon(int, int)));
+    // Connect BattleMoveHandler's action sequence signal to Battle's slot
+    connect(m_battleMoveHandler.get(), &BattleMoveHandler::actionSequenceReady,
+            this, &Battle::executeActionSequence);
+
+    // Connect BattleScene's action start signal to BattleMoveHandler
+    connect(m_battleScene, SIGNAL(_startActionRound(int,QString)),
+            m_battleMoveHandler.get(), SLOT(startActionRound(int, QString)));
 
     connect(m_battleScene, SIGNAL(_battleEnded(QString)),
             this, SLOT(handleBattleEnded(QString)));
@@ -47,18 +51,15 @@ Battle::Battle(WildPokemon* opp, Party party, std::unique_ptr<BattleMoveHandler>
         m_width  = width();
         m_height = height();
     });
-
 }
 
-void Battle::playActionRound(Battler& opponent, Battler& player, bool playerFirst, int switchedIn, int shakes){
-
-
-};
-
+void Battle::executeActionSequence(QVariantList sequence) {
+    QMetaObject::invokeMethod(m_battleScene, "executeActionSequence", Q_ARG(QVariant, QVariant(sequence)));
+}
 
 void Battle::handleBattleEnded(QString endState){
     emit battleEnded(endState.toStdString().data());
-};
+}
 
 void Battle::setupParty(Party party) {
     for(size_t i = 0; i < party.spriteIds.size(); i++) {

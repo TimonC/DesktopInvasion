@@ -142,6 +142,7 @@ void Game::createInitialPokemon() {
     dusclops.lvl = 10;
     dusclops.moves[0] = 1;
     dusclops.moves[1] = 425;
+    dusclops.moves[2] = 14;
 
     int pokemonId = m_db.createPokemon(dusclops);
     if (pokemonId > 0) {
@@ -205,10 +206,10 @@ void Game::spawnPokemon() {
         }
         newWild.nature = Nature::Hardy;
 
-        newWild.moves[0] = std::rand()%200;
-        newWild.moves[1] = std::rand()%200;
-        newWild.moves[2] = std::rand()%200;
-        newWild.moves[3] = std::rand()%200;
+        newWild.moves[0] = 1 ;
+        newWild.moves[1] = 33;
+        newWild.moves[2] = 52;
+        newWild.moves[3] = 53;
 
         m_db.spawnWildPokemon(newWild);
         qDebug() << "Created new wild Pokemon:" << QString::fromStdString(newWild.name);
@@ -248,7 +249,7 @@ Party Game::getParty() {
            if(moveId<1) continue;
 
            const Move* _move = Globals::getMove(moveId);
-           party.moves[i][moveSlot] = {_move->name, typeToString(_move->type)};
+           party.moves[i][moveSlot] = {_move->name, PokemonTypes::typeToString(_move->type)};
         };
 
     }

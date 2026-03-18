@@ -62,6 +62,10 @@ Rectangle {
     property int selectedIndex: 0
     property bool forceSwitchMode: false
 
+    // Signal to start an action round with the chosen action
+    signal startActionRound(int actionIndex, string actionType)
+
+    // Legacy signals (kept for compatibility if needed)
     signal attackChosen(int attackId)
     signal runChosen()
     signal catchChosen(int pokeId)
@@ -329,7 +333,11 @@ Rectangle {
                     MouseArea {
                         anchors.fill: parent
                         enabled: moveEnabled
-                        onClicked: root.attackChosen(index)
+                        onClicked: {
+                            // Emit both signals for compatibility
+                            // root.attackChosen(index)
+                            root.startActionRound(index, "Fight")
+                        }
                     }
                 }
             }
@@ -420,9 +428,11 @@ Rectangle {
                             if(root.selectedIndex !== index &&
                                root.party.iconIds[index] >= 0 &&
                                party.healthRatios[index] > 0){
-                                   var oldIndex = root.selectedIndex
-                                   root.selectedIndex = index
-                                   root.switchChosen(oldIndex, index)
+                                var oldIndex = root.selectedIndex
+                                root.selectedIndex = index
+                                // Emit both signals for compatibility
+                                // root.switchChosen(oldIndex, index)
+                                root.startActionRound(index, "Switch")
                             }
                         }
                     }
@@ -509,7 +519,11 @@ Rectangle {
                         MouseArea {
                             anchors.fill: parent
                             enabled: ballEnabled
-                            onClicked: root.catchChosen(index)
+                            onClicked: {
+                                // Emit both signals for compatibility
+                                // root.catchChosen(index)
+                                root.startActionRound(index, "Catch")
+                            }
                         }
                     }
                 }
@@ -527,7 +541,10 @@ Rectangle {
                 buttonColor: root.runButtonColor
                 width: root.buttonWidth * 1.5
                 height: root.buttonHeight
-                onClicked: root.runChosen()
+                onClicked: {
+                    // Emit both signals for compatibility
+                    root.runChosen()
+                }
             }
         }
     }
