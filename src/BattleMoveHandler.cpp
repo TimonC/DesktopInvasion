@@ -18,6 +18,7 @@ BattleMoveHandler::BattleMoveHandler(const PokemonState& wildState, const std::a
         m_battleParty[i] = createBattler(partyStates[i]);
     }
     m_includedPartyIndices.insert(m_chosenIndex);
+
 }
 
 BattleMoveHandler::~BattleMoveHandler() {
@@ -453,6 +454,7 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
         params.type2 = typeEffectiveness2;
 
         int damage = PokeMath::calculateDamage(params, m_rng);
+
         result.addEffect(BattleActionResult::CHANGE_HEALTH, caster, target, damage);
 
         if (combinedEffectiveness==0){

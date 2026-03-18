@@ -6,6 +6,8 @@ Item {
 
     property  int scale: 1
     property int frameSize: 32*scale
+    property int animationSpeed: 1
+
 
     width: (direction === 0 || direction === 2) ? frameSize * 6.5 : frameSize * 8
     height: (direction === 0 || direction === 2) ? frameSize * 8 : frameSize * 6.5
@@ -45,9 +47,20 @@ Item {
     property int currentActionIndex: 0
     property int currentOpponentBallIndex: 0
     property int currentPlayerBallIndex: 0
-    property int catchShakeInterval: 1500
-    property int ballTransitionDuration: 750
-    property int runEndDuration: 1000
+
+    property int faintDuration: 1000 / animationSpeed
+    property int outOfPokemonTextDuration: 1000 / animationSpeed
+    property int opponentWonDuration: 100 / animationSpeed
+    property int opponentCaughtDuration: 100 / animationSpeed
+    property int successCatchTextDuration: 2000 / animationSpeed
+    property int successCatchJumpDuration: 2000 / animationSpeed
+    property int revealOpponentDuration: 1000 / animationSpeed
+    property int shakeDuration: 2000 / animationSpeed
+    property int catchShakeInterval: 1500 / animationSpeed
+    property int ballTransitionDuration: 750 / animationSpeed
+    property int runEndDuration: 1000 / animationSpeed
+    property int lvlUpDuration: 1500 / animationSpeed
+
     property bool catchAttemptActive: false
     property var ballOpenedConnection: null
     property var pokemonInsideBallConnection: null
@@ -125,6 +138,7 @@ Item {
         fontFamily: root.statusBarFontFamily
         width: root.statusBarWidth
         height: root.statusBarHeight
+        animationSpeed: root.animationSpeed
     }
     PokemonSprite {
         id: opponent
@@ -134,6 +148,7 @@ Item {
         debugLines: root.debugLines
         debugColor: "red"
         property alias statusBar: root.statusBarOpponent
+        animationSpeed: root.animationSpeed
     }
     StatusBar {
         id: statusBarPlayer
@@ -141,6 +156,7 @@ Item {
         fontFamily: root.statusBarFontFamily
         width: root.statusBarWidth
         height: root.statusBarHeight
+        animationSpeed: root.animationSpeed
     }
     PokemonSprite {
         id: player
@@ -151,10 +167,12 @@ Item {
         debugLines: root.debugLines
         debugColor: "blue"
         property alias statusBar: root.statusBarPlayer
+        animationSpeed: root.animationSpeed
     }
 
     Pokeball {
         id: pokeBallOpponent
+        speed: root.animationSpeed
         scaleFactor: root.scale
         circleBaseWidth: opponent.width
         circleBaseHeight: opponent.height
@@ -174,6 +192,7 @@ Item {
 
     Pokeball {
         id: pokeBallPlayer
+        speed: root.animationSpeed
         scaleFactor: root.scale
     }
 
@@ -305,14 +324,14 @@ Item {
         switch(step.type) {
             case "text":
                 battleMenu.updateText(step.message)
-                sequenceTimer.interval = step.delay
+                sequenceTimer.interval = step.delay / root.animationSpeed
                 sequenceTimer.start()
                 break
 
             case "attack":
                 var attacker = (step.role === "player") ? player : opponent
                 attacker.actionForward.running = true
-                sequenceTimer.interval = step.delay
+                sequenceTimer.interval = step.delay / root.animationSpeed
                 sequenceTimer.start()
                 break
 
@@ -340,11 +359,11 @@ Item {
 
                 if(currentHealthRatio<=0){
                     root.actionSequence = [
-                        {type: "faint", message: target.name + " fainted!", role: step.role, delay: 1000 },
+                        {type: "faint", message: target.name + " fainted!", role: step.role, delay: root.faintDuration },
                     ]
                     root.currentActionIndex = 0
                 }
-                sequenceTimer.interval = step.delay
+                sequenceTimer.interval = step.delay / root.animationSpeed
                 sequenceTimer.start()
                 break
 
@@ -359,7 +378,7 @@ Item {
                 }else{
                     player.visible = false
                     root.actionSequence = [{type: "force-switch"}]
-                    sequenceTimer.interval = step.delay
+                    sequenceTimer.interval = step.delay / root.animationSpeed
                     sequenceTimer.start()
                 }
                 break
@@ -372,8 +391,8 @@ Item {
                     battleMenu.forceSwitch();
                 }else{
                     root.actionSequence = [
-                        {type: "text", message: "Player is out of usable pokemon!", delay: 1000},
-                        {type: "opponent-won", delay: 100}
+                        {type: "text", message: "Player is out of usable pokemon!", delay: root.outOfPokemonTextDuration},
+                        {type: "opponent-won", delay: root.opponentWonDuration}
                     ]
                     sequenceTimer.start()
                 }
@@ -383,20 +402,20 @@ Item {
                 if(step.shakes>=4){
                     step.shakes = 3;
                     var newActions = [
-                        {type: "opponent-caught", delay: 100},
-                        {type: "text", message: "Gotcha! " + opponent.name + " was caught!", delay: 2000},
-                        {type: "jump", delay: 2000}
+                        {type: "opponent-caught", delay: root.opponentCaughtDuration},
+                        {type: "text", message: "Gotcha! " + opponent.name + " was caught!", delay: root.successCatchTextDuration},
+                        {type: "jump", delay: root.successCatchJumpDuration}
                     ]
                 }
                 else{
                     var newActions = [
-                        {type: "reveal-opponent", message: "Aargh! Almost had it!", delay: 1000},
+                        {type: "reveal-opponent", message: "Aargh! Almost had it!", delay: root.revealOpponentDuration},
                         {type: "fail-catch", delay: root.ballTransitionDuration}
                     ]
                 }
 
                 for (var i = 0; i < step.shakes; i++) {
-                    newActions.push({type: "shake", delay: 2000});
+                    newActions.push({type: "shake", delay: root.shakeDuration});
                 }
 
                 root.tempActionSequence = newActions.reverse().concat(root.actionSequence.slice(2));
@@ -408,24 +427,24 @@ Item {
                 break;
             case "shake":
                  pokeBallOpponent.shake()
-                 sequenceTimer.interval = step.delay
+                 sequenceTimer.interval = step.delay / root.animationSpeed
                  sequenceTimer.start()
                  break
             case "jump":
                  pokeBallOpponent.jump()
-                 sequenceTimer.interval = step.delay
+                 sequenceTimer.interval = step.delay / root.animationSpeed
                  sequenceTimer.start()
                  break
             case "fail-catch":
                  pokeBallOpponent.release()
-                 sequenceTimer.interval = step.delay
+                 sequenceTimer.interval = step.delay / root.animationSpeed
                  sequenceTimer.start()
                  break
             case "reveal-opponent":
                 opponent.visible = true
                 pokeBallOpponent.visible = false
                 battleMenu.updateText(step.message)
-                sequenceTimer.interval = step.delay
+                sequenceTimer.interval = step.delay / root.animationSpeed
                 sequenceTimer.start()
                 break
             case "opponent-caught":
@@ -449,13 +468,13 @@ Item {
                 sequence.push({
                     type: "text",
                     message: battleMenu.party.names[i] + " grew to Lv." + lvlups[i] + "!",
-                    delay: 1500
+                    delay: root.lvlUpDuration
                 })
             }else if (spread[i] > 0){
                 sequence.push({
                     type: "text",
                     message: battleMenu.party.names[i] + " gained " + spread[i] + " Exp. Points!",
-                    delay: 1500
+                    delay: root.lvlUpDuration
                 })
             }
         }

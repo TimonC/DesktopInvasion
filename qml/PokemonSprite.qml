@@ -24,6 +24,15 @@ Item {
     property string name: "emptyname"
     property alias actionForward: actionForward
     property alias takeDamage: takeDamage
+
+    // Animation speed control (only affects damage and attack animations)
+    property int animationSpeed: 1
+
+    // Scaled duration properties
+    property int damageFlashDuration: 50 / animationSpeed
+    property int attackForwardDuration: 50 / animationSpeed
+    property int attackReturnDuration: 100 / animationSpeed
+
     width: itemWidth > 0 ? itemWidth : frameWidth * scaleFactor
     height: itemHeight > 0 ? itemHeight : frameHeight * scaleFactor
     layer.enabled: true
@@ -63,7 +72,7 @@ Item {
         frameWidth: root.frameWidth
         frameHeight: root.frameHeight
         frameCount: root.frameCount
-        frameRate: root.frameRate
+        frameRate: root.frameRate  // NOT scaled by animationSpeed
         currentFrame: Math.random() < 0.5 ? 0 : 1
         interpolate: false
         smooth: false
@@ -90,13 +99,13 @@ Item {
                 target: root
                 property: "opacity"
                 to: 0
-                duration: 50
+                duration: root.damageFlashDuration
             }
             PropertyAnimation {
                 target: root
                 property: "opacity"
                 to: 1
-                duration: 50
+                duration: root.damageFlashDuration
             }
         }
     }
@@ -110,28 +119,28 @@ Item {
             target: root
             property: "x"
             to: root.startingX + (root.direction==1 ? -actionForward.attackDistance : root.direction==3 ? actionForward.attackDistance : 0)
-            duration: 50
+            duration: root.attackForwardDuration
             easing.type: Easing.InQuad
         }
         PropertyAnimation {
             target: root
             property: "y"
             to: root.startingY + (root.direction==0 ? -actionForward.attackDistance : root.direction==2 ? actionForward.attackDistance : 0)
-            duration: 50
+            duration: root.attackForwardDuration
             easing.type: Easing.InQuad
         }
         PropertyAnimation {
             target: root
             property: "x"
             to: root.startingX
-            duration: 100
+            duration: root.attackReturnDuration
             easing.type: Easing.OutQuad
         }
         PropertyAnimation {
             target: root
             property: "y"
             to: root.startingY
-            duration: 100
+            duration: root.attackReturnDuration
             easing.type: Easing.OutQuad
         }
     }
