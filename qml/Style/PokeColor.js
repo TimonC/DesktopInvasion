@@ -24,7 +24,7 @@ function typeColor(typeName) {
 }
 
     function lighter(baseColor) {
-        var colorRatio = 1.1
+        var colorRatio = 1.05
         var c = Qt.color(baseColor)
         return Qt.rgba(
             Math.min(1, c.r * colorRatio),
