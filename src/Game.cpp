@@ -109,16 +109,27 @@ QVariantMap Game::pokemonToMenuState(int slot, const PokemonState &p){
     }
 
     QVariantList eligibleMoves;
-    for(int eligible = 0; eligible < poke->eligible_move_count; eligible++){
-        if(p.lvl >= poke->eligible_moves[eligible].level){
-            const Move* _move = Lookup::getMove(poke->eligible_moves[eligible].move_id);
-            QVariantMap moveData;
-            moveData["name"] = QString::fromStdString(_move->name);
-            moveData["type"] = QString::fromStdString(_move->name);
-            moveData["power"] = _move->power;
-            moveData["accuracy"] = _move->accuracy;
-            eligibleMoves.append(moveData);
-        }
+    struct EligibleEntry { int level; int move_id; };
+    std::vector<EligibleEntry> eligible;
+    eligible.reserve(poke->eligible_move_count);
+
+    for (int i = 0; i < poke->eligible_move_count; i++) {
+        if (p.lvl >= poke->eligible_moves[i].level)
+            eligible.push_back({ poke->eligible_moves[i].level, poke->eligible_moves[i].move_id });
+    }
+
+    std::sort(eligible.begin(), eligible.end(),
+        [](const EligibleEntry& a, const EligibleEntry& b){ return a.level > b.level; });
+
+    for (const auto& e : eligible) {
+        const Move* _move = Lookup::getMove(e.move_id);
+        QVariantMap moveData;
+        moveData["id"]       = e.move_id;          // needed for requestMoveChange
+        moveData["name"]     = QString::fromStdString(_move->name);
+        moveData["type"]     = QString::fromStdString(PokeTypes::typeToString(_move->type));
+        moveData["power"]    = _move->power;
+        moveData["accuracy"] = _move->accuracy;
+        eligibleMoves.append(moveData);
     }
     entry["eligibleMoves"] = eligibleMoves;
 

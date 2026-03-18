@@ -181,7 +181,9 @@ Item {
                                 Text {
                                     anchors.centerIn: parent
                                     text: PokeColor.typeColor(modelData) === "transparent" ? "" : modelData
-                                    font.family: bodyFont; font.pixelSize: fontSizeMd
+                                    font.family: bodyFont
+                                    font.bold: true
+                                    font.pixelSize: fontSizeMd
                                     color: colorTypePillText
                                 }
                             }
@@ -309,7 +311,9 @@ Item {
                                             Text {
                                                 anchors.centerIn: parent
                                                 text: modelData.type
-                                                font.family: bodyFont; font.pixelSize: fontSizeMd
+                                                font.family: bodyFont
+                                                font.bold:  true
+                                                font.pixelSize: fontSizeMd
                                                 color: colorTypePillText
                                             }
                                         }
