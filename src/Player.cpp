@@ -4,8 +4,8 @@
 
 Player::Player(QObject* parent) : QObject(parent){
     qDebug() << "Player constructor called!";
-    m_party[0] = std::make_unique<Pokemon>(nullptr, 6);
-    m_party[1] = std::make_unique<Pokemon>(nullptr, 4);
+    m_party[0] = std::make_unique<Pokemon>(nullptr, std::rand()%120);
+    m_party[1] = std::make_unique<Pokemon>(nullptr, std::rand()%120);
     /* m_party[2] = std::make_unique<Pokemon>(nullptr, random()%100); */
     m_pokemonAvailable = true;
 };

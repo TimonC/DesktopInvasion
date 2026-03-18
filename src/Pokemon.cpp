@@ -4,6 +4,7 @@
 #include <qnamespace.h>
 #include "Pokemon.h"
 #include <globals.h>
+
 Pokemon::Pokemon(QWindow *parent, int row)
     : QQuickView(parent)
     , m_row(row)
@@ -17,15 +18,30 @@ Pokemon::Pokemon(QWindow *parent, int row)
             | Qt::FramelessWindowHint);
     setColor(Qt::transparent);
 
-
     setSource(QUrl("qrc:/sprites/PokemonSprite.qml"));
     m_sprite = rootObject();
     m_sprite->setProperty("scaleFactor", m_scaleFactor);
     m_sprite->setProperty("row", m_row);
 
+    // Set random spritesheet here
+    QString randomSpriteSheet = getRandomSpriteSheet();
+    m_sprite->setProperty("spriteSheet", randomSpriteSheet);
+
     setSize(50);
+}
 
-
+QString Pokemon::getRandomSpriteSheet() {
+    int randomValue = std::rand() % 3;
+    switch(randomValue) {
+        case 0:
+            return "qrc:/assets/HGSS/PokGen1_transparent_reordered.png";
+        case 1:
+            return "qrc:/assets/HGSS/PokGen3_transparent_reordered.png";
+        case 2:
+            return "qrc:/assets/HGSS/PokGen4_transparent_reordered.png";
+        default:
+            return "qrc:/assets/HGSS/PokGen1_transparent_reordered.png";
+    }
 }
 
 void Pokemon::setSize(int size){
@@ -41,9 +57,11 @@ void Pokemon::setSize(int size){
     m_sprite->setProperty("spriteOffsetX", width/2.5);
     m_sprite->setProperty("spriteOffsetY", height/2.8);
 }
+
 void Pokemon::useMove(){
     m_sprite->setProperty("tackle", true);
 }
+
 void Pokemon::attacked(){
     m_sprite->setProperty("attacked", true);
 }
@@ -52,9 +70,11 @@ void Pokemon::direction(int direction){
     m_currentDirection = direction%4;
     m_sprite->setProperty("direction",m_currentDirection);
 };
+
 int Pokemon::direction(){
     return m_currentDirection;
 };
+
 QPoint Pokemon::movePos(QPoint delta, bool boundsCheck) {
     QPoint pos = position();
     if(boundsCheck){
@@ -67,4 +87,3 @@ QPoint Pokemon::movePos(QPoint delta, bool boundsCheck) {
     setPosition(newPos);
     return newPos;
 }
-

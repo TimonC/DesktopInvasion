@@ -21,6 +21,7 @@ public slots:
     virtual QPoint movePos(QPoint delta, bool boundsCheck=true);
 
 protected:
+    QString getRandomSpriteSheet();
     void setSize(int size);
     QQuickItem* m_sprite;
     int m_currentDirection;

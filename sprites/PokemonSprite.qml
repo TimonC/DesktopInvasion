@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+
 Item {
     id: root
     property string spriteSheet: "qrc:/assets/HGSS/PokGen1_transparent_reordered.png"
@@ -25,6 +26,7 @@ Item {
     clip: true
     layer.enabled: true
     z: 1
+
 
     AnimatedSprite {
         id: sprite
@@ -170,4 +172,3 @@ Item {
         visible: false
     }
 }
-
