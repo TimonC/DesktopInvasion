@@ -90,7 +90,8 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
 
             int playerModifier = m_battleParty[m_chosenIndex]->battleState.statModifiers[4];
             int playerSpeed = applyStatModifier(m_battleParty[m_chosenIndex]->pokeState.stats[5], playerModifier);
-
+           if(m_battleOpponent->battleState.statusCondition==Ailment::Paralysis) oppSpeed = oppSpeed/2;
+           if(m_battleParty[m_chosenIndex]->battleState.statusCondition==Ailment::Paralysis) playerSpeed = playerSpeed/2;
            if(playerSpeed == oppSpeed){
                playerFirst = rand()%2;
            }else{
