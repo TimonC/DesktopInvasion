@@ -261,7 +261,7 @@ Rectangle {
                     }
                    PcButton {
                        id: pokeEditButton
-                       label:    "EDIT"
+                       label:    "VIEW"
                        onClicked: editButtonClicked(pokeView.pokeData)
                    }
                 }

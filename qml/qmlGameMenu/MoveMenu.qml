@@ -18,10 +18,11 @@ Item {
     property int    fontSizeMd: 18
     property int    fontSizeSm: 16
 
-    property bool inNameEditMode:     false
+    property bool inNameEditMode:      false
     property int  selectedEligibleIdx: -1
 
-    // ── Palette ───────────────────────────────────────────────────────────────
+    property int jumpDistance: 12
+
     property color colorText:         "#ffffff"
     property color colorSubtext:      "#aaaaaa"
     property color colorVeryFaint:    "#999999"
@@ -43,7 +44,6 @@ Item {
     property color colorScrollHov:    "#777777"
     property color colorScrollActive: "#5294e2"
 
-    // ── Layout ────────────────────────────────────────────────────────────────
     property int margin:  8
     property int gap:     5
     property int pad:     9
@@ -73,9 +73,9 @@ Item {
         if (pokeData) nameField.text = pokeData.name
         inNameEditMode      = false
         selectedEligibleIdx = -1
+        walkingSprite.randomizePosition()
     }
 
-    // ── TypePill ──────────────────────────────────────────────────────────────
     component TypePill: Rectangle {
         property string typeName: ""
         width:  moveMenu.pillW
@@ -95,7 +95,6 @@ Item {
         }
     }
 
-    // ── CurrentMoveCard ───────────────────────────────────────────────────────
     component CurrentMoveCard: Rectangle {
         id: cmc
         property string moveName:  ""
@@ -163,7 +162,6 @@ Item {
         }
     }
 
-    // ── EligibleMoveRow ───────────────────────────────────────────────────────
     component EligibleMoveRow: Rectangle {
         id: emr
         property string moveName: ""
@@ -229,15 +227,11 @@ Item {
         }
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
-    //  LAYOUT
-    // ══════════════════════════════════════════════════════════════════════════
     Row {
         anchors.fill:    parent
         anchors.margins: moveMenu.margin
         spacing:         0
 
-        // ── LEFT PANEL ────────────────────────────────────────────────────────
         Item {
             id: leftPanel
             width:  Math.floor((parent.width - moveMenu.margin * 2 - 1) / 2)
@@ -246,20 +240,17 @@ Item {
             Column {
                 id: leftTop
                 anchors { top: parent.top; left: parent.left; right: parent.right }
-                height:  Math.floor(parent.height * 0.62)
                 spacing: 0
                 clip:    true
 
-                // Return button — uses PcButton
                 PcButton {
                     width:  parent.width/4
                     label:  "← RETURN"
-                    onClicked:     moveMenu.returnClicked()
+                    onClicked: moveMenu.returnClicked()
                 }
 
                 Item { width: parent.width; height: moveMenu.secGap }
 
-                // Nickname
                 Column {
                     width:   parent.width
                     spacing: 5
@@ -354,7 +345,6 @@ Item {
 
                 Item { width: parent.width; height: moveMenu.gap }
 
-                // Moves header
                 Item {
                     width:  parent.width
                     height: moveMenu.pillH
@@ -378,7 +368,6 @@ Item {
 
                 Item { width: parent.width; height: moveMenu.gap }
 
-                // Current move slots — always 4
                 Column {
                     width:   parent.width
                     spacing: moveMenu.gap
@@ -402,39 +391,48 @@ Item {
                 }
             }
 
-            // Sprite
-            Item {
+            Rectangle {
+                id: spriteAreaSeparator
                 anchors {
-                    top:    leftTop.bottom
+                    top:   leftTop.bottom
+                    left:  parent.left
+                    right: parent.right
+                }
+                height: 1
+                color:  moveMenu.colorDivider
+            }
+
+            Item {
+                id: spriteArena
+                anchors {
+                    top:    spriteAreaSeparator.bottom
                     bottom: parent.bottom
                     left:   parent.left
                     right:  parent.right
                 }
-                AnimatedSprite {
-                    anchors.centerIn: parent
-                    width:        moveMenu.frameWidth  * moveMenu.scaleFactor
-                    height:       moveMenu.frameHeight * moveMenu.scaleFactor
-                    running:      true
-                    source:       moveMenu.spriteSheet
+
+                WalkingSprite {
+                    id: walkingSprite
+                    spriteSheet:  moveMenu.spriteSheet
                     frameWidth:   moveMenu.frameWidth
                     frameHeight:  moveMenu.frameHeight
-                    frameCount:   2
-                    frameRate:    4
-                    interpolate:  false
-                    smooth:       false
-                    antialiasing: false
-                    frameX:       moveMenu.frameWidth * 4
-                    frameY:       moveMenu.rowId * moveMenu.frameHeight
+                    scaleFactor:  moveMenu.scaleFactor
+                    rowId:        moveMenu.rowId
+                    arenaWidth:   spriteArena.width
+                    arenaHeight:  spriteArena.height
+                    jumpDistance: moveMenu.jumpDistance
+
+                    // FIX: Pause all timers when this component is not visible,
+                    // preventing CPU burn when the move menu is off-screen.
+                    active: spriteArena.visible && moveMenu.visible
                 }
             }
         }
 
-        // Vertical divider
         Item      { width: moveMenu.margin; height: parent.height }
         Rectangle { width: 1; height: parent.height; color: moveMenu.colorDivider }
         Item      { width: moveMenu.margin; height: parent.height }
 
-        // ── RIGHT PANEL ────────────────────────────────────────────────────────
         Item {
             id: rightPanel
             width:  parent.width - leftPanel.width - moveMenu.margin * 2 - 1
@@ -505,7 +503,6 @@ Item {
                         }
                     }
 
-                    // Scrollbar
                     Item {
                         id: scrollBar
                         anchors {
@@ -536,9 +533,9 @@ Item {
                             width:  scrollThumbMa.pressed ? 7
                                     : (scrollThumbMa.containsMouse ? 6 : 4)
                             radius: width / 2
-                            color:  scrollThumbMa.pressed      ? moveMenu.colorScrollActive
+                            color:  scrollThumbMa.pressed         ? moveMenu.colorScrollActive
                                     : scrollThumbMa.containsMouse ? moveMenu.colorScrollHov
-                                                                   : moveMenu.colorScrollThumb
+                                                                  : moveMenu.colorScrollThumb
 
                             Behavior on width { NumberAnimation { duration: 100 } }
                             Behavior on color { ColorAnimation  { duration: 100 } }
@@ -580,4 +577,218 @@ Item {
             }
         }
     }
+
+    component WalkingSprite: Item {
+        id: ws
+
+        property string spriteSheet:  "qrc:/assets/HGSS/reordered_sprites.png"
+        property int    frameWidth:   32
+        property int    frameHeight:  32
+        property real   scaleFactor:  6
+        property int    rowId:        0
+        property real   arenaWidth:   200
+        property real   arenaHeight:  200
+        property int    jumpDistance: 12
+
+        // Set active: false when the parent screen is hidden to kill all timers.
+        property bool active: true
+
+        property int  _direction: 2
+        property bool _moving:    false
+        property int  _speed:     1   // randomised to 1 or 2 in Component.onCompleted
+
+        readonly property real _spriteW: frameWidth  * scaleFactor
+        readonly property real _spriteH: frameHeight * scaleFactor
+
+        property real _minX: 0
+        property real _minY: 0
+        property real _maxX: Math.max(0, arenaWidth  - _spriteW)
+        property real _maxY: Math.max(0, arenaHeight - _spriteH)
+
+        width:  arenaWidth
+        height: arenaHeight
+
+        // ── Visibility / active gating ──────────────────────────────────────
+        onActiveChanged: {
+            if (!active) {
+                decisionTimer.stop()
+                moveTimer.stop()
+                spriteImg.running = false
+            } else {
+                spriteImg.running = true
+                if (!decisionTimer.running) decisionTimer.start()
+            }
+        }
+
+        // ── Bounds maintenance ───────────────────────────────────────────────
+        onArenaWidthChanged:  { ensureInBounds() }
+        onArenaHeightChanged: { ensureInBounds() }
+
+        Component.onCompleted: {
+            // Match C++: speed is 1 or 2 with equal probability.
+            _speed = Math.random() < 0.5 ? 1 : 2
+            Qt.callLater(function() {
+                randomizePosition()
+                if (ws.active) decisionTimer.start()
+            })
+        }
+
+        // ── Decision timer ───────────────────────────────────────────────────
+        // Matches C++: 2000 + rand()%2000 → 2–4 s interval.
+        // Single roll of 0–7: direction = floor(n/2), moving = (n%2 === 1) → 50/50.
+        Timer {
+            id: decisionTimer
+            interval: 2000 + Math.floor(Math.random() * 2000)
+            running:  false
+            repeat:   true
+            onTriggered: {
+                if (!ws.active) return
+                if (spriteImg.isJumping) return
+
+                var decision  = Math.floor(Math.random() * 8)
+                ws._direction = Math.floor(decision / 2)   // 0–3
+                ws._moving    = (decision % 2) === 1        // exactly 50/50
+                decisionTimer.interval = 2000 + Math.floor(Math.random() * 2000)
+
+                if (ws._moving) {
+                    if (!moveTimer.running) moveTimer.start()
+                } else {
+                    moveTimer.stop()
+                }
+            }
+        }
+
+        // ── Move timer — 50 ms tick, matches C++ ─────────────────────────────
+        Timer {
+            id: moveTimer
+            interval: 50
+            running:  false
+            repeat:   true
+            onTriggered: {
+                if (!ws.active || spriteImg.isJumping || !ws._moving) return
+
+                var dx = 0
+                var dy = 0
+                switch (ws._direction) {
+                    case 0: dy = -ws._speed; break
+                    case 1: dx = -ws._speed; break
+                    case 2: dy =  ws._speed; break
+                    case 3: dx =  ws._speed; break
+                }
+
+                var nx = spriteImg.x + dx
+                var ny = spriteImg.y + dy
+
+                if (nx < ws._minX || nx > ws._maxX) {
+                    ws._direction = (ws._direction === 1) ? 3 : 1
+                    return
+                }
+                if (ny < ws._minY || ny > ws._maxY) {
+                    ws._direction = (ws._direction === 0) ? 2 : 0
+                    return
+                }
+
+                spriteImg.x = nx
+                spriteImg.y = ny
+            }
+        }
+
+        // ── Helpers ──────────────────────────────────────────────────────────
+        function ensureInBounds() {
+            spriteImg.x = Math.max(ws._minX, Math.min(ws._maxX, spriteImg.x))
+            spriteImg.y = Math.max(ws._minY, Math.min(ws._maxY, spriteImg.y))
+        }
+
+        function randomizePosition() {
+            spriteImg.x = _minX + Math.random() * Math.max(0, _maxX - _minX)
+            spriteImg.y = _minY + Math.random() * Math.max(0, _maxY - _minY)
+        }
+
+        // ── Sprite ───────────────────────────────────────────────────────────
+        AnimatedSprite {
+            id: spriteImg
+            width:        ws._spriteW
+            height:       ws._spriteH
+            running:      ws.active
+            source:       ws.spriteSheet
+            frameWidth:   ws.frameWidth
+            frameHeight:  ws.frameHeight
+            frameCount:   2
+            frameRate:    4          // matches C++ roaming frameRate
+            interpolate:  false
+            smooth:       false
+            antialiasing: false
+            frameX: {
+                switch (ws._direction) {
+                    case 0: return 0
+                    case 1: return ws.frameWidth * 2
+                    case 2: return ws.frameWidth * 2 * 2
+                    case 3: return ws.frameWidth * 2 * 3
+                }
+                return 0
+            }
+            frameY: ws.rowId * ws.frameHeight
+
+            property bool isJumping:        false
+            property int  jumpUpDuration:   200
+            property int  jumpDownDuration: 150
+            property int  jumpHeight:       ws.jumpDistance * 2
+
+            SequentialAnimation {
+                id: jumpAnim
+                property real _baseY: 0
+
+                ScriptAction {
+                    script: {
+                        jumpAnim._baseY = spriteImg.y
+                        moveTimer.stop()
+                    }
+                }
+                PropertyAnimation {
+                    target:      spriteImg
+                    property:    "y"
+                    to:          jumpAnim._baseY - spriteImg.jumpHeight
+                    duration:    spriteImg.jumpUpDuration
+                    easing.type: Easing.OutQuad
+                }
+                PropertyAnimation {
+                    target:      spriteImg
+                    property:    "y"
+                    to:          jumpAnim._baseY
+                    duration:    spriteImg.jumpDownDuration
+                    easing.type: Easing.InQuad
+                }
+                ScriptAction {
+                    script: {
+                        spriteImg.isJumping = false
+                        if (ws._moving && ws.active) moveTimer.start()
+                    }
+                }
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                cursorShape:  undefined
+                onClicked: {
+                    if (!spriteImg.isJumping) {
+                        spriteImg.isJumping = true
+                        jumpAnim.start()
+                    }
+                }
+            }
+        }
+
+        // Debug outline — flip to true to verify walk boundary.
+        Rectangle {
+            anchors.fill: parent
+            color:        "transparent"
+            border.color: "#ff4444"
+            border.width: 2
+            opacity:      0.5
+            visible:      false
+        }
+    }
+
 }
+
+
