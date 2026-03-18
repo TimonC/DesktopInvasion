@@ -1,4 +1,5 @@
-#include "BattleMoveHandler.h" #include "data_poke_asset.h"
+#include "BattleMoveHandler.h"
+#include "data_poke_asset.h"
 #include <Battle.h>
 #include <globals.h>
 #include <PokeMath.h>

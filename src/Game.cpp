@@ -171,9 +171,9 @@ void Game::spawnPokemon() {
         wildState.nature = Nature::Hardy;
 
         wildState.moves[0] = 1;
-        wildState.moves[1] = 1;
-        wildState.moves[2] = 422;
-        wildState.moves[3] = 422;
+        wildState.moves[1] = 422;
+        wildState.moves[2] = 86;
+        wildState.moves[3] = 86;
 
         m_db.spawnWildPokemon(wildState);
         qDebug() << "Created new wild Pokemon:" << QString::fromStdString(wildState.name);

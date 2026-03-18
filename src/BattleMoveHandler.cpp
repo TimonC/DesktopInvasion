@@ -399,6 +399,14 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
         return result;
     }
 
+
+    const Type* targetType1 = target->pokeState.types[0];
+    const Type* targetType2 = target->pokeState.types[1];
+    int typeEffectiveness1 = PokeTypes::getTypeEffectiveness(_move->type, *targetType1);
+    int typeEffectiveness2  = 100;
+    if (*targetType2 != Type::Null) typeEffectiveness2 = PokeTypes::getTypeEffectiveness(_move->type, *targetType2);
+    int combinedEffectiveness = typeEffectiveness1 * typeEffectiveness2;
+
     bool damageLanded = true;
     if(_move->category != MoveCategory::NonDamaging){
         PokeMath::DamageParams params;
@@ -440,21 +448,12 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
         }
         params.stab = hasStab ? 150 : 100;
 
-        const Type* targetType1 = target->pokeState.types[0];
-        const Type* targetType2 = target->pokeState.types[1];
-
-        params.type1 = PokeTypes::getTypeEffectiveness(_move->type, *targetType1);
-
-        if (*targetType2 != Type::Null) {
-            params.type2 = PokeTypes::getTypeEffectiveness(_move->type, *targetType2);
-        } else {
-            params.type2 = 100;
-        }
+        params.type1 = typeEffectiveness1;
+        params.type2 = 100;
 
         int damage = PokeMath::calculateDamage(params, m_rng);
         result.addEffect(BattleActionResult::CHANGE_HEALTH, caster, target, damage);
 
-        int combinedEffectiveness = params.type1 * params.type2;
         if (combinedEffectiveness==0){
             result.addEffect(BattleActionResult::NO_EFFECT, caster, target);
         }else{
@@ -477,9 +476,14 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
 
         damageLanded  = damage > 0;
     }
+
+    if (combinedEffectiveness==0){
+        result.addEffect(BattleActionResult::NO_EFFECT, caster, target);
+    }else{
         BattleActionResult secondaryResult = applySecondaryEffects(_move, caster, target, true, otherHasHadTurn);
         result.effects.reserve(result.effects.size() + secondaryResult.effects.size());
         result.effects.insert(result.effects.end(), secondaryResult.effects.begin(), secondaryResult.effects.end());
+    }
     return result;
 }
 
