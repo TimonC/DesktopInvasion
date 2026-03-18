@@ -1,45 +1,18 @@
 cmake_minimum_required(VERSION 3.16)
 project(DesktopInvasion LANGUAGES CXX)
 
-# Enable Qt automatic processing
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-# Require Qt6
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick Widgets)
-
-# Add resources
 qt6_add_resources(RESOURCES_RCC resources.qrc)
 
-# Automatically find all source and header files
-file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS src/*.cpp)
-file(GLOB_RECURSE HEADER_FILES CONFIGURE_DEPENDS include/*.h)
+file(GLOB_RECURSE ALL_SRC CONFIGURE_DEPENDS src/*.cpp)
+file(GLOB_RECURSE ALL_HEADERS CONFIGURE_DEPENDS include/*.h src/*.h)
 
-# Create the executable target
-add_executable(DesktopInvasion
-    ${SRC_FILES}
-    ${HEADER_FILES}
-    ${RESOURCES_RCC}
-)
-
-# Include directories
-target_include_directories(DesktopInvasion PRIVATE
-    ${CMAKE_SOURCE_DIR}/include
-    ${CMAKE_SOURCE_DIR}/src
-)
-
-# Set C++ standard
-target_compile_features(DesktopInvasion PRIVATE cxx_std_17)
-
-# Link Qt6 libraries
-target_link_libraries(DesktopInvasion PRIVATE
-    Qt6::Core
-    Qt6::Gui
-    Qt6::Quick
-    Qt6::Widgets
-)
-
-# Link SQLite3
-target_link_libraries(DesktopInvasion PRIVATE sqlite3)
+add_executable(DesktopInvasion ${ALL_SRC} ${ALL_HEADERS} ${RESOURCES_RCC})
+target_include_directories(DesktopInvasion PRIVATE ${CMAKE_SOURCE_DIR}/include)
+target_link_libraries(DesktopInvasion PRIVATE Qt6::Core Qt6::Gui Qt6::Quick Qt6::Widgets sqlite3)

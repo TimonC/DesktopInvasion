@@ -1,37 +1,30 @@
 #!/bin/bash
 set -e
 
-
 : "${XDG_RUNTIME_DIR:=/tmp/xdg}"
 mkdir -p "$XDG_RUNTIME_DIR"
 chmod 0700 "$XDG_RUNTIME_DIR"
 
-rm -rf build/*
+if [ ! -f "/app/data/.initialized" ]; then
+    echo "Initializing volume"
+    rm -rf /app/data/* 2>/dev/null || true
+    touch /app/data/.initialized
+fi
+
 mkdir -p build
 cd build
-cmake ..
-make
+cmake -G Ninja ..
+ninja
 
-
-echo "First script execution - wiping volume"
-rm -rf /app/data/* 2>/dev/null || true
-
-echo "Starting DesktopInvasion with HMR loop"
+echo "Starting DesktopInvasion with HMR"
 ./DesktopInvasion &
 APP_PID=$!
 
 while inotifywait -r -e modify,create,delete ../src ../include ../qml; do
-    echo -e "\n\033[1;33m========== HMR triggered at $(date '+%Y-%m-%d %H:%M') ==========\033[0m"
+    echo -e "\n\033[1;33m========== HMR triggered ==========\033[0m"
 
-    # Stop old app
     kill $APP_PID 2>/dev/null || true
-
-    # Rebuild
-    cmake ..
-    make
-
-    # Restart app
+    ninja
     ./DesktopInvasion &
     APP_PID=$!
 done
-

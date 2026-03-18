@@ -77,6 +77,7 @@ Item {
     function updatePlayerStatusAilment(label){
         player.statusBar.changeStatusCondition(label, label=="")
     }
+
     function positionSpriteAndStatusBar(sprite) {
         switch(sprite.direction) {
             case 0:
