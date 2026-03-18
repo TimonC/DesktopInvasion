@@ -30,13 +30,13 @@ PokemonInteractable::PokemonInteractable(QWindow *parent, int row)
     m_wildPokemon->setProperty("scaleFactor", m_scaleFactor);
     m_wildPokemon->setProperty("row", m_row);
 
-    int width = 4*32;
-    int height = 4*32;
+    int width = m_scaleFactor*32;
+    int height = m_scaleFactor*32;
     m_wildPokemon->setProperty("itemWidth", width);
     m_wildPokemon->setProperty("itemHeight", height);
 
     m_wildPokemon->setProperty("spriteOffsetX", 32);
-    m_wildPokemon->setProperty("spriteOffsetY",32);
+    m_wildPokemon->setProperty("spriteOffsetY",32/2);
 
     QQuickItem* mouseArea = m_wildPokemon->property("mouseArea").value<QQuickItem*>();
     connect(mouseArea, SIGNAL(clicked(QQuickMouseEvent*)), this, SLOT(onClick()));
