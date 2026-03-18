@@ -86,8 +86,8 @@ Item {
         var horizontalPadding = root.menuWidth/15//left padding is 10%
         switch(sprite.direction) {
             case 0:
-                sprite.x = Math.round((root.statusBarWidth + root.width - sprite.width)/2 + (sprite.verticalWidth/2 - sprite.hCenterUp) + horizontalPadding)
-                sprite.y = Math.round(root.height - root.menuHeight - sprite.height - root.frameSize/4 - root.statusBarHeight/4)
+                sprite.x = Math.round((root.statusBarWidth + root.width - sprite.width)/2 + horizontalPadding + (sprite.verticalWidth/2 - sprite.hCenterUp))
+                sprite.y = Math.round(root.height - root.menuHeight - sprite.height - root.statusBarHeight/4)
                 sprite.statusBar.x = horizontalPadding
                 sprite.statusBar.y = Math.round((root.height- root.menuHeight)/2)
                 break
@@ -98,7 +98,7 @@ Item {
                 sprite.statusBar.y = 0
                 break
             case 2:
-                sprite.x = Math.round((root.statusBarWidth + root.width - sprite.width)/2 - (sprite.verticalWidth/2 - sprite.hCenterUp) + horizontalPadding)
+                sprite.x = Math.round((root.statusBarWidth + root.width - sprite.width)/2 + horizontalPadding + (sprite.verticalWidth/2 - sprite.hCenterDown))
                 sprite.y = Math.round(root.statusBarHeight/4)
                 sprite.statusBar.x = horizontalPadding
                 sprite.statusBar.y = 0
