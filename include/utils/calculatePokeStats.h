@@ -11,7 +11,7 @@ inline constexpr int calculateStat(int lvl, int base, int iv, int ev) noexcept {
     return (lvl * (2 * base + iv + ev / 4)) / 100;
 }
 
-std::array<int, 6> calculatePokeStats(
+inline std::array<int, 6> calculatePokeStats(
     int lvl,
     const int baseStats[6],
     const std::array<int, 6>& ivs,

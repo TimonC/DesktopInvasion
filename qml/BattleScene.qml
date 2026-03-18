@@ -49,10 +49,8 @@ Item {
     property int catchShakeInterval: 1500
     property int ballTransitionDuration: 750
     property bool catchAttemptActive: false
-    signal runChosen()
-    signal opponentWon()
-    signal playerWon()
-    signal pokemonCaught()
+
+    signal _battleEnded(string endState);
     signal switchedPokemon(int generation, int spriteId)
     //Relative positioning of elements
     function positionSpriteAndStatusBar(sprite) {
@@ -240,7 +238,7 @@ Item {
             battleMenu.showTextBar()
             battleMenu.updateText("Got away safely!")
             root.oneShotTimer(3000, function(){
-                root.runChosen()
+                root._battleEnded("PlayerRun")
             })
         }
         onSwitchChosen: function(oldPartyId, newPartyId){
@@ -392,12 +390,12 @@ Item {
                 root.actionSequence = []
                 root.currentActionIndex = 0
                 if(step.defender==root.opponent){
-                    root.playerWon()
+                    root._battleEnded("PlayerWon")
                 }else{
                     if(battleMenu.party.healthRatios.some(ratio => ratio > 0)){
                         battleMenu.forceSwitch();
                     }else{
-                        root.opponentWon()
+                        root._battleEnded("OpponentWon")
                     }
                 }
                 break
@@ -450,7 +448,7 @@ Item {
                 pokeBallOpponent.jump()
                 battleMenu.updateText("Gotcha! " + opponentName + " was caught!")
                 root.oneShotTimer(2000, function() {
-                    root.pokemonCaught()
+                    root._battleEnded("OpponentCaught")
                 })
             } else {
                 // Shake and try again

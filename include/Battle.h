@@ -55,7 +55,9 @@ signals:
 
 public slots:
     void handleDrag(bool isDragged) override;
+
 private slots:
+    void handleBattleEnded(QString endState);
     QQuickItem* updateSprite(int pokedexId, int generation, const char* role = "player");
     void handleSwitchedPokemon(int generation, int spriteId) {
         updateSprite(spriteId, generation, "player");

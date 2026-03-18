@@ -2,7 +2,6 @@
 #include <Battle.h>
 #include <globals.h>
 #include <QTimer>
-#include <utils/connectWithQML.h>
 
 Battle::Battle(WildPokemon* opp, Party party, std::unique_ptr<BattleMoveHandler> battleMoveHandler, QWindow *parent)
     : DesktopScene(parent)
@@ -27,22 +26,8 @@ Battle::Battle(WildPokemon* opp, Party party, std::unique_ptr<BattleMoveHandler>
     connect(m_battleScene, SIGNAL(switchedPokemon(int, int)),
             this, SLOT(handleSwitchedPokemon(int, int)));
 
-    // Use connectWithQML for clean signal handling
-    connectWithQML(m_battleScene, SIGNAL(runChosen()), [this]() {
-        battleEnded("PlayerRun");
-    });
-
-    connectWithQML(m_battleScene, SIGNAL(opponentWon()), [this]() {
-        battleEnded("OpponentWon");
-    });
-
-    connectWithQML(m_battleScene, SIGNAL(playerWon()), [this]() {
-        battleEnded("PlayerWon");
-    });
-
-    connectWithQML(m_battleScene, SIGNAL(pokemonCaught()), [this]() {
-        battleEnded("OpponentCaught");
-    });
+    connect(m_battleScene, SIGNAL(_battleEnded(QString)),
+            this, SLOT(handleBattleEnded(QString)));
 
 
     m_battleScene->setProperty("direction", m_currentDirection);
@@ -61,6 +46,9 @@ Battle::Battle(WildPokemon* opp, Party party, std::unique_ptr<BattleMoveHandler>
     });
 
 }
+void Battle::handleBattleEnded(QString endState){
+    emit battleEnded(endState.toStdString().data());
+};
 
 void Battle::setupParty(Party party) {
     for(size_t i = 0; i < party.spriteIds.size(); i++) {
