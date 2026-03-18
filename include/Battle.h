@@ -5,6 +5,7 @@
 #include <QQuickView>
 #include <QQuickItem>
 #include <WildPokemon.h>
+#include <qtmetamacros.h>
 
 class Battle : public DesktopScene
 {
@@ -30,6 +31,11 @@ signals:
 
 public slots:
     void handleDrag(bool isDragged) override;
+private slots:
+    QQuickItem* updateSprite(int pokedexId, int generation, const char* role = "player");
+    void handleSwitchedPokemon(int generation, int spriteId) {
+        updateSprite(spriteId, generation, "player");
+    }
 
 private:
     int m_pokeMargin = 2;

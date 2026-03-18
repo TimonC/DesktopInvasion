@@ -44,6 +44,7 @@ Item {
     signal opponentWon()
     signal playerWon()
     signal pokemonCaught()
+    signal switchedPokemon(int generation, int spriteId)
     //Relative positioning of elements
     function positionSpriteAndStatusBar(sprite) {
         // Clear all anchors first
@@ -224,10 +225,13 @@ Item {
         onSwitchChosen: function(oldPartyId, newPartyId){
             battleMenu.party.healthRatios[oldPartyId] = statusBarPlayer.currentHealthRatio
 
-            player.visible = false
-            player.updatePokemon(battleMenu.party.gens[newPartyId], battleMenu.party.spriteIds[newPartyId]);
             let newPlayerName = battleMenu.party.names[newPartyId]
+            let newPlayerGeneration = battleMenu.party.gens[newPartyId]
+            let newPlayerSpriteId = battleMenu.party.spriteIds[newPartyId]
+            // player.visible = false
 
+            root.switchedPokemon(newPlayerGeneration, newPlayerSpriteId);
+            positionSpriteAndStatusBar(player)
             battleMenu.showTextBar()
             battleMenu.updateText("Go!" + " " + newPlayerName + "!")
 
@@ -242,6 +246,8 @@ Item {
             pokeBallPlayer.throwAt(coords[0], coords[1], coords[2], coords[3])
         }
     }
+
+
     function setPartyMember(partyId, spriteId, iconId, ballId, gen, pokemonName) {
        battleMenu._setPartyMember(partyId, spriteId, iconId, ballId, gen, pokemonName);
     }

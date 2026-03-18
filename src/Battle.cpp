@@ -23,6 +23,10 @@ Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent
         opp->hide();
     });
 
+    //Signal that a pokemon switch occurred
+    connect(m_battleScene, SIGNAL(switchedPokemon(int, int)),
+            this, SLOT(handleSwitchedPokemon(int, int)));
+
     // Use connectWithQML for clean signal handling
     connectWithQML(m_battleScene, SIGNAL(runChosen()), [this]() {
         battleEnded("PlayerRun");
@@ -68,17 +72,21 @@ void Battle::setupParty(Party party){
     };
 }
 QQuickItem* Battle::setupPokemon(const PokemonInfo* info, const char* role) {
-    QQuickItem* pokemonSprite = m_battleScene->property(role).value<QQuickItem*>();
     m_battleScene->setProperty((QString(role) + "Name").toUtf8(), info->name);
-    Q_ASSERT_X(pokemonSprite, "Battle::setupPokemon", "pokemonSprite: '%1' is null".arg(role));
+    QQuickItem* pokemonSprite = updateSprite(info->spriteId, info->generation, role);
+    QMetaObject::invokeMethod(m_battleScene, "positionSpriteAndStatusBar", Q_ARG(QVariant, QVariant::fromValue(pokemonSprite)));
+    return pokemonSprite;
+}
 
-    // Set the basic sprite properties
-    pokemonSprite->setProperty("spriteSheet", QString("qrc:/assets/HGSS/PokGen%1_transparent_reordered.png").arg(info->generation));
-    pokemonSprite->setProperty("row", info->spriteId);
+QQuickItem* Battle::updateSprite(int spriteId, int generation, const char* role){
+    QQuickItem* pokemonSprite = m_battleScene->property(role).value<QQuickItem*>();
+    Q_ASSERT_X(pokemonSprite, "Battle::setupPokemon", "pokemonSprite: '%1' is null".arg(role));
+    /* // Set the basic sprite properties */
+    QMetaObject::invokeMethod(pokemonSprite, "updatePokemon", Q_ARG(QVariant, generation), Q_ARG(QVariant, spriteId));
     pokemonSprite->setProperty("scaleFactor", Globals::SCALE);
     pokemonSprite->setProperty("debugLines", Globals::DEBUG);
 
-    const SpriteInfo* spriteInfo = Globals::getSpriteInfo(info->spriteId, info->generation);
+    const SpriteInfo* spriteInfo = Globals::getSpriteInfo(spriteId, generation);
 
     // Calculate pokemonSprite size
     int width = Globals::SCALE * (spriteInfo->max_width + Globals::POKE_PADDING);
@@ -95,10 +103,10 @@ QQuickItem* Battle::setupPokemon(const PokemonInfo* info, const char* role) {
     pokemonSprite->setProperty("containerOffsetY", offsetY);
 
     // Position the sprite
-    QMetaObject::invokeMethod(m_battleScene, "positionSpriteAndStatusBar", Q_ARG(QVariant, QVariant::fromValue(pokemonSprite)));
 
     return pokemonSprite;
 }
+
 
 void Battle::initPosition() {
     QQuickItem* rootItem = qobject_cast<QQuickItem*>(m_battleScene);
