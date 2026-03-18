@@ -11,9 +11,10 @@ Player::Player(QObject* parent) : QObject(parent){
 };
 void Player::_iChooseYou(Pokemon* opp, Pokemon* chosen){
     chosen->m_inABattle = true;
-
     auto battle = std::make_unique<Battlescene>(opp, chosen);
     battle->updateTextbar("It's a battle...!");
+
+
     battle->show();
     chosen->show();
 

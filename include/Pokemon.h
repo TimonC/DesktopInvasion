@@ -15,7 +15,10 @@ public:
     bool m_inABattle = false;
     virtual void startRoaming(){};
     void useMove();
+    void attacked();
+
 protected:
+    void setSize(int size);
     QQuickItem* m_sprite;
     int m_currentDirection;
 

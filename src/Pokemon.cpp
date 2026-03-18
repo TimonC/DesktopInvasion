@@ -21,20 +21,26 @@ Pokemon::Pokemon(QWindow *parent, int row)
     m_sprite->setProperty("scaleFactor", m_scaleFactor);
     m_sprite->setProperty("row", m_row);
 
+    setSize(33);
 
-    int width = m_scaleFactor*32;
-    int height = m_scaleFactor*32;
+    m_sprite->setProperty("spriteOffsetX", 33);
+    m_sprite->setProperty("spriteOffsetY",33/2);
+
+}
+
+void Pokemon::setSize(int size){
+    int width = m_scaleFactor*size;
+    int height = m_scaleFactor*size;
     m_sprite->setProperty("itemWidth", width);
     m_sprite->setProperty("itemHeight", height);
     setWidth(width);
     setHeight(height);
-
-    m_sprite->setProperty("spriteOffsetX", 32);
-    m_sprite->setProperty("spriteOffsetY",32/2);
-
 }
 void Pokemon::useMove(){
     m_sprite->setProperty("tackle", true);
+}
+void Pokemon::attacked(){
+    m_sprite->setProperty("attacked", true);
 }
 
 void Pokemon::direction(int direction){

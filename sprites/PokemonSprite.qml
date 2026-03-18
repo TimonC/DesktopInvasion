@@ -8,8 +8,8 @@ Item {
     property real scaleFactor: 4
     property int spriteOffsetX: 0
     property int spriteOffsetY: 0
-    property int itemWidth: 32
-    property int itemHeight: 32
+    property int itemWidth: 34
+    property int itemHeight: 34
     property int frameWidth: 32
     property int frameHeight: 32
     property int frameCount: 2
@@ -22,6 +22,7 @@ Item {
     property bool clickable:true
     property bool jumping: false
     property bool tackle: false
+    property bool attacked: false
 
     width: itemWidth
     height: itemHeight
@@ -94,48 +95,90 @@ Item {
         }
     }
 
-SequentialAnimation {
-    id: tackleAnim
-    running: tackle
-    loops: 1
-    onStopped: tackle = false
+    SequentialAnimation {
+        id: tackleAnim
+        running: tackle
+        loops: 1
+        onStopped: tackle = false
 
-    PropertyAnimation {
-        target: sprite
-        property: "x"
-        to: (direction==1 ? spriteOffsetX-4*scaleFactor :
-             direction==3 ? spriteOffsetX+4*scaleFactor :
-             sprite.x)
-        duration: 50
-        easing.type: Easing.InQuad
+        PropertyAnimation {
+            target: sprite
+            property: "x"
+            to: (direction==1 ? spriteOffsetX-4*scaleFactor :
+                 direction==3 ? spriteOffsetX+4*scaleFactor :
+                 sprite.x)
+            duration: 50
+            easing.type: Easing.InQuad
+        }
+
+        PropertyAnimation {
+            target: sprite
+            property: "y"
+            to: (direction==0 ? spriteOffsetY-4*scaleFactor :
+                 direction==2 ? spriteOffsetY+4*scaleFactor :
+                 sprite.y)
+            duration: 50
+            easing.type: Easing.InQuad
+        }
+
+        PropertyAnimation {
+            target: sprite
+            property: "x"
+            to: spriteOffsetX
+            duration: 100
+            easing.type: Easing.OutQuad
+        }
+
+        PropertyAnimation {
+            target: sprite
+            property: "y"
+            to: spriteOffsetY
+            duration: 100
+            easing.type: Easing.OutQuad
+        }
     }
 
-    PropertyAnimation {
-        target: sprite
-        property: "y"
-        to: (direction==0 ? spriteOffsetY-4*scaleFactor :
-             direction==2 ? spriteOffsetY+4*scaleFactor :
-             sprite.y)
-        duration: 50
-        easing.type: Easing.InQuad
-    }
+    SequentialAnimation {
+        id: attackId
+        running: attacked
+        loops: 1
+        onStopped: attacked = false
 
-    PropertyAnimation {
-        target: sprite
-        property: "x"
-        to: spriteOffsetX
-        duration: 100
-        easing.type: Easing.OutQuad
-    }
+        PropertyAnimation {
+            target: sprite
+            property: "x"
+            to: (direction==1 ? spriteOffsetX+1*scaleFactor :
+                 direction==3 ? spriteOffsetX-1*scaleFactor :
+                 sprite.x)
+            duration: 100
+            // easing.type: Easing.OutQuad
+        }
 
-    PropertyAnimation {
-        target: sprite
-        property: "y"
-        to: spriteOffsetY
-        duration: 100
-        easing.type: Easing.OutQuad
-    }
-}
+        PropertyAnimation {
+            target: sprite
+            property: "y"
+            to: (direction==0 ? spriteOffsetY+1*scaleFactor :
+                 direction==2 ? spriteOffsetY-1*scaleFactor :
+                 sprite.y)
+            duration: 100
+            // easing.type: Easing.OutQuad
+        }
 
+        PropertyAnimation {
+            target: sprite
+            property: "x"
+            to: spriteOffsetX
+            duration: 100
+            easing.type: Easing.InQuad
+        }
+
+        PropertyAnimation {
+            target: sprite
+            property: "y"
+            to: spriteOffsetY
+            duration: 100
+            easing.type: Easing.InQuad
+        }
+    }
 }
 

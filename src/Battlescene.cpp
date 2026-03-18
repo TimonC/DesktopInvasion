@@ -31,7 +31,7 @@ Battlescene::Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent)
 
     QQuickItem* mouseArea = ui->property("mouseArea").value<QQuickItem*>();
 
-    int distance = m_opp->direction()%2==0 ? 3*32 : 4*32;
+    int distance = m_opp->direction()%2==0 ? 3*33 : 4*33;
     switch(m_opp->direction()) {
         case 0:
             m_origin = m_opp->position() + QPoint(0, -ui->height()/2-14);
@@ -77,6 +77,7 @@ void Battlescene::run(){
 
 void Battlescene::attack(){
     m_chosen->useMove();
+    m_opp->attacked();
 }
 
 void Battlescene::updateTextbar(const std::string &text){
