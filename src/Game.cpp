@@ -7,8 +7,8 @@
 #include <QTimer>
 #include <QDebug>
 #include <cstring>
-#include <form_mapper.h>
 #include "BattleMoveHandler.h"
+#include "data_poke_asset.h"
 
 Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
     : QObject(parent)
@@ -16,6 +16,7 @@ Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
     , m_menu(new GameMenu())
     , m_trayIcon(new SystemTrayIcon(this))
     , m_spawnTimer(new QTimer(this))
+    , m_rng(std::random_device{}())
 {
     qDebug() << "Game constructor called!";
 
@@ -130,8 +131,7 @@ void Game::initializeGame() {
 
     PokemonState wildState = m_db.getWildPokemon();
     if (wildState.pokedex_id > 0) {
-        m_wildPokemonInfo = Globals::getPokemonInfo(wildState.pokedex_id);
-        qDebug() << "Found wild Pokemon in database:" << QString::fromStdString(wildState.name);
+        qDebug() << "Found wild Pokemon in database:" << QString::fromStdString(Globals::getPoke(wildState.pokedex_id)->name);
     }
 }
 
@@ -140,18 +140,7 @@ void Game::loadParty() {
     GameState state = m_db.loadGameState();
     m_partyIds = {state.party_id[0], state.party_id[1], state.party_id[2],
                   state.party_id[3], state.party_id[4], state.party_id[5]};
-}
-
-const PokemonInfo* Game::getPartyPokemonInfo(int slot) const {
-    if (slot < 0 || slot >= 6 || m_partyIds[slot] <= 0) {
-        return nullptr;
-    }
-
-    PokemonState pokemon = m_db.getPokemon(m_partyIds[slot]);
-    if (pokemon._id > 0) {
-        return Globals::getPokemonInfo(pokemon.pokedex_id);
-    }
-    return nullptr;
+    m_partyDirty = true;
 }
 
 void Game::spawnPokemon() {
@@ -159,88 +148,101 @@ void Game::spawnPokemon() {
 
     PokemonState wildState = m_db.getWildPokemon();
     if (wildState.pokedex_id > 0) {
-        m_wildPokemonInfo = Globals::getPokemonInfo(wildState.pokedex_id);
-        qDebug() << "Spawning existing wild Pokemon:" << QString::fromStdString(wildState.name);
+        qDebug() << "Spawning existing wild Pokemon:" << QString::fromStdString(Globals::getPoke(wildState.pokedex_id)->name);
     } else {
         m_spawnDirection = rand()%4;
         m_spawnPoint = QPoint(-1,-1);
-        m_wildPokemonInfo = Globals::getPokemonInfo();
 
-        PokemonState newWild;
-        newWild.pokedex_id = m_wildPokemonInfo->pokedexId;
-        newWild.name = m_wildPokemonInfo->name;
-        newWild.lvl = 15;
+
+        std::uniform_int_distribution<int> dist(1, 493);
+        int pokedexId = dist(m_rng);
+        const Poke* wildPoke = Globals::getPoke(pokedexId);
+
+        wildState = {};
+        wildState.pokedex_id = pokedexId;
+        wildState.name = wildPoke->name;
+        wildState.lvl = 15;
 
         for (int i = 0; i < 6; i++) {
-            newWild.ivs[i] = 32;
-            newWild.evs[i] = 0;
+            wildState.ivs[i] = 32;
+            wildState.evs[i] = 0;
         }
-        newWild.nature = Nature::Hardy;
+        wildState.nature = Nature::Hardy;
 
-        newWild.moves[0] = 1;
-        newWild.moves[1] = 1;
-        newWild.moves[2] = 422;
-        newWild.moves[3] = 422;
+        wildState.moves[0] = 1;
+        wildState.moves[1] = 1;
+        wildState.moves[2] = 422;
+        wildState.moves[3] = 422;
 
-        m_db.spawnWildPokemon(newWild);
-        qDebug() << "Created new wild Pokemon:" << QString::fromStdString(newWild.name);
+        m_db.spawnWildPokemon(wildState);
+        qDebug() << "Created new wild Pokemon:" << QString::fromStdString(wildState.name);
     }
 
-    if (m_wildPokemonInfo) {
-        m_wildPokemon = new WildPokemon(m_wildPokemonInfo, m_spawnPoint, m_spawnDirection);
-        connect(m_wildPokemon, &WildPokemon::startABattle, this, &Game::handleBattleStart);
+    m_wildPokemon = new WildPokemon(wildState.pokedex_id, m_spawnPoint, m_spawnDirection);
+    connect(m_wildPokemon, &WildPokemon::startABattle, this, &Game::handleBattleStart);
 
-        m_wildPokemon->show();
-        m_spawnTimer->stop();
-    }
+    m_wildPokemon->show();
+    m_spawnTimer->stop();
 }
 
 Party Game::getParty() {
+    if (m_partyDirty) {
+        updatePartyCache();
+        m_partyDirty = false;
+    }
+    return m_cachedParty;
+}
+
+void Game::updatePartyCache() {
     GameState state = m_db.loadGameState();
-    Party party;
+    std::array<PokemonState, 6> partyStates;
 
     std::vector<int> idsToFetch;
-    std::vector<int> partySlots;
-
     for(int i = 0; i < 6; ++i) {
-        int pokemonId = state.party_id[i];
-        if(pokemonId > 0) {
-            idsToFetch.push_back(pokemonId);
-            partySlots.push_back(i);
+        if(state.party_id[i] > 0) {
+            idsToFetch.push_back(state.party_id[i]);
         }
     }
 
     if (!idsToFetch.empty()) {
-        std::vector<PokemonState> pokemonBatch = m_db.getPokemonBatch(idsToFetch);
-
-        for(size_t batchIdx = 0; batchIdx < pokemonBatch.size(); ++batchIdx) {
-            int slot = partySlots[batchIdx];
-            const PokemonState& pokemon = pokemonBatch[batchIdx];
-
-            if(pokemon._id <= 0) continue;
-
-            const PokemonInfo* info = Globals::getPokemonInfo(pokemon.pokedex_id);
-            if(!info) continue;
-
-            party.pokedexIds[slot] = info->pokedexId;
-            party.spriteIds[slot] = info->spriteId;
-            party.iconIds[slot] = FormMapper::toIconId(pokemon.pokedex_id, 0);
-            party.names[slot] = pokemon.name;
-            party.lvls[slot] = pokemon.lvl;
-            party.gens[slot] = info->generation;
-            party.ballIds[slot] = pokemon.pokeball_id;
-            party.healthTotals[slot] = PokeMath::calculateHealth(pokemon.lvl, Globals::getPoke(info->pokedexId)->base_stats[0], pokemon.ivs[0], pokemon.evs[0]);
-
-            for (int moveSlot = 0; moveSlot<4; moveSlot++){
-               int moveId = pokemon.moves[moveSlot];
-               if(moveId<1) continue;
-
-               const Move* _move = Globals::getMove(moveId);
-               party.moves[slot][moveSlot] = {_move->name, PokeTypes::typeToString(_move->type)};
-            };
+        std::vector<PokemonState> batch = m_db.getPokemonBatch(idsToFetch);
+        for(size_t i = 0; i < idsToFetch.size(); ++i) {
+            for(int slot = 0; slot < 6; ++slot) {
+                if(state.party_id[slot] == idsToFetch[i]) {
+                    partyStates[slot] = batch[i];
+                    break;
+                }
+            }
         }
     }
 
+    m_cachedParty = createPartyFromStates(partyStates);
+}
+
+void Game::fillPartySlot(Party& party, int slot, const PokemonState& pokemon) {
+    const asset_info* info = Globals::getSpriteInfo(pokemon.pokedex_id);
+    party.pokedexIds[slot] = pokemon.pokedex_id;
+    party.spriteIds[slot] = info->rowId;
+    party.names[slot] = pokemon.name;
+    party.lvls[slot] = pokemon.lvl;
+    party.ballIds[slot] = pokemon.pokeball_id;
+    party.healthTotals[slot] = PokeMath::calculateHealth(pokemon.lvl, Globals::getPoke(pokemon.pokedex_id)->base_stats[0], pokemon.ivs[0], pokemon.evs[0]);
+
+    for (int moveSlot = 0; moveSlot<4; moveSlot++){
+        int moveId = pokemon.moves[moveSlot];
+        if(moveId<1) continue;
+        const Move* _move = Globals::getMove(moveId);
+        party.moves[slot][moveSlot] = {_move->name, PokeTypes::typeToString(_move->type)};
+    }
+}
+
+Party Game::createPartyFromStates(const std::array<PokemonState, 6>& partyStates) {
+    Party party;
+    for(int slot = 0; slot < 6; ++slot) {
+        const PokemonState& pokemon = partyStates[slot];
+        if(pokemon._id <= 0) continue;
+        fillPartySlot(party, slot, pokemon);
+    }
     return party;
 }
 
@@ -273,9 +275,9 @@ void Game::handleBattleStart() {
     for(int i = 0; i < 6; i++){
         partyStates[i] = pokemonStates[i + 1];
     }
-    auto battleMoveHandler = std::make_unique<BattleMoveHandler>(wildState, partyStates);
+    auto battleMoveHandler = std::make_unique<BattleMoveHandler>(wildState, partyStates, m_rng);
 
-    Party party = createPartyFromBatch(partyStates);
+    Party party = createPartyFromStates(partyStates);
 
     m_activeBattle = new Battle(m_spawnPoint, m_spawnDirection, wildState, party, std::move(battleMoveHandler));
 
@@ -285,37 +287,6 @@ void Game::handleBattleStart() {
             this, &Game::updatePartyXP);
 
     qDebug() << "Starting battle...";
-}
-
-Party Game::createPartyFromBatch(const std::array<PokemonState, 6>& partyStates) {
-    Party party;
-
-    for(int i = 0; i < 6; ++i) {
-        const PokemonState& pokemon = partyStates[i];
-        if(pokemon._id <= 0) continue;
-
-        const PokemonInfo* info = Globals::getPokemonInfo(pokemon.pokedex_id);
-        if(!info) continue;
-
-        party.pokedexIds[i] = info->pokedexId;
-        party.spriteIds[i] = info->spriteId;
-        party.iconIds[i] = FormMapper::toIconId(pokemon.pokedex_id, 0);
-        party.names[i] = pokemon.name;
-        party.lvls[i] = pokemon.lvl;
-        party.gens[i] = info->generation;
-        party.ballIds[i] = pokemon.pokeball_id;
-        party.healthTotals[i] = PokeMath::calculateHealth(pokemon.lvl, Globals::getPoke(info->pokedexId)->base_stats[0], pokemon.ivs[0], pokemon.evs[0]);
-
-        for (int moveSlot = 0; moveSlot<4; moveSlot++){
-           int moveId = pokemon.moves[moveSlot];
-           if(moveId<1) continue;
-
-           const Move* _move = Globals::getMove(moveId);
-           party.moves[i][moveSlot] = {_move->name, PokeTypes::typeToString(_move->type)};
-        };
-    }
-
-    return party;
 }
 
 void Game::handleBattleEnd(const char* endState, bool removeWild) {
@@ -339,6 +310,7 @@ void Game::handleBattleEnd(const char* endState, bool removeWild) {
                     if (m_partyIds[i] == 0) {
                         m_db.setPartyPokemon(i, caughtId);
                         m_partyIds[i] = caughtId;
+                        m_partyDirty = true;
                         break;
                     }
                 }
@@ -486,6 +458,7 @@ void Game::updatePartyXP(std::array<int, 6> spread) {
 
     if (m_db.batchUpdatePokemon(updatedPokemon)) {
         qDebug() << "Successfully batch updated" << updatedPokemon.size() << "Pokémon";
+        m_partyDirty = true;
     } else {
         qWarning() << "Failed to batch update Pokémon";
     }

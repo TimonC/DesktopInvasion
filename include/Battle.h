@@ -18,8 +18,6 @@ struct BattleMove{ //stub struct to build the move menu
 struct Party {
     std::array<int, 6> pokedexIds{-1, -1, -1, -1, -1, -1};
     std::array<int, 6> spriteIds{-1, -1, -1, -1, -1, -1};
-    std::array<int, 6> iconIds{-1, -1, -1, -1, -1, -1};
-    std::array<int, 6> gens{-1, -1, -1, -1, -1, -1};
     std::array<int, 6> ballIds{-1, -1, -1, -1, -1, -1};
     std::array<std::string, 6> names{"", "", "", "", "", ""};
     std::array<int, 6> lvls{-1, -1, -1, -1, -1, -1};
@@ -72,8 +70,8 @@ public slots:
 private slots:
     void handleBattleEnded(QString endState, bool removeWild);
     void handleGettingExperience();
-    QQuickItem* updateSprite(int pokedexId, int generation, const char* role = "player");
-    void handleSwitchedPokemon(int partyIndex, int generation, int spriteId);
+    QQuickItem* updateSprite(int pokedexId, const char* role);
+    void handleSwitchedPokemon(int partyIndex, int spriteId);
     void executeActionSequence(QVariantList sequence);
 
 
@@ -84,12 +82,12 @@ private:
     void initPosition();
 
 
-    QQuickItem* setupPokemon(const PokemonInfo* info, int level, const char* role = "opponent");
+    QQuickItem* setupPokemon(int pokedexId, std::string name, int level, const char* role = "opponent");
     QQuickItem* m_battleScene;
     QQuickItem* m_opp;
     QQuickItem* m_chosen;
-    const PokemonInfo* m_chosen_info;
-    const PokemonInfo* m_opp_info;
+    const asset_info* m_chosen_info;
+    const asset_info* m_opp_info;
     QQuickItem *m_ui = nullptr;
 };
 #endif

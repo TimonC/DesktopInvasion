@@ -73,10 +73,9 @@ Rectangle {
     property alias stack: stack
 
     property var party: {
+        "pokedexIds": [-1, -1, -1, -1, -1, -1],
         "spriteIds": [-1, -1, -1, -1, -1, -1],
-        "iconIds": [-1, -1, -1, -1, -1, -1],
         "ballIds": [-1, -1, -1, -1, -1, -1],
-        "gens": [-1, -1, -1, -1, -1, -1],
         "names": ["", "", "", "", "", ""],
         "lvls": [-1, -1, -1, -1, -1, -1],
         "healthRatios": [-1, -1, -1, -1, -1, -1],
@@ -92,12 +91,11 @@ Rectangle {
     }
 
 
-    function _setPartyMember(partyIdx, spriteId, iconId, ballId, gen, pokemonName, lvl, totalHealth, moves) {
+    function _setPartyMember(partyIdx, pokedexId, spriteId, ballId, pokemonName, lvl, totalHealth, moves) {
         var temp = party
+        temp.pokedexIds[partyIdx] = pokedexId
         temp.spriteIds[partyIdx] = spriteId
-        temp.iconIds[partyIdx] = iconId
         temp.ballIds[partyIdx] = ballId
-        temp.gens[partyIdx] = gen
 
         temp.names[partyIdx] = pokemonName
         temp.lvls[partyIdx] = lvl
@@ -383,10 +381,10 @@ Rectangle {
                     Rectangle {
                         anchors.fill: parent
                         radius: 4
-                        color: (root.party.iconIds[index] >= 0 && party.healthRatios[index] > 0)
+                        color: (root.party.pokedexIds[index] >= 0 && party.healthRatios[index] > 0)
                               ? (root.selectedIndex === index ? root.selectedBorderColor : root.borderColor)
                               : root.disabledBorderColor
-                        opacity: root.party.iconIds[index] >= 0 ? root.enabledOpacity : root.disabledOpacity
+                        opacity: root.party.pokedexIds[index] >= 0 ? root.enabledOpacity : root.disabledOpacity
                         border.width: root.selectedIndex === index ? root.selectedBorderWidth*2 : 0
                         border.color: root.selectedIndex === index ? root.selectedBorderColor : "transparent"
                     }
@@ -395,17 +393,17 @@ Rectangle {
                         anchors.fill: parent
                         anchors.margins: root.borderWidth
                         radius: 2
-                        opacity: root.party.iconIds[index] >= 0 ? root.enabledOpacity : root.disabledOpacity
+                        opacity: root.party.pokedexIds[index] >= 0 ? root.enabledOpacity : root.disabledOpacity
                         gradient: Gradient {
                             GradientStop {
                                 position: 0;
-                                color: root.party.iconIds[index] >= 0 ?
+                                color: root.party.pokedexIds[index] >= 0 ?
                                     PokeColor.lighter(PokeColor.healthColor(party.healthRatios[index]))
                                     : root.disabledBackgroundColor
                             }
                             GradientStop {
                                 position: 1;
-                                color: root.party.iconIds[index] >= 0 ?
+                                color: root.party.pokedexIds[index] >= 0 ?
                                     PokeColor.darker(PokeColor.healthColor(party.healthRatios[index]))
                                     : root.disabledBackgroundColor
                             }
@@ -414,12 +412,12 @@ Rectangle {
 
                     Item {
                         anchors.centerIn: parent
-                        visible: root.party.iconIds[index] >= 0
+                        visible: root.party.pokedexIds[index] >= 0
 
                         PokemonIcon {
                             id: iconFrame
                             anchors.centerIn: parent
-                            frameIndex: root.party.iconIds[index]
+                            frameIndex: root.party.pokedexIds[index]
                             scale: root.iconScale
                             opacity: party.healthRatios[index] > 0 ? root.normalIconOpacity : root.faintedIconOpacity
                         }
@@ -427,7 +425,7 @@ Rectangle {
 
                     Text {
                         anchors.centerIn: parent
-                        visible: root.party.iconIds[index] < 0
+                        visible: root.party.pokedexIds[index] < 0
                         text: "---"
                         font.pixelSize: root.buttonFontSize
                         font.family: root.menuFontFamily
@@ -440,11 +438,11 @@ Rectangle {
                         anchors.fill: parent
                         enabled: !root.forceSwitchMode ||
                                  (root.selectedIndex !== index &&
-                                  root.party.iconIds[index] >= 0 &&
+                                  root.party.pokedexIds[index] >= 0 &&
                                   party.healthRatios[index] > 0)
                         onClicked: {
                             if(root.selectedIndex !== index &&
-                               root.party.iconIds[index] >= 0 &&
+                               root.party.pokedexIds[index] >= 0 &&
                                party.healthRatios[index] > 0){
                                 var oldIndex = root.selectedIndex
                                 root.selectedIndex = index

@@ -10,13 +10,13 @@ class WildPokemon : public DesktopScene{
     Q_DISABLE_COPY(WildPokemon)
 
 public:
-    explicit WildPokemon(const PokemonInfo* info, QPoint spawnPoint = QPoint(-1,-1), int spawnDirection = -1, QWindow *parent = nullptr);
+    explicit WildPokemon(int pokedexId, QPoint spawnPoint = QPoint(-1,-1), int spawnDirection = -1, QWindow *parent = nullptr);
 
     ~WildPokemon();
 
     void roaming(bool active);
     void direction(int direction) override;
-    const PokemonInfo* info;
+    const asset_info* info;
     QQuickItem* m_sprite;
 
 public slots:

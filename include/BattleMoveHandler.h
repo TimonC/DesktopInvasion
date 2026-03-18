@@ -19,8 +19,7 @@ struct BattleStateDelta{
     std::array<int, 7> deltaStatModifiers = {0, 0, 0, 0, 0, 0, 0};
     bool miss = false;
     bool superEffective = false;
-    bool notVeryEffective = false;
-    bool noEffect = false;
+    bool notVeryEffective = false; bool noEffect = false;
     bool critical = false;
     bool flinched = false;
     bool sleep = false;
@@ -109,7 +108,7 @@ struct BattleActionResult {
 class BattleMoveHandler : public QObject{
     Q_OBJECT
 public:
-    BattleMoveHandler(const PokemonState& wildState, const std::array<PokemonState, 6>& partyStates);
+    BattleMoveHandler(const PokemonState& wildState, const std::array<PokemonState, 6>& partyStates, std::mt19937 &rng);
     ~BattleMoveHandler();
     BattleMoveHandler(const BattleMoveHandler&) = delete;
     BattleMoveHandler& operator=(const BattleMoveHandler&) = delete;
@@ -157,7 +156,7 @@ private:
     Battler* m_battleOpponent;
     std::array<Battler*, 6> m_battleParty;
     int m_partyPokemonSentOut[6] = {-1,-1,-1,-1,-1,-1};
-    std::mt19937 m_rng;
+    std::mt19937 &m_rng;
     std::uniform_int_distribution<int> m_moveChoiceDist;
 
     static const int ms_moveUsedText = 800;

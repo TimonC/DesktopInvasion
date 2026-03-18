@@ -10,6 +10,7 @@
 #include <QQmlApplicationEngine>
 #include <SystemTrayIcon.h>
 #include <QTimer>
+#include <random>
 
 class Game : public QObject{
     Q_OBJECT
@@ -19,19 +20,25 @@ public:
     ~Game();
 
 private:
-    Party createPartyFromBatch(const std::array<PokemonState, 6>& partyStates);
+    std::mt19937 m_rng;
+    Party m_cachedParty;
+    bool m_partyDirty = true;
+
+    void fillPartySlot(Party& party, int slot, const PokemonState& pokemon);
+    Party createPartyFromStates(const std::array<PokemonState, 6>& partyStates);
+    void updatePartyCache();
+
     bool m_gameUsedToBeActive;
     QQmlApplicationEngine* m_engine = nullptr;
     GameMenu* m_menu;
     SystemTrayIcon* m_trayIcon;
 
-    std::array<int, 6> m_partyIds;  // Database IDs of party Pokemon
+    std::array<int, 6> m_partyIds;
     PokemonDatabase& m_db = PokemonDatabase::instance();
 
 
     WildPokemon* m_wildPokemon = nullptr;
     Battle* m_activeBattle = nullptr;
-    const PokemonInfo* m_wildPokemonInfo = nullptr;
     QPoint m_spawnPoint = QPoint(-1, -1);
     int m_spawnDirection = -1;
 
@@ -41,7 +48,7 @@ private:
     void initializeGame();
     void createInitialPokemon();
     void loadParty();
-    const PokemonInfo* getPartyPokemonInfo(int slot) const;
+    const asset_info* getPartyPokemonInfo(int slot) const;
     void spawnPokemon();
 
     Party getParty();

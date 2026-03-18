@@ -7,8 +7,8 @@
 #include <PokeTypes.h>
 #include <random>
 
-BattleMoveHandler::BattleMoveHandler(const PokemonState& wildState, const std::array<PokemonState, 6>& partyStates)
-    : m_rng(std::random_device{}())
+BattleMoveHandler::BattleMoveHandler(const PokemonState& wildState, const std::array<PokemonState, 6>& partyStates, std::mt19937 &rng)
+    : m_rng(rng)
     , m_moveChoiceDist(0, 3)
 {
     qDebug() << "BattleMoveHandler constructor called!";

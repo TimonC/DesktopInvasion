@@ -50,7 +50,7 @@ Item {
     property var pokemonInsideBallConnection: null
     signal _battleEnded(string endState, bool removeWild);
     signal signalToStartActionRound(int actionIndex, string actionState)
-    signal switchedPokemon(int partyIndex, int generation, int spriteId)
+    signal switchedPokemon(int pokedexId, int partyIndex)
     signal requestExperienceSpread();
 
     function setInitialTotalHealth(opponentTotalHealth, playerTotalHealth){
@@ -235,11 +235,10 @@ Item {
         }
         onSwitchChosen: function(newPartyId){
             let newPlayerName = battleMenu.party.names[newPartyId]
-            let newPlayerGeneration = battleMenu.party.gens[newPartyId]
-            let newPlayerSpriteId = battleMenu.party.spriteIds[newPartyId]
+            let newPlayerPokedexId = battleMenu.party.PokedexIds[newPartyId]
             player.visible = false
 
-            root.switchedPokemon(newPartyId, newPlayerGeneration, newPlayerSpriteId)
+            root.switchedPokemon(newPlayerPokedexId, newPartyId)
             positionSpriteAndStatusBar(player)
 
             battleMenu.showTextBar()
@@ -258,8 +257,8 @@ Item {
         }
     }
 
-    function setPartyMember(partyId, spriteId, iconId, ballId, gen, pokemonName, lvl, totalHealth, moves) {
-        battleMenu._setPartyMember(partyId, spriteId, iconId, ballId, gen, pokemonName, lvl, totalHealth, moves);
+    function setPartyMember(partyId, pokedexId, spriteId, ballId, pokemonName, lvl, totalHealth, moves) {
+        battleMenu._setPartyMember(partyId, pokedexId, spriteId, ballId, pokemonName, lvl, totalHealth, moves);
     }
 
     Timer {

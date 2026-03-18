@@ -47,7 +47,7 @@ def process_image(image_path, n_rows, n_cols, frame_width, frame_height):
         new_img.paste(frame, (0, idx * frame_height))
 
     input_path = Path(image_path)
-    output_path = input_path.with_name(input_path.stem + "_reordered.png")
+    output_path = input_path.with_name("reordered_icons.png")
     new_img.save(output_path)
 
     print(f"Saved to {output_path}")

@@ -69,7 +69,7 @@ Item {
         scale: root.scaleFactor
         visible: false
         z: 100
-        source: "qrc:/assets/HGSS/Pokeballs_transparent_reordered.png"
+        source: "qrc:/assets/HGSS/reordered_pokeballs.png"
         sourceClipRect: Qt.rect(0, root.frameHeight * root.rowId, root.frameWidth, root.frameHeight)
         smooth: false
         antialiasing: false

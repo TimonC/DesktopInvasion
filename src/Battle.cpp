@@ -1,4 +1,5 @@
 #include "BattleMoveHandler.h"
+#include "data_poke_asset.h"
 #include <Battle.h>
 #include <globals.h>
 #include <PokeMath.h>
@@ -31,8 +32,8 @@ Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildS
     connect(m_battleScene, SIGNAL(_battleEnded(QString, bool)),
             this, SLOT(handleBattleEnded(QString, bool)));
 
-    connect(m_battleScene, SIGNAL(switchedPokemon(int, int, int)),
-        this, SLOT(handleSwitchedPokemon(int, int, int)));
+    connect(m_battleScene, SIGNAL(switchedPokemon(int, int)),
+        this, SLOT(handleSwitchedPokemon(int, int)));
 
     connect(m_battleScene, SIGNAL(requestExperienceSpread()),
         this, SLOT(handleGettingExperience()));
@@ -40,8 +41,8 @@ Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildS
     m_battleScene->setProperty("direction", m_currentDirection);
     m_battleScene->setProperty("pokeMargin", m_pokeMargin);
     m_battleScene->setProperty("debugLines", Globals::DEBUG);
-    m_opp = setupPokemon(Globals::getPokemonInfo(wildState.pokedex_id), wildState.lvl, "opponent");
-    m_chosen = setupPokemon(Globals::getPokemonInfo(party.pokedexIds[0]), party.lvls[0], "player");
+    m_opp = setupPokemon(wildState.pokedex_id, wildState.name,wildState.lvl, "opponent");
+    m_chosen = setupPokemon(party.pokedexIds[0], party.names[0], party.lvls[0], "player");
     initPosition();
 
     setupParty(party);
@@ -80,8 +81,8 @@ void Battle::showXPAndEndBattle(std::array<int,6> spread, std::array<int,6> lvlU
                               Q_ARG(QVariant, QVariant::fromValue(qmlLvlUps)));
 }
 
-void Battle::handleSwitchedPokemon(int partyIndex, int generation, int spriteId){
-    updateSprite(spriteId, generation, "player");
+void Battle::handleSwitchedPokemon(int pokedexId, int partyIndex){
+    updateSprite(pokedexId, "player");
     QString label = m_battleMoveHandler.get()->switchPartyMember(partyIndex);
     QMetaObject::invokeMethod(m_battleScene, "updatePlayerStatusAilment", Q_ARG(QVariant, label));
 
@@ -110,10 +111,9 @@ void Battle::setupParty(Party party) {
 
         QMetaObject::invokeMethod(m_battleScene, "setPartyMember",
             Q_ARG(QVariant, QVariant(static_cast<int>(i))),
+            Q_ARG(QVariant, QVariant(party.pokedexIds[i])),
             Q_ARG(QVariant, QVariant(party.spriteIds[i])),
-            Q_ARG(QVariant, QVariant(party.iconIds[i])),
             Q_ARG(QVariant, QVariant(party.ballIds[i])),
-            Q_ARG(QVariant, QVariant(party.gens[i])),
             Q_ARG(QVariant, QString::fromStdString(party.names[i])),
             Q_ARG(QVariant, QVariant(party.lvls[i])),
             Q_ARG(QVariant, QVariant(party.healthTotals[i])),
@@ -121,31 +121,27 @@ void Battle::setupParty(Party party) {
     }
 }
 
-QQuickItem* Battle::setupPokemon(const PokemonInfo* info, int level, const char* role) {
-    m_battleScene->setProperty((QString(role) + "Name").toUtf8(), info->name);
+QQuickItem* Battle::setupPokemon(int pokedexId, std::string name, int level, const char* role) {
+    m_battleScene->setProperty((QString(role) + "Name").toUtf8(), QString::fromStdString(name));
     m_battleScene->setProperty((QString(role) + "LevelText").toUtf8(), QString("Lv" + QString::number(level)));
-    QQuickItem* pokemonSprite = updateSprite(info->spriteId, info->generation, role);
+    QQuickItem* pokemonSprite = updateSprite(pokedexId, role);
     QMetaObject::invokeMethod(m_battleScene, "positionSpriteAndStatusBar", Q_ARG(QVariant, QVariant::fromValue(pokemonSprite)));
     return pokemonSprite;
 }
 
-QQuickItem* Battle::updateSprite(int spriteId, int generation, const char* role){
+QQuickItem* Battle::updateSprite(int pokedexId, const char* role){
+    const asset_info* info = Globals::getSpriteInfo(pokedexId);
     QQuickItem* pokemonSprite = m_battleScene->property(role).value<QQuickItem*>();
-
-    /* // Set the basic sprite properties */
-    QMetaObject::invokeMethod(pokemonSprite, "updatePokemon", Q_ARG(QVariant, generation), Q_ARG(QVariant, spriteId));
+    QMetaObject::invokeMethod(pokemonSprite, "updatePokemon", Q_ARG(QVariant, info->rowId), Q_ARG(QVariant, info->spriteSheet==SpriteSheet::Big));
     pokemonSprite->setProperty("scaleFactor", Globals::SCALE);
     pokemonSprite->setProperty("debugLines", Globals::DEBUG);
 
-    const SpriteInfo* spriteInfo = Globals::getSpriteInfo(spriteId, generation);
 
-    // Calculate pokemonSprite size
-    int width = Globals::SCALE * (spriteInfo->max_width + Globals::POKE_PADDING);
-    int height = Globals::SCALE * (spriteInfo->max_height + Globals::POKE_PADDING);
+    int width = Globals::SCALE * (info->width + Globals::POKE_PADDING);
+    int height = Globals::SCALE * (info->height + Globals::POKE_PADDING);
 
-    // Calculate positioning offsets
-    int offsetX = Globals::SCALE * (32 - spriteInfo->max_width) / 2;
-    int offsetY = Globals::SCALE * (32 - spriteInfo->max_height) / 2;
+    int offsetX = Globals::SCALE * (32 - info->width) / 2;
+    int offsetY = Globals::SCALE * (32 - info->height) / 2;
 
     // Set pokemonSprite properties
     pokemonSprite->setProperty("itemWidth", width);

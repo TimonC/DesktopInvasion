@@ -4,9 +4,9 @@
 #include <data_poke_asset.h>
 #include <data_poke.h>
 #include <data_move.h>
+#include <QSize>
 
 class QRect;
-class QSize;
 
 namespace Globals {
     extern bool DEBUG;
@@ -15,11 +15,25 @@ namespace Globals {
     extern const int MAX_POKEDEX_ID;
 
     const QRect& screenGeometry();
-    const PokemonInfo* getPokemonInfo(int pokeDexId = -1);
-    const Move* getMove(int moveId);
-    const Poke* getPoke(int pokeDexId);
-    const SpriteInfo* getSpriteInfo(int spriteId, int generation);
-    QSize getSpriteSize(int spriteId, int generation);
+
+    inline const Move* getMove(int moveId) {
+        return (moveId >= 0 && moveId <= kMaxMoveId) ? kMovesByIndex[moveId] : nullptr;
+    }
+
+    inline const Poke* getPoke(int pokeDexId) {
+        return (pokeDexId >= 0 && pokeDexId <= MAX_POKEDEX_ID) ? kPokesByIndex[pokeDexId] : nullptr;
+    }
+
+    inline const asset_info* getSpriteInfo(int pokeDexId) {
+        return (pokeDexId >= 1 && pokeDexId <= MAX_POKEDEX_ID) ? kAssetInfo[pokeDexId - 1] : nullptr;
+    }
+
+    inline QSize getSpriteSize(int pokeDexId) {
+        if (const asset_info* info = getSpriteInfo(pokeDexId)) {
+            return QSize(info->width, info->height);
+        }
+        return QSize(0, 0);
+    }
 }
 
 #endif

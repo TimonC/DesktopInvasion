@@ -6,14 +6,14 @@
 #include <globals.h>
 #include <data_poke_asset.h>
 
-WildPokemon::WildPokemon(const PokemonInfo* info, QPoint spawnPoint, int spawnDirection,  QWindow *parent)
+WildPokemon::WildPokemon(int pokedexId, QPoint spawnPoint, int spawnDirection,  QWindow *parent)
     : DesktopScene(parent)
-    , info(info)
+    , info(Globals::getSpriteInfo(pokedexId))
     , m_decisionTimer(new QTimer(this))
     , m_moveTimer(new QTimer(this))
     , m_moveSpeed(1 + std::rand()%2000/1000)
 {
-    qDebug() << "WildPokemon constructor called, with name: " << info->name;
+    qDebug() << "WildPokemon constructor called!";
 
     if(spawnPoint.x()>=0  && spawnPoint.y()>=0){
         setPosition(spawnPoint);
@@ -24,15 +24,17 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QPoint spawnPoint, int spawnDi
 
     setSource(QUrl("qrc:/qml/PokemonSprite.qml"));
     m_sprite = rootObject();
-    m_sprite->setProperty("spriteSheet", QString("qrc:/assets/HGSS/PokGen%1_transparent_reordered.png").arg(info->generation));
+    m_sprite->setProperty("spriteSheet",
+            info->spriteSheet==SpriteSheet::Standard
+            ? QString("qrc:/assets/HGSS/reordered_sprites.png")
+            : QString("qrc:/assets/HGSS/reordered_sprites_big.png"));
     m_sprite->setProperty("scaleFactor", Globals::SCALE);
-    m_sprite->setProperty("row", info->spriteId);
+    m_sprite->setProperty("row", info->rowId);
     m_sprite->setProperty("debugLines", Globals::DEBUG);
 
-    const SpriteInfo* spriteInfo = Globals::getSpriteInfo(info->spriteId, info->generation);
 
-    int width = Globals::SCALE* (spriteInfo->max_width + Globals::POKE_PADDING);
-    int height = Globals::SCALE * (spriteInfo->max_height + Globals::POKE_PADDING);
+    int width = Globals::SCALE* (info->width + Globals::POKE_PADDING);
+    int height = Globals::SCALE * (info->height + Globals::POKE_PADDING);
 
     m_sprite->setProperty("itemWidth", width);
     m_sprite->setProperty("itemHeight", height);
@@ -63,7 +65,7 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QPoint spawnPoint, int spawnDi
 }
 
 WildPokemon::~WildPokemon(){
-    qDebug() << "WildPokemon destructor called, with name: " << info->name;
+    qDebug() << "WildPokemon destructor called, with name!";
 };
 
 void WildPokemon::roaming(bool active){

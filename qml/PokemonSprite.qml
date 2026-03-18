@@ -4,7 +4,7 @@ Item {
     id: root
     property color debugColor: "yellow"
     // Sprite properties
-    property string spriteSheet: "qrc:/assets/HGSS/PokGen1_transparent_reordered.png"
+    property string spriteSheet: "qrc:/assets/HGSS/reordered_sprites.png"
     property int partyId: 0
     property int row: 0
     property int direction: 0
@@ -39,9 +39,13 @@ Item {
     }
 
     // Method to change sprite source
-    function updatePokemon(generation, rowId) {
+    function updatePokemon(rowId, isBig) {
         // Update sprite sheet based on generation
-        spriteSheet = "qrc:/assets/HGSS/PokGen" + generation + "_transparent_reordered.png";
+        if(isBig){
+            spriteSheet = "qrc:/assets/HGSS/reordered_sprites_big.png";
+        }else{
+            spriteSheet = "qrc:/assets/HGSS/reordered_sprites.png";
+        }
         row = rowId;
 
         // Restart the sprite animation
