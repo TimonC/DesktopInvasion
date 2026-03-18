@@ -314,11 +314,15 @@ Item {
                     } else {
                         var joinParty = false
                         if(pokemonSlot.swappable){
-                            if(root.swapSource[0]===-1 && pokemonSlot.pcPos[0]!==-1){
-                                root.freePartySlot-=1
-                                joinParty = !pokemonSlot.iconVisible
-                            }else if(root.swapSource[0]!==-1 && pokemonSlot.pcPos[0]===-1){
-                                root.freePartySlot+=1
+                            if(!pokemonSlot.iconVisible){
+                                if(root.swapSource[0]===-1 && pokemonSlot.pcPos[0]!==-1){
+                                    joinParty = root.swapSource[1]<(root.freePartySlot-1)
+                                    root.freePartySlot-=1
+                                }
+                                if(root.swapSource[0]!==-1 && pokemonSlot.pcPos[0]===-1){
+                                    console.log(root.swapSource, pokemonSlot.pcPos, "+1")
+                                    root.freePartySlot+=1
+                                }
                             }
                             root._executeSwap(root.swapSource, pokemonSlot.pcPos)
                             root.swapRequested(root.swapSource, pokemonSlot.pcPos)
