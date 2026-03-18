@@ -18,7 +18,7 @@ DesktopScene::DesktopScene(QWindow *parent)
 
      m_grabCursor = QCursor(QPixmap(":/assets/XY/grab.png"));
      m_handCursor = QCursor(QPixmap(":/assets/XY/hand.png"));
-     m_pointerCursor = QCursor(QPixmap(":/assets/XY/pointer.png"));
+     m_pointerCursor = QCursor(QPixmap(":/assets/XY/pointer.png"), 6, 6);
      setCursor(m_handCursor);
 }
 

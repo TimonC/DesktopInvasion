@@ -155,15 +155,15 @@ Rectangle {
     component NoCursorMouseArea: MouseArea{
         cursorShape: undefined
         hoverEnabled: true
-        z: 3
+        z: 1
     }
 
     NoCursorMouseArea{
         id: menuMouseArea
-        anchors.fill: parent
         z: 2
-        propagateComposedEvents: true // Allow events to pass through
-        acceptedButtons: Qt.NoButton // Don't consume any clicks
+        anchors.fill: parent
+        propagateComposedEvents: true
+        acceptedButtons: Qt.NoButton
         onPressed: mouse.accepted = false
         onReleased: mouse.accepted = false
         onClicked: mouse.accepted = false
@@ -179,7 +179,6 @@ Rectangle {
                root.inClickableArea = false
                if(!root.textBarShown) root.clickableAreaEntered(false)
             }
-            z: 3
         }
     }
 
