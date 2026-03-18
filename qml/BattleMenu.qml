@@ -253,12 +253,11 @@ Rectangle {
                             border.width: root.selectedIndex === index ? 2 : 0.5
                             Rectangle {
                                 anchors.fill: parent
-                                color: root.selectedIndex === index ? "#E8F5E9" :
-                                   (party.healthRatios[index] >= 0.5 ? "#4CAF50" :
-                                   (party.healthRatios[index] >= 0.25 ? "#FF9800" :
-                                   (party.healthRatios[index] > 0 ? "#F44336" : "#C62828")))
                                 radius: parent.radius
-                                opacity: 0.6
+                                opacity: root.selectedIndex === index ? 0.4 : 0.8
+                                color: party.healthRatios[index] >= 0.5 ? "#4CAF50" :
+                                       (party.healthRatios[index] >= 0.25 ? "#FF9800" :
+                                       (party.healthRatios[index] > 0 ? "#F44336" : "#C62828"))
                             }
                             PokemonIcon {
                                 anchors.centerIn: parent
