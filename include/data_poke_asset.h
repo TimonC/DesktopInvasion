@@ -8,8 +8,10 @@ enum class SpriteSheet{
 struct AssetInfo{
     int width;
     int height;
-    int minWidth;
-    int minHeight;
+    int hWidth;
+    int hHeight;
+    int vWidth;
+    int vHeight;
     SpriteSheet spriteSheet;
     int rowId;
 };

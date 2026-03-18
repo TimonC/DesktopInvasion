@@ -148,15 +148,14 @@ QQuickItem* Battle::updateSprite(int pokedexId, const char* role){
     // Calculate dimensions with isBig scaling
     int width = (Globals::SCALE / scaleDivisor) * (info->width + Globals::POKE_PADDING);
     int height = (Globals::SCALE / scaleDivisor) * (info->height + Globals::POKE_PADDING);
+    int horizontalHeight = (Globals::SCALE / scaleDivisor) * (info->hHeight + Globals::POKE_PADDING);
 
 
     pokemonSprite->setProperty("itemWidth", width);
     pokemonSprite->setProperty("itemHeight", height);
     pokemonSprite->setProperty("frameWidth", isBig ? 64 : 32);
     pokemonSprite->setProperty("frameHeight", isBig ? 64 : 32);
-
-    pokemonSprite->setProperty("minWidth", info->minWidth);
-    pokemonSprite->setProperty("minHeight", info->minHeight);
+    pokemonSprite->setProperty("horizontalHeight", horizontalHeight);
 
     return pokemonSprite;
 }

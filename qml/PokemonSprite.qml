@@ -15,8 +15,7 @@ Item {
     property int frameRate: 4
 
     //Used in battle  positioning
-    property int minWidth: 0
-    property int minHeight: 0
+    property int horizontalHeight: 0
 
     // Container properties
     property int itemWidth: 0

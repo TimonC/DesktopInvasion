@@ -46,24 +46,30 @@ def analyze_frame_bounds(frame):
     return int(width), int(height), int(x_min), int(y_min)
 
 def calculate_sprite_bounds(frames):
-    """Calculate min and max bounds for all frames of a sprite"""
-    min_width, min_height = float('inf'), float('inf')
-    max_width, max_height = 0, 0
+    """Calculate bounds for vertical and horizontal frames separately"""
+    # Frame order: 2 vertical, 2 horizontal, 2 vertical, 2 horizontal
+    # Indices: 0,1 = vertical; 2,3 = horizontal; 4,5 = vertical; 6,7 = horizontal
 
-    for frame in frames:
-        width, height, _, _ = analyze_frame_bounds(frame)
-        if width == 0 or height == 0:
-            continue
+    vertical_width, vertical_height = 0, 0
+    horizontal_width, horizontal_height = 0, 0
 
-        min_width = min(min_width, width)
-        min_height = min(min_height, height)
-        max_width = max(max_width, width)
-        max_height = max(max_height, height)
+    # Process vertical frames (indices 0, 1, 4, 5)
+    vertical_indices = [0, 1, 4, 5]
+    for idx in vertical_indices:
+        width, height, _, _ = analyze_frame_bounds(frames[idx])
+        if width > 0 and height > 0:
+            vertical_width = max(vertical_width, width)
+            vertical_height = max(vertical_height, height)
 
-    if min_width == float('inf'):
-        return 0, 0, 0, 0
+    # Process horizontal frames (indices 2, 3, 6, 7)
+    horizontal_indices = [2, 3, 6, 7]
+    for idx in horizontal_indices:
+        width, height, _, _ = analyze_frame_bounds(frames[idx])
+        if width > 0 and height > 0:
+            horizontal_width = max(horizontal_width, width)
+            horizontal_height = max(horizontal_height, height)
 
-    return int(max_width), int(max_height), int(min_width), int(min_height)
+    return vertical_width, vertical_height, horizontal_width, horizontal_height
 
 def has_visible_content(frames):
     """Check if any frame has visible content"""
@@ -79,14 +85,14 @@ def extract_frame_block(img, col_idx, row_idx, frame_width, frame_height):
     y0 = row_idx * (4 * frame_height + 1)
 
     return [
-        img.crop((x0, y0, x0 + frame_width, y0 + frame_height)),
-        img.crop((x0, y0 + frame_height, x0 + frame_width, y0 + 2*frame_height)),
-        img.crop((x0 + frame_width, y0, x0 + 2*frame_width, y0 + frame_height)),
-        img.crop((x0 + frame_width, y0 + frame_height, x0 + 2*frame_width, y0 + 2*frame_height)),
-        img.crop((x0, y0 + 2*frame_height, x0 + frame_width, y0 + 3*frame_height)),
-        img.crop((x0, y0 + 3*frame_height, x0 + frame_width, y0 + 4*frame_height)),
-        img.crop((x0 + frame_width, y0 + 2*frame_height, x0 + 2*frame_width, y0 + 3*frame_height)),
-        img.crop((x0 + frame_width, y0 + 3*frame_height, x0 + 2*frame_width, y0 + 4*frame_height))
+        img.crop((x0, y0, x0 + frame_width, y0 + frame_height)),  # V1
+        img.crop((x0, y0 + frame_height, x0 + frame_width, y0 + 2*frame_height)),  # V2
+        img.crop((x0 + frame_width, y0, x0 + 2*frame_width, y0 + frame_height)),  # H1
+        img.crop((x0 + frame_width, y0 + frame_height, x0 + 2*frame_width, y0 + 2*frame_height)),  # H2
+        img.crop((x0, y0 + 2*frame_height, x0 + frame_width, y0 + 3*frame_height)),  # V3
+        img.crop((x0, y0 + 3*frame_height, x0 + frame_width, y0 + 4*frame_height)),  # V4
+        img.crop((x0 + frame_width, y0 + 2*frame_height, x0 + 2*frame_width, y0 + 3*frame_height)),  # H3
+        img.crop((x0 + frame_width, y0 + 3*frame_height, x0 + 2*frame_width, y0 + 4*frame_height))  # H4
     ]
 
 def extract_big_frames(img, pokemon_idx, n_cols, frame_width, frame_height):
@@ -101,6 +107,7 @@ def extract_big_frames(img, pokemon_idx, n_cols, frame_width, frame_height):
             frames.append(img.crop((x0, y0, x0 + frame_width, y0 + frame_height)))
 
     # Reorder: aa, ba, ac, bc, ab, bb, ad, bd
+    # Based on pattern: vertical, vertical, horizontal, horizontal, vertical, vertical, horizontal, horizontal
     aa, ab, ac, ad, ba, bb, bc, bd = frames
     return [aa, ba, ac, bc, ab, bb, ad, bd]
 
@@ -142,7 +149,7 @@ namespace {
 
         sprite_sheet = "SpriteSheet::Big" if info["is_big"] else "SpriteSheet::Standard"
         cpp_content += f"static const AssetInfo asset_{pid} = "
-        cpp_content += f"{{{info['width']}, {info['height']}, {info['min_width']}, {info['min_height']}, {sprite_sheet}, {info['row_id']}}};\n"
+        cpp_content += f"{{{info['width']}, {info['height']}, {info['v_width']}, {info['v_height']}, {info['h_width']}, {info['h_height']}, {sprite_sheet}, {info['row_id']}}};\n"
         asset_entries.append(pid)
 
     cpp_content += "\n} // anonymous namespace\n\n"
@@ -226,8 +233,8 @@ def process_sprites_and_generate_assets(image_paths, big_image_path, regular_wid
                 frames = extract_frame_block(img, col, row, regular_width, regular_height)
 
                 if has_visible_content(frames):
-                    # Calculate bounds (max width/height and min width/height)
-                    width, height, min_width, min_height = calculate_sprite_bounds(frames)
+                    # Calculate vertical and horizontal bounds separately
+                    v_width, v_height, h_width, h_height = calculate_sprite_bounds(frames)
 
                     # Center frames
                     centered_frames = [center_sprite_in_frame(f, regular_width, regular_height) for f in frames]
@@ -238,10 +245,12 @@ def process_sprites_and_generate_assets(image_paths, big_image_path, regular_wid
 
                     # Store asset data
                     asset_data[current_pokedex_id] = {
-                        "width": width,
-                        "height": height,
-                        "min_width": min_width,
-                        "min_height": min_height,
+                        "width": max(v_width, h_width),
+                        "height": max(v_height, h_height),
+                        "v_width": v_width,
+                        "v_height": v_height,
+                        "h_width": h_width,
+                        "h_height": h_height,
                         "is_big": False,
                         "row_id": row_id
                     }
@@ -269,8 +278,8 @@ def process_sprites_and_generate_assets(image_paths, big_image_path, regular_wid
         frames = extract_big_frames(img, idx, 4, big_width, big_height)
 
         if has_visible_content(frames):
-            # Calculate bounds (max width/height and min width/height)
-            width, height, min_width, min_height = calculate_sprite_bounds(frames)
+            # Calculate vertical and horizontal bounds separately
+            v_width, v_height, h_width, h_height = calculate_sprite_bounds(frames)
 
             # Center frames
             centered_frames = [center_sprite_in_frame(f, big_width, big_height) for f in frames]
@@ -281,15 +290,17 @@ def process_sprites_and_generate_assets(image_paths, big_image_path, regular_wid
 
             # Store asset data
             asset_data[pokedex_id] = {
-                "width": width,
-                "height": height,
-                "min_width": min_width,
-                "min_height": min_height,
+                "width": max(v_width, h_width),
+                "height": max(v_height, h_height),
+                "v_width": v_width,
+                "v_height": v_height,
+                "h_width": h_width,
+                "h_height": h_height,
                 "is_big": True,
                 "row_id": row_id
             }
 
-            print(f"  Processed big Pokémon #{pokedex_id}: {width}x{height} (min: {min_width}x{min_height})")
+            print(f"  Processed big Pokémon #{pokedex_id}: V={v_width}x{v_height}, H={h_width}x{h_height}")
         else:
             print(f"  WARNING: Big Pokémon #{pokedex_id} has no visible content!")
 
@@ -326,7 +337,6 @@ def process_sprites_and_generate_assets(image_paths, big_image_path, regular_wid
     generate_cpp_asset_file(asset_data, cpp_output_path)
 
     return len(regular_rows), len(big_rows), asset_data
-
 def main():
     parser = argparse.ArgumentParser(description="Process Pokémon sprites and generate C++ asset file")
     parser.add_argument("--input_path", default="assets/HGSS")
@@ -390,7 +400,7 @@ def main():
         if asset_data[pid]:
             info = asset_data[pid]
             sheet = "Big" if info["is_big"] else "Standard"
-            print(f"  #{pid}: {info['width']}x{info['height']} (min: {info['min_width']}x{info['min_height']}), {sheet}, row {info['row_id']}")
+            print(f"  #{pid}: width={info['width']}, height={info['height']},  V={info['v_width']}x{info['v_height']}, H={info['h_width']}x{info['h_height']}, {sheet}, row {info['row_id']}")
 
 if __name__ == "__main__":
     main()
