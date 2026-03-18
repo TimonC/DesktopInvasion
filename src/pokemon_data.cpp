@@ -1,6 +1,14 @@
 #include <pokemon_data.h>
 
-
+const int pokedexId2VariantId[][2] = {
+    {201,28},//unown
+    {412,3}, //burmy
+    {413,3}, //wormadam
+    {422, 2}, //shellos
+    {423, 2}, //gastrodon
+    {478, 6}, //rotom
+    {492, 2}, //shaymin
+};
 
 const PokemonInfo kPokemonList[] = {
     {1, 0, 1, "Bulbasaur"},

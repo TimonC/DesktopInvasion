@@ -95,7 +95,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Reorder frames with centered 16px frames in 23px transparent background."
     )
-    parser.add_argument("--input_path", type=str, default="assets/HGSS")
+    parser.add_argument("--input_path", type=str, default="/assets/HGSS")
     parser.add_argument("--inputs", nargs='+', default=["Pokeballs_transparent.png"])
     parser.add_argument("--n_rows", type=int, default=10, help="Number of rows of sections per image")
     parser.add_argument("--n_cols", type=int, default=25, help="Number of columns of sections per image")

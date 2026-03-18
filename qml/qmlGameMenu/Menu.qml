@@ -16,7 +16,7 @@ Rectangle {
     property int bodyFontSize: 14
     property string fontFamily: "Sans Serif"
 
-    property int headerHeight: height / 6
+    property int headerHeight: height / 8
     property int contentHeight: height - headerHeight
 
     property string currentMenu: "Party"
