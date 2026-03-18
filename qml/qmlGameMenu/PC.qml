@@ -22,9 +22,9 @@ Item {
     property color  highlightDisplayed:    "#64b5f6"
     property color  swapButtonHighlight:   "#ff9933"
 
-    property real   highlightOpacity:      0.3
-    property real   highlightHoverOpacity: 0.5
-    property real   backgroundOpacity:     0.3
+    property real   highlightOpacity:      0.6
+    property real   highlightHoverOpacity: 0.7
+    property real   backgroundOpacity:     0.5
 
     property color  highlightColor:        Qt.rgba(0.29, 0.56, 0.89, highlightOpacity)
     property color  hoverHighlightColor:   Qt.rgba(0.42, 0.68, 0.96, highlightHoverOpacity)
@@ -48,7 +48,7 @@ Item {
     readonly property int buttonHeight:  64
     readonly property int labelHeight:   fontSizeLg > 0 ? fontSizeLg + 16 : 28
 
-    readonly property int   panelRadius:      8
+    readonly property int   panelRadius:      3
     readonly property int   panelBorderWidth: 2
     readonly property int   buttonRadius:     10
 

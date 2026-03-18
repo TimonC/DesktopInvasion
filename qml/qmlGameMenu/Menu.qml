@@ -8,7 +8,7 @@ Rectangle {
     readonly property int dividerW: 1
     readonly property color dividerColor: "#3a3a3a"
 
-    readonly property int trainerH:    180
+    readonly property int trainerH:    160
     readonly property int pcH:         640
     readonly property int pcW:         640
     readonly property int rightPanelW: 640
