@@ -360,6 +360,7 @@ Item {
                             }
                             root._executeSwap(root.swapSource, pokemonSlot.pcPos)
                             root.swapRequested(root.swapSource, pokemonSlot.pcPos)
+                            root._display(pokemonSlot.pcPos)
                             if(joinParty){
                                 for(var i = root.swapSource[1]; i<root.freePartySlot; i++){
                                     root._executeSwap([-1,i],[-1,i+1])
@@ -372,8 +373,7 @@ Item {
                     }
                 }
                 if (!pokemonSlot.iconVisible) return
-
-                root._display(pokemonSlot.pcPos)
+                root._display(root.swapSource)
             }
         }
     }
