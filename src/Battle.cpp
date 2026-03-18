@@ -23,7 +23,7 @@ Battle::Battle(int opp_direction, QPoint opp_pos, const PokemonInfo* opp_info, c
     m_battleScene->setProperty("spriteSheet", QString("qrc:/assets/HGSS/PokGen%1_transparent_reordered.png").arg(opp_info->generation));
     m_battleScene->setProperty("scaleFactor", Globals::SCALE);
     m_battleScene->setProperty("direction",m_currentDirection);
-
+    m_battleScene->setProperty("pokeMargin", m_pokeMargin);
     setupPokemon(m_opp_info, m_chosen_info);
 
 
@@ -62,26 +62,22 @@ void Battle::initPosition(){
     int distance = m_currentDirection%2==0 ? 3*33 : 4*33;
     switch(m_currentDirection) {
         case 0:
-            m_origin = m_initialOppPos + QPoint(0, -m_battleScene->height() + 32);
-            /* m_chosen->setPosition(m_initialOppPos + QPoint(0, -distance)); */
+            m_origin = m_initialOppPos + QPoint(0, m_pokeMargin*Globals::SCALE);
             break;
         case 1:
-            m_origin = m_initialOppPos + QPoint(-m_battleScene->width()/2, -m_battleScene->height()/2 + 32);
-            /* m_chosen->setPosition(m_initialOppPos + QPoint(-distance, 0)); */
+            m_origin = m_initialOppPos + QPoint(0,0);
             break;
         case 2:
-            m_origin = m_initialOppPos + QPoint(0, -32);
-            /* m_chosen->setPosition(m_initialOppPos + QPoint(0, distance)); */
+            m_origin = m_initialOppPos + QPoint(0, -m_pokeMargin);
             break;
         case 3:
-            m_origin = m_initialOppPos + QPoint(-32/2, -32);
-            /* m_chosen->setPosition(m_opp->position() + QPoint(distance, 0)); */
+            m_origin = m_initialOppPos + QPoint(0,0);
             break;
     }
 
-    QMetaObject::invokeMethod(m_battleScene, "swap_visibility");
-    QMetaObject::invokeMethod(m_battleScene, "swap_visibility");
 
     setPosition(m_origin);
+    /* QMetaObject::invokeMethod(m_battleScene, "swap_visibility"); */
+    /* QMetaObject::invokeMethod(m_battleScene, "swap_visibility"); */
 }
 void Battle::direction(int direction){};

@@ -26,6 +26,7 @@ private slots:
     /* void attack(); */
 
 private:
+    int m_pokeMargin = 8;
     void initPosition();
     // Store initial positions for perfect sync
     QPoint m_initialOppPos;
