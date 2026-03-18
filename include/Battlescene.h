@@ -22,6 +22,7 @@ protected:
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent*  event) override;
 private:
+    void initPosition();
     QPoint m_cornerSize;
     bool m_dragging = false;
     void drag(QPoint& delta);

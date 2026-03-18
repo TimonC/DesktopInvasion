@@ -30,17 +30,24 @@ Battlescene::Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent)
     QQuickItem* attackButton = ui->property("attackButton").value<QQuickItem*>();
     connect(attackButton,  SIGNAL(clicked()), this, SLOT(attack()));
 
-    QQuickItem* mouseArea = ui->property("mouseArea").value<QQuickItem*>();
 
+    initPosition();
+
+    m_corners = initCorners();
+    m_corners->show();
+    show();
+}
+
+void Battlescene::initPosition(){
     int distance = m_opp->direction()%2==0 ? 3*33 : 4*33;
     switch(m_opp->direction()) { //Very bad no good ugly manually-tuned positioning for the Battlescene
         case 0:
-            m_origin = m_opp->position() + QPoint(25, -ui->height()/2 + 30);
+            m_origin = m_opp->position() + QPoint(25, -m_ui->height()/2 + 30);
             m_chosen->setPosition(m_opp->position() + QPoint(0, -distance));
             m_chosen->direction(2);
             break;
         case 1:
-            m_origin = m_opp->position() + QPoint(-ui->width()/2+8, 16);
+            m_origin = m_opp->position() + QPoint(-m_ui->width()/2+8, 16);
             m_chosen->setPosition(m_opp->position() + QPoint(-distance, 0));
             m_chosen->direction(3);
             break;
@@ -57,17 +64,12 @@ Battlescene::Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent)
     }
 
     // Set m_chosen side
-    QMetaObject::invokeMethod(ui, "set_chosen_side", Q_ARG(QVariant, m_opp->direction()));
-    QMetaObject::invokeMethod(ui, "swap_visibility");
-    QMetaObject::invokeMethod(ui, "swap_visibility");
+    QMetaObject::invokeMethod(m_ui, "set_chosen_side", Q_ARG(QVariant, m_opp->direction()));
+    QMetaObject::invokeMethod(m_ui, "swap_visibility");
+    QMetaObject::invokeMethod(m_ui, "swap_visibility");
     m_direction = m_chosen->direction();
     setPosition(m_origin);
-
-    m_corners = initCorners();
-    m_corners->show();
-    show();
 }
-
 
 void Battlescene::run(){
     setVisible(false);
