@@ -38,15 +38,12 @@ Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
 
 Game::~Game() {
     if (m_activeBattle) {
-        m_activeBattle->disconnect();
         m_activeBattle->deleteLater();
     }
     if (m_wildPokemon) {
-        m_wildPokemon->disconnect();
         m_wildPokemon->deleteLater();
     }
     if (m_trayIcon) {
-        m_trayIcon->disconnect();
         m_trayIcon->deleteLater();
     }
     delete m_menu;
@@ -78,14 +75,12 @@ void Game::setGameActive(bool active) {
     } else {
         if (m_activeBattle) {
             updateWildPokemonPosToBattlePos();
-            m_activeBattle->disconnect();
             m_activeBattle->deleteLater();
             m_activeBattle = nullptr;
         }
         if (m_wildPokemon) {
             m_spawnPoint = m_wildPokemon->position();
             m_spawnDirection = m_wildPokemon->m_currentDirection;
-            m_wildPokemon->disconnect();
             m_wildPokemon->deleteLater();
             m_wildPokemon = nullptr;
         }
@@ -170,7 +165,6 @@ const PokemonInfo* Game::getPartyPokemonInfo(int slot) const {
 
 void Game::spawnPokemon() {
     if (m_wildPokemon) {
-        m_wildPokemon->disconnect();
         m_wildPokemon->deleteLater();
         m_wildPokemon = nullptr;
     }
@@ -230,10 +224,6 @@ void Game::handleBattleEnd(const char* endState) {
     if (!endState) {
         qWarning() << "handleBattleEnd called with null endState";
         return;
-    }
-
-    if (m_activeBattle) {
-        m_activeBattle->disconnect();
     }
 
     bool playerWon = (strcmp(endState, "PlayerWon") == 0);

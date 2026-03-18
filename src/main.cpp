@@ -15,6 +15,7 @@ int main(int argc, char *argv[]) {
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 
     /* Globals::DEBUG = true; */
+    /* if (!Globals::DEBUG)  loggingCategory::setFilterRules("*.debug=false"); */
 
     QOpenGLContext context;
     if (context.create()) {
@@ -26,7 +27,6 @@ int main(int argc, char *argv[]) {
         qDebug() << "OpenGL FAILED - using software rendering";
     }
 
-    /* if (!Globals::DEBUG)  loggingCategory::setFilterRules("*.debug=false"); */
 
     runAllTests();
 
