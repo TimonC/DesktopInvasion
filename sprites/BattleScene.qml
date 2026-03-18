@@ -82,9 +82,9 @@ Item {
                 break;
             case 1: // East - position at right
                 sprite.anchors.right = root.right;
-                sprite.anchors.rightMargin = margin - sprite.containerOffsetX;
+                sprite.anchors.rightMargin = margin + sprite.containerOffsetX;
                 sprite.anchors.bottom = root.bottom;
-                sprite.anchors.bottomMargin = textBar.height + margin + sprite.containerOffsetY;
+                sprite.anchors.bottomMargin = textBar.height + margin;// + sprite.containerOffsetY;
                 break;
             case 2: // South - position at top
                 sprite.anchors.top = root.top;
@@ -96,7 +96,7 @@ Item {
                 sprite.anchors.left = root.left;
                 sprite.anchors.leftMargin = margin + sprite.containerOffsetX;
                 sprite.anchors.bottom = root.bottom;
-                sprite.anchors.bottomMargin = textBar.height + margin + sprite.containerOffsetY;
+                sprite.anchors.bottomMargin = textBar.height + margin;// + sprite.containerOffsetY;
                 break;
         }
     }
