@@ -29,7 +29,15 @@ GameMenu::GameMenu()
     m_pointerCursor = QCursor(QPixmap(":/assets/XY/pointer.png"), 6, 6);
     setCursor(m_pointerCursor);
     setTitle("DesktopInvasion");
+
+        //Hardcoded values based on printing the size
+        //I'm doing this cause it's the easiest way to
+        //fix size and I'm too lazy to handle window resize
+    setMinimumSize( QSize(1329, 913));
+    setMaximumSize( QSize(1329, 913));
+
     hide();
+
 }
 
 bool GameMenu::event(QEvent* event) {
