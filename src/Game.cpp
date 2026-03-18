@@ -262,7 +262,11 @@ void Game::handleBattleStart() {
         idsToFetch.push_back(m_partyIds[i]);
     }
 
+    auto startTime = std::chrono::steady_clock::now();
     std::vector<PokemonState> pokemonStates = m_db.getPokemonBatch(idsToFetch);
+    auto endTime = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+    qDebug() << "Database batch fetch took:" << duration.count() << "ms";
 
     PokemonState wildState = pokemonStates[0];
     std::array<PokemonState, 6> partyStates;
@@ -271,7 +275,7 @@ void Game::handleBattleStart() {
     }
     auto battleMoveHandler = std::make_unique<BattleMoveHandler>(wildState, partyStates);
 
-    const Party party = getParty();
+    Party party = createPartyFromBatch(partyStates);
 
     m_activeBattle = new Battle(m_spawnPoint, m_spawnDirection, wildState, party, std::move(battleMoveHandler));
 
@@ -281,6 +285,37 @@ void Game::handleBattleStart() {
             this, &Game::updatePartyXP);
 
     qDebug() << "Starting battle...";
+}
+
+Party Game::createPartyFromBatch(const std::array<PokemonState, 6>& partyStates) {
+    Party party;
+
+    for(int i = 0; i < 6; ++i) {
+        const PokemonState& pokemon = partyStates[i];
+        if(pokemon._id <= 0) continue;
+
+        const PokemonInfo* info = Globals::getPokemonInfo(pokemon.pokedex_id);
+        if(!info) continue;
+
+        party.pokedexIds[i] = info->pokedexId;
+        party.spriteIds[i] = info->spriteId;
+        party.iconIds[i] = FormMapper::toIconId(pokemon.pokedex_id, 0);
+        party.names[i] = pokemon.name;
+        party.lvls[i] = pokemon.lvl;
+        party.gens[i] = info->generation;
+        party.ballIds[i] = pokemon.pokeball_id;
+        party.healthTotals[i] = PokeMath::calculateHealth(pokemon.lvl, Globals::getPoke(info->pokedexId)->base_stats[0], pokemon.ivs[0], pokemon.evs[0]);
+
+        for (int moveSlot = 0; moveSlot<4; moveSlot++){
+           int moveId = pokemon.moves[moveSlot];
+           if(moveId<1) continue;
+
+           const Move* _move = Globals::getMove(moveId);
+           party.moves[i][moveSlot] = {_move->name, PokeTypes::typeToString(_move->type)};
+        };
+    }
+
+    return party;
 }
 
 void Game::handleBattleEnd(const char* endState, bool removeWild) {

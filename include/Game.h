@@ -19,6 +19,7 @@ public:
     ~Game();
 
 private:
+    Party createPartyFromBatch(const std::array<PokemonState, 6>& partyStates);
     bool m_gameUsedToBeActive;
     QQmlApplicationEngine* m_engine = nullptr;
     GameMenu* m_menu;
