@@ -548,7 +548,7 @@ Rectangle {
         Item {
             anchors.fill: parent
 
-            Row {
+            Column {
                 anchors.fill: parent
                 spacing: root.gridSpacing
 
@@ -565,8 +565,8 @@ Rectangle {
                     ]
 
                     Rectangle {
-                        height: parent.height
-                        width: parent.width / 2 - parent.spacing / 2
+                        height: parent.height/2 - root.gridSpacing/2
+                        width: parent.width
                         radius: 20
                         border.color: root.borderColor
                         border.width: root.borderWidth
@@ -581,7 +581,7 @@ Rectangle {
                             font.pixelSize: root.buttonFontSize
                             font.family: root.menuFontFamily
                             font.weight: Font.DemiBold
-                            wrapMode: Text.WordWrap
+                            // wrapMode: Text.WordWrap
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
                             anchors.fill: parent
@@ -637,20 +637,9 @@ Component {
 
                 Row {
                     id: mainRow
-                    anchors.fill: parent
-
-                    Item {
-                        id: contentContainer
-                        height: parent.height
-                        width: parent.width - backButtonContainer.width - parent.spacing
-
-                        Loader {
-                            id: contentLoader
-                            anchors.fill: parent
-                            anchors.margins: root.gridSpacing
-                        }
-                    }
-
+                    width: parent.width
+                    height: parent.height
+                    layoutDirection: Qt.RightToLeft
                     Item {
                         id: backButtonContainer
                         width: root.buttonHeight + root.gridSpacing * 2
@@ -663,6 +652,19 @@ Component {
                             height: root.buttonHeight
                         }
                     }
+
+                    Item {
+                        id: contentContainer
+                        width: parent.width - backButtonContainer.width*2 - parent.spacing
+                        height: parent.height
+
+                        Loader {
+                            id: contentLoader
+                            anchors.fill: parent
+                            anchors.margins: root.gridSpacing
+                        }
+                    }
+
                 }
             }
         }

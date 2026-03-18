@@ -371,19 +371,19 @@ Item {
                 break
 
             case "succeed-catch":
-                root._battleEnded("OpponentCaught", false)
+                root._battleEnded("OpponentCaught", true)
                 break
             case "battle-over":
                 root.actionInProgress = false
                 root.actionSequence = []
                 root.currentActionIndex = 0
                 if(step.role === "opponent"){
-                    root._battleEnded("PlayerWon", false)
+                    root._battleEnded("PlayerWon", true)
                 }else{
                     if(battleMenu.party.healthRatios.some(ratio => ratio > 0)){
                         battleMenu.forceSwitch();
                     }else{
-                        root._battleEnded("OpponentWon", false)
+                        root._battleEnded("OpponentWon", true)
                     }
                 }
                 break
