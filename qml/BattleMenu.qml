@@ -269,21 +269,12 @@ Component {
                 columns: 2
                 spacing: root.gridSpacing
 
-            Rectangle {
-                width: root.buttonHeight*3
-                height: root.buttonHeight*2
-                color: "blue"
-                radius: 3
-                Text {
-                    anchors.centerIn: parent
-                    text: "Are you sure?"
-                    color: "black"
-                    font.pixelSize: root.buttonFontSize
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: stack.pop()
-                }
+            RoundButton{
+                palette.button: "blue"
+                text: "Are you sure?"
+                width: root.buttonWidth*2
+                height: root.buttonHeight
+                onClicked: root.runChosen()
             }
 
             Loader {
