@@ -276,6 +276,8 @@ void BattleMoveHandler::applyMove(const Move* move, Battler* caster, Battler* ta
             caster->delta.superEffective = true;
         } else if (combinedEffectiveness < 100 && combinedEffectiveness > 0) {
             caster->delta.notVeryEffective = true;
+        } else if (combinedEffectiveness <= 0){
+            caster->delta.noEffect = true;
         }
 
         // Handle drain moves (like Giga Drain, Leech Life)
@@ -411,6 +413,8 @@ void BattleMoveHandler::generateMoveSequence(QVariantList& sequence, Battler& at
             sequence.append(createTextAction("It's super effective!", 800));
         } else if (defender.delta.notVeryEffective) {
             sequence.append(createTextAction("It's not very effective...", 800));
+        }else if(defender.delta.noEffect){
+            sequence.append(createTextAction("It doesn't affect " + defenderName + "...", 800));
         }
         if(attacker.delta.drain > 0) {
             sequence.append(createTextAction(attackerName + " drained health!", 800));

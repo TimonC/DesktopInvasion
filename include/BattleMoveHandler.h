@@ -19,7 +19,8 @@ struct BattleStateDelta{
     bool miss = false;
 
     bool superEffective = false;
-    bool notVeryEffective = false;  // Added this
+    bool notVeryEffective = false;
+    bool noEffect = false;
     bool critical = false;
 
     bool flinched = false;
