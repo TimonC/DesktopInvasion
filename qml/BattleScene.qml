@@ -9,7 +9,7 @@ Item {
     // Properties
     property int frameSize: 32
 
-    property int menuWidth: frameSize * 5
+    property int menuWidth: frameSize * 6
     property int menuHeight: 50
     property int statusBarWidth: frameSize*2.5
     property int statusBarHeight: 25
@@ -206,7 +206,7 @@ Item {
 
         switch(sprite.direction) {
             case 0:
-                sprite.x = sprite.containerOffsetX;
+                sprite.x = (root.width - root.statusBarWidth - sprite.width)/2
                 sprite.y = root.height - (menuHeight + sprite.containerOffsetY + sprite.height);
                 sprite.statusBar.x = root.width - root.statusBarWidth
                 sprite.statusBar.y = sprite.y
@@ -214,11 +214,11 @@ Item {
             case 1:
                 sprite.x = root.width - (sprite.containerOffsetX + sprite.width);
                 sprite.y = root.height - (menuHeight + sprite.height);
-                sprite.statusBar.x = root.width - root.frameSize*2.5
-                sprite.statusBar.y = (root.height - menuHeight - 3*root.frameSize)/2
+                sprite.statusBar.x = root.width - root.frameSize/2 - root.statusBarWidth
+                sprite.statusBar.y = 0
                 break;
             case 2:
-                sprite.x = sprite.containerOffsetX;
+                sprite.x = (root.width - root.statusBarWidth - sprite.width)/2
                 sprite.y = sprite.containerOffsetY;
                 sprite.statusBar.x = root.width - root.statusBarWidth
                 sprite.statusBar.y = sprite.y
@@ -227,7 +227,7 @@ Item {
                 sprite.x = sprite.containerOffsetX;
                 sprite.y = root.height - (menuHeight + sprite.height);
                 sprite.statusBar.x = root.frameSize/2
-                sprite.statusBar.y = (root.height - menuHeight - 3*root.frameSize)/2
+                sprite.statusBar.y = 0
                 break;
         }
 
