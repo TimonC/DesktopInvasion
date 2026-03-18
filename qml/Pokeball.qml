@@ -3,7 +3,7 @@ import QtQuick 2.15
 Item {
     id: root
     // Top-level configuration
-    property int rowId: 3
+    property int rowId: 0
     property real scaleFactor: 2
     property int frameWidth: 16
     property int frameHeight: 23
@@ -541,7 +541,7 @@ Item {
         }
     }
 
-    function reset() {
+    function reset(pokeballId) {
         // Stop all running animations
         throwPokeball.stop()
         shakeAnimation.stop()
@@ -554,7 +554,7 @@ Item {
         pokeballSprite.visible = false
         pokeballSprite.x = 0
         pokeballSprite.y = 0
-        pokeballSprite.sourceClipRect.x = 0
+        pokeballSprite.sourceClipRect = Qt.rect(0, root.frameHeight * pokeballId, root.frameWidth, root.frameHeight)
 
         outerCircle.visible = false
         outerCircle.opacity = 0

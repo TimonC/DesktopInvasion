@@ -43,6 +43,7 @@ void PokemonDatabase::createTables() {
             _id INTEGER PRIMARY KEY,
             pokedex_id INTEGER NOT NULL,
             variant_id INTEGER DEFAULT 0,
+            pokeball_id INTEGER DEFAULT 0,
             name TEXT NOT NULL,
             lvl INTEGER DEFAULT 1,
             current_xp INTEGER DEFAULT 0,
@@ -105,35 +106,36 @@ PokemonState PokemonDatabase::queryToPokemon(sqlite3_stmt* stmt) {
     pokemon._id = sqlite3_column_int(stmt, 0);
     pokemon.pokedex_id = sqlite3_column_int(stmt, 1);
     pokemon.variant_id = sqlite3_column_int(stmt, 2);
+    pokemon.pokeball_id = sqlite3_column_int(stmt, 3);
 
-    const unsigned char* nameText = sqlite3_column_text(stmt, 3);
+    const unsigned char* nameText = sqlite3_column_text(stmt, 4);
     if (nameText) {
         pokemon.name = reinterpret_cast<const char*>(nameText);
     }
 
-    pokemon.lvl = sqlite3_column_int(stmt, 4);
-    pokemon.currentXP = sqlite3_column_int(stmt, 5);
+    pokemon.lvl = sqlite3_column_int(stmt, 5);
+    pokemon.currentXP = sqlite3_column_int(stmt, 6);
 
-    pokemon.ivs[0] = sqlite3_column_int(stmt, 6);
-    pokemon.ivs[1] = sqlite3_column_int(stmt, 7);
-    pokemon.ivs[2] = sqlite3_column_int(stmt, 8);
-    pokemon.ivs[3] = sqlite3_column_int(stmt, 9);
-    pokemon.ivs[4] = sqlite3_column_int(stmt, 10);
-    pokemon.ivs[5] = sqlite3_column_int(stmt, 11);
+    pokemon.ivs[0] = sqlite3_column_int(stmt, 7);
+    pokemon.ivs[1] = sqlite3_column_int(stmt, 8);
+    pokemon.ivs[2] = sqlite3_column_int(stmt, 9);
+    pokemon.ivs[3] = sqlite3_column_int(stmt, 10);
+    pokemon.ivs[4] = sqlite3_column_int(stmt, 11);
+    pokemon.ivs[5] = sqlite3_column_int(stmt, 12);
 
-    pokemon.evs[0] = sqlite3_column_int(stmt, 12);
-    pokemon.evs[1] = sqlite3_column_int(stmt, 13);
-    pokemon.evs[2] = sqlite3_column_int(stmt, 14);
-    pokemon.evs[3] = sqlite3_column_int(stmt, 15);
-    pokemon.evs[4] = sqlite3_column_int(stmt, 16);
-    pokemon.evs[5] = sqlite3_column_int(stmt, 17);
+    pokemon.evs[0] = sqlite3_column_int(stmt, 13);
+    pokemon.evs[1] = sqlite3_column_int(stmt, 14);
+    pokemon.evs[2] = sqlite3_column_int(stmt, 15);
+    pokemon.evs[3] = sqlite3_column_int(stmt, 16);
+    pokemon.evs[4] = sqlite3_column_int(stmt, 17);
+    pokemon.evs[5] = sqlite3_column_int(stmt, 18);
 
-    pokemon.nature = static_cast<Nature>(sqlite3_column_int(stmt, 18));
+    pokemon.nature = static_cast<Nature>(sqlite3_column_int(stmt, 19));
 
-    pokemon.moves[0] = sqlite3_column_int(stmt, 19);
-    pokemon.moves[1] = sqlite3_column_int(stmt, 20);
-    pokemon.moves[2] = sqlite3_column_int(stmt, 21);
-    pokemon.moves[3] = sqlite3_column_int(stmt, 22);
+    pokemon.moves[0] = sqlite3_column_int(stmt, 20);
+    pokemon.moves[1] = sqlite3_column_int(stmt, 21);
+    pokemon.moves[2] = sqlite3_column_int(stmt, 22);
+    pokemon.moves[3] = sqlite3_column_int(stmt, 23);
 
     return pokemon;
 }
@@ -142,6 +144,7 @@ void PokemonDatabase::bindPokemonParams(sqlite3_stmt* stmt, const PokemonState& 
     int col = startCol;
     sqlite3_bind_int(stmt, col++, pokemon.pokedex_id);
     sqlite3_bind_int(stmt, col++, pokemon.variant_id);
+    sqlite3_bind_int(stmt, col++, pokemon.pokeball_id);
     sqlite3_bind_text(stmt, col++, pokemon.name.c_str(), -1, SQLITE_STATIC);
 
     sqlite3_bind_int(stmt, col++, pokemon.lvl);
@@ -175,10 +178,9 @@ int PokemonDatabase::createPokemon(const PokemonState& pokemon) {
 
     const char* insertSql = R"(
         INSERT INTO pokemon VALUES (
-            ?, ?, ?, ?, ?, ?,
-            ?, ?, ?, ?, ?, ?,
-            ?, ?, ?, ?, ?, ?,
-            ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?,
+            ?, ?, ?, ?, ?, ?, ?, ?,
+            ?, ?, ?, ?, ?, ?, ?, ?
         )
     )";
 
@@ -198,7 +200,7 @@ bool PokemonDatabase::updatePokemon(const PokemonState& pokemon) {
 
     const char* updateSql = R"(
         UPDATE pokemon SET
-            pokedex_id = ?, variant_id = ?, name = ?,
+            pokedex_id = ?, variant_id = ?, pokeball_id = ?, name = ?,
             lvl = ?, current_xp = ?,
             iv_hp = ?, iv_attack = ?, iv_defense = ?,
             iv_spattack = ?, iv_spdefense = ?, iv_speed = ?,
@@ -212,7 +214,7 @@ bool PokemonDatabase::updatePokemon(const PokemonState& pokemon) {
     sqlite3_prepare_v2(m_db, updateSql, -1, &stmt, nullptr);
 
     bindPokemonParams(stmt, pokemon, 1);
-    sqlite3_bind_int(stmt, 23, pokemon._id);
+    sqlite3_bind_int(stmt, 24, pokemon._id);
 
     bool success = (sqlite3_step(stmt) == SQLITE_DONE);
     sqlite3_finalize(stmt);
@@ -246,12 +248,12 @@ void PokemonDatabase::spawnWildPokemon(const PokemonState& templatePokemon) {
     updatePokemon(wild);
 }
 
-int PokemonDatabase::catchWildPokemon() {
+int PokemonDatabase::catchWildPokemon(int pokeball_id) {
     if (!m_db) return -1;
 
     PokemonState wild = getPokemon(0);
-    if (wild.pokedex_id == 0) return -1;
 
+    wild.pokeball_id = pokeball_id;
     int caughtId = createPokemon(wild);
     if (caughtId <= 0) return -1;
 
@@ -364,17 +366,11 @@ bool PokemonDatabase::clearPartySlot(int slot) {
     return setPartyPokemon(slot, 0);
 }
 
-// ============= NEW EFFICIENT UPDATE METHODS =============
-
 bool PokemonDatabase::isValidField(const std::string& field) {
     static const std::unordered_set<std::string> validFields = {
-        // Core fields
-        "pokedex_id", "variant_id", "name", "nature", "lvl", "current_xp",
-        // IV fields
+        "pokedex_id", "variant_id", "pokeball_id", "name", "nature", "lvl", "current_xp",
         "iv_hp", "iv_attack", "iv_defense", "iv_spattack", "iv_spdefense", "iv_speed",
-        // EV fields
         "ev_hp", "ev_attack", "ev_defense", "ev_spattack", "ev_spdefense", "ev_speed",
-        // Move fields
         "move1", "move2", "move3", "move4"
     };
     return validFields.find(field) != validFields.end();
@@ -490,7 +486,6 @@ bool PokemonDatabase::updatePokemonName(int pokemonId, const std::string& newNam
 bool PokemonDatabase::updatePokemonFields(int pokemonId, const std::vector<std::pair<std::string, int>>& updates) {
     if (updates.empty() || !m_db || pokemonId <= 0) return false;
 
-    // Build SQL
     std::string sql = "UPDATE pokemon SET ";
     std::vector<int> params;
 
@@ -514,7 +509,6 @@ bool PokemonDatabase::updatePokemonFields(int pokemonId, const std::vector<std::
 bool PokemonDatabase::incrementPokemonFields(int pokemonId, const std::vector<std::pair<std::string, int>>& increments) {
     if (increments.empty() || !m_db || pokemonId <= 0) return false;
 
-    // Build SQL
     std::string sql = "UPDATE pokemon SET ";
     std::vector<int> params;
 

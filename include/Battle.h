@@ -41,6 +41,15 @@ public:
         m_battleScene->setProperty("visible",visibility);
     };
 
+    template<typename T>
+    T getQMLSceneProperty(const char* property, const T& defaultValue = T()) {
+        if (!m_battleScene || !property || !*property) return defaultValue;
+
+        QVariant value = m_battleScene->property(property);
+        return value.isValid() && value.canConvert<T>() ?
+               value.value<T>() : defaultValue;
+    }
+
 signals:
     void battleEnded(const char* endState);
 

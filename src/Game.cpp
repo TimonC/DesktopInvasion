@@ -129,6 +129,7 @@ void Game::createInitialPokemon() {
     PokemonState dusclops;
     dusclops.pokedex_id = 356;
     dusclops.name = "Dusclops";
+    dusclops.pokeball_id = 1;
 
     for (int i = 0; i < 6; i++) {
         dusclops.ivs[i] = 32;
@@ -192,6 +193,7 @@ void Game::spawnPokemon() {
         PokemonState newWild;
         newWild.pokedex_id = m_wildPokemonInfo->pokedexId;
         newWild.name = m_wildPokemonInfo->name;
+        newWild.pokeball_id = 0;
 
         for (int i = 0; i < 6; i++) {
             newWild.ivs[i] = 32;
@@ -234,14 +236,12 @@ Party Game::getParty() {
         party.iconIds[i] = FormMapper::toIconId(pokemon.pokedex_id, 0);
         party.names[i] = pokemon.name;
         party.gens[i] = info->generation;
-        party.ballIds[i] = 1;
+        party.ballIds[i] = pokemon.pokeball_id;
 
         for (int moveSlot = 0; moveSlot<4; moveSlot++){
            int moveId = pokemon.moves[moveSlot];
-           if(moveId<1) {
-                qDebug() << party.moves[i][moveSlot].type.c_str();
-               continue;
-            };
+           if(moveId<1) continue;
+
            const Move* _move = Globals::getMove(moveId);
            party.moves[i][moveSlot] = {_move->name, typeToString(_move->type)};
         };
@@ -300,16 +300,17 @@ void Game::handleBattleEnd(const char* endState) {
     bool removeWild = playerWon || opponentCaught || opponentWon;
 
     if (removeWild) {
-        // Handle catching
         if (opponentCaught) {
-            int caughtId = m_db.catchWildPokemon();
+            int ballIndex = m_activeBattle->getQMLSceneProperty<int>("currentOpponentBallIndex");
+
+            int caughtId = m_db.catchWildPokemon(ballIndex);
             if (caughtId > 0) {
                 PokemonState caughtPokemon = m_db.getPokemon(caughtId);
                 QString caughtName = QString::fromStdString(caughtPokemon.name);
 
                 qDebug() << caughtName << "caught! Database ID:" << caughtId;
 
-                // Add to first empty party slot
+                // Add to first empty party slot, if possible
                 for (int i = 0; i < 6; i++) {
                     if (m_partyIds[i] == 0) {
                         m_db.setPartyPokemon(i, caughtId);

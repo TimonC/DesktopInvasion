@@ -40,7 +40,7 @@ public:
     // Wild Pokemon operations
     PokemonState getWildPokemon();
     void spawnWildPokemon(const PokemonState& templatePokemon);
-    int catchWildPokemon();
+    int catchWildPokemon(int pokeball_id);
 
     // Game state operations
     GameState loadGameState();

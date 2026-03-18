@@ -43,6 +43,8 @@ Item {
     property var actionSequence: []
     property int currentActionIndex: 0
     // Catch attempt state
+    property int currentOpponentBallIndex: 0
+    property int currentPlayerBallIndex: 0
     property int catchShakeCount: 0
     property int catchShakeInterval: 1500
     property int ballTransitionDuration: 750
@@ -93,6 +95,7 @@ Item {
         positionSpriteAndStatusBar(opponent)
         // Schedule for next event loop
         Qt.callLater(function() {
+            root.currentPlayerBallIndex = battleMenu.party.ballIds[0]
             resetPlayerBall()
             battleMenu.showTextBar()
             battleMenu.updateText(playerName + ", I choose you!")
@@ -166,8 +169,9 @@ Item {
     }
 
     function resetPlayerBall() {
-        pokeBallPlayer.reset()
+        pokeBallPlayer.reset(root.currentPlayerBallIndex)
         pokeBallPlayer.visible = true
+
 
         pokeBallPlayer.circleBaseRadius = Math.max(player.width/2, player.height/2)
         pokeBallPlayer.circleX = player.x + player.width/2  // Center on player
@@ -222,7 +226,8 @@ Item {
             }
         }
         onCatchChosen: function(ballIndex) {
-            if (ballIndex < 0 || ballIndex > 3) {
+            if (ballIndex <= 0 || ballIndex > 3) {
+                root.currentOpponentBallIndex = ballIndex
                 battleMenu.showTextBar()
                 startActionChain("catch")
             } else {
@@ -253,7 +258,7 @@ Item {
             statusBarPlayer.currentHealthRatio = battleMenu.party.healthRatios[newPartyId];
             statusBarPlayer.totalHealth = 100; //TODO
 
-            pokeBallPlayer.rowId = battleMenu.party.ballIds[newPartyId];
+            root.currentPlayerBallIndex = battleMenu.party.ballIds[newPartyId]
             root.safePokemonSwitch = battleMenu.forceSwitchMode
             root.resetPlayerBall()
             var coords = calculateBallCoords(player)
@@ -415,7 +420,8 @@ Item {
         onTriggered: root.processCatchAttempt()
     }
     function processCatchAttempt() {
-        var failureRate = 0.05 + (0.7 * statusBarOpponent.currentHealthRatio); // 75% fail at full HP, 10% at 1 HP
+        // var failureRate = 0.05 + (0.7 * statusBarOpponent.currentHealthRatio); // 75% fail at full HP, 10% at 1 HP
+        var failureRate = 0
         var failure = Math.random() < failureRate;
         if (failure) {
             // Release the pokemon and opponent attacks

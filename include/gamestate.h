@@ -7,6 +7,7 @@ struct PokemonState {
     int _id = -1;
     int pokedex_id = 0;
     int variant_id = 0;
+    int pokeball_id = 0;
     std::string name = "";
 
     int lvl = 1;

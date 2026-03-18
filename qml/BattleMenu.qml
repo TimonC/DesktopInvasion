@@ -428,8 +428,9 @@ Rectangle {
                             if(root.selectedIndex !== index &&
                                root.party.iconIds[index] >= 0 &&
                                party.healthRatios[index] > 0){
-                                root.switchChosen(root.selectedIndex, index)
-                                root.selectedIndex = index
+                                   var oldIndex = root.selectedIndex
+                                   root.selectedIndex = index
+                                   root.switchChosen(oldIndex, index)
                             }
                         }
                     }
