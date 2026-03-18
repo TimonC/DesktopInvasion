@@ -28,10 +28,8 @@ Item {
     property alias actionForward: actionForward
     property alias takeDamage: takeDamage
 
-    // Animation speed control (only affects damage and attack animations)
     property int animationSpeed: 1
 
-    // Scaled duration properties
     property int damageFlashDuration: 50 / animationSpeed
     property int attackForwardDuration: 50 / animationSpeed
     property int attackReturnDuration: 100 / animationSpeed

@@ -44,13 +44,13 @@ Item {
     property int fontSizeSm: 16
 
     readonly property int layoutMargin:  30
-    readonly property int layoutSpacing: 30
+    readonly property int layoutSpacing: 20
     readonly property int buttonWidth:   48
     readonly property int buttonHeight:  64
     readonly property int labelHeight:   24
     readonly property int contentSpacing: 4
 
-    readonly property int sectionSpacing: 40  // Vertical space between party and PC sections
+    readonly property int sectionSpacing: 40
 
     readonly property int   panelRadius:      8
     readonly property int   panelBorderWidth: 2
@@ -100,9 +100,8 @@ Item {
     Column {
         anchors.centerIn: parent
         width:            parent.width
-        spacing:          root.sectionSpacing  // Changed from layoutSpacing to sectionSpacing
+        spacing:          root.sectionSpacing
 
-        // Party Section
         Row {
             anchors.horizontalCenter: parent.horizontalCenter
             spacing: root.layoutSpacing
@@ -123,7 +122,6 @@ Item {
                     width: root.partyColumns * root.slotWidth + root.panelPadding
                     height: root.partyRows * root.slotHeight + root.panelPadding
 
-                    // Shadow
                     Rectangle {
                         anchors.fill: parent
                         anchors.margins: -1
@@ -134,7 +132,6 @@ Item {
                         z: -1
                     }
 
-                    // Main panel
                     Rectangle {
                         anchors.fill: parent
                         radius: root.panelRadius
@@ -188,7 +185,6 @@ Item {
                         }
                     }
 
-                    // Party slots with padding
                     Item {
                         anchors.fill: parent
                         anchors.margins: root.panelPadding
@@ -213,7 +209,6 @@ Item {
                     }
                 }
 
-                // Swap button
                 PcButton {
                     id: swapButton
                     anchors.verticalCenter: parent.verticalCenter
@@ -228,12 +223,10 @@ Item {
             }
         }
 
-        // PC Section
         Column {
             anchors.horizontalCenter: parent.horizontalCenter
             spacing: root.contentSpacing
 
-            // Box label on top
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: "BOX " + (root.currentBoxIndex + 1)
@@ -261,7 +254,6 @@ Item {
                     width: root.pcColumns * root.slotWidth + root.panelPadding
                     height: root.pcRows * root.slotHeight + root.panelPadding
 
-                    // Shadow
                     Rectangle {
                         anchors.fill: parent
                         anchors.margins: -1
@@ -272,7 +264,6 @@ Item {
                         z: -1
                     }
 
-                    // Main panel
                     Rectangle {
                         anchors.fill: parent
                         radius: root.panelRadius
@@ -326,7 +317,6 @@ Item {
                         }
                     }
 
-                    // PC slots with padding
                     Item {
                         anchors.fill: parent
                         anchors.margins: root.panelPadding

@@ -169,7 +169,6 @@ Rectangle {
                     fontSizeSm:     root.fontSizeSm
                     fontSizeMd:     root.fontSizeMd
                     fontSizeLg:     root.fontSizeLg
-                    // fontFamily:   root.dotGothicFont
                     iconScale:    root.iconScaleForTrainer
                 }
             }
@@ -177,14 +176,6 @@ Rectangle {
             Item { width: parent.width; height: root.pad }
             Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
             Item { width: parent.width; height: root.pad }
-
-            // Text {
-            //     width: parent.width; height: root.labelHeight
-            //     text: "PC"
-            //     font.family: root.p2pFont; font.pixelSize: root.fontSizeSm
-            //     color: root.subheaderColor
-            //     horizontalAlignment: Text.AlignLeft; verticalAlignment: Text.AlignVCenter
-            // }
 
             Item { width: parent.width; height: root.contentSpacing }
 

@@ -18,7 +18,6 @@ Item {
     property bool _hovered: mouseArea.containsMouse && active
     property bool _pressed: mouseArea.pressed        && active
 
-    // Use highlightColor as base color when it's different from btnColor
     property color _currentBaseColor: highlightColor != btnColor ? highlightColor : btnColor
 
     property color _borderColor: active
@@ -38,7 +37,6 @@ Item {
             }
         }
 
-        // Background (now separate from border)
         Rectangle {
             id: backgroundRect
             anchors.fill: parent
@@ -65,7 +63,6 @@ Item {
             }
         }
 
-        // Border overlay (on top)
         Rectangle {
             id: borderRect
             anchors.fill: parent

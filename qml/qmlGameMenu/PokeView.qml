@@ -1,9 +1,6 @@
 import QtQuick 2.15
 import "../Style/PokeColor.js" as PokeColor
 
-// PokeView.
-// Menu gives this a fixed width × height Item and sets anchors.centerIn.
-// All internal layout works from this component's own width/height.
 Item {
     id: pokeView
 
@@ -14,14 +11,12 @@ Item {
     property real   scaleFactor: 6
     property int    rowId:       0
 
-    // ── Fonts ──────────────────────────────────────────────────────────────────
     property string mainFont:   "Press Start 2P"
     property string bodyFont:   "DotGothic16"
     property int    fontSizeLg: 22
     property int    fontSizeMd: 18
     property int    fontSizeSm: 16
 
-    // ── Colors ─────────────────────────────────────────────────────────────────
     property color colorText:          "#ffffff"
     property color colorSubtext:       "#aaaaaa"
     property color colorFaint:         "#cccccc"
@@ -30,7 +25,6 @@ Item {
     property color colorMoveCard:      "#383838"
     property color colorTypePillText:  "#ffffff"
 
-    // ── Layout constants ───────────────────────────────────────────────────────
     property int  margin:        14
     property int  sectionGap:    8
     property int  rowSpacing:    6
@@ -41,23 +35,18 @@ Item {
     property int  moveNameW:     typePillW * 3
     property int  movePillGap:   typePillW / 4
 
-    // Section height ratios (must sum to 1.0)
     property real ratioTop:    0.32
     property real ratioFlavor: 0.16
     property real ratioMoves:  0.52
 
-    // Derived inner height (excludes top + bottom margin)
     readonly property real innerH: height - margin * 2
 
 
-    // ── Main content container ─────────────────────────────────────────────────
-    // Centered inside whatever space Menu allocates.
     Item {
         anchors.centerIn: parent
         width:  parent.width  - pokeView.margin * 2
         height: parent.height - pokeView.margin * 2
 
-        // ── SECTION 1 – Sprite + Info row ─────────────────────────────────────
         Row {
             id: topRow
             anchors {
@@ -68,7 +57,6 @@ Item {
             height: innerH * ratioTop
             spacing: 0
 
-            // Sprite column
             Item {
                 width:  parent.width / 2
                 height: parent.height
@@ -128,7 +116,6 @@ Item {
                 }
             }
 
-            // Info column
             Item {
                 width:  parent.width / 2
                 height: parent.height
@@ -217,7 +204,6 @@ Item {
             }
         }
 
-        // ── Divider 1 – between Section 1 and Section 2 ───────────────────────
         Rectangle {
             id: divider1
             anchors {
@@ -229,7 +215,6 @@ Item {
             color:  colorDivider
         }
 
-        // ── SECTION 2 – Flavor text ────────────────────────────────────────────
         Item {
             id: flavorRow
             anchors {
@@ -251,7 +236,6 @@ Item {
             }
         }
 
-        // ── Divider 2 – between Section 2 and Section 3 ───────────────────────
         Rectangle {
             id: divider2
             anchors {
@@ -263,7 +247,6 @@ Item {
             color:  colorDivider
         }
 
-        // ── SECTION 3 – Moves ──────────────────────────────────────────────────
         Item {
             anchors {
                 top:    divider2.bottom

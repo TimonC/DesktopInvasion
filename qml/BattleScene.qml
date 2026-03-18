@@ -83,7 +83,7 @@ Item {
     }
 
     function positionSpriteAndStatusBar(sprite) {
-        var hPad = root.menuWidth/15//left padding is 10%
+        var hPad = root.menuWidth/15
         switch(sprite.direction) {
             case 0:
                 sprite.x = (root.statusBarWidth + root.width - sprite.width)/2 + hPad + (sprite.verticalWidth/2 - sprite.hCenterUp)
@@ -268,7 +268,7 @@ Item {
         textBarFontSize: root.textBarFontSize
         textBarFontFamily: root.textBarFontFamily
         menuFontFamily: root.menuFontFamily
-        mainButtonRadius: 0.5  // 50% of height for fully round buttons
+        mainButtonRadius: 0.5
         moveButtonRadius: Math.round(frameSize * 0.125)
         switchButtonRadius: Math.round(frameSize * 0.125)
         ballButtonRadius: Math.round(frameSize * 0.125)

@@ -75,7 +75,6 @@ Item {
         selectedEligibleIdx = -1
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
     component TypePill: Rectangle {
         property string typeName: ""
         width:  moveMenu.pillW
@@ -95,7 +94,6 @@ Item {
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
     component CurrentMoveCard: Rectangle {
         id: cmc
         property string moveName:  ""
@@ -163,7 +161,6 @@ Item {
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
     component EligibleMoveRow: Rectangle {
         id: emr
         property string moveName: ""
@@ -234,7 +231,6 @@ Item {
         anchors.margins: moveMenu.margin
         spacing:         0
 
-        // ── LEFT PANEL ────────────────────────────────────────────────────────
         Item {
             id: leftPanel
             width:  Math.floor((parent.width - moveMenu.margin * 2 - 1) / 2)
@@ -441,7 +437,6 @@ Item {
         Rectangle { width: 1; height: parent.height; color: moveMenu.colorDivider }
         Item      { width: moveMenu.margin; height: parent.height }
 
-        // ── RIGHT PANEL ───────────────────────────────────────────────────────
         Item {
             id: rightPanel
             width:  parent.width - leftPanel.width - moveMenu.margin * 2 - 1
@@ -575,18 +570,6 @@ Item {
         }
     }
 
-    // =========================================================================
-    //  WalkingSprite
-    //
-    //  frameX uses the original switch statement — NOT the d*frameWidth*frameCount
-    //  shorthand. That formula broke on big sprites (64px frames) because frameCount
-    //  was being passed in from outside and could mismatch the sheet layout.
-    //  The switch is safe regardless of frameWidth or sheet size.
-    //
-    //  Note: frameCount is intentionally NOT a property here. The walking sprite
-    //  always has 2 animation frames per direction on both sheets. Exposing it
-    //  as a passthrough caused the caller to accidentally override it.
-    // =========================================================================
     component WalkingSprite: Item {
         id: ws
 
@@ -603,14 +586,11 @@ Item {
         property int  _direction: 2
         property bool _moving:    false
         property int  _speed:     1
-        // frameX stored as a plain int — updated only when direction changes,
-        // never re-evaluated as a binding by the QML engine.
-        property int  _frameX:    frameWidth * 2 * 2   // default: face down (direction 2)
+        property int  _frameX:    frameWidth * 2 * 2
 
         readonly property real _spriteW: frameWidth  * scaleFactor
         readonly property real _spriteH: frameHeight * scaleFactor
 
-        // Plain properties — only written on arena resize or init.
         property real _minX: 0
         property real _minY: 0
         property real _maxX: 0
@@ -619,7 +599,6 @@ Item {
         width:  arenaWidth
         height: arenaHeight
 
-        // ── Active gating ─────────────────────────────────────────────────────
         onActiveChanged: {
             if (!active) {
                 decisionTimer.stop()
@@ -655,13 +634,8 @@ Item {
             })
         }
 
-        // ── Helpers ───────────────────────────────────────────────────────────
         function setDirection(d) {
             _direction = d
-            // Original switch — hardcoded *2 because both sheets always have
-            // exactly 2 animation frames per direction. Using frameCount here
-            // was wrong because the caller passes frameCount=2 for the walking
-            // sprite but the big sheet still uses the same column layout.
             switch (d) {
                 case 0: _frameX = 0;                   break
                 case 1: _frameX = frameWidth * 2;      break
@@ -680,7 +654,6 @@ Item {
             spriteImg.y = _minY + Math.random() * Math.max(0, _maxY - _minY)
         }
 
-        // ── Decision timer ────────────────────────────────────────────────────
         Timer {
             id: decisionTimer
             interval: 2000 + Math.floor(Math.random() * 2000)
@@ -700,7 +673,6 @@ Item {
             }
         }
 
-        // ── Move timer ────────────────────────────────────────────────────────
         Timer {
             id: moveTimer
             interval: 50
@@ -730,7 +702,6 @@ Item {
             }
         }
 
-        // ── Sprite ────────────────────────────────────────────────────────────
         AnimatedSprite {
             id: spriteImg
             width:        ws._spriteW
@@ -739,12 +710,12 @@ Item {
             source:       ws.spriteSheet
             frameWidth:   ws.frameWidth
             frameHeight:  ws.frameHeight
-            frameCount:   2              // always 2 — both sheets, all pokemon
+            frameCount:   2
             frameRate:    4
             interpolate:  false
             smooth:       false
             antialiasing: false
-            frameX:       ws._frameX    // plain property write, not a JS binding
+            frameX:       ws._frameX
             frameY:       ws.rowId * ws.frameHeight
 
             property bool isJumping:        false
