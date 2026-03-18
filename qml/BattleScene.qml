@@ -102,7 +102,7 @@ Item {
 
 
     function processCatchAttempt() {
-        var failure = Math.random() < 0.1
+        var failure = Math.random() < 0.5
 
         if (failure) {
             // Release the pokemon
