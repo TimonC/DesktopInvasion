@@ -25,8 +25,6 @@ Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent
     m_opp = setupPokemon(m_opp_info, "opponent"); //these are the only valid strings
     m_chosen = setupPokemon(m_chosen_info, "player");//no enums here, only hopes and dreams
 
-
-
     initPosition();
     show();
 

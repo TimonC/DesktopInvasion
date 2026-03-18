@@ -94,23 +94,20 @@ void WildPokemon::startBattle(){
     int screenRight = screen.x() + screen.width();
     int screenBottom = screen.y() + screen.height();
 
+    bool intop =  y() < BOUNDARY_MARGIN*2.5;
+    bool inbottom =  y() + height() > screenBottom - BOUNDARY_MARGIN;
+    bool inleft =  x() < BOUNDARY_MARGIN;
+    bool inright =  x() + width() > screenRight - BOUNDARY_MARGIN;
 
-    if (y() < BOUNDARY_MARGIN) {
+    if(inright){
+        direction(1);
+    }else if(inleft){
+        direction(3);
+    }else if(inbottom){
+        direction(0);
+    }else if(intop){
         direction(2);
     }
-
-    if (x() < BOUNDARY_MARGIN) {
-        direction(3);
-    }
-
-    if (y() + height() > screenBottom - BOUNDARY_MARGIN) {
-        direction(0);
-    }
-
-    if (x() + width() > screenRight - BOUNDARY_MARGIN) {
-        direction(1);
-    }
-
     Globals::getPlayer().iChooseYou(this);
 }
 
