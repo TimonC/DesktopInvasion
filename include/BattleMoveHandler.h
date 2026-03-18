@@ -4,40 +4,24 @@
 #include <QObject>
 #include <data_battle.h>
 
-struct Static{
-    int stats[6];
-    Type types[2];
-    Move moves[4];
-};
-
-struct State{
-    int currentHealth;
-    StatusCondition conditions[10];
-};
-
-struct Poke{
-    Static pokeStatic;
-    State pokeState;
-    void applyMove(int moveIndex);
-};
 
 class BattleMoveHandler : public QObject{
     Q_OBJECT
 
 public:
-    BattleMoveHandler(int opponentId, int partyIds[6]);
-    void setChosenPoke(int partyIndex);
+    BattleMoveHandler(Poke opponent, Poke party[6]);
     void startActionRound(int playerMoveIndex);
 
 signals:
     void actionRoundOver(State& opponentState, State& chosenState);
 
 private:
-    WeatherCondition weatherCondition;
-    Poke opponent;
-    Poke& chosen;
-    Poke party[6];
-    int partyPokemonSentOut[6];
+    Poke m_opponent;
+    Poke m_party[6];
+    int m_chosenPartyIndex = 0;
+    int m_partyPokemonSentOut[6] = {-1,-1,-1,-1,-1,-1};
+
+    WeatherCondition m_weatherCondition;
 };
 
 #endif

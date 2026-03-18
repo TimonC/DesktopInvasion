@@ -6,12 +6,13 @@
 #include <QQuickItem>
 #include <WildPokemon.h>
 #include <qtmetamacros.h>
+#include  <BattleMoveHandler.h>
 
 class Battle : public DesktopScene{
 
     Q_OBJECT
 public:
-    explicit Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent = nullptr);
+    explicit Battle(WildPokemon* opp, Party party, std::unique_ptr<BattleMoveHandler> battleMoveHandler, QWindow *parent = nullptr);
     ~Battle() {
         qDebug() << "Battle destructor called!";
     }
@@ -21,7 +22,6 @@ public:
     QQuickView *m_corners = nullptr;
     void direction(int direction) override;
     QPoint m_origin;
-    void setupParty(Party party);
     void setSceneVisibility(bool visibility){
         m_battleScene->setProperty("visible",visibility);
     };
@@ -38,6 +38,8 @@ private slots:
     }
 
 private:
+    void setupParty(Party party);
+    std::unique_ptr<BattleMoveHandler> m_battleMoveHandler;
     int m_pokeMargin = 2;
     void initPosition();
 

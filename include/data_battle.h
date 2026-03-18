@@ -9,7 +9,7 @@ enum class StatusCondition{
 };
 
 struct StatChange{
-    StatType stat;
+    int statIndex;
     int amount;
 };
 
@@ -44,4 +44,21 @@ struct MoveMap{
     int* eligible;
 };
 
+struct Static{
+    int uid;
+    int stats[6];
+    Type types[2];
+    Move moves[4];
+};
+
+struct State{
+    int currentHealth;
+    StatusCondition conditions[10];
+};
+
+struct Poke{
+    Static pokeStatic;
+    State pokeState;
+    void applyMove(int moveIndex);
+};
 #endif

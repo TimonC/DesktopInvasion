@@ -110,19 +110,19 @@ PokemonState PokemonDatabase::queryToPokemon(sqlite3_stmt* stmt) {
         pokemon.name = reinterpret_cast<const char*>(nameText);
     }
 
-    pokemon.ivs[0] = static_cast<StatType>(sqlite3_column_int(stmt, 4));
-    pokemon.ivs[1] = static_cast<StatType>(sqlite3_column_int(stmt, 5));
-    pokemon.ivs[2] = static_cast<StatType>(sqlite3_column_int(stmt, 6));
-    pokemon.ivs[3] = static_cast<StatType>(sqlite3_column_int(stmt, 7));
-    pokemon.ivs[4] = static_cast<StatType>(sqlite3_column_int(stmt, 8));
-    pokemon.ivs[5] = static_cast<StatType>(sqlite3_column_int(stmt, 9));
+    pokemon.ivs[0] = sqlite3_column_int(stmt, 4);
+    pokemon.ivs[1] = sqlite3_column_int(stmt, 5);
+    pokemon.ivs[2] = sqlite3_column_int(stmt, 6);
+    pokemon.ivs[3] = sqlite3_column_int(stmt, 7);
+    pokemon.ivs[4] = sqlite3_column_int(stmt, 8);
+    pokemon.ivs[5] = sqlite3_column_int(stmt, 9);
 
-    pokemon.evs[0] = static_cast<StatType>(sqlite3_column_int(stmt, 10));
-    pokemon.evs[1] = static_cast<StatType>(sqlite3_column_int(stmt, 11));
-    pokemon.evs[2] = static_cast<StatType>(sqlite3_column_int(stmt, 12));
-    pokemon.evs[3] = static_cast<StatType>(sqlite3_column_int(stmt, 13));
-    pokemon.evs[4] = static_cast<StatType>(sqlite3_column_int(stmt, 14));
-    pokemon.evs[5] = static_cast<StatType>(sqlite3_column_int(stmt, 15));
+    pokemon.evs[0] = sqlite3_column_int(stmt, 10);
+    pokemon.evs[1] = sqlite3_column_int(stmt, 11);
+    pokemon.evs[2] = sqlite3_column_int(stmt, 12);
+    pokemon.evs[3] = sqlite3_column_int(stmt, 13);
+    pokemon.evs[4] = sqlite3_column_int(stmt, 14);
+    pokemon.evs[5] = sqlite3_column_int(stmt, 15);
 
     pokemon.nature = static_cast<Nature>(sqlite3_column_int(stmt, 16));
 

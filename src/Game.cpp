@@ -1,3 +1,4 @@
+#include "BattleMoveHandler.h"
 #include "SystemTrayIcon.h"
 #include "Game.h"
 #include "WildPokemon.h"
@@ -129,8 +130,8 @@ void Game::createInitialPokemon() {
     dusclops.name = "Dusclops";
 
     for (int i = 0; i < 6; i++) {
-        dusclops.ivs[i] = static_cast<StatType>(5);
-        dusclops.evs[i] = static_cast<StatType>(5);
+        dusclops.ivs[i] = 32;
+        dusclops.evs[i] = 50;
     }
 
     dusclops.nature = Nature::Hardy;
@@ -189,8 +190,8 @@ void Game::spawnPokemon() {
         newWild.name = m_wildPokemonInfo->name;
 
         for (int i = 0; i < 6; i++) {
-            newWild.ivs[i] = static_cast<StatType>(5);
-            newWild.evs[i] = static_cast<StatType>(0);
+            newWild.ivs[i] = 32;
+            newWild.evs[i] = 50;
         }
 
         newWild.nature = Nature::Hardy;
@@ -216,52 +217,59 @@ Party Game::getParty() {
 
     for(int i = 0; i < 6; ++i) {
         int pokemonId = state.party_id[i];
-        if(pokemonId > 0) {
-            PokemonState pokemon = m_db.getPokemon(pokemonId);
-            const PokemonInfo* info = Globals::getPokemonInfo(pokemon.pokedex_id);
-            if(info) {
-                party.spriteIds.push_back(info->spriteId);
-                party.iconIds.push_back(VariantMapper::pokedexID2IconID(pokemon.pokedex_id, 0));
-                party.names.push_back(pokemon.name);
-                party.gens.push_back(info->generation);
-                party.ballIds.push_back(3);
-            } else {
-                // Push defaults if info is null
-                party.spriteIds.push_back(-1);
-                party.iconIds.push_back(-1);
-                party.names.push_back("");
-                party.gens.push_back(-1);
-                party.ballIds.push_back(-1);
-            }
-        } else {
-            // Push defaults for empty slots
-            party.spriteIds.push_back(-1);
-            party.iconIds.push_back(-1);
-            party.names.push_back("");
-            party.gens.push_back(-1);
-            party.ballIds.push_back(-1);
-        }
+        if(pokemonId <= 0) continue;
+
+        PokemonState pokemon = m_db.getPokemon(pokemonId);
+        const PokemonInfo* info = Globals::getPokemonInfo(pokemon.pokedex_id);
+        if(!info) continue;
+
+        party.pokedexIds[i] = info->pokedexId;
+        party.spriteIds[i] = info->spriteId;
+        party.iconIds[i] = VariantMapper::pokedexID2IconID(pokemon.pokedex_id, 0);
+        party.names[i] = pokemon.name;
+        party.gens[i] = info->generation;
+        party.ballIds[i] = 3;
     }
+
     return party;
 }
-
 void Game::handleBattleStart() {
     if (!m_wildPokemon || m_activeBattle) {
         qWarning() << "Cannot start battle - invalid state";
         return;
     }
-    const PokemonInfo* partyPokemon = getPartyPokemonInfo(0);
-    if (!partyPokemon) {
-        qWarning() << "Cannot start battle - no party Pokemon";
-        return;
-    }
-    m_activeBattle = new Battle(m_wildPokemon, partyPokemon);
+
+    Poke partyBattleState[6];
+    for(int i = 0; i<6; i++){
+        partyBattleState[i] = initBattleState(m_partyIds[i]);
+    };
+
+    auto battleMoveHandler = std::make_unique<BattleMoveHandler>(initBattleState(0),partyBattleState);
+    m_activeBattle = new Battle(m_wildPokemon, getParty(), std::move(battleMoveHandler));
     connect(m_activeBattle, &Battle::battleEnded,
             this, &Game::handleBattleEnd);
 
-    m_activeBattle->setupParty(getParty());
     qDebug() << "Starting battle...";
 }
+
+Poke Game::initBattleState(int uid){
+    PokemonState dataState = m_db.getPokemon(uid);
+    return
+    {
+        {
+            uid,
+            {100,100,100,100,100,100},
+            {Type::Normal, Type::Null},
+            {
+                {1,"Tackle",Type::Normal, 50, 100,MoveCategory::Physical,nullptr, nullptr},
+        }},
+        {
+            100,
+            {}}
+    };
+};
+
+
 
 void Game::handleBattleEnd(const char* endState) {
     if (!endState) {

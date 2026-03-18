@@ -1,16 +1,17 @@
+#include "BattleMoveHandler.h"
 #include <Battle.h>
 #include <globals.h>
 #include <QTimer>
 #include <utils/connectWithQML.h>
 
-Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent)
+Battle::Battle(WildPokemon* opp, Party party, std::unique_ptr<BattleMoveHandler> battleMoveHandler, QWindow *parent)
     : DesktopScene(parent)
     , m_oppReference(opp)
     , m_initialOppPos(opp->position())
-    , m_opp_info(opp->info)
-    , m_chosen_info(chosen_info)
+    , m_battleMoveHandler(std::move(battleMoveHandler))
 {
     qDebug() << "Battle constructor called!";
+    qDebug() << "hello" << Globals::getPokemonInfo(party.pokedexIds[0]);
     m_currentDirection = opp->m_currentDirection;
 
     // Load the PokemonSprite as root
@@ -48,16 +49,18 @@ Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent
     m_battleScene->setProperty("direction", m_currentDirection);
     m_battleScene->setProperty("pokeMargin", m_pokeMargin);
     m_battleScene->setProperty("debugLines", Globals::DEBUG);
-    m_opp = setupPokemon(m_opp_info, "opponent");
-    m_chosen = setupPokemon(m_chosen_info, "player");
+    m_opp = setupPokemon(opp->info, "opponent");
+    m_chosen = setupPokemon(Globals::getPokemonInfo(party.pokedexIds[0]), "player");
     initPosition();
 
+    setupParty(party);
 
     QTimer::singleShot(20, this, [this]() {
         show();
         m_width  = width();
         m_height = height();
     });
+
 }
 
 void Battle::setupParty(Party party){

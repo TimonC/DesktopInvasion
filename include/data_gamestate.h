@@ -3,19 +3,11 @@
 #include <string>
 
 enum class Type {
+    Null,
     Normal, Fighting, Flying, Poison, Ground,
     Rock, Bug, Ghost, Steel, Fire,
     Water, Grass, Electric, Psychic, Ice,
     Dragon, Dark
-};
-
-enum class StatType {
-    HP,
-    Attack,
-    Defense,
-    SpecialAttack,
-    SpecialDefense,
-    Speed
 };
 
 enum class Nature {
@@ -33,8 +25,8 @@ struct PokemonState {
     int variant_id = 0;
     std::string name = "";
 
-    StatType ivs[6] = {};
-    StatType evs[6] = {};
+    int ivs[6] = {};
+    int evs[6] = {};
     Nature nature = Nature::Hardy;
 
     int moves[4] = {0, 0, 0, 0};

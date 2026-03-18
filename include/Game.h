@@ -46,6 +46,8 @@ private:
     void updateWildPokemonPosToBattlePos();
     void safelyRemoveBattleScene();
 
+    Poke initBattleState(int uid);
+
 private slots:
     void handleMenuOpen();
     void handleMenuClosed();
