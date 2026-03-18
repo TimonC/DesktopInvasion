@@ -1,4 +1,5 @@
 import QtQuick 2.15
+
 Item {
     id: root
     // Top-level configuration
@@ -13,12 +14,20 @@ Item {
     property int bounceDownDuration: 150 // Duration for bounce down
     property int bounceHeight: 10        // How high to bounce (in pixels)
 
+    // Circle properties
+    property real circleShrinkScale: 0.7    // Circle starts at 0.8x size
+    property int circleAnimationDuration: 1000
+    property int circleX: 0               // X position for circle center
+    property int circleY: 0               // Y position for circle center
+    property int circleBaseRadius: 0       // Base circle radius
+
     // Signal emitted when throw animation completes
     signal throwAnimationDone()
     signal pokemonInsideBall()
+
     width: frameWidth
     height: frameHeight
-    z: 9999
+    z: 100
 
     property int x0: 0
     property int x1: 0
@@ -43,9 +52,12 @@ Item {
     function jump() {
         jumpAnimation.start()
     }
-  function release() {
+
+    function release() {
         pokeballSprite.sourceClipRect.x = root.frameWidth * 9
+        circleExpand() // Circle expands on release
     }
+
     // Single image with manual frame control
     Image {
         id: pokeballSprite
@@ -56,6 +68,20 @@ Item {
         sourceClipRect: Qt.rect(0, root.frameHeight * 3, root.frameWidth, root.frameHeight)
         smooth: false
         antialiasing: false
+    }
+
+    // White circle overlay for animations
+    Rectangle {
+        id: circleOverlay
+        color: "white"
+        radius: width / 2
+        opacity: 0
+        visible: false
+        z: 99 // Below the pokeball sprite
+
+        // Position at configured circle center
+        x: root.circleX - width / 2
+        y: root.circleY - height / 2
     }
 
     // Timer to animate frames 0-7
@@ -108,6 +134,113 @@ Item {
             duration: 200
             easing.type: Easing.InQuad
         }
+    }
+
+    // Single animation that can run forward or reverse for circle
+    ParallelAnimation {
+        id: circleAnimation
+        running: false
+        loops: 1
+
+        // Circle size animation
+        NumberAnimation {
+            id: sizeAnim
+            target: circleOverlay
+            property: "width"
+            duration: root.circleAnimationDuration
+            easing.type: Easing.InOutQuad
+        }
+
+        NumberAnimation {
+            id: heightAnim
+            target: circleOverlay
+            property: "height"
+            duration: root.circleAnimationDuration
+            easing.type: Easing.InOutQuad
+        }
+
+        // Position animation to keep centered
+        NumberAnimation {
+            id: xAnim
+            target: circleOverlay
+            property: "x"
+            duration: root.circleAnimationDuration
+            easing.type: Easing.InOutQuad
+        }
+
+        NumberAnimation {
+            id: yAnim
+            target: circleOverlay
+            property: "y"
+            duration: root.circleAnimationDuration
+            easing.type: Easing.InOutQuad
+        }
+
+        // Opacity animation
+        NumberAnimation {
+            id: opacityAnim
+            target: circleOverlay
+            property: "opacity"
+            duration: root.circleAnimationDuration
+            easing.type: Easing.InOutQuad
+        }
+
+        onStarted: {
+            circleOverlay.visible = true;
+        }
+
+        onStopped: {
+            circleOverlay.visible = false;
+        }
+    }
+
+
+    // Circle expands outward (for pokemon release)
+    function circleExpand() {
+        // Setup animation: start at startScale, expand to endScale
+        var start =2 * root.circleBaseRadius * root.circleShrinkScale
+        var end = 2 * root.circleBaseRadius;
+
+        sizeAnim.from = start;
+        sizeAnim.to = end;
+
+        heightAnim.from = start;
+        heightAnim.to = end;
+
+        xAnim.from = root.circleX - start / 2;
+        xAnim.to = root.circleX - end / 2;
+
+        yAnim.from = root.circleY - start / 2;
+        yAnim.to = root.circleY - end / 2;
+
+        opacityAnim.from = 1;
+        opacityAnim.to = 0.8;
+
+        circleAnimation.start();
+    }
+
+    // Circle shrinks inward (for pokemon capture)
+    function circleShrink() {
+        // Setup animation: start at endScale, shrink to startScale
+        var start = 2 * root.circleBaseRadius;
+        var end = 2 * root.circleBaseRadius * root.circleShrinkScale;
+
+        sizeAnim.from = start;
+        sizeAnim.to = end;
+
+        heightAnim.from = start;
+        heightAnim.to = end;
+
+        xAnim.from = root.circleX - start / 2;
+        xAnim.to = root.circleX - end / 2;
+
+        yAnim.from = root.circleY - start / 2;
+        yAnim.to = root.circleY - end / 2;
+
+        opacityAnim.from = 0.8;
+        opacityAnim.to = 1;
+
+        circleAnimation.start();
     }
 
     // Pokéball throw animation
@@ -197,14 +330,17 @@ Item {
             duration: root.catchDuration
         }
 
-        // Frame 9
+        // Frame 9 - trigger circle shrink for capture
         PropertyAction {
             target: pokeballSprite
             property: "sourceClipRect.x"
             value: root.frameWidth * 9
         }
         ScriptAction{
-            script: root.pokemonInsideBall()
+            script: {
+                circleShrink() // Circle shrinks on capture
+                root.pokemonInsideBall()
+            }
         }
         PauseAnimation {
             duration: root.catchDuration

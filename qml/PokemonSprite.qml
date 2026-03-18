@@ -2,7 +2,7 @@ import QtQuick 2.15
 
 Item {
     id: root
-     property color debugColor: "yellow"
+    property color debugColor: "yellow"
     // Sprite properties
     property string spriteSheet: "qrc:/assets/HGSS/PokGen1_transparent_reordered.png"
     property int row: 0

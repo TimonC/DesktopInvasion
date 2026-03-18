@@ -33,7 +33,7 @@ Item {
     // Catch attempt state
     property int catchShakeCount: 0
     property int catchShakeInterval: 1500
-    property int catchReleaseDelay: 500
+    property int ballTransitionDuration: 1000
 
     signal runChosen()
     signal opponentWon()
@@ -78,19 +78,25 @@ Item {
     }
 
     // Pokéball animation component
-    PokeballCatch {
-        id: pokeBallSend
-        scaleFactor: 2
+PokeballCatch {
+    id: pokeBallSend
+    scaleFactor: 2
 
-        onThrowAnimationDone: {
-            root.catchShakeCount = 0
-            catchAttemptTimer.interval = root.catchShakeInterval/2 //half duration on the first shake
-            catchAttemptTimer.start()
-        }
-        onPokemonInsideBall:{
-            opponent.visible = false
-        }
+    // Configure circle properties
+    circleBaseRadius: Math.max(opponent.width/2, opponent.height/2)
+    circleAnimationDuration: root.ballTransitionDuration
+    circleX: opponent.x + opponent.width/2  // Center on opponent
+    circleY: opponent.y + opponent.height/2
+
+    onThrowAnimationDone: {
+        root.catchShakeCount = 0
+        catchAttemptTimer.interval = root.catchShakeInterval/2
+        catchAttemptTimer.start()
     }
+    onPokemonInsideBall:{
+        opponent.visible=false
+    }
+}
 
     // Catch attempt timer
     Timer {
@@ -102,17 +108,17 @@ Item {
 
 
     function processCatchAttempt() {
-        var failure = Math.random() < 0.5
+        var failure = Math.random() > 0.1
 
         if (failure) {
             // Release the pokemon
             pokeBallSend.release()
-            opponent.visible = true
             // Hide after delay
             Qt.callLater(function() {
                 var hideTimer = Qt.createQmlObject('import QtQuick 2.15; Timer {}', root)
-                hideTimer.interval = root.catchReleaseDelay
+                hideTimer.interval = root.ballTransitionDuration
                 hideTimer.triggered.connect(function() {
+                    opponent.visible=true
                     pokeBallSend.visible = false
                     hideTimer.destroy()
                 })
