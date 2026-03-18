@@ -7,13 +7,15 @@ Item {
     property int partyId: 0
     property int row: 0
     property int direction: 0
-    property real scaleFactor: 4
+    property real scaleFactor: 1
     property int frameWidth: 32
     property int frameHeight: 32
     property int frameCount: 2
     property int frameRate: 4
 
     property int horizontalHeight: 0
+
+    property int attackDistance: 10*scaleFactor
 
     property int itemWidth: 0
     property int itemHeight: 0
@@ -103,7 +105,7 @@ Item {
         id: actionForward
         loops: 1
         running: false
-        property int attackDistance: 20 * scaleFactor
+        property int attackDistance: root.attackDistance
         PropertyAnimation {
             target: root
             property: "x"
