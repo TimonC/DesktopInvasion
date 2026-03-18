@@ -30,7 +30,7 @@ WildPokemon::WildPokemon(int pokedexId, QPoint spawnPoint, int spawnDirection,  
             ? QString("qrc:/assets/HGSS/reordered_sprites_big.png")
             : QString("qrc:/assets/HGSS/reordered_sprites.png"));
 
-    float scaleDivisor = isBig ? 1.4 : 1;
+    float scaleDivisor = isBig ? 1.4/3.0f : 1.0f/3.0f;
     m_sprite->setProperty("scaleFactor", Globals::SCALE/scaleDivisor) ;
     m_sprite->setProperty("row", info->rowId);
     m_sprite->setProperty("debugLines", Globals::DEBUG);

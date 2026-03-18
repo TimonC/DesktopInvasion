@@ -10,7 +10,7 @@ class QRect;
 
 namespace Globals {
     extern bool DEBUG;
-    extern int SCALE;
+    extern float SCALE;
     extern int POKE_PADDING;
     extern const int MAX_POKEDEX_ID;
 

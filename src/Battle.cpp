@@ -41,6 +41,7 @@ Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildS
     m_battleScene->setProperty("direction", m_currentDirection);
     m_battleScene->setProperty("pokeMargin", m_pokeMargin);
     m_battleScene->setProperty("debugLines", Globals::DEBUG);
+    m_battleScene->setProperty("scale", Globals::SCALE);
     m_opp = setupPokemon(wildState.pokedex_id, wildState.name,wildState.lvl, "opponent");
     m_chosen = setupPokemon(party.pokedexIds[0], party.names[0], party.lvls[0], "player");
     initPosition();
@@ -132,7 +133,7 @@ QQuickItem* Battle::setupPokemon(int pokedexId, std::string name, int level, con
 QQuickItem* Battle::updateSprite(int pokedexId, const char* role){
     const AssetInfo* info = Globals::getSpriteInfo(pokedexId);
     bool isBig = info->spriteSheet == SpriteSheet::Big;
-    float scaleDivisor = isBig ? 1.4 : 1;
+    float scaleDivisor = isBig ? 1.4/3.0f : 1.0f/3.0f;
 
     QQuickItem* pokemonSprite = m_battleScene->property(role).value<QQuickItem*>();
 

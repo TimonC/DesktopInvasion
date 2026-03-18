@@ -4,7 +4,7 @@
 
 namespace Globals {
     bool DEBUG = false;
-    int SCALE = 3;
+    float SCALE = 1.5;
     int POKE_PADDING = 0;
     const int MAX_POKEDEX_ID = 493;
 

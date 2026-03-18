@@ -3,14 +3,17 @@ import QtQuick.Controls 2.15
 
 Item {
     id: root
+
+    property  int scale: 1
+    property int frameSize: 32*scale
+
     width: (direction === 0 || direction === 2) ? frameSize * 6.5 : frameSize * 8
     height: (direction === 0 || direction === 2) ? frameSize * 8 : frameSize * 6.5
 
-    // Font properties
     property string textBarFontFamily:  "DotGothic16"
     property string menuFontFamily: "Press Start 2P"
     property string statusBarFontFamily: "Press Start 2P"
-    property int frameSize: 32
+
     property int menuWidth: frameSize * 6.5
     property int menuHeight: frameSize * 2
     property int statusBarWidth: frameSize*2.5
@@ -19,10 +22,10 @@ Item {
     property int buttonHeight: frameSize * 0.75
     property int gridSpacing: frameSize * 0.1
 
-    property int pokeNameFontSize:9
-    property int buttonFontSize:9
-    property int moveFontSize:8
-    property int textBarFontSize: 15
+    property int pokeNameFontSize:9*scale
+    property int buttonFontSize:9*scale
+    property int moveFontSize:8*scale
+    property int textBarFontSize: 15*scale
 
     property bool debugLines: false
 
@@ -150,7 +153,7 @@ Item {
     }
     Pokeball {
         id: pokeBallOpponent
-        scaleFactor: 2
+        scaleFactor: 2/3*root.scale
         circleBaseWidth: opponent.width
         circleBaseHeight: opponent.height
         circleX: opponent.x + opponent.width/2
