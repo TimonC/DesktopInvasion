@@ -738,7 +738,7 @@ Rectangle {
                 property: "opacity"
                 from: 0
                 to: 1
-                duration: 10
+                duration: root.buttonTransitionDuration
             }
         }
 
@@ -747,23 +747,8 @@ Rectangle {
                 property: "opacity"
                 from: 1
                 to: 0
-                duration: 10
+                duration: root.buttonTransitionDuration
             }
         }
 
-        onCurrentItemChanged: {
-            // Hide all cached views
-            textBarView.visible = false
-            rootSelectionView.visible = false
-            attackSelectionView.visible = false
-            switchSelectionView.visible = false
-            catchSelectionView.visible = false
-            runSelectionView.visible = false
-
-            // Show the current one
-            if (currentItem) {
-                currentItem.visible = true
-            }
-        }
-    }
-}
+    }}
