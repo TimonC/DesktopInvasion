@@ -18,7 +18,7 @@ Rectangle {
     property string menuFontFamily: ""
     property string textBarFontFamily: ""
 
-    property int borderWidth: 1
+    property int borderWidth: 2
     property int gridSpacing: 3
     property color borderColor: "darkgrey"
 
@@ -55,7 +55,6 @@ Rectangle {
     property color catchButtonBackground: "white"
     property color catchButtonPressedBackground: "#f0f0f0"
     property color catchButtonBorderColor: "black"
-    property color ballCountTextColor: "black"
 
     property double spriteScale: 1
     property int ballSpriteWidth: 16
@@ -291,7 +290,8 @@ Rectangle {
 
                     Rectangle {
                         anchors.fill: parent
-                        radius: parent.radius - 2
+                        anchors.margins: border.width
+                        radius: parent.radius
                         gradient: Gradient {
                             GradientStop { position: 0; color: moveEnabled ? PokeType.lighterTypeColor(moveType) : root.disabledBackgroundColor }
                             GradientStop { position: 1; color: moveEnabled ? PokeType.darkerTypeColor(moveType) : root.disabledBackgroundColor }
@@ -303,9 +303,11 @@ Rectangle {
                         anchors.centerIn: parent
                         width: Math.max(0, parent.width - 8)
                         text: moveName
+
                         font.pixelSize: root.moveFontSize
                         font.weight: Font.DemiBold
                         font.family: root.menuFontFamily
+
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
                         wrapMode: Text.Wrap
@@ -332,7 +334,7 @@ Rectangle {
             rows: 2
             spacing: root.gridSpacing
 
-            property real cellWidth: (parent.width - spacing ) / 3
+            property real cellWidth: (parent.width - spacing*2) / 3
             property real cellHeight: (parent.height - spacing) / 2
 
             Repeater {
@@ -365,19 +367,10 @@ Rectangle {
                         height: 30
                         visible: root.party.iconIds[index] >= 0
 
-                        Image {
+                        PokemonIcon{
                             id: iconFrame
                             anchors.centerIn: parent
-                            source: "qrc:/assets/HGSS/PokemonIcons_filtered_reordered.png"
-                            sourceClipRect: Qt.rect(0, root.party.iconIds[index] * 30, 40, 30)
-                            property int frameIndex: root.party.iconIds[index]
-
-                            width: 40
-                            height: 30
-
-                            smooth: false
-                            antialiasing: false
-
+                            frameIndex: root.party.iconIds[index]
                             scale: root.selectedIndex === index ? root.selectedIconScale : 1
                             opacity: party.healthRatios[index] > 0 ? root.normalIconOpacity : root.faintedIconOpacity
                         }
@@ -427,7 +420,7 @@ Rectangle {
                 spacing: root.gridSpacing
                 anchors.centerIn: parent
 
-                property real cellWidth: (parent.width - spacing*2) / 2.5
+                property real cellWidth: (parent.width - spacing) / 2.5
                 property real cellHeight: (parent.height - spacing) / 2
 
                 Repeater {
@@ -463,7 +456,10 @@ Rectangle {
                                 height: root.ballSpriteHeight * root.spriteScale
 
                                 Image {
-                                    anchors.centerIn: parent
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.verticalCenterOffset: 1 //slight offset to center ball sprite
+                                    anchors.horizontalCenter: parent.horizontalCenter
+
                                     source: root.ballSpriteSheet
                                     width: root.ballSpriteWidth * root.spriteScale
                                     height: root.ballSpriteHeight * root.spriteScale
@@ -472,16 +468,17 @@ Rectangle {
                                     smooth: false
                                     antialiasing: false
                                     opacity: isEnabled ? 1.0 : 0.5
+
                                 }
                             }
 
                             Text {
                                 anchors.verticalCenter: parent.verticalCenter
                                 text: "×" + (isEnabled ? (root.nrOfBalls[index] > 999 ? "∞" : root.nrOfBalls[index]) : "0")
-                                font.pixelSize: root.moveFontSize
+                                font.pixelSize: root.menuFontSize
                                 font.family: root.menuFontFamily
                                 font.weight: Font.DemiBold
-                                color: isEnabled ? root.ballCountTextColor : root.placeholderTextColor
+                                color: root.menuTextColor
                             }
                         }
 
@@ -504,7 +501,7 @@ Rectangle {
                     anchors.centerIn: parent
                     palette.button: root.runButtonColor
                     text: "Confirm run"
-                    width: root.buttonWidth*1.8
+                    width: root.buttonWidth*1.5
                     height: root.buttonHeight
                     font.pixelSize: root.buttonFontSize
                     font.family: root.menuFontFamily
@@ -552,7 +549,6 @@ Rectangle {
                 Row {
                     id: mainRow
                     anchors.fill: parent
-                    // spacing: root.gridSpacing
 
                     Item {
                         id: contentContainer

@@ -23,7 +23,7 @@ function typeColor(typeName) {
     }
 }
 
-var DARK_FACTOR  = 0.8   // multiply RGB to get darker
+var DARK_FACTOR  = 0.75   // multiply RGB to get darker
 var LIGHT_FACTOR = 0.15   // add to RGB to get lighter
 
 function darkerTypeColor(typeName) {

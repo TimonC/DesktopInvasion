@@ -5,6 +5,7 @@ Image {
     source: "qrc:/assets/HGSS/PokemonIcons_filtered_reordered.png"
 
     sourceClipRect: Qt.rect(0, frameIndex * 30, 40, 30)
+
     property int frameIndex: 0
 
     width: 40
