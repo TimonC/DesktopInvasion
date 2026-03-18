@@ -59,66 +59,42 @@ void testPokespawnRandomness() {
 }
 void testVariantMapper() {
 
-    // Test basic non-variant
-    assert(VariantMapper::pokedexID2IconID(25, 0) == 25);
-    assert(VariantMapper::pokedexID2IconID(1, 0) == 1);
+    // Basic 0-based test
+    assert(VariantMapper::pokedexID2IconID(1, 0) == 0);    // Bulbasaur
+    assert(VariantMapper::pokedexID2IconID(25, 0) == 24);  // Pikachu
 
-    // Test Unown variants
-    assert(VariantMapper::pokedexID2IconID(201, 0) == 201);
-    assert(VariantMapper::pokedexID2IconID(201, 5) == 206);
-    assert(VariantMapper::pokedexID2IconID(201, 27) == 228);
+    // Unown
+    assert(VariantMapper::pokedexID2IconID(201, 0) == 200);   // (201-1) + 0 = 200
+    assert(VariantMapper::pokedexID2IconID(201, 27) == 227);  // 200 + 27
 
-    // Test pokemon between Unown and Burmy
-    assert(VariantMapper::pokedexID2IconID(300, 0) == 327);  // 300 + 27
+    // Deoxys
+    // Shift before Deoxys: Unown(27)
+    assert(VariantMapper::pokedexID2IconID(386, 0) == (386-1) + 27);      // 385 + 27 = 412
+    assert(VariantMapper::pokedexID2IconID(386, 3) == (386-1) + 27 + 3);  // 385 + 27 + 3 = 415
 
-    // Test Burmy variants
-    assert(VariantMapper::pokedexID2IconID(412, 0) == 439);  // 412 + 27
-    assert(VariantMapper::pokedexID2IconID(412, 1) == 440);
-    assert(VariantMapper::pokedexID2IconID(412, 2) == 441);
+    // Rotom
+    // Shift before Rotom: Unown(27) + Deoxys(3) + Burmy(2) + Wormadam(2) + Shellos(1) + Gastrodon(1) = 36
+    assert(VariantMapper::pokedexID2IconID(478, 0) == (478-1) + 36);      // 477 + 36 = 513
+    assert(VariantMapper::pokedexID2IconID(478, 5) == (478-1) + 36 + 5);  // 477 + 36 + 5 = 518
 
+    // Giratina (NEW!)
+    // Shift before Giratina: Unown(27) + Deoxys(3) + Burmy(2) + Wormadam(2) + Shellos(1) + Gastrodon(1) + Rotom(5) = 41
+    assert(VariantMapper::pokedexID2IconID(487, 0) == (487-1) + 41);      // 486 + 41 = 527
+    assert(VariantMapper::pokedexID2IconID(487, 1) == (487-1) + 41 + 1);  // 486 + 41 + 1 = 528
 
-    // Test Wormadam variants (413)
-    // Unown(27) + Burmy(2) = 29
-    assert(VariantMapper::pokedexID2IconID(413, 0) == 442);  // 413 + 29
-    assert(VariantMapper::pokedexID2IconID(413, 1) == 443);
-    assert(VariantMapper::pokedexID2IconID(413, 2) == 444);
+    // Shaymin
+    // Shift before Shaymin: add Giratina's 1 = 42
+    assert(VariantMapper::pokedexID2IconID(492, 0) == (492-1) + 42);      // 491 + 42 = 533
+    assert(VariantMapper::pokedexID2IconID(492, 1) == (492-1) + 42 + 1);  // 491 + 42 + 1 = 534
 
-    // Test pokemon between Wormadam and Shellos (420)
-    // Unown(27) + Burmy(2) + Wormadam(2) = 31
-    assert(VariantMapper::pokedexID2IconID(420, 0) == 451);  // 420 + 31
+    // Pokémon after all
+    // Total shift: 42 + Shaymin's 1 = 43
+    assert(VariantMapper::pokedexID2IconID(500, 0) == (500-1) + 43);      // 499 + 43 = 542
 
-    // Test Shellos variants (422)
-    // Unown(27) + Burmy(2) + Wormadam(2) = 31
-    assert(VariantMapper::pokedexID2IconID(422, 0) == 453);  // 422 + 31
-    assert(VariantMapper::pokedexID2IconID(422, 1) == 454);
+    // Check direct method matches
+    assert(VariantMapper::pokedexID2IconID(487, 0) == VariantMapper::pokedexID2IconIDDirect(487, 0));
+    assert(VariantMapper::pokedexID2IconID(487, 1) == VariantMapper::pokedexID2IconIDDirect(487, 1));
 
-    // Test Gastrodon variants (423)
-    // Unown(27) + Burmy(2) + Wormadam(2) + Shellos(1) = 32
-    assert(VariantMapper::pokedexID2IconID(423, 0) == 455);  // 423 + 32
-    assert(VariantMapper::pokedexID2IconID(423, 1) == 456);
-
-    // Test pokemon between Gastrodon and Rotom (450)
-    // Unown(27) + Burmy(2) + Wormadam(2) + Shellos(1) + Gastrodon(1) = 33
-    assert(VariantMapper::pokedexID2IconID(450, 0) == 483);  // 450 + 33
-
-    // Test Rotom variants (478)
-    // All before Rotom: 27 + 2 + 2 + 1 + 1 = 33
-    assert(VariantMapper::pokedexID2IconID(478, 0) == 511);  // 478 + 33
-    assert(VariantMapper::pokedexID2IconID(478, 1) == 512);
-    assert(VariantMapper::pokedexID2IconID(478, 5) == 516);
-
-    // Test pokemon between Rotom and Shaymin (485)
-    // All before 485: 27 + 2 + 2 + 1 + 1 + 5 = 38
-    assert(VariantMapper::pokedexID2IconID(485, 0) == 523);  // 485 + 38
-
-    // Test Shaymin variants (492)
-    // All before Shaymin: 27 + 2 + 2 + 1 + 1 + 5 = 38
-    assert(VariantMapper::pokedexID2IconID(492, 0) == 530);  // 492 + 38
-    assert(VariantMapper::pokedexID2IconID(492, 1) == 531);
-
-    // Test pokemon after all variants (500)
-    // Total shift: 27 + 2 + 2 + 1 + 1 + 5 + 1 = 39
-    assert(VariantMapper::pokedexID2IconID(500, 0) == 539);  // 500 + 39
-
-    std::cout << "All VariantMapper tests PASSED!\n";
+    std::cout << "All VariantMapper tests PASSED! Total extra variants: "
+              << VariantMapper::getTotalExtraVariants() << "\n";
 }
