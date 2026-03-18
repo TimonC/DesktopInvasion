@@ -56,19 +56,19 @@ Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent
 }
 
 void Battle::handleRunChosen() {
-    emit battleEnded(this, m_oppReference, false);
+    emit battleEnded(false);
 }
 
 void Battle::handleOpponentWon() {
-    emit battleEnded(this, m_oppReference, false);
+    emit battleEnded(false);
 }
 
 void Battle::handlePlayerWon() {
-    emit battleEnded(this, m_oppReference, true);
+    emit battleEnded(true);
 }
 
 void Battle::handlePokemonCaught() {
-    emit battleEnded(this, m_oppReference, true);
+    emit battleEnded(true);
 }
 
 QQuickItem* Battle::setupPokemon(const PokemonInfo* info, const char* role) {

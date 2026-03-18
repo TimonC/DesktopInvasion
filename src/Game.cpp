@@ -6,14 +6,17 @@
 
 Game::Game(QQmlApplicationEngine* engine, QObject* parent) : QObject(parent) {
     m_menu = new GameMenu();
+    m_engine  = engine;
 
-    spawnWildPokemon(Globals::getPokemonInfo());
+    m_wildPokemonInfo = Globals::getPokemonInfo();
+    m_wildPokemon = new WildPokemon(m_wildPokemonInfo);
+
     connect(&Globals::getPlayer(), &Player::startABattle,
             this, &Game::handleBattleStart);
 
     m_trayIcon = new SystemTrayIcon(this);
     connect(m_trayIcon, &SystemTrayIcon::gameActive,
-            this, &Game::setGameActive);
+            this, &Game::toggleGameActive);
 }
 
 Game::~Game() {
@@ -24,25 +27,33 @@ Game::~Game() {
         m_wildPokemon->deleteLater();
     }
     delete m_menu;
+    delete m_trayIcon;
 }
 
-void Game::setSpawnActive(bool active) {
-    // Implementation
-}
-
-void Game::setGameActive(bool active){
+void Game::toggleGameActive(bool active){
     if(active){
-        if(m_activeBattle) m_activeBattle->show();
-        if(m_wildPokemon) m_wildPokemon->show();
+        if(m_wildPokemonInfo) m_wildPokemon = new WildPokemon(m_wildPokemonInfo, m_spawnPoint, m_spawnDirection);
     }else{
-        if(m_activeBattle) m_activeBattle->hide();
-        if(m_wildPokemon) m_wildPokemon->hide();
+        if(m_activeBattle){
+            updatePosToBattlePos();
+            m_activeBattle->disconnect();
+            delete m_activeBattle;
+            m_activeBattle = nullptr;
+        }
+        if(m_wildPokemon){
+            m_spawnPoint = m_wildPokemon->position();
+            m_spawnDirection = m_wildPokemon->m_currentDirection;
+            m_wildPokemon->disconnect();
+            delete m_wildPokemon;
+            m_wildPokemon = nullptr;
+        }
+
     }
 }
 
-void Game::spawnWildPokemon(const PokemonInfo* info){
-    assert(!m_wildPokemon && "Cannot spawn: WildPokemon already exists");
-    m_wildPokemon = new WildPokemon(info);
+void Game::updatePosToBattlePos(){
+        QPoint newOppPos = m_wildPokemon->position() + (m_activeBattle->position() - m_activeBattle->m_origin);
+        m_wildPokemon->setPosition(newOppPos);
 }
 
 void Game::handleBattleStart(Battle* battle) {
@@ -51,19 +62,16 @@ void Game::handleBattleStart(Battle* battle) {
 
     m_activeBattle = battle;
     connect(battle, &Battle::battleEnded,
-            this, [this](Battle* b, WildPokemon* wild, bool removeWild) {
-        handleBattleEnd(b, wild, removeWild);
+            this, [this](bool removeWild) {
+        handleBattleEnd(removeWild);
     });
 }
 
-void Game::handleBattleEnd(Battle* battle, WildPokemon* opp, bool removeWild) {
-    assert(battle == m_activeBattle && "Battle mismatch in handleBattleEnd");
-    disconnect(battle, nullptr, this, nullptr);
+void Game::handleBattleEnd(bool removeWild) {
+    disconnect(m_activeBattle, nullptr, this, nullptr);
 
     if (removeWild) {
-        assert(m_wildPokemon == opp && "WildPokemon mismatch in handleBattleEnd");
-
-        battle->deleteLater();
+        m_activeBattle->deleteLater();
         m_activeBattle = nullptr;
 
         m_wildPokemon->deleteLater();
@@ -71,21 +79,19 @@ void Game::handleBattleEnd(Battle* battle, WildPokemon* opp, bool removeWild) {
 
         //Delay until the new spawn
         QTimer::singleShot(m_spawnDelay_ms, this, [this]() {
-            spawnWildPokemon(Globals::getPokemonInfo());
+            m_wildPokemonInfo = Globals::getPokemonInfo();
+            m_wildPokemon = new WildPokemon(m_wildPokemonInfo);
         });
     }else{
-        battle->handleDrag(false);
-
-        QPoint newOppPos = opp->position() + (battle->position() - battle->m_origin);
-        opp->setPosition(newOppPos);
-        opp->show();
+        m_activeBattle->handleDrag(false);
+        m_wildPokemon->show();
 
 
         //Short delay to ensure smooth visual transition
-        QTimer::singleShot(100, this, [this, battle, opp]() {
-            battle->deleteLater();
+        QTimer::singleShot(100, this, [this]() {
+            m_activeBattle->deleteLater();
             m_activeBattle = nullptr;
-            opp->startRoaming();
+            m_wildPokemon->roaming(true);
         });
     }
 }

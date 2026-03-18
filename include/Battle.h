@@ -20,7 +20,7 @@ public:
     QPoint m_origin;
 
 signals:
-    void battleEnded(Battle* battle, WildPokemon* opp, bool removeWild);
+    void battleEnded(bool removeWild);
 
 public slots:
     void handleDrag(bool isDragged) override;
@@ -34,7 +34,6 @@ private:
     int m_pokeMargin = 2;
     void initPosition();
 
-    // Store the wild pokemon reference
     WildPokemon* m_oppReference = nullptr;
 
     // Store initial positions for perfect sync

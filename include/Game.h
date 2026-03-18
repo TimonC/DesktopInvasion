@@ -7,25 +7,31 @@
 #include <QObject>
 #include <QQmlApplicationEngine>
 #include <SystemTrayIcon.h>
+#include <qqmlapplicationengine.h>
 
 class Game : public QObject{
     Q_OBJECT
+
 public:
     Game(QQmlApplicationEngine* engine, QObject* parent = nullptr);
     ~Game();
+
 private:
-    GameMenu* m_menu;
-    SystemTrayIcon* m_trayIcon;
+    QQmlApplicationEngine* m_engine  =  nullptr;
     WildPokemon* m_wildPokemon = nullptr;
     Battle* m_activeBattle = nullptr;
+    const PokemonInfo* m_wildPokemonInfo;
+    GameMenu* m_menu;
+    SystemTrayIcon* m_trayIcon;
+    QPoint m_spawnPoint;
+    int m_spawnDirection;
     const int m_spawnDelay_ms = 5000;
+    void updatePosToBattlePos();
 
 private slots:
-    void spawnWildPokemon(const PokemonInfo* info);
     void handleBattleStart(Battle* battle);
-    void handleBattleEnd(Battle* battle, WildPokemon* wild, bool removeWild);
-    void setSpawnActive(bool active = true);
-    void setGameActive(bool active = true);
+    void handleBattleEnd(bool removeWild);
+    void toggleGameActive(bool active = true);
 };
 
 #endif

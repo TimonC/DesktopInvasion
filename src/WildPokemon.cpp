@@ -6,7 +6,7 @@
 #include <globals.h>
 #include <pokemon_data.h>
 
-WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
+WildPokemon::WildPokemon(const PokemonInfo* info, std::optional<QPoint> spawnPoint, int spawnDirection,  QWindow *parent)
     : DesktopScene(parent)
     , info(info)
     , m_decisionTimer(new QTimer(this))
@@ -14,8 +14,13 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
     , m_moveSpeed(1 + std::rand()%2000/1000)
 {
     qDebug() << "WildPokemon constructor called!";
-    const QRect& screen = Globals::screenGeometry();
-    setPosition(QPoint(screen.width()/2, screen.height()/2));
+
+    if(spawnPoint){
+        setPosition(*spawnPoint);
+    }else{
+        const QRect& screen = Globals::screenGeometry();
+        setPosition(QPoint(screen.width()/2, screen.height()/2));
+    }
 
     setSource(QUrl("qrc:/qml/PokemonSprite.qml"));
     m_sprite = rootObject();
@@ -37,10 +42,14 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
 
     m_sprite->setProperty("spriteOffsetX" , Globals::POKE_PADDING/2);
     m_sprite->setProperty("spriteOffsetY", Globals::POKE_PADDING/2);
-    /* if (auto mouseArea = m_sprite->property("mouseArea").value<QQuickItem*>()) */
-        /* connect(mouseArea, SIGNAL(doubleClicked(QQuickMouseEvent*)), this, SLOT(handleDoubleClick())); */
 
-    direction(std::rand()%4);
+    if(spawnDirection>-1 && spawnDirection<5){
+        direction(spawnDirection);
+    }
+    else{
+        direction(std::rand()%4);
+    }
+
     m_decisionTimer->setInterval(2000 + std::rand()%2000);
     m_moveTimer->setInterval(50); // 20fps
 
@@ -48,7 +57,7 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
     qDebug() << "A wild" << info->name << "(#" <<info->pokedexId << ") appeared!"
              << "width:" << spriteInfo->max_width << "height:" << spriteInfo->max_height ;
 
-    startRoaming();
+    roaming(true);
     show();
 
     QTimer::singleShot(20, this, [this]() {
@@ -58,14 +67,21 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
 }
 
 
-void WildPokemon::startRoaming(){
+void WildPokemon::roaming(bool active){
     m_isDragged = false;
     m_sprite->setProperty("frameRate", 4);
-    connect(m_decisionTimer, &QTimer::timeout, this, &WildPokemon::makeRandomDecision);
-    connect(m_moveTimer, &QTimer::timeout, this, &WildPokemon::moveStep);
 
-    m_decisionTimer->start();
+    if(active){
+        connect(m_decisionTimer, &QTimer::timeout, this, &WildPokemon::makeRandomDecision);
+        connect(m_moveTimer, &QTimer::timeout, this, &WildPokemon::moveStep);
+        m_decisionTimer->start();
+    }else{
+        disconnect(m_decisionTimer, &QTimer::timeout, this, &WildPokemon::makeRandomDecision);
+        disconnect(m_moveTimer, &QTimer::timeout, this, &WildPokemon::moveStep);
+    }
 }
+
+
 
 void WildPokemon::mouseDoubleClickEvent(QMouseEvent* event){
     startBattle();
