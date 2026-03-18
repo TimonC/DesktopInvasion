@@ -12,6 +12,7 @@
 #include <data_poke_asset.h>
 #include <lookup.h>
 #include <cassert>
+#include <algorithm>
 
 Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
     : QObject(parent)
@@ -128,7 +129,11 @@ QVariantMap Game::pokemonToMenuState(int slot, const PokemonState &p){
         const Move* _move = Lookup::getMove(e.move_id);
         QVariantMap moveData;
         moveData["id"]       = e.move_id;          // needed for requestMoveChange
-        moveData["name"]     = QString::fromStdString(_move->name);
+        std::string name = _move->name;
+        if (name.length() > 10) {
+            name.erase(std::remove(name.begin(), name.end(), '-'), name.end());
+        }
+        moveData["name"]     = QString::fromStdString(name);
         moveData["type"]     = QString::fromStdString(PokeTypes::typeToString(_move->type));
         moveData["power"]    = _move->power;
         moveData["accuracy"] = _move->accuracy;
@@ -140,7 +145,11 @@ QVariantMap Game::pokemonToMenuState(int slot, const PokemonState &p){
     for(int moveSlot = 0; moveSlot < 4; moveSlot++) {
         const Move* _move = Lookup::getMove(p.moves[moveSlot]);
         QVariantMap moveData;
-        moveData["name"] = QString::fromStdString(_move->name);
+        std::string name = _move->name;
+        if (name.length() > 10) {
+            name.erase(std::remove(name.begin(), name.end(), '-'), name.end());
+        }
+        moveData["name"]     = QString::fromStdString(name);
         moveData["type"] = QString::fromStdString(PokeTypes::typeToString(_move->type));
         moveData["flavor"] = QString::fromStdString(_move->flavor_text);
         moveData["power"] = _move->power;
