@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
 
     std::vector<std::unique_ptr<WildPokemon>> wildPokemon;
 
-    /* const PokemonInfo* pokemonInfo1 = Globals::getPokemonByPokedexId(354); */
+    /* const PokemonInfo* pokemonInfo1 = Globals::getPokemonByPokedexId(173); */
     /* wildPokemon.push_back(std::make_unique<WildPokemon>(pokemonInfo1)); */
     /* const PokemonInfo* pokemonInfo2 = Globals::getPokemonByPokedexId(473); */
     /* wildPokemon.push_back(std::make_unique<WildPokemon>(pokemonInfo2)); */
