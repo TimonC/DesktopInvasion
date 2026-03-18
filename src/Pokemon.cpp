@@ -21,10 +21,10 @@ Pokemon::Pokemon(QWindow *parent, int row)
     m_sprite->setProperty("scaleFactor", m_scaleFactor);
     m_sprite->setProperty("row", m_row);
 
-    setSize(33);
+    setSize(34);
 
-    m_sprite->setProperty("spriteOffsetX", 33);
-    m_sprite->setProperty("spriteOffsetY",33/2);
+    m_sprite->setProperty("spriteOffsetX", 34);
+    m_sprite->setProperty("spriteOffsetY",34/2);
 
 }
 
