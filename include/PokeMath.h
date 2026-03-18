@@ -4,6 +4,7 @@
 #include <random>
 #include <array>
 #include <data_move.h>
+#include <PokeTypes.h>
 
 namespace PokeMath{
 

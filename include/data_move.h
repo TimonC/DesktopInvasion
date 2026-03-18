@@ -4,14 +4,6 @@
 #include <array>
 #include <PokeTypes.h>
 
-enum class Ailment{
-    Burn, Freeze, Paralysis, Poison, Toxic, Sleep, Confusion, Null
-};
-
-enum class MoveCategory{
-    PhysicalAtk, SpecialAtk, NonDamaging
-};
-
 struct Move {
     const int id;
     const char* name;

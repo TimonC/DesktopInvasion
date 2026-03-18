@@ -21,6 +21,14 @@ enum Nature {
     Timid, Hasty, Jolly, Naive
 };
 
+enum class Ailment{
+    Burn, Freeze, Paralysis, Poison, Toxic, Sleep, Confusion, Null
+};
+
+enum class MoveCategory{
+    PhysicalAtk, SpecialAtk, NonDamaging
+};
+
 namespace PokeTypes{
     inline const char* TYPE_NAMES[] = {
         "Null",
