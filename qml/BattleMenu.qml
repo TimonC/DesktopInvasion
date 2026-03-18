@@ -1,6 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-import "StyleSheet/PokeType.js" as PokeType
+import "Style/PokeColor.js" as PokeColor
 
 Rectangle {
     id: root
@@ -22,16 +22,16 @@ Rectangle {
     property int gridSpacing: 3
 
     property color textBarTextColor: "black"
-    property color menuTextColor: "black"
+    property color menuTextColor: "white"
     property color attackTextColor: "white"
 
     property color textBarBackgroundColor: "white"
     property color textBarBorderColor: "black"
 
-    property color attackButtonColor: "red"
-    property color switchButtonColor: "green"
-    property color catchButtonColor: "yellow"
-    property color runButtonColor: "blue"
+    property color attackButtonColor: PokeColor.darker("red")
+    property color switchButtonColor: PokeColor.darker("green")
+    property color catchButtonColor: PokeColor.darker("orange")
+    property color runButtonColor: PokeColor.darker("blue")
 
     property color borderColor: "#999999"
     property color disabledBorderColor: "#777777"
@@ -39,11 +39,6 @@ Rectangle {
     property color placeholderTextColor: "#a0a0a0"
     property real enabledOpacity: 1
     property real disabledOpacity: 0.5
-
-    property color highHealthColor: "#4CAF50"
-    property color mediumHealthColor: "#FF9800"
-    property color lowHealthColor: "#FF0000"
-    property color faintedHealthColor: "#8B0000"
 
     property real selectedIconScale: 1.1
     property real normalIconOpacity: 1.0
@@ -74,13 +69,13 @@ Rectangle {
     property alias stack: stack
 
     property var party: {
-        "spriteIds"    : [-1, -1, -1, -1, -1, -1],
-        "iconIds"      : [-1, -1, -1, -1, -1, -1],
-        "ballIds"      : [-1, -1, -1, -1, -1, -1],
-        "gens"         : [-1, -1, -1, -1, -1, -1],
-        "names"        : ["", "", "", "", "", ""],
-        "healthRatios" : [-1, -1, -1, -1, -1, -1],
-        "moves"        : [
+        "spriteIds": [-1, -1, -1, -1, -1, -1],
+        "iconIds": [-1, -1, -1, -1, -1, -1],
+        "ballIds": [-1, -1, -1, -1, -1, -1],
+        "gens": [-1, -1, -1, -1, -1, -1],
+        "names": ["", "", "", "", "", ""],
+        "healthRatios": [-1, -1, -1, -1, -1, -1],
+        "moves": [
             [[], [], [], []],
             [[], [], [], []],
             [[], [], [], []],
@@ -90,32 +85,6 @@ Rectangle {
         ]
     }
 
-    function lighterColor(baseColor) {
-        var c = Qt.color(baseColor)
-        return Qt.rgba(
-            Math.min(1, c.r + 0.15),
-            Math.min(1, c.g + 0.15),
-            Math.min(1, c.b + 0.15),
-            1
-        )
-    }
-
-    function darkerColor(baseColor) {
-        var c = Qt.color(baseColor)
-        return Qt.rgba(
-            c.r * 0.75,
-            c.g * 0.75,
-            c.b * 0.75,
-            1
-        )
-    }
-
-    function healthColor(healthRatio) {
-        if (healthRatio >= 0.5) return highHealthColor
-        if (healthRatio >= 0.25) return mediumHealthColor
-        if (healthRatio > 0) return lowHealthColor
-        return faintedHealthColor
-    }
 
     function _setPartyMember(partyIdx, spriteId, iconId, ballId, gen, pokemonName, moves) {
         var temp = party
@@ -128,26 +97,46 @@ Rectangle {
         temp.healthRatios[partyIdx] = 1
         party = temp
     }
+
     function showTextBar() {
         stack.replace(textBarComponent)
     }
+
     function updateText(text) {
         if (stack.currentItem && stack.currentItem.hasOwnProperty("text")) {
             stack.currentItem.text = text
         }
     }
-    function getText(){
+
+    function getText() {
         if (stack.currentItem && stack.currentItem.hasOwnProperty("text")) {
             return stack.currentItem.text
         }
     }
+
     function forceSwitch() {
         forceSwitchMode = true
         stack.replace(switchSelection)
     }
+
     function resetToRoot() {
         forceSwitchMode = false
         stack.replace(rootSelection)
+    }
+
+    component GradientRoundButton: RoundButton {
+        id: gradientButton
+
+        required property color buttonColor
+
+        palette.buttonText: root.menuTextColor
+        palette.button: gradientButton.buttonColor
+        font.pixelSize: root.buttonFontSize
+        font.family: root.menuFontFamily
+        font.weight: Font.DemiBold
+
+        width: root.buttonWidth
+        height: root.buttonHeight
     }
 
     Component {
@@ -161,6 +150,7 @@ Rectangle {
             height: root.menuHeight
             width: root.menuWidth
             radius: 5
+
             Text {
                 id: textBarText
                 anchors.left: parent.left
@@ -186,6 +176,7 @@ Rectangle {
         initialItem: textBarComponent
         anchors.fill: parent
         z: 1
+
         pushEnter: Transition {
             PropertyAnimation {
                 property: "opacity"
@@ -194,6 +185,7 @@ Rectangle {
                 duration: 200
             }
         }
+
         pushExit: Transition {
             PropertyAnimation {
                 property: "opacity"
@@ -202,6 +194,7 @@ Rectangle {
                 duration: 200
             }
         }
+
         popEnter: Transition {
             PropertyAnimation {
                 property: "opacity"
@@ -210,6 +203,7 @@ Rectangle {
                 duration: 200
             }
         }
+
         popExit: Transition {
             PropertyAnimation {
                 property: "opacity"
@@ -218,6 +212,7 @@ Rectangle {
                 duration: 200
             }
         }
+
         replaceEnter: Transition {
             PropertyAnimation {
                 property: "opacity"
@@ -226,6 +221,7 @@ Rectangle {
                 duration: 10
             }
         }
+
         replaceExit: Transition {
             PropertyAnimation {
                 property: "opacity"
@@ -236,7 +232,6 @@ Rectangle {
         }
     }
 
-
     Component {
         id: rootSelection
         Item {
@@ -244,50 +239,33 @@ Rectangle {
                 anchors.centerIn: parent
                 columns: 2
                 spacing: root.gridSpacing
-                RoundButton {
+
+                GradientRoundButton {
                     text: "Attack"
-                    palette.button: root.attackButtonColor
-                    palette.buttonText: root.menuTextColor
-                    font.pixelSize: root.buttonFontSize
-                    font.family: root.menuFontFamily
-                    width: root.buttonWidth
-                    height: root.buttonHeight
+                    buttonColor: root.attackButtonColor
                     onClicked: stack.push(attackSelection)
                 }
-                RoundButton {
+
+                GradientRoundButton {
                     text: "Switch"
-                    palette.button: root.switchButtonColor
-                    palette.buttonText: root.menuTextColor
-                    font.pixelSize: root.buttonFontSize
-                    font.family: root.menuFontFamily
-                    width: root.buttonWidth
-                    height: root.buttonHeight
+                    buttonColor: root.switchButtonColor
                     onClicked: stack.push(switchSelection)
                 }
-                RoundButton {
+
+                GradientRoundButton {
                     text: "Catch"
-                    palette.button: root.catchButtonColor
-                    palette.buttonText: root.menuTextColor
-                    font.pixelSize: root.buttonFontSize
-                    font.family: root.menuFontFamily
-                    width: root.buttonWidth
-                    height: root.buttonHeight
+                    buttonColor: root.catchButtonColor
                     onClicked: stack.push(catchSelection)
                 }
-                RoundButton {
+
+                GradientRoundButton {
                     text: "Run"
-                    palette.button: root.runButtonColor
-                    palette.buttonText: root.menuTextColor
-                    font.pixelSize: root.buttonFontSize
-                    font.family: root.menuFontFamily
-                    width: root.buttonWidth
-                    height: root.buttonHeight
+                    buttonColor: root.runButtonColor
                     onClicked: stack.push(runSelection)
                 }
             }
         }
     }
-
 
     Component {
         id: attackContent
@@ -308,12 +286,12 @@ Rectangle {
                     property string moveName: party.moves[0][index].name || "---"
                     property string moveType: party.moves[0][index].type || "Null"
                     property bool moveEnabled: moveType !== "Null"
-                    property color baseColor: moveEnabled ? PokeType.typeColor(moveType) : root.disabledBackgroundColor
+                    property color baseColor: moveEnabled ? PokeColor.typeColor(moveType) : root.disabledBackgroundColor
 
                     Rectangle {
                         anchors.fill: parent
                         radius: 4
-                        color: moveEnabled ? lighterColor(baseColor) : root.disabledBorderColor
+                        color: moveEnabled ? PokeColor.lighter(baseColor) : root.disabledBorderColor
                         opacity: moveEnabled ? root.enabledOpacity : root.disabledOpacity
                     }
 
@@ -322,8 +300,8 @@ Rectangle {
                         anchors.margins: root.borderWidth
                         radius: 2
                         gradient: Gradient {
-                            GradientStop { position: 0; color: moveEnabled ? lighterColor(baseColor) : root.disabledBackgroundColor }
-                            GradientStop { position: 1; color: moveEnabled ? darkerColor(baseColor) : root.disabledBackgroundColor }
+                            GradientStop { position: 0; color: moveEnabled ? PokeColor.lighter(baseColor) : root.disabledBackgroundColor }
+                            GradientStop { position: 1; color: moveEnabled ? PokeColor.darker(baseColor) : root.disabledBackgroundColor }
                         }
                         opacity: moveEnabled ? root.enabledOpacity : root.disabledOpacity
                     }
@@ -332,11 +310,9 @@ Rectangle {
                         anchors.centerIn: parent
                         width: Math.max(0, parent.width - 8)
                         text: moveName
-
                         font.pixelSize: root.moveFontSize
                         font.weight: Font.DemiBold
                         font.family: root.menuFontFamily
-
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
                         wrapMode: Text.Wrap
@@ -387,8 +363,18 @@ Rectangle {
                         radius: 2
                         opacity: root.party.iconIds[index] >= 0 ? root.enabledOpacity : root.disabledOpacity
                         gradient: Gradient {
-                            GradientStop { position: 0; color: root.party.iconIds[index] >= 0 ? lighterColor(healthColor(party.healthRatios[index])) : root.disabledBackgroundColor }
-                            GradientStop { position: 1; color: root.party.iconIds[index] >= 0 ? darkerColor(healthColor(party.healthRatios[index])) : root.disabledBackgroundColor }
+                            GradientStop {
+                                position: 0;
+                                color: root.party.iconIds[index] >= 0 ?
+                                    PokeColor.lighter(PokeColor.healthColor(party.healthRatios[index]))
+                                    : root.disabledBackgroundColor
+                            }
+                            GradientStop {
+                                position: 1;
+                                color: root.party.iconIds[index] >= 0 ?
+                                    PokeColor.darker(PokeColor.healthColor(party.healthRatios[index]))
+                                    : root.disabledBackgroundColor
+                            }
                         }
                     }
 
@@ -398,7 +384,7 @@ Rectangle {
                         height: 30
                         visible: root.party.iconIds[index] >= 0
 
-                        PokemonIcon{
+                        PokemonIcon {
                             id: iconFrame
                             anchors.centerIn: parent
                             frameIndex: root.party.iconIds[index]
@@ -475,8 +461,8 @@ Rectangle {
                             radius: 2
                             opacity: ballEnabled ? root.enabledOpacity : root.disabledOpacity
                             gradient: Gradient {
-                                GradientStop { position: 0; color: ballEnabled ? lighterColor(PokeType.typeColor("Normal")) : root.disabledBackgroundColor }
-                                GradientStop { position: 1; color: ballEnabled ? darkerColor(PokeType.typeColor("Normal")) : root.disabledBackgroundColor }
+                                GradientStop { position: 0; color: ballEnabled ? PokeColor.lighter(PokeColor.typeColor("Normal")) : root.disabledBackgroundColor }
+                                GradientStop { position: 1; color: ballEnabled ? PokeColor.darker(PokeColor.typeColor("Normal")) : root.disabledBackgroundColor }
                             }
                         }
 
@@ -526,21 +512,18 @@ Rectangle {
     }
 
     Component {
-            id: runContent
-            Item {
-                anchors.fill: parent
-                RoundButton {
-                    anchors.centerIn: parent
-                    palette.button: root.runButtonColor
-                    text: "Confirm run"
-                    width: root.buttonWidth*1.6
-                    height: root.buttonHeight
-                    font.pixelSize: root.buttonFontSize
-                    font.family: root.menuFontFamily
-                    onClicked: root.runChosen()
-                }
+        id: runContent
+        Item {
+            anchors.fill: parent
+            GradientRoundButton {
+                anchors.centerIn: parent
+                text: "Confirm run"
+                buttonColor: root.runButtonColor
+                width: root.buttonWidth * 1.6
+                onClicked: root.runChosen()
             }
         }
+    }
 
     Component {
         id: backButton
@@ -550,6 +533,7 @@ Rectangle {
             radius: 3
             color: root.forceSwitchMode ? root.forceSwitchBackButtonColor : root.backButtonColor
             opacity: root.forceSwitchMode ? 0.5 : 1.0
+
             Text {
                 anchors.centerIn: parent
                 text: "←"
@@ -557,6 +541,7 @@ Rectangle {
                 font.pixelSize: root.buttonFontSize
                 font.family: root.menuFontFamily
             }
+
             MouseArea {
                 anchors.fill: parent
                 enabled: !root.forceSwitchMode
@@ -620,6 +605,7 @@ Rectangle {
             }
         }
     }
+
     Component {
         id: switchSelection
         Loader {
@@ -629,6 +615,7 @@ Rectangle {
             }
         }
     }
+
     Component {
         id: catchSelection
         Loader {
@@ -638,6 +625,7 @@ Rectangle {
             }
         }
     }
+
     Component {
         id: runSelection
         Loader {

@@ -22,3 +22,32 @@ function typeColor(typeName) {
         default:         return "transparent"
     }
 }
+
+    function lighter(baseColor) {
+        var colorShift = 0.2
+        var c = Qt.color(baseColor)
+        return Qt.rgba(
+            Math.min(1, c.r + colorShift),
+            Math.min(1, c.g + colorShift),
+            Math.min(1, c.b + colorShift),
+            1
+        )
+    }
+
+    function darker(baseColor) {
+        var colorRatio = 0.75
+        var c = Qt.color(baseColor)
+        return Qt.rgba(
+            c.r * colorRatio,
+            c.g * colorRatio,
+            c.b * colorRatio,
+            1
+        )
+    }
+
+    function healthColor(healthRatio) {
+        if (healthRatio >= 0.5) return "#388E3C"
+        if (healthRatio >= 0.25) return "#FF9800"
+        if (healthRatio > 0) return "#FF0000"
+        return "#8B0000"
+    }

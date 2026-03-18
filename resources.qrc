@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>qml/StyleSheet/PokeType.js</file>
+        <file>qml/Style/PokeColor.js</file>
 
         <file>qml/PokemonSprite.qml</file>
 

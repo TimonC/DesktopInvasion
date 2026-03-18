@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Effects  2.15
+import "Style/PokeColor.js" as PokeColor
 Item {
     id: root
     property int scaleFactor: 3
@@ -62,7 +63,16 @@ Item {
             anchors.bottom: progressBar.bottom
             height: progressBar.height
             width: progressBar.width * progressBar.value
-            color: progressBar.value >=0.5 ? "green" :  (progressBar.value >=0.25 ? "orange" : "red")
+            gradient: Gradient {
+                GradientStop {
+                    position: 0;
+                    color: PokeColor.lighter(PokeColor.healthColor(progressBar.value))
+                }
+                GradientStop {
+                    position: 1;
+                    color: PokeColor.darker(PokeColor.healthColor(progressBar.value))
+                }
+            }
             radius: 4
         }
     }
