@@ -9,17 +9,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
-    git \
     libx11-xcb-dev \
-    libxcb-icccm4-dev \
-    libxcb-image0-dev \
-    libxcb-keysyms1-dev \
-    libxcb-render-util0-dev \
-    libxcb-xinerama0-dev \
     libgl1-mesa-dev \
-    libxkbcommon-dev \
-    libvulkan-dev \
-    vulkan-tools \
     inotify-tools \
     && rm -rf /var/lib/apt/lists/*
 
