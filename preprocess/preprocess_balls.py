@@ -4,7 +4,6 @@ from pathlib import Path
 from PIL import Image
 import numpy as np
 
-
 def has_visible_content(frames):
     """Check if any frame in the set has non-transparent pixels."""
     for frame in frames:
@@ -14,7 +13,6 @@ def has_visible_content(frames):
         if np.any(arr[:, :, 3] > 0):
             return True
     return False
-
 
 def extract_and_center_frames(img, col_idx, n_rows, frame_width, frame_height=16, target_height=23):
     """Extract frames from a column and center them in target_height."""
@@ -52,7 +50,6 @@ def extract_and_center_frames(img, col_idx, n_rows, frame_width, frame_height=16
 
     return frames
 
-
 def process_image(image_path, n_rows, n_cols, frame_width, frame_height=16, target_height=23):
     """Process a single image file with centered frames."""
     img = Image.open(image_path)
@@ -60,7 +57,7 @@ def process_image(image_path, n_rows, n_cols, frame_width, frame_height=16, targ
 
     all_rows = []
     # Extract all frame blocks
-    for col_idx in range(n_cols):
+    for col_idx in range(n_cols-1, -1, -1):
         frames = extract_and_center_frames(img, col_idx, n_rows, frame_width, frame_height, target_height)
 
         # Only keep non-empty frame sets
@@ -84,26 +81,31 @@ def process_image(image_path, n_rows, n_cols, frame_width, frame_height=16, targ
     print(f"Saved to {output_path}")
     print(f"Processed {len(all_rows)} pokeball sprite rows")
 
-
 def preprocess_poke(image_paths, n_rows, n_cols, frame_width, frame_height, target_height=23):
     """Process multiple image files."""
     for image_path in image_paths:
         process_image(image_path, n_rows, n_cols, frame_width, frame_height, target_height)
 
-
 if __name__ == "__main__":
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(script_dir)
+
     parser = argparse.ArgumentParser(
         description="Reorder frames with centered 16px frames in 23px transparent background."
     )
-    parser.add_argument("--input_path", type=str, default="/assets/HGSS")
+    parser.add_argument("--input_path", type=str, default="assets/HGSS")  # <-- Changed to relative path
     parser.add_argument("--inputs", nargs='+', default=["Pokeballs_transparent.png"])
     parser.add_argument("--n_rows", type=int, default=10, help="Number of rows of sections per image")
-    parser.add_argument("--n_cols", type=int, default=25, help="Number of columns of sections per image")
+    parser.add_argument("--n_cols", type=int, default=4, help="Number of columns of sections per image")
     parser.add_argument("--frame_width", type=int, default=16, help="Width of a single frame")
     parser.add_argument("--frame_height", type=int, default=16, help="Original height of regular frames")
     parser.add_argument("--target_height", type=int, default=23, help="Target height for all frames (centered)")
 
     args = parser.parse_args()
+
+    if not os.path.isabs(args.input_path):
+        args.input_path = os.path.join(project_root, args.input_path)
+
     input_paths = [os.path.join(args.input_path, input) for input in args.inputs]
 
     preprocess_poke(
