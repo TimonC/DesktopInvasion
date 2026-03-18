@@ -19,6 +19,7 @@ Item {
     property alias battleButton: battleButton
 
     property bool openingButtons: false
+    property bool clickable:true
     property bool jumping: false
     width: itemWidth
     height: itemHeight
@@ -27,6 +28,7 @@ Item {
     MouseArea {
         id: mouseArea
         anchors.fill: parent
+        enabled: clickable
     }
 
 
