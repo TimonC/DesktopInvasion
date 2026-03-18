@@ -258,9 +258,7 @@ void Game::handleBattleStart() {
     m_spawnPoint = m_wildPokemon->position();
     m_spawnDirection = m_wildPokemon->m_currentDirection;
 
-    QTimer::singleShot(200, this, [this]() {
-        safelyRemoveWildPokemon();
-    });
+    safelyRemoveWildPokemon();
 
     std::vector<int> idsToFetch = {0};
     for(int i = 0; i < 6; i++){

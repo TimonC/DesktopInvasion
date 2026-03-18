@@ -173,7 +173,7 @@ void Battle::initPosition() {
     QPoint origin = m_oppPos - m_spriteOffset;
     QRect screenGeom = Globals::screenGeometry();
 
-    QTimer::singleShot(20, this, [this, screenGeom, origin]() {
+    QTimer::singleShot(1, this, [this, screenGeom, origin]() {
         QPoint adjustedOrigin = origin;
 
         adjustedOrigin.setX(qBound(screenGeom.left(), adjustedOrigin.x(),
