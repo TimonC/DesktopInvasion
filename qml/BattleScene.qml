@@ -128,47 +128,6 @@ Item {
 
         onRunChosen: root.runChosen()
     }
-        // Pokéball animation component
-    Pokeball {
-        id: pokeBallOpponent
-        scaleFactor: 2
-
-        // Configure circle properties
-        circleBaseRadius: Math.max(opponent.width/2, opponent.height/2)
-        circleX: opponent.x + opponent.width/2  // Center on opponent
-        circleY: opponent.y + opponent.height/2
-
-        onThrowAnimationDone: {
-            root.catchShakeCount = 0
-            catchAttemptTimer.interval = root.catchShakeInterval/2
-            catchAttemptTimer.start()
-        }
-        onPokemonInsideBall:{
-            pokeBallOpponent.circleShrink();
-            opponent.visible=false
-        }
-    }
-    Pokeball {
-        id: pokeBallPlayer
-        scaleFactor: 2
-
-        // Configure circle properties
-        circleBaseRadius: Math.max(player.width/2, player.height/2)
-        circleAnimationDuration: 1000
-        delayReveal: 2 //longer animation for player reveal
-        circleX: player.x + player.width/2  // Center on player
-        circleY: player.y + player.height/2
-
-        onPokemonInsideBall:{
-            pokeBallPlayer.circleExpand()
-        }
-        onBallOpened:{
-            pokeBallPlayer.visible=false
-            player.visible=true
-            statusBarPlayer.visible = true
-        }
-    }
-
 
     //Relative positioning of elements
     function positionSpriteAndStatusBar(sprite) {
@@ -324,6 +283,50 @@ Item {
         root.attackSequence = [];
         root.currentAttackIndex = 0;
         battleMenu.resetToRoot();
+    }
+
+
+
+
+        // Pokéball animation component
+    Pokeball {
+        id: pokeBallOpponent
+        scaleFactor: 2
+
+        // Configure circle properties
+        circleBaseRadius: Math.max(opponent.width/2, opponent.height/2)
+        circleX: opponent.x + opponent.width/2  // Center on opponent
+        circleY: opponent.y + opponent.height/2
+
+        onThrowAnimationDone: {
+            root.catchShakeCount = 0
+            catchAttemptTimer.interval = root.catchShakeInterval/2
+            catchAttemptTimer.start()
+        }
+        onPokemonInsideBall:{
+            pokeBallOpponent.circleShrink();
+            opponent.visible=false
+        }
+    }
+    Pokeball {
+        id: pokeBallPlayer
+        scaleFactor: 2
+
+        // Configure circle properties
+        circleBaseRadius: Math.max(player.width/2, player.height/2)
+        circleAnimationDuration: 1000
+        delayReveal: 2 //longer animation for player reveal
+        circleX: player.x + player.width/2  // Center on player
+        circleY: player.y + player.height/2
+
+        onPokemonInsideBall:{
+            pokeBallPlayer.circleExpand()
+        }
+        onBallOpened:{
+            pokeBallPlayer.visible=false
+            player.visible=true
+            statusBarPlayer.visible = true
+        }
     }
 
     // Catch attempt sequence
