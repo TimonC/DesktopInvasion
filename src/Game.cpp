@@ -384,7 +384,7 @@ void Game::createInitialPokemon() {
     gastly.lvl = 10;
     gastly.moves[0] = 14;
     gastly.moves[1] = 28;
-    gastly.moves[2] = 104;
+    gastly.moves[2] = 339;
     gastly.moves[3] = 260;
 
 

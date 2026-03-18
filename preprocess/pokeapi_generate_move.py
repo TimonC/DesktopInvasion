@@ -179,7 +179,14 @@ namespace {
         category_enum = format_category_enum(move['damage_class'])
         accuracy = move['accuracy'] if move['accuracy'] is not None else -1
         power = move['power'] if move['power'] is not None else -1
-        stats = "{" + ", ".join(str(s) for s in move['stat_changes']) + "}"
+
+        #Stat changes are Atk/SpAtk/Def/SpDef in PokeApi, DesktopInvasion has Atk/Def/S;atk/SpDef so need to swap
+        stat_changes  = move['stat_changes']
+        spAtk = stat_changes[1]
+        stat_changes[1] = stat_changes[2]
+        stat_changes[2] = spAtk
+        stats = "{" + ", ".join(str(s) for s in stat_changes) + "}"
+
 
         meta = move['meta']
         ailment_enum = format_ailment_enum(meta['ailment'], move['name'])

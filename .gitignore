@@ -11,6 +11,9 @@ data/
 
 *.log
 
+__pycache__/
+*.pyc
+
 *.xcf
 *.json
 
