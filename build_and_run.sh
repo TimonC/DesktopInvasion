@@ -20,25 +20,11 @@ echo "Starting DesktopInvasion with HMR"
 ./DesktopInvasion &
 APP_PID=$!
 
-LAST_BUILD=$(date +%s)
-
-while inotifywait -r -e modify,create,delete ../src ../include ../qml ../assets ../resources.qrc; do
+while inotifywait -r -e modify,create,delete ../src ../include ../qml; do
     echo -e "\n\033[1;33m========== HMR triggered ==========\033[0m"
 
     kill $APP_PID 2>/dev/null || true
-
-    CHANGED_FILES=$(find ../qml ../assets -name "*.qml" -o -name "*.js" -o -name "*.png" -o -name "*.ttf" -newer /tmp/last_build 2>/dev/null | head -5)
-
-    if [ -n "$CHANGED_FILES" ]; then
-        echo "QML/assets changed: $(echo "$CHANGED_FILES" | tr '\n' ' ')"
-        # Touch resources.qrc to trigger rcc rebuild
-        touch ../resources.qrc
-    fi
-
     ninja
-
-    touch /tmp/last_build
-
     ./DesktopInvasion &
     APP_PID=$!
 done
