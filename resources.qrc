@@ -21,8 +21,8 @@
         <file>assets/XY/grab.png</file>
         <file>assets/XY/pointer.png</file>
 
-        <file>assets/HGSS/PokeballIcon.png</file>
-        <file>assets/HGSS/PokeballIcon_grayscale.png</file>
+        <file>assets/icon/icon.png</file>
+        <file>assets/icon/icon_transparent.png</file>
 
         <file>assets/HGSS/reordered_sprites.png</file>
         <file>assets/HGSS/reordered_sprites_big.png</file>

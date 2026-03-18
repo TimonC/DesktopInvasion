@@ -33,7 +33,7 @@ Rectangle {
     property int    fontSizeLg: 22
     property int    fontSizeMd: 18
     property int    fontSizeSm: 16
-    property int    row:        35
+    property int    row:        34
     property int    frameSize: 32
     property string p2pFont:       "Press Start 2P"
     property string dotGothicFont: "DotGothic16"

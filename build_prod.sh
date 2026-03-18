@@ -11,8 +11,7 @@ echo "=== Creating AppDir ==="
 # Create AppDir in /app/build
 mkdir -p /app/build/AppDir/usr/bin
 mkdir -p /app/build/AppDir/usr/share/applications
-mkdir -p /app/build/AppDir/usr/share/icons/hicolor/16x16/apps
-mkdir -p /app/build/AppDir/usr/share/icons/hicolor/256x256/apps
+mkdir -p /app/build/AppDir/usr/share/icons/hicolor/512x512/apps
 
 # Copy executable
 cp DesktopInvasion /app/build/AppDir/usr/bin/
@@ -40,9 +39,8 @@ Terminal=false
 EOF
 
 # Copy icon
-if [ -f "../assets/HGSS/PokeballIcon.png" ]; then
-    cp ../assets/HGSS/PokeballIcon.png /app/build/AppDir/usr/share/icons/hicolor/16x16/apps/desktop-invasion.png
-    cp ../assets/HGSS/PokeballIcon.png /app/build/AppDir/usr/share/icons/hicolor/256x256/apps/desktop-invasion.png
+if [ -f "../assets/icon/icon.png" ]; then
+    cp ../assets/icon/icon.png /app/build/AppDir/usr/share/icons/hicolor/512x512/apps/desktop-invasion.png
 fi
 
 cd /app/build
@@ -65,7 +63,7 @@ export QML_SOURCES_PATHS=/app/qml
     --appdir AppDir \
     --executable AppDir/usr/bin/DesktopInvasion \
     --desktop-file AppDir/usr/share/applications/DesktopInvasion.desktop \
-    --icon-file AppDir/usr/share/icons/hicolor/16x16/apps/desktop-invasion.png \
+    --icon-file AppDir/usr/share/icons/hicolor/512x512/apps/desktop-invasion.png \
     --plugin qt \
     --output appimage
 
