@@ -11,8 +11,8 @@ struct PokemonInfo {
 struct SpriteInfo{
     const int spriteId;
     const int generation;
-    const int width;
-    const int height;
+    const int max_width;
+    const int max_height;
     const int xOffset;
     const int yOffset;
 };

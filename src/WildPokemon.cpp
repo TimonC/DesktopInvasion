@@ -31,8 +31,8 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
 
     const SpriteInfo* spriteInfo = Globals::getSpriteInfo(info->spriteId, info->generation);
 
-    int width = Globals::SCALE* (spriteInfo->width + m_padding);
-    int height = Globals::SCALE * (spriteInfo->height + m_padding);
+    int width = Globals::SCALE* (spriteInfo->max_width + m_padding);
+    int height = Globals::SCALE * (spriteInfo->max_height + m_padding);
 
     m_sprite->setProperty("itemWidth", width);
     m_sprite->setProperty("itemHeight", height);

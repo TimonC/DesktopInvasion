@@ -68,7 +68,7 @@ namespace Globals {
     QSize getSpriteSize(int spriteId, int generation) {
         const SpriteInfo* info = getSpriteInfo(spriteId, generation);
         if (info) {
-            return QSize(info->width, info->height);
+            return QSize(info->max_width, info->max_height);
         }
         return QSize(0, 0); // Return invalid size if not found
     }
