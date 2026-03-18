@@ -16,9 +16,7 @@
         <file>qml/qmlGameMenu/Player.qml</file>
         <file>qml/qmlGameMenu/Settings.qml</file>
 
-        <file>assets/fonts/Inter-VariableFont_opsz,wght.ttf</file>
         <file>assets/fonts/PressStart2P-Regular.ttf</file>
-        <file>assets/fonts/VT323-Regular.ttf</file>
         <file>assets/fonts/DotGothic16-Regular.ttf</file>
 
         <file>assets/HGSS/PokeballIcon.png</file>

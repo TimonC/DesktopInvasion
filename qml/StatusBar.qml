@@ -78,9 +78,13 @@ Item {
             PopoutText {
                 id: statusLabel
                 anchors.centerIn: parent
+                width: parent.width - root.statusPadding/2  // Slightly smaller than container
+                height: parent.height - root.statusPadding/2
                 text: ""
                 visible: false
                 font.pixelSize: root.subTextFontSize
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
             }
         }
     }

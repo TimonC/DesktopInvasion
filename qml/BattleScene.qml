@@ -19,10 +19,9 @@ Item {
     }
 
     // Font properties
-    property string textBarFontFamily: textBarFontLoader.name
+    property string textBarFontFamily:  textBarFontLoader.name
     property string menuFontFamily: pixelFontLoader.name
     property string statusBarFontFamily: pixelFontLoader.name
-
     property int frameSize: 32
     property int menuWidth: frameSize * 7
     property int menuHeight: frameSize * 2.5
@@ -31,10 +30,10 @@ Item {
     property int buttonWidth: frameSize * 2.25
     property int buttonHeight: frameSize * 0.75
     property int gridSpacing: frameSize * 0.1
-    property int pokeNameFontSize:10
+    property int pokeNameFontSize:9
     property int buttonFontSize:10
     property int moveFontSize:9
-    property int textBarFontSize: 16
+    property int textBarFontSize: 14
     property bool debugLines: false
     property int direction: 0
     property bool safePokemonSwitch: true
