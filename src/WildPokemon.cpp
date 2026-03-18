@@ -5,6 +5,7 @@
 #include <QRandomGenerator>
 #include <qevent.h>
 #include <qnamespace.h>
+#include <qrandom.h>
 #include "WildPokemon.h"
 #include "DesktopScene.h"
 #include "globals.h"
@@ -44,7 +45,8 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
     /* if (auto mouseArea = m_sprite->property("mouseArea").value<QQuickItem*>()) */
         /* connect(mouseArea, SIGNAL(doubleClicked(QQuickMouseEvent*)), this, SLOT(handleDoubleClick())); */
 
-    m_decisionTimer->setInterval(1000 + QRandomGenerator::global()->bounded(2000));
+    direction(std::rand()%4);
+    m_decisionTimer->setInterval(2000 + std::rand()%2000);
     m_moveTimer->setInterval(50); // 20fps
 
 
@@ -112,7 +114,7 @@ void WildPokemon::startBattle(){
 }
 
 void WildPokemon::makeRandomDecision(){
-    int decision = QRandomGenerator::global()->bounded(8);
+    int decision = std::rand()%8;
     direction(decision/2);
 
     bool moving = (decision % 2) == 1;
