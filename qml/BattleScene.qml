@@ -12,7 +12,7 @@ Item {
     property string statusBarFontFamily: "Press Start 2P"
     property int frameSize: 32
     property int menuWidth: frameSize * 6.5
-    property int menuHeight: frameSize * 2.25
+    property int menuHeight: frameSize * 2
     property int statusBarWidth: frameSize*2.5
     property int statusBarHeight: frameSize*1.2
     property int buttonWidth: frameSize * 2.25
@@ -75,7 +75,7 @@ Item {
                 break
             case 1:
                 sprite.x = root.width - root.frameSize/2 - root.statusBarWidth/2 - sprite.width/2
-                sprite.y = root.height - sprite.horizontalHeight/2 - root.menuHeight*1.5
+                sprite.y = root.height - sprite.horizontalHeight - root.menuHeight - root.frameSize/3
                 sprite.statusBar.x = root.width - root.frameSize/2 - root.statusBarWidth
                 sprite.statusBar.y = 0
                 break
@@ -87,7 +87,7 @@ Item {
                 break
             case 3:
                 sprite.x = root.frameSize/2 + root.statusBarWidth/2 - sprite.width/2
-                sprite.y = root.height - sprite.horizontalHeight/2 - root.menuHeight*1.5
+                sprite.y = root.height - sprite.horizontalHeight - root.menuHeight - root.frameSize/3
                 sprite.statusBar.x = root.frameSize/2
                 sprite.statusBar.y = 0
                 break
@@ -112,7 +112,7 @@ Item {
         id: containerDebugLines
         anchors.fill: parent
         color: "transparent"
-        border.color: debugLines ? "green" : "transparent"
+        border.color: debugLines ? "yellow" : "transparent"
         border.width: 1
     }
     StatusBar {

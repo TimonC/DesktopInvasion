@@ -4,13 +4,26 @@ Image {
     id: iconFrame
     source: "qrc:/assets/HGSS/reordered_icons.png"
 
-    sourceClipRect: Qt.rect(0, frameIndex * 30, 40, 30)
-
     property int frameIndex: 0
+    property real iconScale: 1.0
 
-    width: 40
-    height: 30
+    readonly property int spriteWidth: 40
+    readonly property int spriteHeight: 30
+
+    width: spriteWidth * iconScale
+    height: spriteHeight * iconScale
+
+    sourceClipRect: Qt.rect(0, frameIndex * spriteHeight, spriteWidth, spriteHeight)
 
     smooth: false
     antialiasing: false
+
+
+    function scaledWidth() {
+        return spriteWidth * iconScale
+    }
+
+    function scaledHeight() {
+        return spriteHeight * iconScale
+    }
 }

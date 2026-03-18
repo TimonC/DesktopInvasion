@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import QtQuick.Layouts 1.15
 import "Style/PokeColor.js" as PokeColor
 
 Rectangle {
@@ -65,6 +66,17 @@ Rectangle {
     property int selectedIndex: 0
     property bool forceSwitchMode: false
 
+    // Layout proportions
+    property real backButtonWidthRatio: 0.1  // 10% of width
+    property real backButtonHeightRatio: 0.9  // 90% of height
+    property real contentMarginsRatio: 0.02  // 2% margin
+
+    // Dynamic calculated properties
+    property real contentWidth: menuWidth * (1 - backButtonWidthRatio * 2 - contentMarginsRatio * 4)
+    property real contentHeight: menuHeight * (1 - contentMarginsRatio * 2)
+    property real backButtonWidth: menuWidth * backButtonWidthRatio
+    property real backButtonHeight: menuHeight * backButtonHeightRatio
+
     signal actionRound(int actionIndex, string actionType)
     signal fightChosen(int fightId)
     signal runChosen(bool removeWild)
@@ -89,7 +101,6 @@ Rectangle {
             [[], [], [], []]
         ]
     }
-
 
     function _setPartyMember(partyIdx, pokedexId, spriteId, ballId, pokemonName, lvl, totalHealth, moves) {
         var temp = party
@@ -123,7 +134,6 @@ Rectangle {
         }
     }
 
-
     function forceSwitch() {
         forceSwitchMode = true
         stack.replace(switchSelection)
@@ -136,26 +146,27 @@ Rectangle {
 
     component GradientRoundButton: RoundButton {
         id: gradientButton
-
         required property color buttonColor
 
         property int wrapMode: Text.NoWrap
         property int elide: Text.ElideRight
+
         palette.buttonText: root.menuTextColor
         palette.button: gradientButton.buttonColor
         font.pixelSize: root.buttonFontSize
         font.family: root.menuFontFamily
         font.weight: Font.DemiBold
 
-        width: root.buttonWidth
-        height: root.buttonHeight
+        // Dynamic sizing based on content area
+        width: root.contentWidth / 2 - root.gridSpacing
+        height: root.contentHeight / 2 - root.gridSpacing
     }
 
     StackView {
         id: stack
         initialItem: textBarComponent
-        anchors.fill: parent
-        anchors.topMargin: root.gridSpacing*3
+        width: root.menuWidth
+        height: root.menuHeight
         z: 1
 
         pushEnter: Transition {
@@ -217,23 +228,18 @@ Rectangle {
         id: textBarComponent
         Rectangle {
             id: textBar
+            width: root.menuWidth
+            height: root.menuHeight
             color: root.textBarBackgroundColor
             border.color: root.textBarBorderColor
             border.width: root.borderWidth
             property string text: ""
-
-            height: root.menuHeight
-            width: root.menuWidth
             radius: 5
 
             Text {
                 id: textBarText
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.rightMargin: parent.width * 0.2
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
-                anchors.margins: 6
+                anchors.fill: parent
+                anchors.margins: root.menuWidth * 0.02 // 2% margin
                 text: textBar.text
                 font.pixelSize: root.textBarFontSize
                 font.family: root.textBarFontFamily
@@ -246,14 +252,18 @@ Rectangle {
         }
     }
 
-
     Component {
         id: rootSelection
         Item {
+            width: root.menuWidth
+            height: root.menuHeight
+
             Grid {
                 anchors.centerIn: parent
                 columns: 2
                 spacing: root.gridSpacing
+                width: root.contentWidth
+                height: root.contentHeight
 
                 GradientRoundButton {
                     text: "Fight"
@@ -286,167 +296,178 @@ Rectangle {
 
     Component {
         id: fightContent
-        Grid {
-            id: fightGrid
-            columns: 2
-            rows: 2
-            spacing: root.gridSpacing
+        Item {
+            width: root.contentWidth
+            height: root.contentHeight
 
-            property real cellWidth: (parent.width - spacing) / 2
-            property real cellHeight: (parent.height - spacing) / 2
-            property int partyIndex: 0
+            Grid {
+                id: fightGrid
+                anchors.fill: parent
+                anchors.margins: root.contentMarginsRatio * root.menuHeight
+                columns: 2
+                rows: 2
+                spacing: root.gridSpacing
 
-            Repeater {
-                model: 4
-                Item {
-                    id: moveItem
-                    width: cellWidth
-                    height: cellHeight
+                property int partyIndex: 0
 
-                    // Function that re-evaluates when dependencies change
-                    function getMoveData() {
-                        if (party && party.moves && party.moves[root.selectedIndex]) {
-                            return party.moves[root.selectedIndex][index] || {name: "---", type: "Null"}
+                Repeater {
+                    model: 4
+
+                    Item {
+                        id: moveItem
+                        width: fightGrid.width / 2 - root.gridSpacing / 2
+                        height: fightGrid.height / 2 - root.gridSpacing / 2
+
+                        // Function that re-evaluates when dependencies change
+                        function getMoveData() {
+                            if (party && party.moves && party.moves[root.selectedIndex]) {
+                                return party.moves[root.selectedIndex][index] || {name: "---", type: "Null"}
+                            }
+                            return {name: "---", type: "Null"}
                         }
-                        return {name: "---", type: "Null"}
-                    }
 
-                    // These properties will update automatically when fightGrid.partyIndex changes
-                    property string moveName: getMoveData().name || "---"
-                    property string moveType: getMoveData().type || "Null"
-                    property bool moveEnabled: moveType !== "Null"
-                    property color baseColor: moveEnabled ? PokeColor.typeColor(moveType) : root.disabledBackgroundColor
+                        property string moveName: getMoveData().name || "---"
+                        property string moveType: getMoveData().type || "Null"
+                        property bool moveEnabled: moveType !== "Null"
+                        property color baseColor: moveEnabled ? PokeColor.typeColor(moveType) : root.disabledBackgroundColor
 
-                    Rectangle {
-                        anchors.fill: parent
-                        radius: 4
-                        color: moveEnabled ? PokeColor.lighter(baseColor) : root.disabledBorderColor
-                        opacity: moveEnabled ? root.enabledOpacity : root.disabledOpacity
-                    }
-
-                    Rectangle {
-                        anchors.fill: parent
-                        anchors.margins: root.borderWidth
-                        radius: 2
-                        gradient: Gradient {
-                            GradientStop { position: 0; color: moveEnabled ? PokeColor.lighter(baseColor) : root.disabledBackgroundColor }
-                            GradientStop { position: 1; color: moveEnabled ? PokeColor.darker(baseColor) : root.disabledBackgroundColor }
+                        Rectangle {
+                            anchors.fill: parent
+                            radius: 4
+                            color: moveEnabled ? PokeColor.lighter(baseColor) : root.disabledBorderColor
+                            opacity: moveEnabled ? root.enabledOpacity : root.disabledOpacity
                         }
-                        opacity: moveEnabled ? root.enabledOpacity : root.disabledOpacity
-                    }
 
-                    Text {
-                        anchors.centerIn: parent
-                        width: Math.max(0, parent.width - 8)
-                        text: moveName
-                        font.pixelSize: root.moveFontSize
-                        font.weight: Font.DemiBold
-                        font.family: root.menuFontFamily
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                        wrapMode: Text.Wrap
-                        maximumLineCount: 2
-                        elide: Text.ElideRight
-                        lineHeight: 1.4
-                        color: moveEnabled ? root.menuTextColor : root.placeholderTextColor
-                    }
+                        Rectangle {
+                            anchors.fill: parent
+                            anchors.margins: root.borderWidth
+                            radius: 2
+                            gradient: Gradient {
+                                GradientStop { position: 0; color: moveEnabled ? PokeColor.lighter(baseColor) : root.disabledBackgroundColor }
+                                GradientStop { position: 1; color: moveEnabled ? PokeColor.darker(baseColor) : root.disabledBackgroundColor }
+                            }
+                            opacity: moveEnabled ? root.enabledOpacity : root.disabledOpacity
+                        }
 
-                    MouseArea {
-                        anchors.fill: parent
-                        enabled: moveEnabled
-                        onClicked: {
-                            root.actionRound(index, "Fight")
+                        Text {
+                            anchors.centerIn: parent
+                            width: Math.max(0, parent.width - 8)
+                            text: moveName
+                            font.pixelSize: root.moveFontSize
+                            font.weight: Font.DemiBold
+                            font.family: root.menuFontFamily
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                            wrapMode: Text.Wrap
+                            maximumLineCount: 2
+                            elide: Text.ElideRight
+                            lineHeight: 1.4
+                            color: moveEnabled ? root.menuTextColor : root.placeholderTextColor
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            enabled: moveEnabled
+                            onClicked: {
+                                root.actionRound(index, "Fight")
+                            }
                         }
                     }
                 }
             }
         }
     }
+
     Component {
         id: switchContent
-        Grid {
-            columns: 3
-            rows: 2
-            spacing: root.gridSpacing/2
+        Item {
+            width: root.contentWidth
+            height: root.contentHeight
 
-            property real cellWidth: (parent.width - spacing) / 3
-            property real cellHeight: (parent.height - spacing) / 2
+            Grid {
+                anchors.fill: parent
+                anchors.margins: root.contentMarginsRatio * root.menuHeight
+                columns: 3
+                rows: 2
+                spacing: root.gridSpacing / 2
 
-            Repeater {
-                model: 6
-                Item {
-                    width: cellWidth
-                    height: cellHeight
-
-                    Rectangle {
-                        anchors.fill: parent
-                        radius: 4
-                        color: (root.party.pokedexIds[index] >= 0 && party.healthRatios[index] > 0)
-                              ? (root.selectedIndex === index ? root.selectedBorderColor : root.borderColor)
-                              : root.disabledBorderColor
-                        opacity: root.party.pokedexIds[index] >= 0 ? root.enabledOpacity : root.disabledOpacity
-                        border.width: root.selectedIndex === index ? root.selectedBorderWidth*2 : 0
-                        border.color: root.selectedIndex === index ? root.selectedBorderColor : "transparent"
-                    }
-
-                    Rectangle {
-                        anchors.fill: parent
-                        anchors.margins: root.borderWidth
-                        radius: 2
-                        opacity: root.party.pokedexIds[index] >= 0 ? root.enabledOpacity : root.disabledOpacity
-                        gradient: Gradient {
-                            GradientStop {
-                                position: 0;
-                                color: root.party.pokedexIds[index] >= 0 ?
-                                    PokeColor.lighter(PokeColor.healthColor(party.healthRatios[index]))
-                                    : root.disabledBackgroundColor
-                            }
-                            GradientStop {
-                                position: 1;
-                                color: root.party.pokedexIds[index] >= 0 ?
-                                    PokeColor.darker(PokeColor.healthColor(party.healthRatios[index]))
-                                    : root.disabledBackgroundColor
-                            }
-                        }
-                    }
+                Repeater {
+                    model: 6
 
                     Item {
-                        anchors.centerIn: parent
-                        visible: root.party.pokedexIds[index] >= 0
+                        width: (parent.width - root.gridSpacing) / 3
+                        height: (parent.height - root.gridSpacing) / 2
 
-                        PokemonIcon {
-                            id: iconFrame
-                            anchors.centerIn: parent
-                            frameIndex: root.party.pokedexIds[index]-1
-                            scale: root.iconScale
-                            opacity: party.healthRatios[index] > 0 ? root.normalIconOpacity : root.faintedIconOpacity
+                        Rectangle {
+                            anchors.fill: parent
+                            radius: 4
+                            color: (root.party.pokedexIds[index] >= 0 && party.healthRatios[index] > 0)
+                                  ? (root.selectedIndex === index ? root.selectedBorderColor : root.borderColor)
+                                  : root.disabledBorderColor
+                            opacity: root.party.pokedexIds[index] >= 0 ? root.enabledOpacity : root.disabledOpacity
+                            border.width: root.selectedIndex === index ? root.borderWidth * 2 : 0
+                            border.color: root.selectedIndex === index ? root.selectedBorderColor : "transparent"
                         }
-                    }
 
-                    Text {
-                        anchors.centerIn: parent
-                        visible: root.party.pokedexIds[index] < 0
-                        text: "---"
-                        font.pixelSize: root.buttonFontSize
-                        font.family: root.menuFontFamily
-                        color: root.placeholderTextColor
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                    }
+                        Rectangle {
+                            anchors.fill: parent
+                            anchors.margins: root.borderWidth
+                            radius: 2
+                            opacity: root.party.pokedexIds[index] >= 0 ? root.enabledOpacity : root.disabledOpacity
+                            gradient: Gradient {
+                                GradientStop {
+                                    position: 0;
+                                    color: root.party.pokedexIds[index] >= 0 ?
+                                        PokeColor.lighter(PokeColor.healthColor(party.healthRatios[index]))
+                                        : root.disabledBackgroundColor
+                                }
+                                GradientStop {
+                                    position: 1;
+                                    color: root.party.pokedexIds[index] >= 0 ?
+                                        PokeColor.darker(PokeColor.healthColor(party.healthRatios[index]))
+                                        : root.disabledBackgroundColor
+                                }
+                            }
+                        }
 
-                    MouseArea {
-                        anchors.fill: parent
-                        enabled: !root.forceSwitchMode ||
-                                 (root.selectedIndex !== index &&
-                                  root.party.pokedexIds[index] >= 0 &&
-                                  party.healthRatios[index] > 0)
-                        onClicked: {
-                            if(root.selectedIndex !== index &&
-                               root.party.pokedexIds[index] >= 0 &&
-                               party.healthRatios[index] > 0){
-                                var oldIndex = root.selectedIndex
-                                root.selectedIndex = index
-                                root.switchChosen(index)
+                        Item {
+                            anchors.centerIn: parent
+                            visible: root.party.pokedexIds[index] >= 0
+
+                            PokemonIcon {
+                                id: iconFrame
+                                anchors.centerIn: parent
+                                frameIndex: root.party.pokedexIds[index]-1
+                                iconScale: root.iconScale
+                                opacity: party.healthRatios[index] > 0 ? root.normalIconOpacity : root.faintedIconOpacity
+                            }
+                        }
+
+                        Text {
+                            anchors.centerIn: parent
+                            visible: root.party.pokedexIds[index] < 0
+                            text: "---"
+                            font.pixelSize: root.buttonFontSize
+                            font.family: root.menuFontFamily
+                            color: root.placeholderTextColor
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            enabled: !root.forceSwitchMode ||
+                                     (root.selectedIndex !== index &&
+                                      root.party.pokedexIds[index] >= 0 &&
+                                      party.healthRatios[index] > 0)
+                            onClicked: {
+                                if(root.selectedIndex !== index &&
+                                   root.party.pokedexIds[index] >= 0 &&
+                                   party.healthRatios[index] > 0){
+                                    var oldIndex = root.selectedIndex
+                                    root.selectedIndex = index
+                                    root.switchChosen(index)
+                                }
                             }
                         }
                     }
@@ -458,23 +479,23 @@ Rectangle {
     Component {
         id: catchContent
         Item {
-            anchors.fill: parent
+            width: root.contentWidth
+            height: root.contentHeight
 
             Grid {
                 id: grid
+                anchors.fill: parent
+                anchors.margins: root.contentMarginsRatio * root.menuHeight
                 columns: 2
                 rows: 2
                 spacing: root.gridSpacing
-                anchors.centerIn: parent
-
-                property real cellWidth: (parent.width - spacing) / 2
-                property real cellHeight: (parent.height - spacing) / 2
 
                 Repeater {
                     model: 4
+
                     Item {
-                        width: grid.cellWidth
-                        height: grid.cellHeight
+                        width: (grid.width - root.gridSpacing) / 2
+                        height: (grid.height - root.gridSpacing) / 2
 
                         property bool ballEnabled: root.nrOfBalls[index] > 0
 
@@ -546,11 +567,13 @@ Rectangle {
     Component {
         id: runContent
         Item {
-            anchors.fill: parent
+            width: root.contentWidth
+            height: root.contentHeight
 
             Column {
                 anchors.fill: parent
-                spacing: root.gridSpacing/2
+                anchors.margins: root.contentMarginsRatio * root.menuHeight
+                spacing: root.gridSpacing / 2
 
                 Repeater {
                     model: [
@@ -565,7 +588,7 @@ Rectangle {
                     ]
 
                     Rectangle {
-                        height: parent.height/2 - root.gridSpacing/2
+                        height: (parent.height - root.gridSpacing / 2) / 2
                         width: parent.width
                         radius: 20
                         border.color: root.borderColor
@@ -575,6 +598,7 @@ Rectangle {
                             GradientStop { position: 0; color: PokeColor.lighter("blue") }
                             GradientStop { position: 1; color: PokeColor.darker("blue") }
                         }
+
                         Text {
                             text: modelData.text
                             color: root.menuTextColor
@@ -582,7 +606,7 @@ Rectangle {
                             font.family: root.menuFontFamily
                             font.weight: Font.DemiBold
                             anchors.centerIn: parent
-                            anchors.margins: 8
+                            anchors.margins: parent.height * 0.1
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
                             anchors.fill: parent
@@ -590,7 +614,6 @@ Rectangle {
                             wrapMode: Text.Wrap
                             maximumLineCount: 2
                         }
-
 
                         MouseArea {
                             anchors.fill: parent
@@ -605,6 +628,8 @@ Rectangle {
     Component {
         id: backButton
         Rectangle {
+            width: root.backButtonWidth
+            height: root.backButtonHeight
             radius: 3
             color: root.forceSwitchMode ? root.forceSwitchBackButtonColor : root.backButtonColor
             opacity: root.forceSwitchMode ? 0.5 : 1.0
@@ -613,7 +638,7 @@ Rectangle {
                 anchors.centerIn: parent
                 text: "←"
                 color: "white"
-                font.pixelSize: root.buttonFontSize
+                font.pixelSize: Math.min(root.buttonFontSize * 1.5, root.backButtonHeight * 0.5)
                 font.family: root.menuFontFamily
             }
 
@@ -630,44 +655,36 @@ Rectangle {
         Item {
             property alias content: contentLoader.sourceComponent
 
-            anchors.fill: parent
-            anchors.margins: root.gridSpacing/2
+            width: root.menuWidth
+            height: root.menuHeight
 
-            Rectangle {
-                id: container
+            RowLayout {
                 anchors.fill: parent
-                color: "transparent"
+                anchors.margins: root.contentMarginsRatio * root.menuHeight
+                spacing: root.contentMarginsRatio * root.menuWidth
 
-                Row {
-                    id: mainRow
-                    width: parent.width
-                    height: parent.height
-                    layoutDirection: Qt.RightToLeft
-                    Item {
-                        id: backButtonContainer
-                        width: root.buttonHeight + root.gridSpacing * 2
-                        height: parent.height
+                // Left spacer (10% width)
+                Item {
+                    Layout.preferredWidth: root.backButtonWidthRatio * root.menuWidth
+                    Layout.fillHeight: true
+                }
 
-                        Loader {
-                            sourceComponent: backButton
-                            anchors.centerIn: parent
-                            width: root.buttonHeight
-                            height: root.menuHeight
-                        }
+                // Content area (80% width)
+                Loader {
+                    id: contentLoader
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                }
+
+                // Back button area (10% width)
+                Item {
+                    Layout.preferredWidth: root.backButtonWidthRatio * root.menuWidth
+                    Layout.fillHeight: true
+
+                    Loader {
+                        sourceComponent: backButton
+                        anchors.centerIn: parent
                     }
-
-                    Item {
-                        id: contentContainer
-                        width: parent.width - backButtonContainer.width*2 - parent.spacing
-                        height: parent.height
-
-                        Loader {
-                            id: contentLoader
-                            anchors.fill: parent
-                            anchors.margins: root.gridSpacing
-                        }
-                    }
-
                 }
             }
         }
@@ -676,6 +693,8 @@ Rectangle {
     Component {
         id: fightSelection
         Loader {
+            width: root.menuWidth
+            height: root.menuHeight
             sourceComponent: selectionTemplate
             onLoaded: {
                 item.content = fightContent
@@ -686,6 +705,8 @@ Rectangle {
     Component {
         id: switchSelection
         Loader {
+            width: root.menuWidth
+            height: root.menuHeight
             sourceComponent: selectionTemplate
             onLoaded: {
                 item.content = switchContent
@@ -696,6 +717,8 @@ Rectangle {
     Component {
         id: catchSelection
         Loader {
+            width: root.menuWidth
+            height: root.menuHeight
             sourceComponent: selectionTemplate
             onLoaded: {
                 item.content = catchContent
@@ -706,6 +729,8 @@ Rectangle {
     Component {
         id: runSelection
         Loader {
+            width: root.menuWidth
+            height: root.menuHeight
             sourceComponent: selectionTemplate
             onLoaded: {
                 item.content = runContent
