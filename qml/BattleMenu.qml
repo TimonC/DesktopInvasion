@@ -178,7 +178,7 @@ Rectangle {
                             radius: 3
                             Text {
                                 anchors.centerIn: parent
-                                text: "TACKLE"
+                                text: "Tackle"
                                 font.pixelSize: root.buttonFontSize
                             }
                             MouseArea {
