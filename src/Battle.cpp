@@ -5,6 +5,7 @@
 #include <QQuickItem>
 #include <qnamespace.h>
 #include <QMouseEvent>
+#include <cassert>
 
 Battle::Battle(int opp_direction, QPoint opp_pos, const PokemonInfo* opp_info, const PokemonInfo* chosen_info, QWindow *parent)
     : DesktopScene(parent)
@@ -18,26 +19,14 @@ Battle::Battle(int opp_direction, QPoint opp_pos, const PokemonInfo* opp_info, c
     // Load the PokemonSprite as root
     setSource(QUrl("qrc:/sprites/BattleScene.qml"));
     m_battleScene = rootObject();
-    if (m_battleScene) {
-        qDebug() << "Root object loaded successfully";
+    assert(m_battleScene);
 
-        m_battleScene->setProperty("spriteSheet", QString("qrc:/assets/HGSS/PokGen%1_transparent_reordered.png").arg(opp_info->generation));
-        m_battleScene->setProperty("scaleFactor", Globals::SCALE);
-        m_battleScene->setProperty("direction",m_currentDirection);
+    m_battleScene->setProperty("spriteSheet", QString("qrc:/assets/HGSS/PokGen%1_transparent_reordered.png").arg(opp_info->generation));
+    m_battleScene->setProperty("scaleFactor", Globals::SCALE);
+    m_battleScene->setProperty("direction",m_currentDirection);
 
-        setupPokemon(m_opp_info, m_chosen_info);
+    setupPokemon(m_opp_info, m_chosen_info);
 
-        // Activate the battle scene
-    /* QObject::connect(m_opp, SIGNAL(battleSceneLoaded(QVariant)), */
-                     /* this, SLOT(onBattleSceneLoaded(QVariant))); */
-
-    /* QMetaObject::invokeMethod(m_opp, "loadBattleScene", Q_ARG(QVariant, opp_direction)); */
-        /* QMetaObject::invokeMethod(m_opp, "loadBattleScene", Q_ARG(QVariant, m_currentDirection)); */
-        /* m_opp->setProperty("chosenSide", opp_direction); */
-
-    } else {
-        qDebug() << "Failed to load root object!";
-    }
 
     initPosition();
     show();

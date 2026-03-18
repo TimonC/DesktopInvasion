@@ -45,11 +45,21 @@ Item {
         scaleFactor: root.scaleFactor
 
         Component.onCompleted: positionSprite(opponentSprite, getOppositeSide(chosenSide))
+    // Helper function to get opposite side
+    function getOppositeSide(side) {
+        switch(side) {
+            case 0: return 2;  // North -> South
+            case 1: return 3;  // East -> West
+            case 2: return 0;  // South -> North
+            case 3: return 1;  // West -> East
+        }
+        return 2;
+    }
 
         Connections {
             target: root
             function onChosenSideChanged() {
-                positionSprite(opponentSprite, getOppositeSide(chosenSide));
+                positionSprite(opponentSprite);
             }
         }
     }
@@ -65,29 +75,19 @@ Item {
         direction: (root.direction + 2) % 4
         scaleFactor: root.scaleFactor
 
-        Component.onCompleted: positionSprite(playerSprite, chosenSide)
+        Component.onCompleted: positionSprite(playerSprite)
 
         Connections {
             target: root
             function onChosenSideChanged() {
-                positionSprite(playerSprite, chosenSide);
+                positionSprite(playerSprite);
             }
         }
     }
 
-    // Helper function to get opposite side
-    function getOppositeSide(side) {
-        switch(side) {
-            case 0: return 2;  // North -> South
-            case 1: return 3;  // East -> West
-            case 2: return 0;  // South -> North
-            case 3: return 1;  // West -> East
-        }
-        return 2;
-    }
 
     // Position sprite based on side
-    function positionSprite(sprite, side) {
+    function positionSprite(sprite) {
         // Reset all anchors first
         sprite.anchors.top = undefined;
         sprite.anchors.bottom = undefined;
@@ -98,7 +98,7 @@ Item {
 
         var margin = 20;
 
-        switch(side) {
+        switch(sprite.direction) {
             case 0: // North - position at top
                 sprite.anchors.top = root.top;
                 sprite.anchors.horizontalCenter = root.horizontalCenter;
