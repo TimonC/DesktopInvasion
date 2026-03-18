@@ -18,14 +18,15 @@ signals:
 
 private slots:
     void onActivated(QSystemTrayIcon::ActivationReason reason);
-    void onGameActiveToggled();
+    void menuButtonPressed();
+    void toggleGameActive();
 
 private:
     void setupMenu();
-    void toggleGameActive();
 
     QMenu *m_menu;
     QAction *m_gameActiveToggle;
+    QAction *m_menuButton;
     bool m_gameActive;
 };
 

@@ -18,19 +18,15 @@ SystemTrayIcon::SystemTrayIcon(QObject *parent) : QSystemTrayIcon(parent),
 }
 
 void SystemTrayIcon::setupMenu(){
-    QAction *playerAction = new QAction("Player", this);
-    m_menu->addAction(playerAction);
-
-    QAction *settingsAction = new QAction("Settings", this);
-    m_menu->addAction(settingsAction);
-
-    m_menu->addSeparator();
+    m_menuButton = m_menu->addAction("Menu");
+    connect(m_menuButton, &QAction::triggered,
+            this, &SystemTrayIcon::menuButtonPressed);
 
     m_gameActiveToggle = m_menu->addAction("Active");
     m_gameActiveToggle->setCheckable(true);
     m_gameActiveToggle->setChecked(m_gameActive);
     connect(m_gameActiveToggle, &QAction::triggered,
-            this, &SystemTrayIcon::onGameActiveToggled);
+            this, &SystemTrayIcon::toggleGameActive);
 
     setContextMenu(m_menu);
 }
@@ -45,8 +41,8 @@ void SystemTrayIcon::onActivated(QSystemTrayIcon::ActivationReason reason){
     }
 }
 
-void SystemTrayIcon::onGameActiveToggled(){
-    toggleGameActive();
+void SystemTrayIcon::menuButtonPressed(){
+    m_menu->show();
 }
 
 void SystemTrayIcon::toggleGameActive(){
