@@ -25,7 +25,6 @@ Rectangle {
     readonly property int pcColumns:    4
     property var partyPokes: ({})
     property var boxPokes: ({})
-    property alias displayName:  rightText.text
 
     MouseArea{
         onClicked: {
@@ -36,7 +35,6 @@ Rectangle {
         anchors.fill: parent
     }
 
-    // C++ (Game) -> QML: push party and box data into PC
     Connections {
         target: menuBridge
 
@@ -67,23 +65,18 @@ Rectangle {
         }
     }
 
-    // QML -> C++ (Game): PC wants a box preloaded
     Connections {
         target: pc
         function onPreloadBoxRequested(boxIndex) { menuBridge.preloadBoxRequested(boxIndex) }
         function onSwapRequested(posx, posy) {
-            // First, do the C++ swap
             menuBridge.swapRequested(posx[0], posx[1], posy[0], posy[1])
 
-            // Then update QML by creating new objects
             var newParty = Object.assign({}, partyPokes)
             var newBoxes = Object.assign({}, boxPokes)
 
-            // Get the values
             var x = posx[0] == -1 ? partyPokes[posx[1]] : boxPokes[posx[0]][posx[1]]
             var y = posy[0] == -1 ? partyPokes[posy[1]] : boxPokes[posy[0]][posy[1]]
 
-            // Swap in the new objects
             if(posx[0] == -1) {
                 newParty[posx[1]] = y
             } else {
@@ -100,33 +93,26 @@ Rectangle {
                 newBoxes[posy[0]] = arrY
             }
 
-            // Assign back - this triggers the redraw!
             partyPokes = newParty
             boxPokes = newBoxes
         }
         function onDisplay(pcPos){
-            if(pcPos[0]==-1 && partyPokes[pcPos[1]]){
-                displayName = partyPokes[pcPos[1]].name
-                rightPanel.rowId = partyPokes[pcPos[1]].rowId
-
-                var isBig = partyPokes[pcPos[1]].isBig
-                rightPanel.spriteSheet = isBig ? "qrc:/assets/HGSS/reordered_sprites_big.png" :  "qrc:/assets/HGSS/reordered_sprites.png"
-                rightPanel.frameWidth = isBig ? 64 : 32
-                rightPanel.frameHeight = isBig ? 64 : 32
-                rightPanel.scaleFactor = isBig ? 4 : 6
-            }else if(pcPos[0]>-1 && boxPokes[pcPos[0]][pcPos[1]]){
-                displayName = boxPokes[pcPos[0]][pcPos[1]].name
-                var isBig = boxPokes[pcPos[0]][pcPos[1]].isBig
-                rightPanel.spriteSheet = isBig ? "qrc:/assets/HGSS/reordered_sprites_big.png" :  "qrc:/assets/HGSS/reordered_sprites.png"
-                rightPanel.frameWidth = isBig ? 64 : 32
-                rightPanel.frameHeight = isBig ? 64 : 32
-                rightPanel.scaleFactor = isBig ? 4 : 6
-                rightPanel.rowId = boxPokes[pcPos[0]][pcPos[1]].rowId
-            }else{
+            var poke = null
+            if(pcPos[0] == -1 && partyPokes[pcPos[1]]) {
+                poke = partyPokes[pcPos[1]]
+            } else if(pcPos[0] > -1 && boxPokes[pcPos[0]] && boxPokes[pcPos[0]][pcPos[1]]) {
+                poke = boxPokes[pcPos[0]][pcPos[1]]
+            } else {
                 console.log("ERROR faulty display pos")
+                return
             }
+            pokeView.pokeData     = poke
+            pokeView.rowId        = poke.rowId
+            pokeView.spriteSheet  = poke.isBig ? "qrc:/assets/HGSS/reordered_sprites_big.png" : "qrc:/assets/HGSS/reordered_sprites.png"
+            pokeView.frameWidth   = poke.isBig ? 64 : 32
+            pokeView.frameHeight  = poke.isBig ? 64 : 32
+            pokeView.scaleFactor  = poke.isBig ? 4  : 6
         }
-
     }
 
     RowLayout {
@@ -134,7 +120,6 @@ Rectangle {
         anchors.margins: root.margin
         spacing: 0
 
-        // LEFT COLUMN
         Rectangle {
             Layout.fillHeight: true
             Layout.preferredWidth: parent.width * root.leftSideWidthRatio
@@ -179,7 +164,6 @@ Rectangle {
             }
         }
 
-        // RIGHT COLUMN
         Rectangle {
             id: rightPanel
             Layout.fillHeight: true
@@ -188,41 +172,9 @@ Rectangle {
             border.color: root.showDebugOutlines ? root.debugOutlineColor : "transparent"
             border.width: root.showDebugOutlines ? 2 : 0
 
-            property real scaleFactor: 6
-            property int frameWidth: 32
-            property int frameHeight: 32
-            property int frameCount: 2
-            property int frameRate: 4
-            property int rowId: 0
-            property string spriteSheet: "qrc:/assets/HGSS/reordered_sprites.png"
-            PokeView {}
-
-            AnimatedSprite {
-                id: sprite
-                anchors.centerIn: parent
-                width: rightPanel.frameWidth * rightPanel.scaleFactor
-                height: rightPanel.frameHeight * rightPanel.scaleFactor
-                running: true
-                source: rightPanel.spriteSheet
-                frameWidth: rightPanel.frameWidth
-                frameHeight: rightPanel.frameHeight
-                frameCount: rightPanel.frameCount
-                frameRate: rightPanel.frameRate
-                currentFrame: Math.random() < 0.5 ? 0 : 1
-                interpolate: false
-                smooth: false
-                antialiasing: false
-                frameX: rightPanel.frameWidth * 4
-                frameY: rightPanel.rowId * rightPanel.frameHeight
-            }
-            Text {
-                id: rightText
-                anchors.centerIn: parent
-                text: "Right Panel"
-                font.family: root.p2pFont
-                color: root.textColor
-                font.pixelSize: 16
-                visible: false
+            PokeView {
+                id: pokeView
+                anchors.fill: parent
             }
         }
     }
