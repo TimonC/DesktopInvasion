@@ -44,7 +44,7 @@ Item {
     signal preloadBoxRequested(int boxIndex)
     property color highlightColor: Qt.rgba(0, 0.6, 1, 0.3)
     property bool inSwapMode: false
-    property var swapSelect: [-1, -1]
+    property var swapSelect: [-2, -1]
     property color swapColor: "orange"
     property color highlightSwapColor: Qt.rgba(0.6, 0.6, 0, 0.3)
     signal activateSwapMode();
@@ -113,7 +113,7 @@ Item {
                         PokemonSlot {
                             iconVisible: root.partyMap[index] !== undefined
                             frameIndex:  root.partyMap[index] || 0
-                            pcPos: [0, index]
+                            pcPos: [-1, index]
                         }
                     }
                 }
@@ -268,7 +268,7 @@ Item {
             onClicked: {
                 if(pokemonSlot.iconVisible){
                     if(root.inSwapMode){
-                        if(root.swapSelect[0]>=0){
+                        if(root.swapSelect[0]>=-1){
                             console.log("swap!", root.swapSelect, pokemonSlot.pcPos)
                         }else{
                             root.swapSelect = pokemonSlot.pcPos
