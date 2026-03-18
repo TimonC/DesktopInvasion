@@ -199,7 +199,7 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
         player->delta.isFirst = playerFirst;
 
         BattleActionResult turnResult;
-        turnResult.effects.reserve(20);  // Pre-allocate reasonable capacity
+        turnResult.effects.reserve(20);
 
         if(playerFirst){
             BattleActionResult playerResult = applyMove(playerMove, player, m_battleOpponent);
@@ -396,7 +396,7 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
 
     int accModifier = caster->battleState.statModifiers[5] + target->battleState.statModifiers[6];
     accModifier = std::min(std::max(accModifier,-6),6);
-    if (!PokeMath::checkAccuracy(_move->accuracy, accModifier, m_rng)) {
+    if (_move->stat_change_target==1 && !PokeMath::checkAccuracy(_move->accuracy, accModifier, m_rng)) {
         result.addEffect(BattleActionResult::MISS, caster, target);
         return result;
     }
@@ -475,12 +475,12 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
             result.addEffect(BattleActionResult::HEAL, caster, caster, healAmount);
         }
 
-        BattleActionResult secondaryResult = applySecondaryEffects(_move, target, damage > 0);
+        BattleActionResult secondaryResult = applySecondaryEffects(_move, caster, target, damage > 0);
         result.effects.reserve(result.effects.size() + secondaryResult.effects.size());
         result.effects.insert(result.effects.end(), secondaryResult.effects.begin(), secondaryResult.effects.end());
 
     } else {
-        BattleActionResult secondaryResult = applySecondaryEffects(_move, target, true);
+        BattleActionResult secondaryResult = applySecondaryEffects(_move, caster, target, true);
         result.effects.reserve(result.effects.size() + secondaryResult.effects.size());
         result.effects.insert(result.effects.end(), secondaryResult.effects.begin(), secondaryResult.effects.end());
     }
@@ -488,7 +488,7 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
     return result;
 }
 
-BattleActionResult BattleMoveHandler::applySecondaryEffects(const Move* _move, Battler* target, bool damageLanded) {
+BattleActionResult BattleMoveHandler::applySecondaryEffects(const Move* _move, Battler* caster, Battler* target, bool damageLanded) {
     BattleActionResult result;
 
     bool ailmentApplied = true;
@@ -535,6 +535,7 @@ BattleActionResult BattleMoveHandler::applySecondaryEffects(const Move* _move, B
     }
 
     if (statApplied) {
+        Battler& statGetter = _move->stat_change_target==0 ? *caster : *target;
         for (int i = 0; i < 7; i++) {
             if (_move->stat_changes[i] != 0) {
                 int currentModifier = target->battleState.statModifiers[i];
@@ -545,15 +546,15 @@ BattleActionResult BattleMoveHandler::applySecondaryEffects(const Move* _move, B
 
                 if(actualChange == 0) {
                     if(_move->stat_changes[i] > 0) {
-                        result.addEffect(BattleActionResult::TEXT, nullptr, target, 0, Ailment::Null, -1, 0,
-                                        target->pokeState.name + "'s " + getStatName(i).toStdString() + " won't go any higher!");
+                        result.addEffect(BattleActionResult::TEXT, nullptr, &statGetter, 0, Ailment::Null, -1, 0,
+                                        statGetter.pokeState.name + "'s " + getStatName(i).toStdString() + " won't go any higher!");
                     } else {
-                        result.addEffect(BattleActionResult::TEXT, nullptr, target, 0, Ailment::Null, -1, 0,
-                                        target->pokeState.name + "'s " + getStatName(i).toStdString() + " won't go any lower!");
+                        result.addEffect(BattleActionResult::TEXT, nullptr, &statGetter, 0, Ailment::Null, -1, 0,
+                                        statGetter.pokeState.name + "'s " + getStatName(i).toStdString() + " won't go any lower!");
                     }
                 } else {
-                    result.addEffect(BattleActionResult::STAT_CHANGED, nullptr, target, 0, Ailment::Null, i, actualChange);
-                    target->battleState.statModifiers[i] = clampedModifier;
+                    result.addEffect(BattleActionResult::STAT_CHANGED, nullptr, &statGetter, 0, Ailment::Null, i, actualChange);
+                    statGetter.battleState.statModifiers[i] = clampedModifier;
                 }
             }
         }

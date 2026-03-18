@@ -128,7 +128,7 @@ private:
 
     Battler* createBattler(const PokemonState& state);
     BattleActionResult applyMove(const Move* _move, Battler* caster, Battler* target);
-    BattleActionResult applySecondaryEffects(const Move* _move, Battler* target, bool damageLanded);
+    BattleActionResult applySecondaryEffects(const Move* _move, Battler* caster, Battler* target, bool damageLanded);
     BattleActionResult applyEndOfTurnEffects(Battler* battler);
     BattleActionResult canBattlerMove(Battler* caster);
     void checkRemoveAilment(Battler& battler, BattleActionResult& result);
