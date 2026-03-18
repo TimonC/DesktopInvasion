@@ -72,7 +72,6 @@ Item {
     GridLayout {
         anchors.fill: parent
         anchors.margins: root.layoutMargin
-
         columns:       1
         rows:          2
         rowSpacing:    root.layoutSpacing
@@ -86,7 +85,6 @@ Item {
             Layout.column:          0
             Layout.alignment:       Qt.AlignHCenter | Qt.AlignTop
             Layout.preferredHeight: root.partyRows * root.slotHeight
-
             columns:       2
             rows:          1
             columnSpacing: root.layoutSpacing
@@ -256,8 +254,11 @@ Item {
         property int  frameIndex:  0
         property var  pcPos:       [-1, -1]
 
-        color: (hoverArea.containsMouse && iconVisible)
-               ? (root.inSwapMode ? root.highlightSwapColor : root.highlightColor)
+        color: (hoverArea.containsMouse) ?
+                   (root.inSwapMode ?
+                        root.highlightSwapColor : (iconVisible ?
+                        root.highlightColor : "transparent")
+                   )
                : "transparent"
 
         Image {
@@ -297,9 +298,7 @@ Item {
         }
     }
 
-    // ---------------------------------------------------------------
     // Swap implementation
-    // ---------------------------------------------------------------
     function _executeSwap(posx, posy) {
         // Same slot – nothing to do
         if (posx[0] === posy[0] && posx[1] === posy[1]) {
@@ -307,13 +306,11 @@ Item {
             return
         }
 
-        // Read current values
         var iconx = posx[0] === -1 ? root.partyMap[posx[1]]
                                    : root.boxes[posx[0]][posx[1]]
         var icony = posy[0] === -1 ? root.partyMap[posy[1]]
                                    : root.boxes[posy[0]][posy[1]]
 
-        // Write swapped values into working copies
         var newParty = Object.assign({}, root.partyMap)
         var newBoxes = Object.assign({}, root.boxes)
 
