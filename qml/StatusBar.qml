@@ -30,7 +30,6 @@ Item {
         antialiasing: true
     }
 
-    // Name label
     PopoutText {
         id: nameLabel
         anchors.top: parent.top
@@ -43,7 +42,6 @@ Item {
         font.pixelSize: root.pokeNameFontSize
     }
 
-    // Status and level row
     Item {
         id: statusLevelRow
         anchors.top: nameLabel.bottom
@@ -87,7 +85,6 @@ Item {
         }
     }
 
-    // Health bar
     ProgressBar {
         id: progressBar
         anchors.top: statusLevelRow.bottom

@@ -64,7 +64,6 @@ Rectangle {
     property int selectedIndex: 0
     property bool forceSwitchMode: false
 
-    // Signal to start an action round with the chosen action
     signal actionRound(int actionIndex, string actionType)
 
     signal attackChosen(int attackId)
@@ -303,7 +302,6 @@ Rectangle {
                     width: cellWidth
                     height: cellHeight
 
-                    // Function that re-evaluates when dependencies change
                     function getMoveData() {
                         if (party && party.moves && party.moves[root.selectedIndex]) {
                             return party.moves[root.selectedIndex][index] || {name: "---", type: "Null"}
@@ -311,7 +309,6 @@ Rectangle {
                         return {name: "---", type: "Null"}
                     }
 
-                    // These properties will update automatically when attackGrid.partyIndex changes
                     property string moveName: getMoveData().name || "---"
                     property string moveType: getMoveData().type || "Null"
                     property bool moveEnabled: moveType !== "Null"
@@ -581,7 +578,6 @@ Rectangle {
                             font.pixelSize: root.buttonFontSize
                             font.family: root.menuFontFamily
                             font.weight: Font.DemiBold
-                            // wrapMode: Text.WordWrap
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
                             anchors.fill: parent
