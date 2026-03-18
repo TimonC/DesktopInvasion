@@ -417,7 +417,7 @@ Rectangle {
                         PokemonIcon {
                             id: iconFrame
                             anchors.centerIn: parent
-                            frameIndex: root.party.pokedexIds[index]
+                            frameIndex: root.party.pokedexIds[index]-1
                             scale: root.iconScale
                             opacity: party.healthRatios[index] > 0 ? root.normalIconOpacity : root.faintedIconOpacity
                         }

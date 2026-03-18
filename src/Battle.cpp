@@ -131,26 +131,39 @@ QQuickItem* Battle::setupPokemon(int pokedexId, std::string name, int level, con
 
 QQuickItem* Battle::updateSprite(int pokedexId, const char* role){
     const asset_info* info = Globals::getSpriteInfo(pokedexId);
+    bool isBig = info->spriteSheet == SpriteSheet::Big;
+    float scaleDivisor = isBig ? sqrt(2) : 1;
+
     QQuickItem* pokemonSprite = m_battleScene->property(role).value<QQuickItem*>();
-    QMetaObject::invokeMethod(pokemonSprite, "updatePokemon", Q_ARG(QVariant, info->rowId), Q_ARG(QVariant, info->spriteSheet==SpriteSheet::Big));
-    pokemonSprite->setProperty("scaleFactor", Globals::SCALE);
+
+    // Update sprite properties
+    QMetaObject::invokeMethod(pokemonSprite, "updatePokemon",
+        Q_ARG(QVariant, info->rowId),
+        Q_ARG(QVariant, isBig));
+
+    // Apply correct scaling
+    pokemonSprite->setProperty("scaleFactor", Globals::SCALE / scaleDivisor);
     pokemonSprite->setProperty("debugLines", Globals::DEBUG);
 
+    // Calculate dimensions with isBig scaling
+    int width = (Globals::SCALE / scaleDivisor) * (info->width + Globals::POKE_PADDING);
+    int height = (Globals::SCALE / scaleDivisor) * (info->height + Globals::POKE_PADDING);
 
-    int width = Globals::SCALE * (info->width + Globals::POKE_PADDING);
-    int height = Globals::SCALE * (info->height + Globals::POKE_PADDING);
-
-    int offsetX = Globals::SCALE * (32 - info->width) / 2;
-    int offsetY = Globals::SCALE * (32 - info->height) / 2;
+    // Calculate offsets - use the actual sprite frame size (64 for big, 32 for normal)
+    int frameSize = isBig ? 64 : 32;
+    int offsetX = (Globals::SCALE / scaleDivisor) * (frameSize - info->width) / 2;
+    int offsetY = (Globals::SCALE / scaleDivisor) * (frameSize - info->height) / 2;
 
     // Set pokemonSprite properties
     pokemonSprite->setProperty("itemWidth", width);
     pokemonSprite->setProperty("itemHeight", height);
     pokemonSprite->setProperty("containerOffsetX", offsetX);
     pokemonSprite->setProperty("containerOffsetY", offsetY);
+    pokemonSprite->setProperty("frameWidth", isBig ? 64 : 32);
+    pokemonSprite->setProperty("frameHeight", isBig ? 64 : 32);
+
     return pokemonSprite;
 }
-
 
 void Battle::initPosition() {
     QQuickItem* rootItem = qobject_cast<QQuickItem*>(m_battleScene);

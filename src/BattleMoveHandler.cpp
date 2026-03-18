@@ -424,12 +424,6 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
             if (defModifier > 0) defModifier = 0;
         }
 
-        qDebug() << target->pokeState.name.data();
-        for(auto i : target->battleState.statModifiers){
-            qDebug() << i;
-        }
-
-
         params.attack = PokeMath::applyStatModifier(params.attack, atkModifier);
         params.defense = PokeMath::applyStatModifier(params.defense, defModifier);
 

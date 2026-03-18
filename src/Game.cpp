@@ -154,8 +154,10 @@ void Game::spawnPokemon() {
         m_spawnPoint = QPoint(-1,-1);
 
 
+
         std::uniform_int_distribution<int> dist(1, 493);
-        int pokedexId = dist(m_rng);
+        /* int pokedexId = dist(m_rng); */
+        int pokedexId = 487;
         const Poke* wildPoke = Globals::getPoke(pokedexId);
 
         wildState = {};

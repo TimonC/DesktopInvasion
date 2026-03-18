@@ -235,7 +235,7 @@ Item {
         }
         onSwitchChosen: function(newPartyId){
             let newPlayerName = battleMenu.party.names[newPartyId]
-            let newPlayerPokedexId = battleMenu.party.PokedexIds[newPartyId]
+            let newPlayerPokedexId = battleMenu.party.pokedexIds[newPartyId]
             player.visible = false
 
             root.switchedPokemon(newPlayerPokedexId, newPartyId)

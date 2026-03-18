@@ -22,20 +22,23 @@ WildPokemon::WildPokemon(int pokedexId, QPoint spawnPoint, int spawnDirection,  
         setPosition(QPoint(screen.width()/2, screen.height()/2));
     }
 
+    bool isBig = info->spriteSheet==SpriteSheet::Big;
     setSource(QUrl("qrc:/qml/PokemonSprite.qml"));
     m_sprite = rootObject();
     m_sprite->setProperty("spriteSheet",
-            info->spriteSheet==SpriteSheet::Standard
-            ? QString("qrc:/assets/HGSS/reordered_sprites.png")
-            : QString("qrc:/assets/HGSS/reordered_sprites_big.png"));
-    m_sprite->setProperty("scaleFactor", Globals::SCALE);
+            isBig
+            ? QString("qrc:/assets/HGSS/reordered_sprites_big.png")
+            : QString("qrc:/assets/HGSS/reordered_sprites.png"));
+
+    float scaleDivisor = isBig ? sqrt(2) : 1;
+    m_sprite->setProperty("scaleFactor", Globals::SCALE/scaleDivisor) ;
     m_sprite->setProperty("row", info->rowId);
     m_sprite->setProperty("debugLines", Globals::DEBUG);
+    m_sprite->setProperty("frameWidth", isBig ? 64  : 32);
+    m_sprite->setProperty("frameHeight", isBig ? 64  : 32);
 
-
-    int width = Globals::SCALE* (info->width + Globals::POKE_PADDING);
-    int height = Globals::SCALE * (info->height + Globals::POKE_PADDING);
-
+    int width = Globals::SCALE/scaleDivisor * (info->width + Globals::POKE_PADDING);
+    int height = Globals::SCALE/scaleDivisor * (info->height + Globals::POKE_PADDING);
     m_sprite->setProperty("itemWidth", width);
     m_sprite->setProperty("itemHeight", height);
 
