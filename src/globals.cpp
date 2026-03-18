@@ -1,3 +1,4 @@
+#include "data_poke.h"
 #include <globals.h>
 #include <QGuiApplication>
 #include <QScreen>
@@ -22,6 +23,13 @@ namespace Globals {
             return nullptr;
         }
         return kMovesByIndex[moveId];
+    }
+
+    const Poke* getPoke(int pokedexId) {
+        if(pokedexId < 0 || pokedexId > MAX_POKEDEX_ID){
+            return nullptr;
+        }
+        return kPokesByIndex[pokedexId];
     }
 
     const PokemonInfo* getPokemonInfo(int pokedexId) {

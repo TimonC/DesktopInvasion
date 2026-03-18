@@ -2,6 +2,7 @@
 #define GLOBALS_H
 
 #include <data_poke_asset.h>
+#include <data_poke.h>
 #include <data_move.h>
 
 class QRect;
@@ -16,6 +17,7 @@ namespace Globals {
     const QRect& screenGeometry();
     const PokemonInfo* getPokemonInfo(int pokeDexId = -1);
     const Move* getMove(int moveId);
+    const Poke* getPoke(int pokeDexId);
     const SpriteInfo* getSpriteInfo(int spriteId, int generation);
     QSize getSpriteSize(int spriteId, int generation);
 }
