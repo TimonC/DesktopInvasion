@@ -232,7 +232,7 @@ Item {
                 }
 
                 Item {
-                    width:  root.pcColumns * root.slotWidth
+                    width:  root.pcColumns * root.slotWidth + root.panelPadding/2
                     height: root.labelHeight + root.pcRows * root.slotHeight + (root.panelPadding * 2)
 
                     Rectangle {
