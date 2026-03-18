@@ -582,13 +582,13 @@ Rectangle {
                             font.family: root.menuFontFamily
                             font.weight: Font.DemiBold
                             anchors.centerIn: parent
+                            anchors.margins: 8
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
                             anchors.fill: parent
                             lineHeight: 1.4
                             wrapMode: Text.Wrap
                             maximumLineCount: 2
-                            elide: Text.ElideRight
                         }
 
 
