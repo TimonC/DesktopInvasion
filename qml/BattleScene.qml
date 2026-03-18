@@ -97,7 +97,7 @@ Item {
                 sprite.statusBar.y = 0
                 break
             case 2:
-                sprite.x = Math.round((root.statusBarWidth + root.width - sprite.width)/2 - (sprite.verticalWidth/2 - sprite.hCenterUp))
+                sprite.x = Math.round((root.statusBarWidth + root.width - sprite.width)/2 + (sprite.verticalWidth/2 - sprite.hCenterUp))
                 sprite.y = Math.round(root.statusBarHeight/2)
                 sprite.statusBar.x = root.menuWidth/15
                 sprite.statusBar.y = 0
@@ -122,10 +122,12 @@ Item {
             root.currentPlayerBallIndex = battleMenu.party.ballIds[0]
             root.resetPlayerBall()
             battleMenu.showTextBar()
+
             battleMenu.updateText(playerName + ", I choose you!")
             var coords = calculateBallCoords(player)
-            player.visible = false
 
+            console.log("completed")
+            player.visible = false
             pokeBallPlayer.throwAt(coords[0], coords[1], coords[2], coords[3], coords[4])
         })
     }
@@ -509,13 +511,13 @@ Item {
         var pokeballHeight = pokeBallOpponent.height
 
         var x1 = sprite.x + (sprite.width / 2) - (pokeballWidth / 2)
-        var x0 = x1 + (sprite.direction == 0 ? sprite.width : -sprite.width)
+        var x0 = x1 + (sprite.direction == 3 ? -sprite.width/2 : sprite.width/2)
 
-        var y0 = Math.max(pokeballHeight, sprite.y - pokeballHeight)
+        var y0 = Math.max(pokeballHeight, sprite.y)
 
-        var y1 = sprite.y + sprite.height/2 - pokeballHeight
+        var y1 = sprite.y + sprite.height/2
 
-        var groundY = sprite.y + sprite.height - pokeballHeight/2 - root.frameSize/4
+        var groundY = sprite.y + sprite.height - pokeballHeight
 
         return [x0, x1, y0, y1, groundY]
     }
