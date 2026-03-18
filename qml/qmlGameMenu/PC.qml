@@ -280,7 +280,6 @@ Item {
 
                 if (root.swapSource === null) {
                     root.swapSource = pokemonSlot.pcPos
-                    console.log("swap source selected:", root.swapSource)
                 } else {
                     root._executeSwap(root.swapSource, pokemonSlot.pcPos)
                     root.swapRequested(root.swapSource, pokemonSlot.pcPos)

@@ -11,11 +11,12 @@
 #include <BattleMoveHandler.h>
 #include <data_poke_asset.h>
 #include <lookup.h>
+#include <cassert>
 
 Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
     : QObject(parent)
     , m_engine(engine)
-    , m_menu(new GameMenu())
+    , m_menu()
     , m_trayIcon(new SystemTrayIcon(this))
     , m_spawnTimer(new QTimer(this))
     , m_rng(std::random_device{}())
@@ -26,24 +27,29 @@ Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
 
     connect(m_trayIcon, &SystemTrayIcon::gameActive,        this, &Game::setGameActive);
     connect(m_trayIcon, &SystemTrayIcon::menuButtonPressed, this, &Game::handleMenuOpen);
-    connect(m_menu,     &GameMenu::menuClosed,              this, &Game::handleMenuClosed);
-    connect(m_menu,     &GameMenu::preloadBoxRequested,     this, &Game::handleMenuPreloadBox);
-    connect(m_menu,     &GameMenu::swapRequested,              this, &Game::handlePCSwap);
 
     m_spawnTimer->setInterval(m_spawnDelay_ms);
     connect(m_spawnTimer, &QTimer::timeout, this, &Game::spawnPokemon);
+
+    initMenu();
     /* m_spawnTimer->start(); */
     m_spawnTimer->stop();
     QTimer::singleShot(100, this, [this](){
        handleMenuOpen();
     });
+
 }
 
 Game::~Game() {
     m_spawnTimer->stop();
     disconnect(m_trayIcon,   nullptr, this, nullptr);
-    disconnect(m_menu,       nullptr, this, nullptr);
     disconnect(m_spawnTimer, nullptr, this, nullptr);
+
+    if(m_menu){
+        disconnect(m_menu,       nullptr, this, nullptr);
+        delete m_menu;
+        m_menu = nullptr;
+    }
 
     if (m_activeBattle) {
         disconnect(m_activeBattle, nullptr, this, nullptr);
@@ -58,7 +64,20 @@ Game::~Game() {
         m_wildPokemon = nullptr;
     }
 
-    delete m_menu;
+}
+
+void Game::initMenu(){
+    m_menu = new GameMenu();
+    connect(m_menu,     &GameMenu::menuClosed,              this, &Game::handleMenuClosed);
+    connect(m_menu,     &GameMenu::preloadBoxRequested,     this, &Game::handleMenuPreloadBox);
+    connect(m_menu,     &GameMenu::swapRequested,              this, &Game::handlePCSwap);
+}
+
+void Game::safelyRemoveMenu(){
+    disconnect(m_menu, nullptr, this, nullptr);
+    disconnect(this, nullptr, m_menu, nullptr);
+    m_menu->deleteLater();
+    m_menu = nullptr;
 }
 
 // --------------------------------------------------------------------------
@@ -126,7 +145,6 @@ void Game::handleMenuPreloadBox(int boxIndex) {
 }
 
 void Game::handlePCSwap(int placex, int posx, int placey, int posy){
-    qDebug() << "[Game] PC positions swapped:" << "[" << placex << "," << posx << "] <---> ["  << placey << "," << posy << "]";
     m_db.swapByPos(placex, posx, placey, posy);
 }
 
@@ -139,6 +157,7 @@ void Game::handleMenuOpen() {
     setGameActive(false);
     m_gameUsedToBeActive = usedToBeActive;
 
+    initMenu();
     m_menu->activate();
 
     // Push party and bootstrap boxes
@@ -156,6 +175,7 @@ void Game::handleMenuClosed() {
     m_db.commitMenuSession();
     m_trayIcon->enabled(true);
     if (m_gameUsedToBeActive) setGameActive(true);
+    safelyRemoveMenu();
 }
 
 // --------------------------------------------------------------------------

@@ -8,6 +8,9 @@ class GameMenu : public QQuickView {
     Q_OBJECT
 public:
     GameMenu();
+    ~GameMenu(){
+        qDebug() << "GameMenu destructor called!";
+    };
     void activate();
 
     // Called by Game — emit signals that QML listens to via Connections

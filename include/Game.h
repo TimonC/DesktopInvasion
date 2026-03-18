@@ -25,10 +25,11 @@ public slots:
     }
 
 private:
+    void initMenu();
     std::mt19937             m_rng;
     bool                     m_gameUsedToBeActive;
     QQmlApplicationEngine*   m_engine      = nullptr;
-    GameMenu*                m_menu;
+    GameMenu*                m_menu        = nullptr;
     SystemTrayIcon*          m_trayIcon;
     PokemonDatabase&         m_db          = PokemonDatabase::instance();
     WildPokemon*             m_wildPokemon = nullptr;
@@ -43,6 +44,7 @@ private:
     void spawnPokemon();
     void safelyRemoveBattleScene();
     void safelyRemoveWildPokemon();
+    void safelyRemoveMenu();
 
     // Menu <-> DB bridge helpers
     QVariantMap pokemonToMenuState(int slot, const PokemonState& p);
