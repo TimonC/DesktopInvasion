@@ -5,11 +5,9 @@ set -e
 mkdir -p "$XDG_RUNTIME_DIR"
 chmod 0700 "$XDG_RUNTIME_DIR"
 
-if [ ! -f "/app/data/.initialized" ]; then
-    echo "Initializing volume"
-    rm -rf /app/data/* 2>/dev/null || true
-    touch /app/data/.initialized
-fi
+
+echo "First script execution - wiping volume"
+rm -rf /app/data/* 2>/dev/null || true
 
 mkdir -p build
 cd build

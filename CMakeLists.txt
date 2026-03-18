@@ -15,6 +15,13 @@ file(GLOB_RECURSE ALL_HEADERS CONFIGURE_DEPENDS include/*.h src/*.h)
 
 add_executable(DesktopInvasion ${ALL_SRC} ${ALL_HEADERS} ${RESOURCES_RCC})
 
+target_include_directories(DesktopInvasion SYSTEM PRIVATE
+    ${Qt6Core_INCLUDE_DIRS}
+    ${Qt6Gui_INCLUDE_DIRS}
+    ${Qt6Quick_INCLUDE_DIRS}
+    ${Qt6Widgets_INCLUDE_DIRS}
+)
+
 target_precompile_headers(DesktopInvasion PRIVATE
     <QtCore>
     <QtGui>

@@ -371,7 +371,7 @@ void Game::createInitialPokemon() {
     }
 
     PokemonState wailord;
-    wailord.pokedex_id = 321;
+    wailord.pokedex_id = 336;
     wailord.name = "Wailord";
     wailord.pokeball_id = 0;
 
