@@ -6,7 +6,7 @@ function typeColor(typeName) {
         case "Fighting": return "#FF8000"
         case "Flying":   return "#81B9EF"
         case "Poison":   return "#9141CB"
-        case "Ground":   return "#915121"
+        case "Ground":   return "#E0C068";
         case "Rock":     return "#AFA981"
         case "Bug":      return "#91A119"
         case "Ghost":    return "#704170"
