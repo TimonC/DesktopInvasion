@@ -187,7 +187,7 @@ Item {
         update_text_bar(attackerName + " used Tackle!");
 
         // Start attack animation after brief delay
-        delayedCall(200, function() {
+        delayedCall(300, function() {
             attacker.actionForward.running = true;
         });
     }
@@ -198,7 +198,8 @@ Item {
         enabled: root.attackInProgress && root.isPlayerTurn
 
         function onRunningChanged() {
-            delayedCall(200, function() {
+            if(target.running) return;
+            delayedCall(500, function() {
                 opponent.takeDamage.running = true;
             });
         }
@@ -210,7 +211,8 @@ Item {
         enabled: root.attackInProgress && !root.isPlayerTurn
 
         function onRunningChanged() {
-            delayedCall(200, function() {
+            if(target.running) return;
+            delayedCall(500, function() {
                 player.takeDamage.running = true;
             });
         }
@@ -222,6 +224,7 @@ Item {
         enabled: root.attackInProgress && !root.isPlayerTurn
 
         function onRunningChanged() {
+            update_text_bar("It's super effective!");
             handleTurnComplete();
         }
     }
@@ -238,7 +241,6 @@ Item {
 
     // Handle completion of one turn
     function handleTurnComplete() {
-        update_text_bar("It's super effective!");
 
         delayedCall(1200, function() {
             root.turnsCompleted++;

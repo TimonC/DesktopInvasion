@@ -101,14 +101,14 @@ SequentialAnimation {
     PropertyAnimation {
         target: root
         property: "x"
-        to: root.startingX + (root.direction==1 ? -root.attackDistance : root.direction==3 ? root.attackDistance : 0)
+        to: root.startingX + (root.direction==1 ? -actionForward.attackDistance : root.direction==3 ? actionForward.attackDistance : 0)
         duration: 50
         easing.type: Easing.InQuad
     }
     PropertyAnimation {
         target: root
         property: "y"
-        to: root.startingY + (root.direction==0 ? -root.attackDistance : root.direction==2 ? root.attackDistance : 0)
+        to: root.startingY + (root.direction==0 ? -actionForward.attackDistance : root.direction==2 ? actionForward.attackDistance : 0)
         duration: 50
         easing.type: Easing.InQuad
     }
