@@ -1,7 +1,6 @@
 #include "tests.h"
 #include <globals.h>
 #include <iostream>
-#include <cassert>
 
 void runAllTests() {
     testPokespawnRandomness();
