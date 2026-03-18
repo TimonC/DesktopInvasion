@@ -23,7 +23,7 @@ struct BattleStateDelta{
     bool sleep = false;
     bool paralyzed = false;
     bool freeze = false;
-    int ailmentDaamge = -1;
+    int ailmentDamage = -1;
     int confusedDamage = -1;
     Ailment addStatusCondition = Ailment::Null;
     Ailment removeStatusCondition = Ailment::Null;
@@ -69,6 +69,8 @@ public slots:
 private:
     Battler* createBattler(const PokemonState& state);
     void applyMove(const Move* _move, Battler* caster, Battler* target);
+    void applySecondaryEffects(const Move* _move, Battler* target);
+    void applyEndOfTurnEffects(Battler* battler);
     bool canBattlerMove(Battler* caster);
     int calculateConfusionDamage(int level);
     int calculateTypeEffectiveness(const Move* _move, Battler* target);
@@ -87,6 +89,7 @@ private:
     QVariantMap createEndAction();
     QString ailmentToString(Ailment ailment);
     void addPostMoveEffects(QVariantList& sequence, Battler& battler, const QString& name, bool isPlayer);
+    void addEndOfTurnEffects(QVariantList& sequence, Battler& battler, const QString& name, bool isPlayer);
     QString getStatName(int statIndex);
 
     Battler* m_battleOpponent;
@@ -96,15 +99,14 @@ private:
     std::mt19937 m_rng;
 
     int ms_moveUsedText = 300;
-    int ms_confusionText = 500;
-    int ms_statusConditionText = 1000;
+    int ms_ailmentText = 300;
+    int ms_statusConditionText = 500;
     int ms_attackAnimation = 500;
     int ms_damageAnimation = 200;
     int ms_healthChange = 1000;
     int ms_criticalHitText = 800;
     int ms_effectivenessText = 800;
     int ms_drainEffectText = 800;
-    int ms_drainHealthChange = 800;
     int ms_catchStart = 1000;
 };
 

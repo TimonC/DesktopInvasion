@@ -169,7 +169,7 @@ Item {
     Pokeball {
         id: pokeBallPlayer
     }
-        function resetPlayerBall() {
+    function resetPlayerBall() {
         pokeBallPlayer.reset(root.currentPlayerBallIndex)
         pokeBallPlayer.visible = true
         pokeBallPlayer.circleBaseWidth = player.width
