@@ -3,15 +3,15 @@ import QtQuick.Controls 2.15
 
 Item {
     id: root
-    width: (direction === 0 || direction === 2) ? frameSize * 7 : frameSize * 8
-    height: (direction === 0 || direction === 2) ? frameSize * 8 : frameSize * 7
+    width: (direction === 0 || direction === 2) ? frameSize * 6.5 : frameSize * 8
+    height: (direction === 0 || direction === 2) ? frameSize * 8 : frameSize * 6.5
 
     // Font properties
     property string textBarFontFamily:  "DotGothic16"
     property string menuFontFamily: "Press Start 2P"
     property string statusBarFontFamily: "Press Start 2P"
     property int frameSize: 32
-    property int menuWidth: frameSize * 7
+    property int menuWidth: frameSize * 6.5
     property int menuHeight: frameSize * 2.5
     property int statusBarWidth: frameSize*2.5
     property int statusBarHeight: frameSize*1.2
@@ -75,7 +75,7 @@ Item {
                 break
             case 1:
                 sprite.x = root.width - root.frameSize/2 - root.statusBarWidth/2 - sprite.width/2
-                sprite.y = root.height - sprite.height/2 - root.menuHeight*1.5
+                sprite.y = root.height - sprite.minHeight - root.menuHeight*1.5
                 sprite.statusBar.x = root.width - root.frameSize/2 - root.statusBarWidth
                 sprite.statusBar.y = 0
                 break
@@ -87,7 +87,7 @@ Item {
                 break
             case 3:
                 sprite.x = root.frameSize/2 + root.statusBarWidth/2 - sprite.width/2
-                sprite.y = root.height - sprite.height/2 - root.menuHeight*1.5
+                sprite.y = root.height - sprite.minHeight - root.menuHeight*1.5
                 sprite.statusBar.x = root.frameSize/2
                 sprite.statusBar.y = 0
                 break

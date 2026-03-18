@@ -48,7 +48,7 @@ private:
     void initializeGame();
     void createInitialPokemon();
     void loadParty();
-    const asset_info* getPartyPokemonInfo(int slot) const;
+    const AssetInfo* getPartyPokemonInfo(int slot) const;
     void spawnPokemon();
 
     Party getParty();

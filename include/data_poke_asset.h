@@ -5,14 +5,16 @@ enum class SpriteSheet{
     Standard, Big
 };
 
-struct asset_info{
+struct AssetInfo{
     int width;
     int height;
+    int minWidth;
+    int minHeight;
     SpriteSheet spriteSheet;
     int rowId;
 };
 
-extern const asset_info* const kAssetInfo[493];
+extern const AssetInfo* const kAssetInfo[493];
 
 #endif
 

@@ -45,31 +45,25 @@ def analyze_frame_bounds(frame):
 
     return int(width), int(height), int(x_min), int(y_min)
 
-def calculate_sprite_union_bounds(frames):
-    """Calculate union bounds for all frames of a sprite"""
-    min_x, min_y = float('inf'), float('inf')
-    max_x, max_y = float('-inf'), float('-inf')
+def calculate_sprite_bounds(frames):
+    """Calculate min and max bounds for all frames of a sprite"""
+    min_width, min_height = float('inf'), float('inf')
+    max_width, max_height = 0, 0
 
     for frame in frames:
-        width, height, x_min, y_min = analyze_frame_bounds(frame)
+        width, height, _, _ = analyze_frame_bounds(frame)
         if width == 0 or height == 0:
             continue
 
-        x_max = x_min + width
-        y_max = y_min + height
+        min_width = min(min_width, width)
+        min_height = min(min_height, height)
+        max_width = max(max_width, width)
+        max_height = max(max_height, height)
 
-        min_x = min(min_x, x_min)
-        min_y = min(min_y, y_min)
-        max_x = max(max_x, x_max)
-        max_y = max(max_y, y_max)
+    if min_width == float('inf'):
+        return 0, 0, 0, 0
 
-    if min_x == float('inf'):
-        return 0, 0
-
-    union_width = max_x - min_x
-    union_height = max_y - min_y
-
-    return union_width, union_height
+    return int(max_width), int(max_height), int(min_width), int(min_height)
 
 def has_visible_content(frames):
     """Check if any frame has visible content"""
@@ -136,10 +130,10 @@ def generate_cpp_asset_file(asset_data, output_cpp_path):
 
 namespace {
 
-// Static storage for asset_info objects
+// Static storage for AssetInfo objects
 """
 
-    # Create static asset_info objects for each Pokémon we found
+    # Create static AssetInfo objects for each Pokémon we found
     asset_entries = []
 
     for pid, info in asset_data.items():
@@ -147,16 +141,16 @@ namespace {
             continue
 
         sprite_sheet = "SpriteSheet::Big" if info["is_big"] else "SpriteSheet::Standard"
-        cpp_content += f"static const asset_info asset_{pid} = "
-        cpp_content += f"{{{info['width']}, {info['height']}, {sprite_sheet}, {info['row_id']}}};\n"
+        cpp_content += f"static const AssetInfo asset_{pid} = "
+        cpp_content += f"{{{info['width']}, {info['height']}, {info['min_width']}, {info['min_height']}, {sprite_sheet}, {info['row_id']}}};\n"
         asset_entries.append(pid)
 
     cpp_content += "\n} // anonymous namespace\n\n"
 
     # Now create the main array
-    cpp_content += "// Main array of pointers to asset_info for Pokémon 1-493\n"
+    cpp_content += "// Main array of pointers to AssetInfo for Pokémon 1-493\n"
     cpp_content += "// nullptr entries indicate missing Pokémon\n"
-    cpp_content += "const asset_info* const kAssetInfo[493] = {\n"
+    cpp_content += "const AssetInfo* const kAssetInfo[493] = {\n"
 
     # Create array entries for Pokémon 1-493
     for i in range(1, 494):
@@ -190,8 +184,8 @@ def process_sprites_and_generate_assets(image_paths, big_image_path, regular_wid
     asset_data = {i: None for i in range(1, 494)}  # Initialize all to None
 
     # Track rows for output sheets
-    regular_rows = []  # List of (pokedex_id, frames, union_width, union_height)
-    big_rows = []      # List of (pokedex_id, frames, union_width, union_height)
+    regular_rows = []  # List of (pokedex_id, frames)
+    big_rows = []      # List of (pokedex_id, frames)
 
     # Process regular sheets with generation tracking
     current_pokedex_id = 1
@@ -232,8 +226,8 @@ def process_sprites_and_generate_assets(image_paths, big_image_path, regular_wid
                 frames = extract_frame_block(img, col, row, regular_width, regular_height)
 
                 if has_visible_content(frames):
-                    # Calculate union bounds
-                    union_width, union_height = calculate_sprite_union_bounds(frames)
+                    # Calculate bounds (max width/height and min width/height)
+                    width, height, min_width, min_height = calculate_sprite_bounds(frames)
 
                     # Center frames
                     centered_frames = [center_sprite_in_frame(f, regular_width, regular_height) for f in frames]
@@ -244,8 +238,10 @@ def process_sprites_and_generate_assets(image_paths, big_image_path, regular_wid
 
                     # Store asset data
                     asset_data[current_pokedex_id] = {
-                        "width": union_width,
-                        "height": union_height,
+                        "width": width,
+                        "height": height,
+                        "min_width": min_width,
+                        "min_height": min_height,
                         "is_big": False,
                         "row_id": row_id
                     }
@@ -273,8 +269,8 @@ def process_sprites_and_generate_assets(image_paths, big_image_path, regular_wid
         frames = extract_big_frames(img, idx, 4, big_width, big_height)
 
         if has_visible_content(frames):
-            # Calculate union bounds
-            union_width, union_height = calculate_sprite_union_bounds(frames)
+            # Calculate bounds (max width/height and min width/height)
+            width, height, min_width, min_height = calculate_sprite_bounds(frames)
 
             # Center frames
             centered_frames = [center_sprite_in_frame(f, big_width, big_height) for f in frames]
@@ -285,13 +281,15 @@ def process_sprites_and_generate_assets(image_paths, big_image_path, regular_wid
 
             # Store asset data
             asset_data[pokedex_id] = {
-                "width": union_width,
-                "height": union_height,
+                "width": width,
+                "height": height,
+                "min_width": min_width,
+                "min_height": min_height,
                 "is_big": True,
                 "row_id": row_id
             }
 
-            print(f"  Processed big Pokémon #{pokedex_id}: {union_width}x{union_height}")
+            print(f"  Processed big Pokémon #{pokedex_id}: {width}x{height} (min: {min_width}x{min_height})")
         else:
             print(f"  WARNING: Big Pokémon #{pokedex_id} has no visible content!")
 
@@ -392,7 +390,7 @@ def main():
         if asset_data[pid]:
             info = asset_data[pid]
             sheet = "Big" if info["is_big"] else "Standard"
-            print(f"  #{pid}: {info['width']}x{info['height']}, {sheet}, row {info['row_id']}")
+            print(f"  #{pid}: {info['width']}x{info['height']} (min: {info['min_width']}x{info['min_height']}), {sheet}, row {info['row_id']}")
 
 if __name__ == "__main__":
     main()

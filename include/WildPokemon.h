@@ -16,7 +16,7 @@ public:
 
     void roaming(bool active);
     void direction(int direction) override;
-    const asset_info* info;
+    const AssetInfo* info;
     QQuickItem* m_sprite;
 
 public slots:

@@ -13,6 +13,11 @@ Item {
     property int frameHeight: 32
     property int frameCount: 2
     property int frameRate: 4
+
+    //Used in battle  positioning
+    property int minWidth: 0
+    property int minHeight: 0
+
     // Container properties
     property int itemWidth: 0
     property int itemHeight: 0

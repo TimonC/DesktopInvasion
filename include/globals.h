@@ -24,12 +24,12 @@ namespace Globals {
         return (pokeDexId >= 0 && pokeDexId <= MAX_POKEDEX_ID) ? kPokesByIndex[pokeDexId] : nullptr;
     }
 
-    inline const asset_info* getSpriteInfo(int pokeDexId) {
+    inline const AssetInfo* getSpriteInfo(int pokeDexId) {
         return (pokeDexId >= 1 && pokeDexId <= MAX_POKEDEX_ID) ? kAssetInfo[pokeDexId - 1] : nullptr;
     }
 
     inline QSize getSpriteSize(int pokeDexId) {
-        if (const asset_info* info = getSpriteInfo(pokeDexId)) {
+        if (const AssetInfo* info = getSpriteInfo(pokeDexId)) {
             return QSize(info->width, info->height);
         }
         return QSize(0, 0);

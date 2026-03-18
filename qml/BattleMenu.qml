@@ -58,7 +58,7 @@ Rectangle {
     property double spriteScale: 1
     property int ballSpriteWidth: 16
     property int ballSpriteHeight: 23
-    property string ballSpriteSheet: "qrc:/assets/HGSS/Pokeballs_transparent_reordered.png"
+    property string ballSpriteSheet: "qrc:/assets/HGSS/reordered_pokeballs.png"
     property var nrOfBalls: [1000, 0, 0, 0]
     property list<string> ballNames: ["Poké Ball", "Great Ball", "Ultra Ball", "Master Ball"]
 

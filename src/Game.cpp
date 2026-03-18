@@ -221,7 +221,7 @@ void Game::updatePartyCache() {
 }
 
 void Game::fillPartySlot(Party& party, int slot, const PokemonState& pokemon) {
-    const asset_info* info = Globals::getSpriteInfo(pokemon.pokedex_id);
+    const AssetInfo* info = Globals::getSpriteInfo(pokemon.pokedex_id);
     party.pokedexIds[slot] = pokemon.pokedex_id;
     party.spriteIds[slot] = info->rowId;
     party.names[slot] = pokemon.name;

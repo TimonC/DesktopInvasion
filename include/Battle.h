@@ -86,8 +86,8 @@ private:
     QQuickItem* m_battleScene;
     QQuickItem* m_opp;
     QQuickItem* m_chosen;
-    const asset_info* m_chosen_info;
-    const asset_info* m_opp_info;
+    const AssetInfo* m_chosen_info;
+    const AssetInfo* m_opp_info;
     QQuickItem *m_ui = nullptr;
 };
 #endif

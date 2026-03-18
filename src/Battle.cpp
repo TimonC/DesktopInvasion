@@ -1,5 +1,4 @@
-#include "BattleMoveHandler.h"
-#include "data_poke_asset.h"
+#include "BattleMoveHandler.h" #include "data_poke_asset.h"
 #include <Battle.h>
 #include <globals.h>
 #include <PokeMath.h>
@@ -130,7 +129,7 @@ QQuickItem* Battle::setupPokemon(int pokedexId, std::string name, int level, con
 }
 
 QQuickItem* Battle::updateSprite(int pokedexId, const char* role){
-    const asset_info* info = Globals::getSpriteInfo(pokedexId);
+    const AssetInfo* info = Globals::getSpriteInfo(pokedexId);
     bool isBig = info->spriteSheet == SpriteSheet::Big;
     float scaleDivisor = isBig ? 1.4 : 1;
 
@@ -154,6 +153,9 @@ QQuickItem* Battle::updateSprite(int pokedexId, const char* role){
     pokemonSprite->setProperty("itemHeight", height);
     pokemonSprite->setProperty("frameWidth", isBig ? 64 : 32);
     pokemonSprite->setProperty("frameHeight", isBig ? 64 : 32);
+
+    pokemonSprite->setProperty("minWidth", info->minWidth);
+    pokemonSprite->setProperty("minHeight", info->minHeight);
 
     return pokemonSprite;
 }
