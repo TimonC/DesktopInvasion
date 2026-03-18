@@ -6,15 +6,39 @@ Item {
     property int scaleFactor: 3
     property real totalHealth: 100
     property real animationSpeed: 1000
+    width: 32*2
+    height: 24
+    property alias barText: textBarText.text
+
+    Rectangle {
+        anchors.top: parent.top
+        anchors.right: parent.right
+        width: root.width
+        height: parent.height*3/4
+        color: "white"
+        border.color: "darkgrey"
+
+        Text {
+            id: textBarText
+            anchors.fill: parent
+            anchors.rightMargin: 4
+            text: "Health Bar"
+            font.pixelSize: parent.height * 0.5
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignRight
+        }
+    }
 
     ProgressBar {
         id: progressBar
+        anchors.bottom: parent.bottom
+        width: parent.width
+        height: parent.height/4
         value: 10
         from: 0
         to: 10
-        width: 24*scaleFactor
-        height: 4*scaleFactor
     }
+
 
     function incrementHealth(healthDelta) {
         var targetValue = (progressBar.value * totalHealth + healthDelta) / totalHealth

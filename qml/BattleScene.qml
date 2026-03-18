@@ -118,15 +118,21 @@ Item {
             } } }
 
 
-    // Position sprites on the battle field
     function positionSpriteAndHealthbar(sprite) {
         var margin = root.pokeMargin;
+
+        // Clear all anchors first
+        sprite.healthBar.anchors.left = undefined
+        sprite.healthBar.anchors.right = undefined
+        sprite.healthBar.anchors.top = undefined
+        sprite.healthBar.anchors.bottom = undefined
+
         switch(sprite.direction) {
             case 0:
                 sprite.x = margin + sprite.containerOffsetX;
                 sprite.y = root.height - (textBoxHeight + margin + sprite.containerOffsetY + sprite.height);
                 sprite.healthBar.x = 3*32
-                sprite.healthBar.y =  sprite.y
+                sprite.healthBar.y = sprite.y
                 break;
             case 1:
                 sprite.x = root.width - (margin + sprite.containerOffsetX + sprite.width);
@@ -138,7 +144,7 @@ Item {
                 sprite.x = margin + sprite.containerOffsetX;
                 sprite.y = margin + sprite.containerOffsetY;
                 sprite.healthBar.x = 3*32
-                sprite.healthBar.y =  sprite.y
+                sprite.healthBar.y = sprite.y
                 break;
             case 3:
                 sprite.x = margin + sprite.containerOffsetX;
@@ -149,7 +155,6 @@ Item {
         }
         sprite.startingX = sprite.x;
         sprite.startingY = sprite.y;
-
         sprite.healthBar.visible = true;
     }
 
