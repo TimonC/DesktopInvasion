@@ -110,9 +110,4 @@ void WildPokemon::moveStep(){
         case 2: newPos = movePos(QPoint(0, m_moveSpeed)); break;
         case 3: newPos = movePos(QPoint(m_moveSpeed, 0)); break;
     }
-
-    /* if (newPos.x() == 0 || newPos.x() == getScreenGeometry().width() - SPRITE_SIZE || */
-    /*     newPos.y() == 0 || newPos.y() == getScreenGeometry().height() - SPRITE_SIZE) { */
-    /*     makeRandomDecision(); */
-    /* } */
 }

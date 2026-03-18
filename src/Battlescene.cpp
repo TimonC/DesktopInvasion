@@ -154,26 +154,39 @@ void Battlescene::mouseMoveEvent(QMouseEvent* event){
 }
 
 void Battlescene::drag(QPoint& delta){
-    QPoint pos = position();
+    // Reject tiny/huge deltas first
+    const int MIN_DELTA = 2;
+    const int MAX_DELTA = 300;
+    if ((qAbs(delta.x()) < MIN_DELTA && qAbs(delta.y()) < MIN_DELTA) ||
+        (qAbs(delta.x()) > MAX_DELTA || qAbs(delta.y()) > MAX_DELTA)) {
+        return;
+    }
+
     QPoint newCornersPos = m_corners->position() + delta;
+    QRect availableScreen = screenSize();
 
-    QRect availableScreen = screenSize();  // Now returns QRect instead of QPoint
+    // Calculate allowed movement directly
+    int allowedX = 0;
+    int allowedY = 0;
 
-    QPoint actualDelta(0, 0);
-
-    // Use availableScreen.x() and availableScreen.y() for the minimum bounds!
     if (newCornersPos.x() >= availableScreen.x() &&
         newCornersPos.x() + m_corners->width() <= availableScreen.right()) {
-        actualDelta.setX(delta.x());
+        allowedX = delta.x();
     }
 
     if (newCornersPos.y() >= availableScreen.y() &&
         newCornersPos.y() + m_corners->height() <= availableScreen.bottom()) {
-        actualDelta.setY(delta.y());
+        allowedY = delta.y();
     }
 
-    setPosition(pos + actualDelta);
-    m_corners->setPosition(m_corners->position() + actualDelta);
-    m_chosen->movePos(actualDelta);
-    m_opp->movePos(actualDelta);
+    // Single assignment
+    QPoint actualDelta(allowedX, allowedY);
+
+    if (actualDelta.x() != 0 || actualDelta.y() != 0) {
+        QPoint pos = position();
+        setPosition(pos + actualDelta);
+        m_corners->setPosition(m_corners->position() + actualDelta);
+        m_chosen->movePos(actualDelta);
+        m_opp->movePos(actualDelta);
+    }
 }
