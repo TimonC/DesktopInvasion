@@ -66,7 +66,11 @@ Item {
 
     function toggleSwapMode() {
         if (inSwapMode) { inSwapMode = false; swapSource = null }
-        else            { inSwapMode = true;  activateSwapMode() }
+        else            {
+            inSwapMode = true
+            swapSource = root.displayedPokemonSlot ? root.displayedPokemonSlot.pcPos : null
+            activateSwapMode()
+        }
     }
 
     // ── Root column: party row / pc row ───────────────────────────────────────
@@ -249,7 +253,7 @@ Item {
         property bool iconVisible: false
 
         property bool swappable: {
-            if (!root.inSwapMode || root.swapSource === null || root.swapSource === pcPos) return false
+            if (!root.inSwapMode || root.swapSource === null) return false
             if (root.swapSource[0] === -1) {
                 if (pcPos[0] === -1) { if (pcPos[1] >= root.freePartySlot) return false }
                 else                 { if (root.freePartySlot <= 1 && !iconVisible) return false }
@@ -293,38 +297,30 @@ Item {
             hoverEnabled: true
             cursorShape:  undefined
             onClicked: {
-                if (root.inSwapMode) {
-                    if (root.swapSource === null) {
-                        root.swapSource = pokemonSlot.pcPos
-                        if (pokemonSlot.iconVisible) root._display(pokemonSlot.pcPos)
-                        else                         root.toggleSwapMode()
-                        return
-                    } else {
-                        if (pokemonSlot.swappable) {
-                            var joinParty = false
-                            if (!pokemonSlot.iconVisible) {
-                                if (root.swapSource[0] === -1 && pokemonSlot.pcPos[0] !== -1) {
-                                    joinParty = root.swapSource[1] < (root.freePartySlot - 1)
-                                    root.freePartySlot -= 1
-                                }
-                                if (root.swapSource[0] !== -1 && pokemonSlot.pcPos[0] === -1) {
-                                    root.freePartySlot += 1
-                                }
-                            }
-                            root._executeSwap(root.swapSource, pokemonSlot.pcPos)
-                            root.swapRequested(root.swapSource, pokemonSlot.pcPos)
-                            root._display(pokemonSlot.pcPos)
-                            if (joinParty) {
-                                for (var i = root.swapSource[1]; i < root.freePartySlot; i++) {
-                                    root._executeSwap([-1, i], [-1, i + 1])
-                                    root.swapRequested([-1, i], [-1, i + 1])
-                                }
-                            }
+                if (pokemonSlot.swappable) {
+                    var joinParty = false
+                    if (!pokemonSlot.iconVisible) {
+                        if (root.swapSource[0] === -1 && pokemonSlot.pcPos[0] !== -1) {
+                            joinParty = root.swapSource[1] < (root.freePartySlot - 1)
+                            root.freePartySlot -= 1
                         }
-                        root.toggleSwapMode()
-                        return
+                        if (root.swapSource[0] !== -1 && pokemonSlot.pcPos[0] === -1) {
+                            root.freePartySlot += 1
+                        }
                     }
+                    root._executeSwap(root.swapSource, pokemonSlot.pcPos)
+                    root.swapRequested(root.swapSource, pokemonSlot.pcPos)
+                    root._display(pokemonSlot.pcPos)
+                    if (joinParty) {
+                        for (var i = root.swapSource[1]; i < root.freePartySlot; i++) {
+                            root._executeSwap([-1, i], [-1, i + 1])
+                            root.swapRequested([-1, i], [-1, i + 1])
+                        }
+                    }
+                    root.toggleSwapMode()
+                    return
                 }
+
                 if (!pokemonSlot.iconVisible) return
                 root._display(pokemonSlot.pcPos)
             }
