@@ -16,9 +16,7 @@ struct BattleStateDelta{
     int damage = 0;
     int drain = 0;
     int heal = 0;
-    std::array<int, 5> deltaStatModifiers = {0, 0, 0, 0, 0};
-    std::array<bool, 5> statMaxed = {false, false, false, false, false};
-    std::array<bool, 5> statMinned = {false, false, false, false, false};
+    std::array<int, 7> deltaStatModifiers = {0, 0, 0, 0, 0, 0, 0};
     bool miss = false;
     bool superEffective = false;
     bool notVeryEffective = false;
@@ -46,7 +44,7 @@ struct PokeState{
     int baseXP;
     const Type* types[2];
     const Move* moves[4];
-    std::array<int, 6> stats;
+    std::array<int, 6> stats; //HP, Atk, Def, SpAtk, SpDef, Speed
 };
 
 struct BattleState{
@@ -57,7 +55,7 @@ struct BattleState{
     int confusedTurns = -1;
     int conditionCounter = -1;
     int confusedCounter = -1;
-    std::array<int, 5> statModifiers = {0, 0, 0, 0, 0};
+    std::array<int, 7> statModifiers = {0, 0, 0, 0, 0, 0, 0}; //Atk, Def, SpAtk, SpDef, Speed, Evasion, Accuracy
     int lastMoveIndex = -1;
 };
 
