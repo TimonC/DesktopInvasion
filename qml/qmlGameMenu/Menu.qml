@@ -278,10 +278,7 @@ Rectangle {
                         item.mainFont   = root.p2pFont
                         item.bodyFont   = root.dotGothicFont
 
-                        item.returnClicked.connect(function() {
-                            root.menuState = "default"
-                            pc._display([pc.displayedPokemonBox, pc.displayedPokemonIndex])
-                        })
+                        item.returnClicked.connect(goToDefaultMenu)
 
                         item.nameChanged.connect(function(name) {
                             menuBridge.nameChangeRequested(pc.displayedPokemonBox, pc.displayedPokemonIndex, name)
@@ -300,5 +297,9 @@ Rectangle {
                 }
             }
         }
+    }
+    function goToDefaultMenu(){
+        root.menuState = "default"
+        pc._display([pc.displayedPokemonBox, pc.displayedPokemonIndex])
     }
 }
