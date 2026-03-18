@@ -7,6 +7,8 @@
 namespace Globals {
     bool DEBUG = false;
     int SCALE = 3;
+    int POKE_PADDING = 2;
+
     const QRect& screenGeometry() {
         static const QRect geometry = QGuiApplication::primaryScreen()->availableGeometry();
         return geometry;

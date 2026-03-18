@@ -17,12 +17,11 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
     , m_moveTimer(new QTimer(this))
     , m_moveSpeed(1 + QRandomGenerator::global()->bounded(2))
 {
-    qDebug() << "A wild" << info->name << "(#" <<info->pokedexId << ") appeared!";
 
     const QRect& screen = Globals::screenGeometry();
     setPosition(QPoint(screen.width()/2, screen.height()/2));
 
-    setSource(QUrl("qrc:/sprites/WildPokemon.qml"));
+    setSource(QUrl("qrc:/sprites/PokemonContainer.qml"));
     m_sprite = rootObject();
     m_sprite->setProperty("spriteSheet", QString("qrc:/assets/HGSS/PokGen%1_transparent_reordered.png").arg(info->generation));
     m_sprite->setProperty("scaleFactor", Globals::SCALE);
@@ -31,8 +30,8 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
 
     const SpriteInfo* spriteInfo = Globals::getSpriteInfo(info->spriteId, info->generation);
 
-    int width = Globals::SCALE* (spriteInfo->max_width + m_padding);
-    int height = Globals::SCALE * (spriteInfo->max_height + m_padding);
+    int width = Globals::SCALE* (spriteInfo->max_width + Globals::POKE_PADDING);
+    int height = Globals::SCALE * (spriteInfo->max_height + Globals::POKE_PADDING);
 
     m_sprite->setProperty("itemWidth", width);
     m_sprite->setProperty("itemHeight", height);
@@ -40,13 +39,18 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
     setWidth(width);
     setHeight(height);
 
-    m_sprite->setProperty("offsetX" , m_padding/2);
-    m_sprite->setProperty("offsetY", m_padding/2);
+    m_sprite->setProperty("spriteOffsetX" , Globals::POKE_PADDING/2);
+    m_sprite->setProperty("spriteOffsetY", Globals::POKE_PADDING/2);
     /* if (auto mouseArea = m_sprite->property("mouseArea").value<QQuickItem*>()) */
         /* connect(mouseArea, SIGNAL(doubleClicked(QQuickMouseEvent*)), this, SLOT(handleDoubleClick())); */
 
     m_decisionTimer->setInterval(1000 + QRandomGenerator::global()->bounded(2000));
     m_moveTimer->setInterval(50); // 20fps
+
+
+    qDebug() << "A wild" << info->name << "(#" <<info->pokedexId << ") appeared!";
+    qDebug() << "width: " << spriteInfo->max_width << " height: " << spriteInfo->max_height ;
+    qDebug() << "xOffset: " << spriteInfo->xOffset << " yOffset: " << spriteInfo->yOffset ;
 
     startRoaming();
     show();

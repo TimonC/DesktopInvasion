@@ -16,16 +16,11 @@ Item {
     property int pokeMargin: frameSize*0.25
     property bool debugLines: false
 
-    // Top-level Pokemon properties (for easy C++ access)
+    // Only need direction for positioning
     property int direction: 0
-    property string opponentSpriteSheet: ""
-    property int opponentRow: 0
-    property string playerSpriteSheet: ""
-    property int playerRow: 0
-    property real scaleFactor: 4.0  // Shared scale for both Pokemon
 
-    property alias opponentSprite: opponentSprite
-    property alias playerSprite: playerSprite
+    property alias opponent: opponent
+    property alias player: player
     // Aliases for external access
     property alias textBar: textBar
     property alias buttonGrid: buttonGrid
@@ -35,44 +30,28 @@ Item {
     property alias runButton: runButton
 
     // Opponent Pokemon (wild) - positioned opposite to player
-    PokemonSprite {
-        id: opponentSprite
-        objectName: "opponentSprite"
-
-        // Bind to top-level properties
-        spriteSheet: root.opponentSpriteSheet
-        row: root.opponentRow
+    PokemonContainer {
+        id: opponent
+        objectName: "opponent"
         direction: root.direction
-        scaleFactor: root.scaleFactor
 
-        Component.onCompleted: positionSprite(opponentSprite)
+        Component.onCompleted: console.log("opponent poke loaded")
 
         Connections {
             target: root
-            function onDirectionChanged() {
-                positionSprite(opponentSprite);
-            }
         }
     }
 
     // Player Pokemon - positioned according to direction
-    PokemonSprite {
-        id: playerSprite
-        objectName: "playerSprite"
-
-        // Bind to top-level properties
-        spriteSheet: root.playerSpriteSheet
-        row: root.playerRow
+    PokemonContainer {
+        id: player
+        objectName: "player"
         direction: (root.direction + 2) % 4
-        scaleFactor: root.scaleFactor
 
-        Component.onCompleted: positionSprite(playerSprite)
+        Component.onCompleted: console.log("player poke loaded")
 
         Connections {
             target: root
-            function onDirectionChanged() {
-                positionSprite(playerSprite);
-            }
         }
     }
 
@@ -91,27 +70,27 @@ Item {
         switch(sprite.direction) {
             case 0:
                 sprite.anchors.bottom = root.bottom;
-                sprite.anchors.bottomMargin = textBar.height;
+                sprite.anchors.bottomMargin = textBar.height + margin + sprite.containerOffsetY;
                 sprite.anchors.left = root.left;
-                sprite.anchors.leftMargin = margin;
+                sprite.anchors.leftMargin = margin + sprite.containerOffsetX;
                 break;
             case 1: // East - position at right
                 sprite.anchors.right = root.right;
-                sprite.anchors.rightMargin = margin;
+                sprite.anchors.rightMargin = margin - sprite.containerOffsetX;
                 sprite.anchors.bottom = root.bottom;
-                sprite.anchors.bottomMargin = textBar.height;
+                sprite.anchors.bottomMargin = textBar.height + margin + sprite.containerOffsetY;
                 break;
             case 2: // South - position at top
                 sprite.anchors.top = root.top;
-                sprite.anchors.topMargin = margin
+                sprite.anchors.topMargin = margin + sprite.containerOffsetY;
                 sprite.anchors.left = root.left;
-                sprite.anchors.leftMargin = margin;
+                sprite.anchors.leftMargin = margin + sprite.containerOffsetX;
                 break;
             case 3: // West - position at left
                 sprite.anchors.left = root.left;
-                sprite.anchors.leftMargin = margin;
+                sprite.anchors.leftMargin = margin + sprite.containerOffsetX;
                 sprite.anchors.bottom = root.bottom;
-                sprite.anchors.bottomMargin = textBar.height;
+                sprite.anchors.bottomMargin = textBar.height + margin + sprite.containerOffsetY;
                 break;
         }
     }
@@ -134,21 +113,21 @@ Item {
         }
     }
 
-    // Trigger animations directly on the sprites
+    // Trigger animations directly on the containers
     function playOpponentTackle() {
-        opponentSprite.tackle = true;
+        opponent.tackle = true;
     }
 
     function playPlayerTackle() {
-        playerSprite.tackle = true;
+        player.tackle = true;
     }
 
     function playOpponentAttacked() {
-        opponentSprite.attacked = true;
+        opponent.attacked = true;
     }
 
     function playPlayerAttacked() {
-        playerSprite.attacked = true;
+        player.attacked = true;
     }
 
     // Text bar at the bottom

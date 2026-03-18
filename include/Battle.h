@@ -31,7 +31,7 @@ private:
     // Store initial positions for perfect sync
     QPoint m_initialOppPos;
 
-    void setupPokemon(const PokemonInfo* opp_info, const PokemonInfo* chosenInfo);
+    void setupPokemon(const PokemonInfo* info, const char* role = "opponent");
     QQuickItem* m_battleScene;
     QQuickItem* m_opp;
     QQuickItem* m_chosen;

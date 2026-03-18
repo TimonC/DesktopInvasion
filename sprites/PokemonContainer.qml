@@ -21,8 +21,10 @@ Item {
     // Container properties
     property int itemWidth: 0
     property int itemHeight: 0
-    property int offsetX: 0
-    property int offsetY: 0
+    property int containerOffsetX: 0  // Container positioning within parent
+    property int containerOffsetY: 0
+    property int spriteOffsetX: 0     // Sprite positioning within container
+    property int spriteOffsetY: 0
     property bool clickable: true
     property bool debugLines: false
 
@@ -32,13 +34,16 @@ Item {
     layer.enabled: true
     z: 1
 
+    // Container positioning within its parent
+    anchors.horizontalCenterOffset: containerOffsetX
+    anchors.verticalCenterOffset: containerOffsetY
 
-    // Sprite container with positioning
+    // Sprite container with positioning within this container
     Item {
         id: spriteContainer
         anchors.centerIn: parent
-        anchors.horizontalCenterOffset: offsetX
-        anchors.verticalCenterOffset: offsetY
+        anchors.horizontalCenterOffset: spriteOffsetX
+        anchors.verticalCenterOffset: spriteOffsetY
         width: pokemonSprite.width
         height: pokemonSprite.height
 
@@ -47,7 +52,6 @@ Item {
             anchors.centerIn: parent
         }
     }
-
 
     // Debug rectangle
     Rectangle {

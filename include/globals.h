@@ -8,6 +8,7 @@
 namespace Globals {
     extern bool DEBUG;
     extern int SCALE;
+    extern int POKE_PADDING;
 
     const QRect& screenGeometry();
     Player& getPlayer();
