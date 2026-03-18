@@ -9,7 +9,6 @@ InvasionView::InvasionView(){
 
     Qt::WindowFlags flags = Qt::WindowType::FramelessWindowHint
                           | Qt::WindowType::WindowStaysOnTopHint
-                          | Qt::WindowType::Tool
                           | Qt::WindowType::WindowTransparentForInput;
     this -> setWindowFlags(flags);
     this -> setAttribute(Qt::WidgetAttribute::WA_TranslucentBackground);
@@ -21,7 +20,7 @@ InvasionView::InvasionView(){
 
     scene = new QGraphicsScene(this);
     scene->setSceneRect(QRectF(geometry));
-    scene->setBackgroundBrush(Qt::GlobalColor::transparent);
+    /* scene->setBackgroundBrush(Qt::GlobalColor::red); */
     this->setScene(scene);
     this->setStyleSheet("background: transparent;");
 

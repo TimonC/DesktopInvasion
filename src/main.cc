@@ -8,6 +8,5 @@ int main(int argc, char* argv[]){
     InvasionView view;
     view.show();
 
-    std::cout << "hi" <<std::endl;;
     return app.exec();
 }
