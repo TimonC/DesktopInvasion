@@ -47,9 +47,9 @@ Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent
     m_chosen = setupPokemon(m_chosen_info, "player");
     initPosition();
 
-    show();
 
     QTimer::singleShot(20, this, [this]() {
+        show();
         m_width  = width();
         m_height = height();
     });
