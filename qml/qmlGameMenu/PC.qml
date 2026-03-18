@@ -233,7 +233,7 @@ Item {
                         Text {
                             anchors.centerIn: parent
                             text:           "Box " + (root.currentBoxIndex + 1)
-                            color:          "#ffffffcc"
+                            color:          "white"
                             font.family:    root.fontFamily
                             font.pixelSize: root.fontSizeLg
                             font.bold:      true
