@@ -26,7 +26,7 @@ void SystemTrayIcon::setupMenu(){
 
     m_menu->addSeparator();
 
-    m_gameActiveToggle = m_menu->addAction("Game Active");
+    m_gameActiveToggle = m_menu->addAction("Active");
     m_gameActiveToggle->setCheckable(true);
     m_gameActiveToggle->setChecked(m_gameActive);
     connect(m_gameActiveToggle, &QAction::triggered,
@@ -36,9 +36,9 @@ void SystemTrayIcon::setupMenu(){
 }
 
 void SystemTrayIcon::onActivated(QSystemTrayIcon::ActivationReason reason){
-    /* if (reason == QSystemTrayIcon::DoubleClick) { */
-    /*     toggleGameActive(); */
-    /* } */
+    if (reason == QSystemTrayIcon::DoubleClick) {
+        toggleGameActive();
+    }
 }
 
 void SystemTrayIcon::onGameActiveToggled(){
