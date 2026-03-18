@@ -93,7 +93,7 @@ Item {
                 break
             case 2:
                 sprite.x = (root.width - root.statusBarWidth - sprite.width)/2
-                sprite.y = 0
+                sprite.y = root.statusBarHeight/2
                 sprite.statusBar.x = root.width - root.statusBarWidth
                 sprite.statusBar.y = sprite.y
                 break
