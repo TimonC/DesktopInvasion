@@ -137,6 +137,8 @@ Rectangle {
 
         required property color buttonColor
 
+        property int wrapMode: Text.NoWrap  // Add this property
+        property int elide: Text.ElideRight // Optional: add elide property
         palette.buttonText: root.menuTextColor
         palette.button: gradientButton.buttonColor
         font.pixelSize: root.buttonFontSize
@@ -546,34 +548,53 @@ Rectangle {
         Item {
             anchors.fill: parent
 
-            Column {
+            Row {
                 anchors.fill: parent
                 spacing: root.gridSpacing
 
-                GradientRoundButton {
-                    height: parent.height / 2 - parent.spacing / 2
-                    width: parent.width
-                    text: "Escape battle"
-                    buttonColor: root.runButtonColor
-                    onClicked: {
-                        root.runChosen(false)
-                    }
-                }
+                Repeater {
+                    model: [
+                        {
+                            text: "Remove '" + root.opponentName + "'",
+                            color: "blue",
+                            action: function() { root.runChosen(true) }
+                        },
+                        {
+                            text: "Escape battle",
+                            color: "blue",
+                            action: function() { root.runChosen(false) }
+                        }
+                    ]
 
-                GradientRoundButton {
-                    height: parent.height / 2 - parent.spacing / 2
-                    width: parent.width
-                    text: "Remove '" + root.opponentName + "'"
-                    buttonColor: root.runButtonColor
-                    onClicked: {
-                        root.runChosen(true)
+                    Rectangle {
+                        height: parent.height
+                        width: parent.width / 2 - parent.spacing / 2
+                        color: modelData.color
+                        radius: 20
+
+                        Text {
+                            text: modelData.text
+                            color: root.menuTextColor
+                            font.pixelSize: root.buttonFontSize
+                            font.family: root.menuFontFamily
+                            font.weight: Font.DemiBold
+                            wrapMode: Text.WordWrap
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.fill: parent
+                            anchors.margins: 8
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: modelData.action()
+                        }
                     }
                 }
             }
         }
     }
-
-    Component {
+Component {
         id: backButton
         Rectangle {
             width: root.buttonHeight
