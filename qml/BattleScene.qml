@@ -85,7 +85,7 @@ Item {
         positionSpriteAndStatusBar(opponent)
         // Schedule for next event loop
         Qt.callLater(function() {
-            resetPlayerBall(true)
+            resetPlayerBall()
             battleMenu.showTextBar()
             battleMenu.updateText(playerName + ", I choose you!")
             var coords = calculateBallCoords(player)
@@ -155,7 +155,7 @@ Item {
         id: pokeBallPlayer
     }
 
-    function resetPlayerBall(firstChosen) {
+    function resetPlayerBall() {
         pokeBallPlayer.reset()
         pokeBallPlayer.visible = true
 
@@ -174,9 +174,10 @@ Item {
             pokeBallPlayer.visible = false
             player.visible = true
             statusBarPlayer.visible = true
-            battleMenu.resetToRoot()
 
-            if(!firstChosen) {
+            if(root.firstChosen){
+                battleMenu.resetToRoot()
+            }else{
                 startActionChain("switch", true)
             }
         })
@@ -199,6 +200,7 @@ Item {
         onAttackChosen: function(attackId) {
             if (attackId === 0) {
                 var playerFirst = Math.random() < 0.5;
+                battleMenu.showTextBar()
                 startActionChain("attack", playerFirst)
             } else {
                 console.error("Invalid attack id:", attackId)
@@ -206,6 +208,7 @@ Item {
         }
         onCatchChosen: function(pokeSpriteId) {
             if (pokeSpriteId === 3) {
+                battleMenu.showTextBar()
                 startActionChain("catch")
             } else {
                 console.error("Invalid pokeSprite id:", pokeSpriteId)
@@ -219,17 +222,20 @@ Item {
             })
         }
         onSwitchChosen: function(partyId){
-            battleMenu.showTextBar()
-            battleMenu.updateText(player.name + ", come back!")
-            player.updateSpriteSource(battleMenu.party.gens[partyId], battleMenu.party.spriteIds[partyId]);
             player.visible = false
+            player.updatePokemon(battleMenu.party.gens[partyId], battleMenu.party.spriteIds[partyId]);
+            let newPlayerName = battleMenu.party.names[partyId]
+
+            battleMenu.showTextBar()
+            battleMenu.updateText("Go!" + " " + newPlayerName + "!")
+
+            statusBarPlayer.pokeName = newPlayerName;
+            statusBarPlayer.currentHealthRatio = battleMenu.party.healthRatios[partyId];
+            statusBarPlayer.totalHealth = 100; //TODO
 
             pokeBallPlayer.rowId = battleMenu.party.ballIds[partyId];
-            statusBarPlayer.pokeName = battleMenu.party.names[partyId];
-            statusBarPlayer.totalHealth = 100; //TODO
-            statusBarPlayer.currentHealthRatio = 1;
-
-            root.resetPlayerBall(false)
+            root.firstChosen = false
+            root.resetPlayerBall()
             var coords = calculateBallCoords(player)
             pokeBallPlayer.throwAt(coords[0], coords[1], coords[2], coords[3])
         }
@@ -251,7 +257,6 @@ Item {
     // Build and start the action sequence (attack or catch)
     function startActionChain(actionType, playerFirst) {
         if (root.actionInProgress) return
-        battleMenu.showTextBar()
         root.actionInProgress = true
         root.currentActionIndex = 0
         if (actionType === "catch") {

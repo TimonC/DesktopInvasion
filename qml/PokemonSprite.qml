@@ -39,7 +39,7 @@ Item {
     }
 
     // Method to change sprite source
-    function updateSpriteSource(generation, rowId) {
+    function updatePokemon(generation, rowId) {
         // Update sprite sheet based on generation
         spriteSheet = "qrc:/assets/HGSS/PokGen" + generation + "_transparent_reordered.png";
         row = rowId;

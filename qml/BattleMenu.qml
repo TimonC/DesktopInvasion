@@ -27,11 +27,12 @@ Rectangle {
     property alias stack: stack
 
     property var party: {
-        "spriteIds": [-1, -1, -1, -1, -1, -1],
-        "iconIds": [-1, -1, -1, -1, -1, -1],
-        "ballIds": [-1, -1, -1, -1, -1, -1],
-        "gens": [-1, -1, -1, -1, -1, -1],
-        "names": ["", "", "", "", "", ""]
+        "spriteIds"    : [-1, -1, -1, -1, -1, -1],
+        "iconIds"      : [-1, -1, -1, -1, -1, -1],
+        "ballIds"      : [-1, -1, -1, -1, -1, -1],
+        "gens"         : [-1, -1, -1, -1, -1, -1],
+        "names"        : ["", "", "", "", "", ""],
+        "healthRatios" : [-1, -1, -1, -1, -1, -1]
     }
 
     function _setPartyMember(partyIdx, spriteId, iconId, ballId, gen, pokemonName) {
@@ -41,6 +42,7 @@ Rectangle {
         temp.ballIds[partyIdx] = ballId
         temp.gens[partyIdx] = gen
         temp.names[partyIdx] = pokemonName
+        temp.healthRatios[partyIdx] = 1
         party = temp
     }
     function showTextBar() {
@@ -56,6 +58,7 @@ Rectangle {
             return stack.currentItem.text
         }
     }
+
     function resetToRoot() {
         stack.replace(rootSelection)
     }
