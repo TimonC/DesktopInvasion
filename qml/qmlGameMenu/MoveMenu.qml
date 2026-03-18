@@ -21,20 +21,18 @@ Item {
     property bool inNameEditMode:     false
     property int  selectedEligibleIdx: -1
 
-    // ── Palette — mirrors PokeView move section ───────────────────────────────
+    // ── Palette ───────────────────────────────────────────────────────────────
     property color colorText:         "#ffffff"
     property color colorSubtext:      "#aaaaaa"
     property color colorVeryFaint:    "#999999"
     property color colorDivider:      "#3d3d3d"
-    property color colorSurface:      "#383838"   // same as colorMoveCard in PokeView
+    property color colorSurface:      "#383838"
     property color colorSurfaceHov:   "#444444"
-    property color colorSurfaceSel:   "#404040"   // selected eligible: slightly lighter grey, no blue
-    property color colorEligCard:     "#303030"   // eligible base: just a touch darker
+    property color colorSurfaceSel:   "#404040"
+    property color colorEligCard:     "#303030"
     property color colorEligHov:      "#3c3c3c"
     property color colorTypePillText: "#ffffff"
-    property color colorAccent:       "#5294e2"   // only used for borders on hover/select
-    property color colorBtn:          "#383838"
-    property color colorBtnHov:       "#444444"
+    property color colorAccent:       "#5294e2"
     property color colorNameBg:       "#383838"
     property color colorNameHov:      "#444444"
     property color colorNameEdit:     "#404040"
@@ -46,13 +44,13 @@ Item {
     property color colorScrollActive: "#5294e2"
 
     // ── Layout ────────────────────────────────────────────────────────────────
-    property int margin:  14
+    property int margin:  8
     property int gap:     5
     property int pad:     9
     property int pillW:   82
     property int pillH:   fontSizeMd + 6
     property int cardH:   pillH + pad * 2
-    property int secGap:  12
+    property int secGap:  16
 
     signal returnClicked()
     signal nameChanged(string newName)
@@ -252,29 +250,11 @@ Item {
                 spacing: moveMenu.secGap
                 clip:    true
 
-                // Return button
-                Rectangle {
-                    width:  parent.width
-                    height: moveMenu.cardH
-                    color:  returnMa.containsMouse ? moveMenu.colorBtnHov : moveMenu.colorBtn
-                    radius: 4
-                    border.color: moveMenu.colorDivider
-                    border.width: 1
-                    Text {
-                        anchors.centerIn: parent
-                        text:           "← RETURN"
-                        font.family:    moveMenu.mainFont
-                        font.pixelSize: moveMenu.fontSizeSm - 1
-                        color:          moveMenu.colorText
-                    }
-                    MouseArea {
-                        id: returnMa
-                        anchors.fill:            parent
-                        hoverEnabled:            true
-                        cursorShape:             undefined
-                        propagateComposedEvents: false
-                        onClicked:               moveMenu.returnClicked()
-                    }
+                // Return button — uses PcButton
+                PcButton {
+                    width:  parent.width/4
+                    label:  "← RETURN"
+                    onClicked:     moveMenu.returnClicked()
                 }
 
                 // Nickname
@@ -309,10 +289,11 @@ Item {
                         Text {
                             anchors { right: parent.right; verticalCenter: parent.verticalCenter; rightMargin: 11 }
                             text:           "✎"
-                            font.pixelSize: moveMenu.fontSizeMd
+                            font.pixelSize: moveMenu.fontSizeLg
                             color:          moveMenu.colorSubtext
                             opacity:        nameMouseArea.containsMouse ? 0.9 : 0.4
                             visible:        !moveMenu.inNameEditMode
+                            transform: Scale { xScale: -1 }
                         }
 
                         TextInput {
@@ -494,7 +475,6 @@ Item {
                         contentHeight:      eligibleCol.implicitHeight
                         clip:               true
                         flickableDirection: Flickable.VerticalFlick
-                        // Hard clamp — no bounce
                         boundsBehavior:     Flickable.StopAtBounds
                         boundsMovement:     Flickable.StopAtBounds
 
@@ -531,7 +511,6 @@ Item {
 
                         Behavior on opacity { NumberAnimation { duration: 120 } }
 
-                        // Track
                         Rectangle {
                             anchors {
                                 top:              parent.top
@@ -543,7 +522,6 @@ Item {
                             color:  moveMenu.colorScrollTrack
                         }
 
-                        // Thumb
                         Rectangle {
                             id: scrollThumb
                             anchors.horizontalCenter: parent.horizontalCenter
