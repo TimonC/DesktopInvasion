@@ -17,21 +17,29 @@ Rectangle {
     property int pokeSpriteWidth: 16
     property int pokeSpriteHeight: 23
     property string spriteSheet: "qrc:/assets/HGSS/Pokeballs_transparent_reordered.png"
+
     signal attackChosen(int attackId)
     signal runChosen()
     signal catchChosen(int pokeId)
     signal switchChosen(int partyIdx)
+
     property alias stack: stack
+
     property var party: {
-    "spriteIds": [-1, -1, -1, -1, -1, -1],
-    "iconIds": [-1, -1, -1, -1, -1, -1],
-    "ballIds": [-1, -1, -1, -1, -1, -1],
-    "gens": [-1, -1, -1, -1, -1, -1],
-    "names": ["", "", "", "", "", ""]
-}
-function _setPartyMember(partyIdx, spriteId, iconId, ballId, pokemonName) {
+        "spriteIds": [-1, -1, -1, -1, -1, -1],
+        "iconIds": [-1, -1, -1, -1, -1, -1],
+        "ballIds": [-1, -1, -1, -1, -1, -1],
+        "gens": [-1, -1, -1, -1, -1, -1],
+        "names": ["", "", "", "", "", ""]
+    }
+
+    function _setPartyMember(partyIdx, spriteId, iconId, ballId, gen, pokemonName) {
         var temp = party
-        temp[partyIdx] = {spriteId: spriteId, iconId: iconId, ballId: ballId, name: pokemonName}
+        temp.spriteIds[partyIdx] = spriteId
+        temp.iconIds[partyIdx] = iconId
+        temp.ballIds[partyIdx] = ballId
+        temp.gens[partyIdx] = gen
+        temp.names[partyIdx] = pokemonName
         party = temp
     }
     function showTextBar() {
@@ -115,8 +123,6 @@ function _setPartyMember(partyIdx, spriteId, iconId, ballId, pokemonName) {
             height: root.menuHeight
             width: root.menuWidth
             radius: 5
-            Text {
-                id: textBarText
             Text {
                 id: textBarText
                 anchors.left: parent.left
@@ -303,12 +309,6 @@ function _setPartyMember(partyIdx, spriteId, iconId, ballId, pokemonName) {
                     Text {
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.left: ballName.right
-                        anchors.leftMargin: 4
-                        text: "inf"
-                        font.pixelSize: root.buttonFontSize
-                        color: "darkgrey"
-                        anchors.leftMargin: 4
-                        anchors.leftMargin: 4
                         anchors.leftMargin: 4
                         text: "inf"
                         font.pixelSize: root.buttonFontSize

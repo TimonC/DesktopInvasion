@@ -79,7 +79,6 @@ Item {
         }
         sprite.startingX = sprite.x
         sprite.startingY = sprite.y
-        sprite.statusBar.visible = true
     }
     Component.onCompleted: {
         positionSpriteAndStatusBar(player)
