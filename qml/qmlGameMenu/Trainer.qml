@@ -51,6 +51,7 @@ Rectangle {
         required property real   stepSize
         required property real   initialValue
 
+        property bool isNegative: false
         property alias value: mouseArea.value
 
         width: parent.width
@@ -165,7 +166,11 @@ Rectangle {
                 id: valueLabel
                 text: {
                     var val = mouseArea.value
-                    Number(val % 1 === 0 ? val : val.toFixed(1)).toString()
+                    if(isNegative){
+                        "-" + Number(val % 1 === 0 ? val : val.toFixed(1)).toString()
+                    }else{
+                        Number(val % 1 === 0 ? val : val.toFixed(1)).toString()
+                    }
                 }
                 font.family: root.p2pFont
                 font.pixelSize: root.fontSizeSm - 4
@@ -250,7 +255,7 @@ Rectangle {
 
             DiscreteSlider {
                 id: encounterHighSlider
-                label: "Encounter +"
+                label: "Encounter lvl +"
                 from: root.encounterHighMin
                 to: root.encounterHighMax
                 stepSize: root.encounterHighStep
@@ -260,12 +265,13 @@ Rectangle {
 
             DiscreteSlider {
                 id: encounterLowSlider
-                label: "Encounter -"
+                label: "Encounter lvl -"
                 from: root.encounterLowMin
                 to: root.encounterLowMax
                 stepSize: root.encounterLowStep
                 initialValue: root.encounterLevelLowDefault
                 width: parent.width
+                isNegative: true
             }
         }
     }
