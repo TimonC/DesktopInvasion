@@ -3,10 +3,21 @@ import Qt.labs.platform
 SystemTrayIcon {
     id: root
     visible: true
+    icon.mask: true
     icon.source: "qrc:/assets/HGSS/PokeballIcon.png"
     property alias iconRoot: root.icon
     property alias hideText: hideItem.text
+
+    signal gameVisible(bool visible);
+
+    onActivated: function(reason) {
+        if (reason === SystemTrayIcon.DoubleClick) {
+            root.swapIcon();
+        }
+    }
+
     menu: Menu {
+        id: menu
         MenuItem {
             text: qsTr("Player")
             onTriggered:{
@@ -22,7 +33,7 @@ SystemTrayIcon {
             text: qsTr("Hide")
             onTriggered: {
                 console.log("hello world")
-                root.swapSource();
+                root.swapIcon();
             }
         }
         MenuItem {
@@ -31,14 +42,18 @@ SystemTrayIcon {
             }
         }
     }
-    function swapSource(){
-        if(iconRoot.source == "qrc:/assets/HGSS/PokeballIcon.png"){
+    function swapIcon(){
+        var currentlyVisible = iconRoot.source == "qrc:/assets/HGSS/PokeballIcon.png";
+
+        if(currentlyVisible){
             iconRoot.source = "qrc:/assets/HGSS/PokeballIcon_grayscale.png"
             root.hideText = "Show"
         }else{
             iconRoot.source = "qrc:/assets/HGSS/PokeballIcon.png"
             root.hideText = "Hide"
         }
+
+        root.gameVisible(!currentlyVisible);
     }
 }
 
