@@ -19,8 +19,8 @@ PokemonInteractable::PokemonInteractable(QWindow *parent, int row)
 {
     setFlags( Qt::WindowStaysOnTopHint
             | Qt::Tool
-            | Qt::WindowDoesNotAcceptFocus
-            | Qt::FramelessWindowHint);
+            | Qt::WindowDoesNotAcceptFocus);
+            /* | Qt::FramelessWindowHint); */
 
     setColor(Qt::transparent);
 
@@ -55,7 +55,9 @@ PokemonInteractable::PokemonInteractable(QWindow *parent, int row)
 
     connect(m_openingTimer, &QTimer::timeout, this, &PokemonInteractable::stopOpening);
 
-    /* connect(m-wildPokemon */
+    QQuickItem* openingButtons = m_wildPokemon->property("battleButton").value<QQuickItem*>();
+    connect( openingButtons, SIGNAL(clicked()), this, SLOT(startBattle()));
+
     m_decisionTimer->start();
     makeRandomDecision();
 }
@@ -63,6 +65,17 @@ PokemonInteractable::PokemonInteractable(QWindow *parent, int row)
 void PokemonInteractable::startBattle(){
     setWidth(m_scaleFactor*32*4);
     setHeight(m_scaleFactor*32*4);
+    qDebug() << "Battle started!";
+
+    QQuickItem* mouseArea = m_wildPokemon->property("mouseArea").value<QQuickItem*>();
+    disconnect(mouseArea, SIGNAL(clicked(QQuickMouseEvent*)), this, SLOT(onClick()));
+
+    mouseArea->property("enabled")=false  ;
+    mouseArea->property("visible")=false  ;
+
+    stopOpening();
+    m_moveTimer->disconnect();
+    m_decisionTimer->disconnect();
 }
 
 
@@ -82,7 +95,6 @@ void PokemonInteractable::startOpening(int durationMs){
 void PokemonInteractable::stopOpening(){
     m_wildPokemon->setProperty("openingButtons", false);
     m_openingTimer->stop();
-    makeRandomDecision();
     m_decisionTimer->start();
 }
 

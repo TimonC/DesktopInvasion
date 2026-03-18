@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>sprites/PokemonSprite.qml</file>
-        <file>sprites/OpeningButtons.qml</file>
 
         <file>assets/HGSS/PokGen1_transparent_reordered.png</file>
         <file>assets/HGSS/trainers.png</file>
