@@ -16,7 +16,7 @@ Item {
     // Invokable function to show/hide all buttons
     function set_buttons_visible(visible) {
         chosenButtons.visible = visible;
-        opponentButton.visible = visible;
+        opponentButtons.visible = visible;
     }
 
     // Invokable function to update text bar
@@ -59,7 +59,7 @@ Item {
         }
     }
 
-    // Chosen side buttons (Attack/Run)
+    // Chosen side buttons (Switch/Run)
     Column {
         id: chosenButtons
         spacing: 4
@@ -87,11 +87,11 @@ Item {
         }
 
         RoundButton {
-            text: "Attack"
+            text: "Switch"
             width: 80
             height: 24
             radius: 12
-            onClicked: console.log("Attack clicked")
+            onClicked: console.log("Switch clicked")
         }
 
         RoundButton {
@@ -103,13 +103,10 @@ Item {
         }
     }
 
-    // Opponent side button (Catch)
-    RoundButton {
-        id: opponentButton
-        text: "Catch"
-        width: 80
-        height: 24
-        radius: 12
+    // Opponent side buttons (Attack/Catch)
+    Column {
+        id: opponentButtons
+        spacing: 4
 
         // Horizontal positioning - right side for vertical cases
         x: {
@@ -126,13 +123,27 @@ Item {
         y: {
             switch(chosenSide) {
                 case 0: return parent.height * 0.75 - height / 2  // Bottom (~3/4)
-                case 1: return textBar.y - 32  // Original position
+                case 1: return textBar.y - 64  // Same height as chosen buttons
                 case 2: return parent.height * 0.25 - height / 2  // Top (~1/4)
-                case 3: return textBar.y - 32  // Original position
-                default: return textBar.y - 32
+                case 3: return textBar.y - 64  // Same height as chosen buttons
+                default: return textBar.y - 64
             }
         }
 
-        onClicked: console.log("Catch clicked")
+        RoundButton {
+            text: "Attack"
+            width: 80
+            height: 24
+            radius: 12
+            onClicked: console.log("Attack clicked")
+        }
+
+        RoundButton {
+            text: "Catch"
+            width: 80
+            height: 24
+            radius: 12
+            onClicked: console.log("Catch clicked")
+        }
     }
 }
