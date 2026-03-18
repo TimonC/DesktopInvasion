@@ -27,7 +27,7 @@ bool GameMenu::event(QEvent *event) {
         // Menu lost focus - close it
         QTimer::singleShot(10, this, [this]() {
             emit menuClosed();
-            this->close();
+            this->hide();
         });
         return true;
     }
