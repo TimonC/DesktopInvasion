@@ -15,20 +15,13 @@ Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent
     m_battleScene = rootObject();
     assert(m_battleScene);
 
-    m_battleScene->setProperty("direction",m_currentDirection);
-    m_battleScene->setProperty("pokeMargin", m_pokeMargin);
-    m_battleScene->setProperty("debugLines", Globals::DEBUG);
-    m_opp = setupPokemon(m_opp_info, "opponent"); //these are the only valid strings
-    m_chosen = setupPokemon(m_chosen_info, "player");//no enums here, only hopes and dreams
-    initPosition();
-    show();
-
+     //Below code is not memory safe, assumes opp exist as long as battlescene exists
     QTimer::singleShot(2, [this,opp]() {//just to make sure its all smooth
         opp->hide();
     });
 
     QObject* helper = new QObject(this);
-    connectWithQML(SIGNAL(runChosen()), [this, opp]() { //this assumes opp is untouched
+    connectWithQML(SIGNAL(runChosen()), [this, opp]() {
                         resetOpp(opp);
                     });
 
@@ -44,8 +37,16 @@ Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent
                         this->close();
             });
 
-    qDebug() << "Window shown, visible:" << isVisible();
+    m_battleScene->setProperty("direction",m_currentDirection);
+    m_battleScene->setProperty("pokeMargin", m_pokeMargin);
+    m_battleScene->setProperty("debugLines", Globals::DEBUG);
+    m_opp = setupPokemon(m_opp_info, "opponent"); //these are the only valid strings
+    m_chosen = setupPokemon(m_chosen_info, "player");//no enums here, only hopes and dreams
+    initPosition();
+    show();
 }
+
+
 
 void Battle::resetOpp(WildPokemon* opp){
                 QPoint delta =  position() - m_origin;

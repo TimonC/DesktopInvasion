@@ -6,14 +6,24 @@
 
 Game::Game(){
     m_menu = new GameMenu();
-    spawnWildPokemon(Globals::getPokemonInfo());
+    pushWildPokemon(Globals::getPokemonInfo());
 }
 
 void Game::enableSpawn(bool enable){
 
 }
 
-void Game::spawnWildPokemon(const PokemonInfo* info){
-    m_wildSpawns[m_activeSpawnCount] = new WildPokemon(info);
-    m_activeSpawnCount+=1;
+void Game::pushWildPokemon(const PokemonInfo* info){
+    if (m_activeSpawnCount < MAX_WILD_SPAWNS) {
+        m_wildSpawns[m_activeSpawnCount] = new WildPokemon(info);
+        m_activeSpawnCount++;
+    }
+}
+
+void Game::popWildPokemon(){
+    if (m_activeSpawnCount > 0) {
+        m_activeSpawnCount--;
+        delete m_wildSpawns[m_activeSpawnCount];
+        m_wildSpawns[m_activeSpawnCount] = nullptr;
+    }
 }
