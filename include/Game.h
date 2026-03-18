@@ -15,7 +15,7 @@ class Game : public QObject{
     Q_OBJECT
 
 public:
-    Game(QQmlApplicationEngine* engine, QObject* parent = nullptr);
+    Game(QQmlApplicationEngine* engine, QWindow* parent = nullptr);
     ~Game();
 
 private:
@@ -44,6 +44,7 @@ private:
     void updateWildPokemonPosToBattlePos();
 
 private slots:
+    void handleMenuOpen();
     void handleBattleStart();
     void handleBattleEnd(const char* endState);
     void setGameActive(bool active = true);

@@ -3,11 +3,12 @@
 
 #include <QQuickView>
 
-class GameMenu: QQuickView{
+class GameMenu: public QQuickView{
     Q_OBJECT
 
 public:
     explicit GameMenu(QWindow *parent = nullptr);
+    QQuickItem* m_menu;
 
 };
 

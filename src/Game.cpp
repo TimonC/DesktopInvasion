@@ -6,13 +6,15 @@
 #include <QDebug>
 #include <cstring>
 
-Game::Game(QQmlApplicationEngine* engine, QObject* parent)
+Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
     : QObject(parent)
     , m_engine(engine)
-    , m_menu(new GameMenu)
+    , m_menu(new GameMenu())
     , m_trayIcon(new SystemTrayIcon(this))
     , m_spawnTimer(new QTimer(this))
 {
+    qDebug() << "Game constructor called!";
+
     m_partyIds.fill(0);
 
     if (!m_db.initialize()) {
@@ -22,6 +24,8 @@ Game::Game(QQmlApplicationEngine* engine, QObject* parent)
     initializeGame();
 
     connect(m_trayIcon, &SystemTrayIcon::gameActive, this, &Game::setGameActive);
+
+    connect(m_trayIcon, &SystemTrayIcon::menuButtonPressed, this, &Game::handleMenuOpen);
 
     m_spawnTimer->setInterval(m_spawnDelay_ms);
     connect(m_spawnTimer, &QTimer::timeout, this, &Game::spawnPokemon);
@@ -43,6 +47,11 @@ Game::~Game() {
     }
     delete m_menu;
 }
+
+void Game::handleMenuOpen(){
+    m_menu->show();
+    m_menu->raise();
+};
 
 void Game::initializeGame() {
     GameState state = m_db.loadGameState();

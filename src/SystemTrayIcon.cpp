@@ -41,9 +41,6 @@ void SystemTrayIcon::onActivated(QSystemTrayIcon::ActivationReason reason){
     }
 }
 
-void SystemTrayIcon::menuButtonPressed(){
-    m_menu->show();
-}
 
 void SystemTrayIcon::toggleGameActive(){
     m_gameActive = !m_gameActive;
