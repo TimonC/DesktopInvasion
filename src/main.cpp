@@ -13,7 +13,7 @@
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
-    Globals::debug(true);
+    /* Globals::debug(true); */
     float scale = 1.5;
     float speed = 2;
     Globals::scale(scale);
