@@ -563,7 +563,7 @@ Rectangle {
             property alias content: contentLoader.sourceComponent
 
             anchors.fill: parent
-            anchors.margins: root.gridSpacing
+            anchors.margins: root.gridSpacing/2
 
             Rectangle {
                 id: container
