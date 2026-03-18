@@ -234,19 +234,22 @@ Item {
             })
         }
         onSwitchChosen: function(newPartyId){
-            statusBarPlayer.totalHealth = battleMenu.party.healthTotals[newPartyId]
             let newPlayerName = battleMenu.party.names[newPartyId]
             let newPlayerGeneration = battleMenu.party.gens[newPartyId]
             let newPlayerSpriteId = battleMenu.party.spriteIds[newPartyId]
             player.visible = false
+
             root.switchedPokemon(newPartyId, newPlayerGeneration, newPlayerSpriteId)
             positionSpriteAndStatusBar(player)
+
             battleMenu.showTextBar()
             battleMenu.updateText("Go!" + " " + newPlayerName + "!")
+
             statusBarPlayer.pokeName = newPlayerName
             statusBarPlayer.currentHealthRatio = battleMenu.party.healthRatios[newPartyId]
             statusBarPlayer.totalHealth = battleMenu.party.healthTotals[newPartyId]
             statusBarPlayer.setLevelText(battleMenu.party.lvls[newPartyId])
+
             root.currentPlayerBallIndex = battleMenu.party.ballIds[newPartyId]
             root.safePokemonSwitch = battleMenu.forceSwitchMode
             root.resetPlayerBall()
@@ -302,14 +305,18 @@ Item {
                 break
 
             case "change-health":
-                var target = (step.role === "player") ? player : opponent
+                var isPlayer = step.role === "player"
+                var target = isPlayer ? player : opponent
                 if(step.amount<0){
                     target.takeDamage.running = true;
                 }
-                target.takeDamage.running = true
+
                 let currentHealthRatio = target.statusBar.changeHealth(step.amount)
-                battleMenu.party.healthRatios[battleMenu.selectedIndex] = currentHealthRatio
-                if(currentHealthRatio==0){
+                if(isPlayer){
+                    battleMenu.party.healthRatios[battleMenu.selectedIndex] = currentHealthRatio
+                }
+
+                if(currentHealthRatio<=0){
                     root.actionSequence = [
                         {type: "lose-battle", message: target.name + " fainted!", role: step.role, delay: 1000 },
                         {type: "battle-over", role: step.role, delay: 100 }

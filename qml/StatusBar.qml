@@ -6,7 +6,7 @@ import "Style/PokeColor.js" as PokeColor
 Item {
     id: root
     property int scaleFactor: 3
-    property int totalHealth: 100
+    property int totalHealth: 0
     property alias currentHealthRatio: progressBar.value
     property int healthChangeDuration: 500
 
