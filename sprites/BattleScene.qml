@@ -44,17 +44,7 @@ Item {
         direction: root.direction
         scaleFactor: root.scaleFactor
 
-        Component.onCompleted: positionSprite(opponentSprite, getOppositeSide(chosenSide))
-    // Helper function to get opposite side
-    function getOppositeSide(side) {
-        switch(side) {
-            case 0: return 2;  // North -> South
-            case 1: return 3;  // East -> West
-            case 2: return 0;  // South -> North
-            case 3: return 1;  // West -> East
-        }
-        return 2;
-    }
+        Component.onCompleted: positionSprite(opponentSprite)
 
         Connections {
             target: root
@@ -123,9 +113,6 @@ Item {
     }
 
     // Public functions
-    function set_chosen_side(side) {
-        chosenSide = side;
-    }
 
     function update_text_bar(newText) {
         textBar.text = newText;

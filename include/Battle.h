@@ -25,7 +25,6 @@ private slots:
     /* void run(); */
     /* void attack(); */
 
-
 private:
     void initPosition();
     // Store initial positions for perfect sync
