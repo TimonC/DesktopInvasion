@@ -424,6 +424,12 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
             if (defModifier > 0) defModifier = 0;
         }
 
+        qDebug() << target->pokeState.name.data();
+        for(auto i : target->battleState.statModifiers){
+            qDebug() << i;
+        }
+
+
         params.attack = PokeMath::applyStatModifier(params.attack, atkModifier);
         params.defense = PokeMath::applyStatModifier(params.defense, defModifier);
 
@@ -533,7 +539,7 @@ BattleActionResult BattleMoveHandler::applySecondaryEffects(const Move* _move, B
         Battler& statGetter = _move->stat_change_target==0 ? *caster : *target;
         for (int i = 0; i < 7; i++) {
             if (_move->stat_changes[i] != 0) {
-                int currentModifier = target->battleState.statModifiers[i];
+                int currentModifier = statGetter.battleState.statModifiers[i];
                 int newModifier = currentModifier + _move->stat_changes[i];
                 int clampedModifier = std::max(-6, std::min(6, newModifier));
 
