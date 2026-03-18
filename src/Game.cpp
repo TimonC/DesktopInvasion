@@ -72,12 +72,12 @@ void Game::handleMenuClosed(){
 };
 
 void Game::setGameActive(bool active) {
-    static bool processing = false;
-    if (processing) return;
+    /* static bool processing = false; */
+    /* if (processing) return; */
 
     m_gameUsedToBeActive = active;
 
-    processing = true;
+    /* processing = true; */
 
     if (active){
             // Singleshot to ensure we're in next event loop iteration
@@ -98,7 +98,7 @@ void Game::setGameActive(bool active) {
             //Wait for deletions to complete
         QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
     }
-    processing = false;
+    /* processing = false; */
 }
 
 void Game::initializeGame() {
