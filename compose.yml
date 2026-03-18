@@ -2,18 +2,20 @@ services:
   invasionview:
     build: .
     container_name: invasionview
+    user: "${UID}:${GID}"
     environment:
-      - QT_QPA_PLATFORM=xcb
       - DISPLAY=${DISPLAY}
+      - QT_QPA_PLATFORM=xcb
       - LIBGL_ALWAYS_SOFTWARE=1
       - QT_QPA_EGLFS_FORCE_SOFTWARE=1
       - XDG_RUNTIME_DIR=/tmp/xdg
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
-      - /tmp/xdg:/tmp/xdg
       - ./src:/app/src
       - ./resources.qrc:/app/resources.qrc
-      - ./assets:/app/assets
+      - ./InvasionCanvas.qml:/app/InvasionCanvas.qml
+      - ./assets:/app/assets:ro
+      - ./sprites:/app/sprites:ro
     stdin_open: true
     tty: true
 

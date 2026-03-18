@@ -1,17 +1,18 @@
-// main.cpp
 #include <QGuiApplication>
+#include <QDebug>
 #include "InvasionOverlay.h"
 
 int main(int argc, char *argv[])
 {
+    qDebug() << "Starting application...";
     QGuiApplication app(argc, argv);
 
+    qDebug() << "Creating overlay...";
     InvasionOverlay overlay;
-    overlay.show();
-    // Add some test sprites
-    /* overlay.addSprite("qrc:/sprites/Pikachu.qml", 100, 100); */
-    /* overlay.addSprite("qrc:/sprites/Charmander.qml", 200, 200); */
-    /* overlay.addSprite("qrc:/sprites/Bulbasaur.qml", 300, 300); */
 
+    qDebug() << "Showing overlay...";
+    overlay.showFullScreen();
+
+    qDebug() << "Starting event loop...";
     return app.exec();
 }

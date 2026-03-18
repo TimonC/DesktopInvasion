@@ -1,5 +1,7 @@
 #!/bin/bash
 
+xhost +local:root 2>/dev/null || true
+
 # --- Ensure XDG_RUNTIME_DIR exists ---
 : "${XDG_RUNTIME_DIR:=/tmp/xdg}"
 mkdir -p "$XDG_RUNTIME_DIR"
@@ -19,7 +21,7 @@ export QT_QPA_PLATFORM=xcb
 APP_PID=$!
 
 # --- Watch for HMR (src, resources.qrc, and assets) ---
-while inotifywait -r -e modify,create,delete src assets sprites; do
+while inotifywait -r -e modify,create,delete src assets sprites ; do
     echo -e "\n\033[1;33m========== HMR triggered at $(date '+%Y-%m-%d %H:%M') ==========\033[0m"
 
     # Stop old app
