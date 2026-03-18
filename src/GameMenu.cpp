@@ -5,6 +5,8 @@
 #include <QQmlContext>
 #include <QVariant>
 #include <qnamespace.h>
+#include <globals.h>
+
 
 GameMenu::GameMenu()
     : QQuickView()
@@ -30,11 +32,14 @@ GameMenu::GameMenu()
     setCursor(m_pointerCursor);
     setTitle("DesktopInvasion");
 
-        //Hardcoded values based on printing the size
-        //I'm doing this cause it's the easiest way to
-        //fix size and I'm too lazy to handle window resize
-    setMinimumSize( QSize(1329, 913));
-    setMaximumSize( QSize(1329, 913));
+    //Hardcoded values based on printing the size
+    //I'm doing this cause it's the easiest way to
+    //fix size and I'm too lazy to handle window resize
+    int fixedWidth = std::min(1329, Globals::screenGeometry().width());
+    int fixedHeight = std::min(913, Globals::screenGeometry().height());
+
+    setMinimumSize( QSize(fixedWidth, fixedHeight));
+    setMaximumSize( QSize(fixedWidth, fixedHeight));
 
     hide();
 
