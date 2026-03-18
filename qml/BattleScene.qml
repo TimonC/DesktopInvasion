@@ -17,6 +17,10 @@ Item {
     property int menuWidth: frameSize * 5
     property int direction: 0
 
+    property int pokeNameFontSize: frameSize * 0.4
+    property int buttonFontSize: frameSize * 0.4
+    property int textBarFontSize: frameSize * 0.45
+
     property alias opponent: opponent
     property alias player: player
     property alias statusBarOpponent: statusBarOpponent
@@ -66,6 +70,7 @@ Item {
     // Sprites
     StatusBar {
         id: statusBarOpponent
+        pokeNameFontSize: root.pokeNameFontSize
     }
 
     PokemonSprite {
@@ -80,7 +85,7 @@ Item {
 
     StatusBar {
         id: statusBarPlayer
-        visible: false
+        pokeNameFontSize: root.pokeNameFontSize
     }
 
     PokemonSprite {
@@ -139,6 +144,8 @@ Item {
     BattleMenu {
         id: battleMenu
         frameSize: root.frameSize
+        buttonFontSize: root.buttonFontSize
+        textBarFontSize: root.textBarFontSize
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
         height: root.menuHeight

@@ -9,8 +9,8 @@ Rectangle {
     property int frameSize: 32
     property int buttonWidth: frameSize * 2
     property int buttonHeight: frameSize * 0.75
-    property int buttonFontSize: frameSize * 0.4
-    property int textBarFontSize: frameSize * 0.45
+    property int buttonFontSize: 0
+    property int textBarFontSize:0
     property int gridSpacing: frameSize * 0.1
     property int menuHeight:0
     property int menuWidth:0
