@@ -8,6 +8,7 @@
 #include <random>
 #include <array>
 #include <QVariant>
+#include <vector>
 
 struct BattleStateDelta{
     bool switchedIn = false;
@@ -64,13 +65,55 @@ struct Battler{
     BattleStateDelta delta;
 };
 
+struct BattleActionResult {
+    enum EffectType {
+        DAMAGE,
+        STATUS_APPLIED,
+        STATUS_REMOVED,
+        STAT_CHANGED,
+        HEAL,
+        DRAIN,
+        MISS,
+        CRITICAL,
+        SUPER_EFFECTIVE,
+        NOT_VERY_EFFECTIVE,
+        NO_EFFECT,
+        TEXT,
+        CONFUSION_ADDED,
+        CONFUSION_REMOVED,
+        CONFUSION_SELF_HIT,
+        FLINCH
+    };
+
+    struct Effect {
+        EffectType type;
+        Battler* source = nullptr;
+        Battler* target = nullptr;
+        int amount = 0;
+        Ailment ailment = Ailment::Null;
+        int statIndex = -1;
+        int statChange = 0;
+        std::string text;
+    };
+
+    std::vector<Effect> effects;
+    bool moveExecuted = false;
+
+    void addEffect(EffectType type, Battler* source = nullptr, Battler* target = nullptr,
+                   int amount = 0, Ailment ailment = Ailment::Null,
+                   int statIndex = -1, int statChange = 0, const std::string& text = "") {
+        effects.push_back({type, source, target, amount, ailment, statIndex, statChange, text});
+    }
+};
+
 class BattleMoveHandler : public QObject{
     Q_OBJECT
 public:
     BattleMoveHandler(const PokemonState& wildState, const std::array<PokemonState, 6>& partyStates);
     ~BattleMoveHandler();
+    BattleMoveHandler(const BattleMoveHandler&) = delete;
+    BattleMoveHandler& operator=(const BattleMoveHandler&) = delete;
     void switchPartyMember(int newChosenIndex);
-
 
 signals:
     void actionSequenceReady(QVariantList sequence);
@@ -80,18 +123,22 @@ public slots:
 
 private:
     int m_chosenIndex = 0;
+
     Battler* createBattler(const PokemonState& state);
-    void applyMove(const Move* _move, Battler* caster, Battler* target);
-    void applySecondaryEffects(const Move* _move, Battler* target);
-    void applyEndOfTurnEffects(Battler* battler);
-    bool canBattlerMove(Battler* caster);
-    int calculateTypeEffectiveness(const Move* _move, Battler* target);
+    BattleActionResult applyMove(const Move* _move, Battler* caster, Battler* target);
+    BattleActionResult applySecondaryEffects(const Move* _move, Battler* target, bool damageLanded);
+    BattleActionResult applyEndOfTurnEffects(Battler* battler);
+    BattleActionResult canBattlerMove(Battler* caster);
     int applyStatModifier(int baseStat, int modifier);
-    void checkRemoveAilment(Battler& battler);
+    void checkRemoveAilment(Battler& battler, BattleActionResult& result);
+    void resetDeltaState(BattleStateDelta& delta);
+
+    void applyBattleResult(const BattleActionResult& result);
+    QVariantList generateSequenceFromResult(const BattleActionResult& result);
 
     QVariantList generateActionSequence(Battler& opponent, Battler& player, bool playerFirst, int switchedIn, int shakes);
-    void generateMoveSequence(QVariantList& sequence, Battler& attacker, Battler& defender, bool isAttackerPlayer);
     void logActionSequence(const QVariantList& sequence);
+    void logBattleResult(const BattleActionResult& result);
 
     QVariantMap createTextAction(const QString& message, int delay);
     QVariantMap createAttackAction(const QString& role, int delay);
@@ -104,8 +151,6 @@ private:
     QString ailmentToApplicationText(Ailment ailment);
     QString ailmentToHurtText(Ailment ailment);
     QString ailmentToRemovalText(Ailment ailment);
-    void addPostMoveEffects(QVariantList& sequence, Battler& battler, const QString& name, bool isPlayer);
-    void addEndOfTurnEffects(QVariantList& sequence, Battler& battler, const QString& name, bool isPlayer);
     QString getStatName(int statIndex);
 
     Battler* m_battleOpponent;
