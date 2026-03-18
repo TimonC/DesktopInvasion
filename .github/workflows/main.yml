@@ -5,16 +5,21 @@ on:
     branches: [ "main", "master" ]
   pull_request:
     branches: [ "main", "master" ]
-  workflow_dispatch:  # Allows manual triggering
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: windows-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-    
+
+    - name: Setup MinGW
+      uses: egor-tensin/setup-mingw@v2
+      with:
+        platform: x64
+
     - name: Install Qt
       uses: jurplel/install-qt-action@v3
       with:
@@ -23,46 +28,54 @@ jobs:
         target: 'desktop'
         arch: 'win64_mingw'
         cache: true
-    
-    - name: Configure CMake
-      run: cmake -B build -DCMAKE_BUILD_TYPE=Release
-    
+
+    - name: Configure CMake (MinGW)
+      run: |
+        cmake -B build -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
+      shell: bash
+
     - name: Build
-      run: cmake --build build --config Release --parallel
-    
+      run: |
+        cmake --build build --parallel
+      shell: bash
+
     - name: Package
       shell: powershell
       run: |
         # Create output directory
         New-Item -ItemType Directory -Force -Path output/DesktopInvasion-Windows
-        
+
         # Copy executable
         Copy-Item build/DesktopInvasion.exe output/DesktopInvasion-Windows/
-        
+
+        # Find Qt path
+        $qtPath = "${{ env.Qt6_Dir }}"
+        $qtBin = $qtPath -replace 'lib\\cmake\\Qt6', 'bin'
+
         # Run windeployqt
-        & windeployqt.exe --release --qmldir qml output/DesktopInvasion-Windows/DesktopInvasion.exe
-        
-        # Find and copy MinGW DLLs
-        $mingwPath = "${{ env.Qt6_Dir }}\..\..\..\Tools\*\bin"
+        & "$qtBin/windeployqt.exe" --release --qmldir qml output/DesktopInvasion-Windows/DesktopInvasion.exe
+
+        # Find MinGW DLLs
+        $mingwPath = "C:\ProgramData\mingw64\mingw64\bin"
         $mingwDlls = @("libstdc++-6.dll", "libgcc_s_seh-1.dll", "libwinpthread-1.dll")
-        
+
         foreach ($dll in $mingwDlls) {
-          $dllPath = Get-ChildItem $mingwPath -Filter $dll -Recurse | Select-Object -First 1
-          if ($dllPath) {
-            Copy-Item $dllPath.FullName output/DesktopInvasion-Windows/
+          $dllPath = Join-Path $mingwPath $dll
+          if (Test-Path $dllPath) {
+            Copy-Item $dllPath output/DesktopInvasion-Windows/
             Write-Host "Copied $dll"
           }
         }
-        
+
         # Create README
         @"
         Desktop Invasion - Windows Version
         To play: Double-click DesktopInvasion.exe
         "@ | Out-File -FilePath output/DesktopInvasion-Windows/README.txt -Encoding UTF8
-        
+
         # Create zip
         Compress-Archive -Path output/DesktopInvasion-Windows -DestinationPath DesktopInvasion-Windows.zip
-    
+
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
