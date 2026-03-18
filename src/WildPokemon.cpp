@@ -6,13 +6,13 @@
 #include <qevent.h>
 #include <qnamespace.h>
 #include "WildPokemon.h"
+#include "DesktopScene.h"
 #include "globals.h"
 #include "pokemon_data.h"
 
 WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
-    : QQuickView(parent)
+    : DesktopScene(parent)
     , info(info)
-    , m_currentDirection(0)
     , m_decisionTimer(new QTimer(this))
     , m_moveTimer(new QTimer(this))
     , m_moveSpeed(1 + QRandomGenerator::global()->bounded(2))
@@ -22,18 +22,6 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
     const QRect& screen = Globals::screenGeometry();
     setPosition(QPoint(screen.width()/2, screen.height()/2));
 
-setFlags(Qt::WindowStaysOnTopHint
-    | Qt::Tool
-    | Qt::WindowDoesNotAcceptFocus
-    | Qt::FramelessWindowHint
-    | Qt::BypassWindowManagerHint
-    /* | Qt::WindowTransparentForInput */
-    );
-    setColor(Qt::transparent);
-/* setAttribute(Qt::WA_TranslucentBackground, true); */
-/* setAttribute(Qt::WA_NoSystemBackground, true);      // ← No background painting */
-/* setAttribute(Qt::WA_OpaquePaintEvent, false);       // ← Allow transparency */
-/* setAttribute(Qt::WA_PaintOnScreen, true);           // ← Bypass Qt compositing (risky) */
     setSource(QUrl("qrc:/sprites/PokemonSprite.qml"));
     m_sprite = rootObject();
     m_sprite->setProperty("spriteSheet", QString("qrc:/assets/HGSS/PokGen%1_transparent_reordered.png").arg(info->generation));
@@ -65,23 +53,6 @@ setFlags(Qt::WindowStaysOnTopHint
     show();
 }
 
-void WildPokemon::mousePressEvent(QMouseEvent* event){
-    if(event->button()== Qt::LeftButton){
-        handleDrag(true);
-        m_oldMousePos = event->globalPosition().toPoint(); //i want QPoint instead of QPointF so i dont have to convert for setPosition, therefore use deprecated method
-    }
-}
-
-void WildPokemon::mouseReleaseEvent(QMouseEvent* event){
-    handleDrag(false);
-}
-
-void WildPokemon::mouseMoveEvent(QMouseEvent* event){
-    if(!m_isDragged) return;
-    const QPoint newMousePos = event->globalPosition().toPoint();
-    setPosition(position() + newMousePos - m_oldMousePos);
-    m_oldMousePos = newMousePos;
-}
 
 void WildPokemon::startRoaming(){
     connect(m_decisionTimer, &QTimer::timeout, this, &WildPokemon::makeRandomDecision);

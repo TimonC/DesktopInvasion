@@ -1,10 +1,10 @@
 #ifndef WILDPOKEMON_H
 #define WILDPOKEMON_H
 
-#include <QQuickView>
+#include <DesktopScene.h>
 #include <qevent.h>
 #include "pokemon_data.h"
-class WildPokemon : public QQuickView{
+class WildPokemon : public DesktopScene{
 
     Q_OBJECT
 
@@ -15,21 +15,15 @@ public:
     void direction(int direction);
 
 private slots:
+    void handleDrag(bool isDragged) override;
+
     void makeRandomDecision();
     void moveStep();
     void startBattle();
     /* void handleDoubleClick(); */
-    void handleDrag(bool isDragged);
 
-protected:
-    void mousePressEvent(QMouseEvent* event) override;
-    void mouseReleaseEvent(QMouseEvent* event) override;
-    void mouseMoveEvent(QMouseEvent* event) override;
 private:
     const PokemonInfo* info;
-    int m_currentDirection;
-    bool m_isDragged = false;
-    QPoint m_oldMousePos;
     QQuickItem* m_sprite;
     QTimer* m_decisionTimer;
     QTimer* m_moveTimer;
