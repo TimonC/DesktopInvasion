@@ -15,12 +15,13 @@ Item {
     property int bounceDownDuration: 150 // Duration for bounce down
     property int bounceHeight: 10        // How high to bounce (in pixels)
 
-    // Circle properties
-    property real circleShrinkScale: 0.6    // Circle starts at 0.8x size
+    // Ellipse properties (changed from circle)
+    property real circleShrinkScale: 0.6    // Ellipse starts at 0.6x size
     property int circleAnimationDuration: 750
-    property int circleX: 0               // X position for circle center
-    property int circleY: 0               // Y position for circle center
-    property int circleBaseRadius: 0       // Base circle radius
+    property int circleX: 0               // X position for ellipse center
+    property int circleY: 0               // Y position for ellipse center
+    property int circleBaseWidth: 0       // Base ellipse width
+    property int circleBaseHeight: 0      // Base ellipse height
 
     // Signal emitted when throw animation completes
     signal throwAnimationDone()
@@ -59,7 +60,7 @@ Item {
 
     function release() {
         pokeballSprite.sourceClipRect.x = root.frameWidth * 9
-        circleExpand() // Circle expands on release
+        circleExpand() // Ellipse expands on release
     }
 
     // Single image with manual frame control
@@ -74,34 +75,34 @@ Item {
         antialiasing: false
     }
 
-    // Red outer circle layer
+    // Red outer ellipse layer
     Rectangle {
         id: outerCircle
         color: "#FF6B6B" // Red color
-        radius: width / 2
+        radius: Math.min(width, height) / 2  // Creates ellipse effect
         opacity: 0
         visible: false
         z: 99 // Below the pokeball sprite
 
-        // Position at configured circle center
+        // Position at configured ellipse center
         x: root.circleX - width / 2
         y: root.circleY - height / 2
     }
 
-    // Orange inner circle layer
+    // Orange inner ellipse layer
     Rectangle {
         id: innerCircle
         color: "#FFA726" // Orange color
-        radius: width / 2
+        radius: Math.min(width, height) / 2  // Creates ellipse effect
         opacity: 0
         visible: false
         z: 98 // Below outer circle
 
-        // Position at configured circle center
+        // Position at configured ellipse center
         x: root.circleX - width / 2
         y: root.circleY - height / 2
 
-        // Inner circle is 70% the size of outer circle
+        // Inner ellipse is 70% the size of outer ellipse
         property real innerScale: 0.7
     }
 
@@ -157,13 +158,13 @@ Item {
         }
     }
 
-    // Outer circle animation
+    // Outer ellipse animation
     ParallelAnimation {
         id: outerCircleAnimation
         running: false
         loops: 1
 
-        // Circle size animation
+        // Ellipse width animation
         NumberAnimation {
             id: outerSizeAnim
             target: outerCircle
@@ -172,6 +173,7 @@ Item {
             easing.type: Easing.InOutQuad
         }
 
+        // Ellipse height animation
         NumberAnimation {
             id: outerHeightAnim
             target: outerCircle
@@ -215,13 +217,13 @@ Item {
         }
     }
 
-    // Inner circle animation
+    // Inner ellipse animation
     ParallelAnimation {
         id: innerCircleAnimation
         running: false
         loops: 1
 
-        // Circle size animation
+        // Ellipse width animation
         NumberAnimation {
             id: innerSizeAnim
             target: innerCircle
@@ -230,6 +232,7 @@ Item {
             easing.type: Easing.InOutQuad
         }
 
+        // Ellipse height animation
         NumberAnimation {
             id: innerHeightAnim
             target: innerCircle
@@ -273,89 +276,97 @@ Item {
         }
     }
 
-    // Circle expands outward (for pokemon release)
+    // Ellipse expands outward (for pokemon release)
     function circleExpand() {
-        // Setup outer circle animation: start at startScale, expand to full scale
-        var outerStart = 2 * root.circleBaseRadius * root.circleShrinkScale
-        var outerEnd = 2 * root.circleBaseRadius
+        // Setup outer ellipse animation: start at startScale, expand to full scale
+        var outerStartWidth = root.circleBaseWidth * root.circleShrinkScale
+        var outerEndWidth = root.circleBaseWidth
+        var outerStartHeight = root.circleBaseHeight * root.circleShrinkScale
+        var outerEndHeight = root.circleBaseHeight
 
-        outerSizeAnim.from = outerStart
-        outerSizeAnim.to = outerEnd
+        outerSizeAnim.from = outerStartWidth
+        outerSizeAnim.to = outerEndWidth
 
-        outerHeightAnim.from = outerStart
-        outerHeightAnim.to = outerEnd
+        outerHeightAnim.from = outerStartHeight
+        outerHeightAnim.to = outerEndHeight
 
-        outerXAnim.from = root.circleX - outerStart / 2
-        outerXAnim.to = root.circleX - outerEnd / 2
+        outerXAnim.from = root.circleX - outerStartWidth / 2
+        outerXAnim.to = root.circleX - outerEndWidth / 2
 
-        outerYAnim.from = root.circleY - outerStart / 2
-        outerYAnim.to = root.circleY - outerEnd / 2
+        outerYAnim.from = root.circleY - outerStartHeight / 2
+        outerYAnim.to = root.circleY - outerEndHeight / 2
 
         outerOpacityAnim.from = 1
         outerOpacityAnim.to = 0.7
 
-        // Setup inner circle animation (70% of outer size)
-        var innerStart = outerStart * innerCircle.innerScale
-        var innerEnd = outerEnd * innerCircle.innerScale
+        // Setup inner ellipse animation (70% of outer size)
+        var innerStartWidth = outerStartWidth * innerCircle.innerScale
+        var innerEndWidth = outerEndWidth * innerCircle.innerScale
+        var innerStartHeight = outerStartHeight * innerCircle.innerScale
+        var innerEndHeight = outerEndHeight * innerCircle.innerScale
 
-        innerSizeAnim.from = innerStart
-        innerSizeAnim.to = innerEnd
+        innerSizeAnim.from = innerStartWidth
+        innerSizeAnim.to = innerEndWidth
 
-        innerHeightAnim.from = innerStart
-        innerHeightAnim.to = innerEnd
+        innerHeightAnim.from = innerStartHeight
+        innerHeightAnim.to = innerEndHeight
 
-        innerXAnim.from = root.circleX - innerStart / 2
-        innerXAnim.to = root.circleX - innerEnd / 2
+        innerXAnim.from = root.circleX - innerStartWidth / 2
+        innerXAnim.to = root.circleX - innerEndWidth / 2
 
-        innerYAnim.from = root.circleY - innerStart / 2
-        innerYAnim.to = root.circleY - innerEnd / 2
+        innerYAnim.from = root.circleY - innerStartHeight / 2
+        innerYAnim.to = root.circleY - innerEndHeight / 2
 
         innerOpacityAnim.from = 1
-        innerOpacityAnim.to = 0.8 // Inner circle slightly more opaque
+        innerOpacityAnim.to = 0.8 // Inner ellipse slightly more opaque
 
         // Start both animations
         outerCircleAnimation.start()
         innerCircleAnimation.start()
     }
 
-    // Circle shrinks inward (for pokemon capture)
+    // Ellipse shrinks inward (for pokemon capture)
     function circleShrink() {
-        // Setup outer circle animation: start at full scale, shrink to startScale
-        var outerStart = 2 * root.circleBaseRadius
-        var outerEnd = 2 * root.circleBaseRadius * root.circleShrinkScale
+        // Setup outer ellipse animation: start at full scale, shrink to startScale
+        var outerStartWidth = root.circleBaseWidth
+        var outerEndWidth = root.circleBaseWidth * root.circleShrinkScale
+        var outerStartHeight = root.circleBaseHeight
+        var outerEndHeight = root.circleBaseHeight * root.circleShrinkScale
 
-        outerSizeAnim.from = outerStart
-        outerSizeAnim.to = outerEnd
+        outerSizeAnim.from = outerStartWidth
+        outerSizeAnim.to = outerEndWidth
 
-        outerHeightAnim.from = outerStart
-        outerHeightAnim.to = outerEnd
+        outerHeightAnim.from = outerStartHeight
+        outerHeightAnim.to = outerEndHeight
 
-        outerXAnim.from = root.circleX - outerStart / 2
-        outerXAnim.to = root.circleX - outerEnd / 2
+        outerXAnim.from = root.circleX - outerStartWidth / 2
+        outerXAnim.to = root.circleX - outerEndWidth / 2
 
-        outerYAnim.from = root.circleY - outerStart / 2
-        outerYAnim.to = root.circleY - outerEnd / 2
+        outerYAnim.from = root.circleY - outerStartHeight / 2
+        outerYAnim.to = root.circleY - outerEndHeight / 2
 
         outerOpacityAnim.from = 0.7
         outerOpacityAnim.to = 1
 
-        // Setup inner circle animation (70% of outer size)
-        var innerStart = outerStart * innerCircle.innerScale
-        var innerEnd = outerEnd * innerCircle.innerScale
+        // Setup inner ellipse animation (70% of outer size)
+        var innerStartWidth = outerStartWidth * innerCircle.innerScale
+        var innerEndWidth = outerEndWidth * innerCircle.innerScale
+        var innerStartHeight = outerStartHeight * innerCircle.innerScale
+        var innerEndHeight = outerEndHeight * innerCircle.innerScale
 
-        innerSizeAnim.from = innerStart
-        innerSizeAnim.to = innerEnd
+        innerSizeAnim.from = innerStartWidth
+        innerSizeAnim.to = innerEndWidth
 
-        innerHeightAnim.from = innerStart
-        innerHeightAnim.to = innerEnd
+        innerHeightAnim.from = innerStartHeight
+        innerHeightAnim.to = innerEndHeight
 
-        innerXAnim.from = root.circleX - innerStart / 2
-        innerXAnim.to = root.circleX - innerEnd / 2
+        innerXAnim.from = root.circleX - innerStartWidth / 2
+        innerXAnim.to = root.circleX - innerEndWidth / 2
 
-        innerYAnim.from = root.circleY - innerStart / 2
-        innerYAnim.to = root.circleY - innerEnd / 2
+        innerYAnim.from = root.circleY - innerStartHeight / 2
+        innerYAnim.to = root.circleY - innerEndHeight / 2
 
-        innerOpacityAnim.from = 0.8 // Inner circle slightly more opaque
+        innerOpacityAnim.from = 0.8 // Inner ellipse slightly more opaque
         innerOpacityAnim.to = 1
 
         // Start both animations
@@ -450,7 +461,7 @@ Item {
             duration: root.catchDuration
         }
 
-        // Frame 9 - trigger circle shrink for capture
+        // Frame 9 - trigger ellipse shrink for capture
         PropertyAction {
             target: pokeballSprite
             property: "sourceClipRect.x"

@@ -151,8 +151,9 @@ Item {
         id: pokeBallOpponent
         scaleFactor: 2
         // Configure circle properties
-        circleBaseRadius: Math.max(opponent.width/2, opponent.height/2)
-        circleX: opponent.x + opponent.width/2  // Center on opponent
+        circleBaseWidth: opponent.width
+        circleBaseHeight: opponent.height
+        circleX: opponent.x + opponent.width/2
         circleY: opponent.y + opponent.height/2
         onThrowAnimationDone: {
             root.catchShakeCount = 0
@@ -173,8 +174,9 @@ Item {
         pokeBallPlayer.visible = true
 
 
-        pokeBallPlayer.circleBaseRadius = Math.max(player.width/2, player.height/2)
-        pokeBallPlayer.circleX = player.x + player.width/2  // Center on player
+        pokeBallPlayer.circleBaseWidth = player.width
+        pokeBallPlayer.circleBaseHeight = player.height
+        pokeBallPlayer.circleX = player.x + player.width/2
         pokeBallPlayer.circleY = player.y + player.height/2
         pokeBallPlayer.scaleFactor = 2
         pokeBallPlayer.circleAnimationDuration = 1000

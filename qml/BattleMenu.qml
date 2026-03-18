@@ -31,7 +31,7 @@ Rectangle {
     property color runButtonColor: PokeColor.darker("blue")
 
     property color borderColor: "#999999"
-    property color selectedBorderColor: "yellow"
+    property color selectedBorderColor: "#ffaa00"
     property color disabledBorderColor: "#777777"
     property color disabledBackgroundColor: "#b0b0b0"
     property color placeholderTextColor: "#a0a0a0"
