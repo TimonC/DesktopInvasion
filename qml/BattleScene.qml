@@ -228,7 +228,7 @@ Item {
             let newPlayerName = battleMenu.party.names[newPartyId]
             let newPlayerGeneration = battleMenu.party.gens[newPartyId]
             let newPlayerSpriteId = battleMenu.party.spriteIds[newPartyId]
-            // player.visible = false
+            player.visible = false
 
             root.switchedPokemon(newPlayerGeneration, newPlayerSpriteId);
             positionSpriteAndStatusBar(player)

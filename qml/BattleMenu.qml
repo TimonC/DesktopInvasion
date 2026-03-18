@@ -246,7 +246,10 @@ Rectangle {
                             border.width: root.selectedIndex === index ? 2 : 0.5
                             Rectangle {
                                 anchors.fill: parent
-                                color: root.selectedIndex === index ? "#E8F5E9" : "transparent"
+                                color: root.selectedIndex === index ? "#E8F5E9" :
+                                   (party.healthRatios[index] >= 0.5 ? "#4CAF50" :
+                                   (party.healthRatios[index] >= 0.25 ? "#FF9800" :
+                                   (party.healthRatios[index] > 0 ? "#F44336" : "#1565C0")))
                                 radius: parent.radius
                                 opacity: 0.6
                             }
