@@ -15,8 +15,7 @@ GameMenu::GameMenu()
            | Qt::WindowCloseButtonHint
            | Qt::FramelessWindowHint);
 
-    // Expose this object to QML as "menuBridge"
-    // QML can then call menuBridge.loadParty(...) etc directly
+    // Must be set BEFORE setSource so menuBridge exists when QML loads
     rootContext()->setContextProperty("menuBridge", this);
 
     const char* env = getenv("DOCKER_ENV");
