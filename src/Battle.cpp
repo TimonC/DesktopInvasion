@@ -61,13 +61,13 @@ void Battle::handleRunChosen() {
     QPoint newOppPos = m_oppReference->position() + delta;
 
     // Delay slightly to ensure reposition
-    QTimer::singleShot(10, this, [this, newOppPos]() {
+    QTimer::singleShot(20, this, [this, newOppPos]() {
         if (m_oppReference) {
             m_oppReference->setPosition(newOppPos);
             m_oppReference->startRoaming();
             m_oppReference->show();
         }
-        QTimer::singleShot(100, this, [this]() { //Short delay to ensure smooth visual transition
+        QTimer::singleShot(100, this, [this, newOppPos]() { //Short delay to ensure smooth visual transition
             emit battleEnded(this, m_oppReference, false);
         });
     });

@@ -63,11 +63,9 @@ void Game::handleBattleEnd(Battle* battle, WildPokemon* opp, bool removeWild) {
     assert(battle == m_activeBattle && "Battle mismatch in handleBattleEnd");
 
     disconnect(battle, nullptr, this, nullptr);
-        QTimer::singleShot(10, this, [this,battle]() {
-            battle->setProperty("visible", false);
-            battle->deleteLater();
-            m_activeBattle = nullptr;
-        });
+    battle->setProperty("visible", false);
+    battle->deleteLater();
+    m_activeBattle = nullptr;
 
     if (removeWild) {
         assert(m_wildPokemon == opp && "WildPokemon mismatch in handleBattleEnd");
