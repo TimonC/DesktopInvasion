@@ -22,7 +22,7 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
     const QRect& screen = Globals::screenGeometry();
     setPosition(QPoint(screen.width()/2, screen.height()/2));
 
-    setSource(QUrl("qrc:/sprites/PokemonSprite.qml"));
+    setSource(QUrl("qrc:/sprites/WildPokemon.qml"));
     m_sprite = rootObject();
     m_sprite->setProperty("spriteSheet", QString("qrc:/assets/HGSS/PokGen%1_transparent_reordered.png").arg(info->generation));
     m_sprite->setProperty("scaleFactor", Globals::SCALE);

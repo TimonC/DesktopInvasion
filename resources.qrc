@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>sprites/PokemonSprite.qml</file>
+        <file>sprites/WildPokemon.qml</file>
         <file>sprites/BattleScene.qml</file>
 
         <file>assets/HGSS/PokGen1_transparent_reordered.png</file>
