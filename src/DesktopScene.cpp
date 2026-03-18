@@ -31,7 +31,7 @@ void DesktopScene::mouseMoveEvent(QMouseEvent* event){
 void DesktopScene::mousePressEvent(QMouseEvent* event){
     if(event->button()== Qt::LeftButton){
         handleDrag(true);
-        m_oldMousePos = event->globalPosition().toPoint(); //i want QPoint instead of QPointF so i dont have to convert for setPosition, therefore use deprecated method
+        m_oldMousePos = event->globalPosition().toPoint();
     }
 }
 

@@ -12,9 +12,9 @@ int main(int argc, char *argv[]) {
     QGuiApplication app(argc, argv);
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 
-    const int num_wild        = 2;
+    const int num_wild        = 30;
     const int start_pokedexid = 400;
-    Globals::DEBUG = true;
+    /* Globals::DEBUG = true; */
 
     /* if (!Globals::DEBUG) { */
         /* QLoggingCategory::setFilterRules("*.debug=false"); */
@@ -35,11 +35,11 @@ int main(int argc, char *argv[]) {
     wildPokemon.push_back(std::make_unique<WildPokemon>(pokemonInfo1));
     const PokemonInfo* pokemonInfo2 = Globals::getPokemonByPokedexId(235);
     wildPokemon.push_back(std::make_unique<WildPokemon>(pokemonInfo2));
-    /* for (int i = start_pokedexid; i < num_wild + start_pokedexid - 1; ++i) { */
-        /* const PokemonInfo* pokemonInfo = Globals::getRandomPokemon(); */
+    for (int i = start_pokedexid; i < num_wild + start_pokedexid; ++i) {
+        const PokemonInfo* pokemonInfo = Globals::getRandomPokemon();
         /* const PokemonInfo* pokemonInfo = Globals::getPokemonByPokedexId(i); */
-        /* wildPokemon.push_back(std::make_unique<WildPokemon>(pokemonInfo)); */
-    /* } */
+        wildPokemon.push_back(std::make_unique<WildPokemon>(pokemonInfo));
+    }
 
     qDebug() << "Created" << wildPokemon.size() << "pokemon";
     return app.exec();
