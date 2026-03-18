@@ -3,7 +3,6 @@
 
 #include <data_poke.h>
 #include <data_battle.h>
-#include <data_battle.h>
 class QRect;
 class QSize;
 

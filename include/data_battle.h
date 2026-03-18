@@ -43,10 +43,10 @@ struct Move {
     std::vector<int> learned_by_pokemon;
 };
 
-struct MoveMap{
-    int id;
-    int* eligible;
-};
+// The Python script generates these in data_battle.cpp
+extern const Move* const kMovesByIndex[];
+extern const int kMaxMoveId;
+extern const int kMoveCount;
 
 struct Static{
     int uid;

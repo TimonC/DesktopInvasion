@@ -1,4 +1,3 @@
-#include "data_poke.h"
 #include <globals.h>
 #include <QGuiApplication>
 #include <QScreen>
@@ -18,8 +17,11 @@ namespace Globals {
         return geometry;
     }
 
-    Move getMove(int moveId) {
-        return Move{1, "Tackle", Type::Normal, 50, 100, MoveCategory::Physical, nullptr, nullptr};
+    const Move* getMove(int moveId) {
+        if(moveId < 0 || moveId > kMaxMoveId){
+            return nullptr;
+        }
+        return kMovesByIndex[moveId];
     }
 
     const PokemonInfo* getPokemonInfo(int pokedexId) {
