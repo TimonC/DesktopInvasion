@@ -1,4 +1,5 @@
 #include <Battle.h>
+#include <algorithm>
 #include <globals.h>
 #include <QTimer>
 
@@ -135,7 +136,22 @@ void Battle::initPosition() {
     QPointF spriteOffset = opponentItem->mapToItem(rootItem, QPointF(0, 0));
 
     m_origin = m_initialOppPos + QPoint(-spriteOffset.x(), -spriteOffset.y());
-    setPosition(m_origin);
+    QRect screenGeom = Globals::screenGeometry();
+
+    QPoint originalOrigin = QPoint(m_origin);
+    QTimer::singleShot(20, this, [this, screenGeom, originalOrigin]() {
+
+        //snap battle to bounds
+        m_origin.setX(qBound(screenGeom.left(), m_origin.x(), screenGeom.right()-width()));
+        m_origin.setY(qBound(screenGeom.top(), m_origin.y(), screenGeom.bottom()-height()));
+        setPosition(m_origin);
+
+        //reposition wild pokemon if there was any snap
+        if(m_origin!=originalOrigin){
+            m_initialOppPos = m_initialOppPos - (originalOrigin - m_origin);
+            m_oppReference->setPosition(m_initialOppPos);
+        }
+    });
 }
 
 void Battle::direction(int direction) { m_currentDirection = direction; }

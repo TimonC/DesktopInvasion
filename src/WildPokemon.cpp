@@ -93,13 +93,11 @@ void WildPokemon::startBattle(){
 
     const int BOUNDARY_MARGIN = 16;
     const QRect& screen = Globals::screenGeometry();
-    int screenRight = screen.x() + screen.width();
-    int screenBottom = screen.y() + screen.height();
 
-    bool intop =  y() < BOUNDARY_MARGIN;
-    bool inbottom =  y() + height() > screenBottom - BOUNDARY_MARGIN;
-    bool inleft =  x() < BOUNDARY_MARGIN;
-    bool inright =  x() + width() > screenRight - BOUNDARY_MARGIN;
+    bool intop = y() < screen.y() + BOUNDARY_MARGIN;
+    bool inbottom = y() + height() > screen.bottom() - BOUNDARY_MARGIN;
+    bool inleft = x() < screen.x() + BOUNDARY_MARGIN;
+    bool inright = x() + width() > screen.right() - BOUNDARY_MARGIN;
 
     if(inright){
         direction(1);
@@ -110,7 +108,7 @@ void WildPokemon::startBattle(){
     }else if(intop){
         direction(2);
     }
-    (&Globals::getPlayer())->iChooseYou(this);
+    Globals::getPlayer().iChooseYou(this);
 }
 
 void WildPokemon::makeRandomDecision(){
