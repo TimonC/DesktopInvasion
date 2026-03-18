@@ -2,6 +2,11 @@ import urllib.request
 import json
 from pathlib import Path
 
+#Browser header to avoid http rejection
+opener = urllib.request.build_opener()
+opener.addheaders = [('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36')]
+urllib.request.install_opener(opener)
+
 # List of move IDs to skip
 SKIP_MOVE_IDS = [
     6, 12, 18, 46, 69, 90, 99, 101, 102, 160, 164, 169, 170, 191, 193, 194, 195, 199, 203, 212, 213, 262, 264, 265, 266, 267, 270, 271, 272, 274, 275, 277, 278, 287, 288, 289, 290, 293, 300, 335, 343, 353, 364, 368, 373, 374, 376, 377, 380, 381, 382, 383, 385, 390, 415, 432, 445, 447, 449

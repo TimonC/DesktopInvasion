@@ -5,8 +5,13 @@ import time
 import random
 
 MAX_POKEMON_ID = 493
-BASE_DELAY = 0.5
+BASE_DELAY =1
 JITTER = 0.3
+
+#Browser header to avoid http rejection
+opener = urllib.request.build_opener()
+opener.addheaders = [('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36')]
+urllib.request.install_opener(opener)
 
 GEN4_VERSION_GROUPS = [
     'diamond-pearl',
