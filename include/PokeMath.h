@@ -174,12 +174,23 @@ namespace PokeMath{
             return result;
         }
 
-// https://bulbapedia.bulbagarden.net/wiki/Accuracy#Generations_III_and_IV
-    inline bool checkAccuracy(int accuracy, std::mt19937& rng) {
-        if (accuracy >= 100) return true;
-        if (accuracy <= 0) return false;
+
+// https://bulbapedia.bulbagarden.net/wiki/Accuracy#Accuracy_check
+// https://bulbapedia.bulbagarden.net/wiki/Stat_modifier#Stage_multipliers
+    inline int calculateModifiedAccuracy(int accuracy, int modifier){
+        static constexpr int numerators[13] = {
+            33, 36, 43, 50, 60, 75, 100, 133, 166, 200, 233, 266, 300
+        };
+        int idx = modifier + 6;
+        return (accuracy*numerators[idx])/100;
+    }
+
+    inline bool checkAccuracy(int accuracy, int modifier, std::mt19937& rng) {
+        int modifiedAccuracy = calculateModifiedAccuracy(accuracy, modifier);
+        if (modifiedAccuracy >= 100) return true;
+        if (modifiedAccuracy <= 0) return false;
         static std::uniform_int_distribution<int> accuracyDist(1, 100);
-        return accuracyDist(rng) <= accuracy;
+        return accuracyDist(rng) <= modifiedAccuracy;
     }
 
 // https://bulbapedia.bulbagarden.net/wiki/Critical_hit#Generation_II_onwards
@@ -226,16 +237,5 @@ namespace PokeMath{
         return static_cast<int>((baseXP * defeatedLevel * TRAINER_MULTIPLIER) /
                                 (PARTICIPANT_DIVISOR * nrParticipated));
     }
-
-// https://bulbapedia.bulbagarden.net/wiki/Accuracy#Accuracy_check
-// https://bulbapedia.bulbagarden.net/wiki/Stat_modifier#Stage_multipliers
-    inline int calculateModifiedAccuracy(int accuracy, int modifier){
-        static constexpr int numerators[13] = {
-            33, 36, 43, 50, 60, 75, 100, 133, 166, 200, 233, 266, 300
-        };
-        int idx = modifier + 6;
-        return (accuracy*numerators[idx])/100;
-    }
-}
 
 #endif

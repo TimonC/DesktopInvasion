@@ -55,7 +55,7 @@ struct BattleState{
     int confusedTurns = -1;
     int conditionCounter = -1;
     int confusedCounter = -1;
-    std::array<int, 7> statModifiers = {0, 0, 0, 0, 0, 0, 0}; //Atk, Def, SpAtk, SpDef, Speed, Evasion, Accuracy
+    std::array<int, 7> statModifiers = {0, 0, 0, 0, 0, 0, 0}; //Atk, Def, SpAtk, SpDef, Speed, Accuracy, Evasion
     int lastMoveIndex = -1;
 };
 

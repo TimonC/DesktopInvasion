@@ -394,13 +394,13 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
     result.addEffect(BattleActionResult::TEXT, caster, nullptr, 0, Ailment::Null, -1, 0,
                     caster->pokeState.name + " used " + std::string(_move->name) + "!");
 
-    if (_move->accuracy < 100) {
-        if (!PokeMath::checkAccuracy(_move->accuracy, m_rng)) {
-            result.addEffect(BattleActionResult::MISS, caster, target);
-            result.addEffect(BattleActionResult::TEXT, caster, nullptr, 0, Ailment::Null, -1, 0,
-                            caster->pokeState.name + "'s attack missed!");
-            return result;
-        }
+    int accModifier = caster->battleState.statModifiers[5] + target->battleState.statModifiers[6];
+    accModifier = std::min(std::max(accModifier,-6),6);
+    if (!PokeMath::checkAccuracy(_move->accuracy, accModifier, m_rng)) {
+        result.addEffect(BattleActionResult::MISS, caster, target);
+        result.addEffect(BattleActionResult::TEXT, caster, nullptr, 0, Ailment::Null, -1, 0,
+                        caster->pokeState.name + "'s attack missed!");
+        return result;
     }
 
     if(_move->category != MoveCategory::NonDamaging){
