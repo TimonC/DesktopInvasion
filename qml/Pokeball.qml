@@ -125,13 +125,13 @@ Item {
         running: false
         loops: 1
 
-        PropertyAnimation { target: pokeballSprite property: "x" to: pokeballSprite.x + 3 duration: 50 }
-        PropertyAnimation { target: pokeballSprite property: "x" to: pokeballSprite.x - 3 duration: 50 }
-        PropertyAnimation { target: pokeballSprite property: "x" to: pokeballSprite.x + 2 duration: 50 }
-        PropertyAnimation { target: pokeballSprite property: "x" to: pokeballSprite.x - 2 duration: 50 }
-        PropertyAnimation { target: pokeballSprite property: "x" to: pokeballSprite.x + 1 duration: 50 }
-        PropertyAnimation { target: pokeballSprite property: "x" to: pokeballSprite.x - 1 duration: 50 }
-        PropertyAnimation { target: pokeballSprite property: "x" to: pokeballSprite.x duration: 50 }
+        PropertyAnimation { target: pokeballSprite; property: "x"; to: pokeballSprite.x + 3; duration: 50 }
+        PropertyAnimation { target: pokeballSprite; property: "x"; to: pokeballSprite.x - 3; duration: 50 }
+        PropertyAnimation { target: pokeballSprite; property: "x"; to: pokeballSprite.x + 2; duration: 50 }
+        PropertyAnimation { target: pokeballSprite; property: "x"; to: pokeballSprite.x - 2; duration: 50 }
+        PropertyAnimation { target: pokeballSprite; property: "x"; to: pokeballSprite.x + 1; duration: 50 }
+        PropertyAnimation { target: pokeballSprite; property: "x"; to: pokeballSprite.x - 1; duration: 50 }
+        PropertyAnimation { target: pokeballSprite; property: "x"; to: pokeballSprite.x; duration: 50 }
     }
 
     // Jump animation
