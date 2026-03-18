@@ -18,13 +18,6 @@ Battle::Battle(int opp_direction, QPoint opp_pos, const PokemonInfo* opp_info, c
     // Load the PokemonSprite as root
     setSource(QUrl("qrc:/sprites/PokemonSprite.qml"));
 
-    // Check for QML errors
-    if (status() == QQuickView::Error) {
-        qDebug() << "QML Errors:";
-        for (const auto& error : errors()) {
-            qDebug() << error.toString();
-        }
-    }
 
     m_opp = rootObject();
     if (m_opp) {

@@ -21,8 +21,8 @@ Item {
     property bool attacked: false
     property bool debugLines: false
 
-    property alias mouseArea: mouseArea
-    property alias battlebutton: battleButton
+    // property alias mouseArea: mouseArea
+    // property alias battlebutton: battleButton
 
     width: itemWidth > 0 ? itemWidth : frameWidth * scaleFactor
     height: itemHeight > 0 ? itemHeight : frameHeight * scaleFactor
@@ -30,22 +30,22 @@ Item {
     layer.enabled: true
     z: 1
 signal battleSceneLoaded(var battleSceneItem)
-    MouseArea {
-        id: mouseArea
-        anchors.fill: parent
-        enabled: true
-        hoverEnabled: true
-    }
+    // MouseArea {
+    //     id: mouseArea
+    //     anchors.fill: parent
+    //     enabled: true
+    //     hoverEnabled: true
+    // }
 
-    RoundButton {
-        id: battleButton
-        text: "BATTLE"
-        anchors.top: parent.top
-        visible: false
-        enabled: false
-        z: 10000
-        onClicked: console.log("Battle clicked!")
-    }
+    // RoundButton {
+    //     id: battleButton
+    //     text: "BATTLE"
+    //     anchors.top: parent.top
+    //     visible: false
+    //     enabled: false
+    //     z: 10000
+    //     onClicked: console.log("Battle clicked!")
+    // }
 
     Item {
         id: spriteContainer
