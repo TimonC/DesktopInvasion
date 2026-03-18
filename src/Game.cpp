@@ -157,8 +157,8 @@ void Game::spawnPokemon() {
 
 
         std::uniform_int_distribution<int> dist(1, 493);
-        /* int pokedexId = dist(m_rng); */
-        int pokedexId = 384;
+        int pokedexId = dist(m_rng);
+        /* int pokedexId = 493; */
         const Poke* wildPoke = Lookup::getPoke(pokedexId);
 
         wildState = {};

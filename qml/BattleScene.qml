@@ -70,7 +70,7 @@ Item {
                 sprite.x = (root.width - root.statusBarWidth - sprite.width)/2
                 sprite.y = root.height - root.menuHeight - sprite.height - root.frameSize/4
                 sprite.statusBar.x = root.width - root.statusBarWidth
-                sprite.statusBar.y = root.height - root.menuHeight - root.statusBarHeight-root.frameSize*2
+                sprite.statusBar.y = root.height - root.menuHeight - root.statusBarHeight/2 - root.frameSize*2
                 break
             case 1:
                 sprite.x = root.width - root.frameSize/2 - root.statusBarWidth/2 - sprite.width/2
