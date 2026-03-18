@@ -1,7 +1,7 @@
-#ifndef MOVE_DATA_H
-#define MOVE_DATA_H
+#ifndef DATA_BATTLE_H
+#define DATA_BATTLE_H
 
-#include <game_data.h>
+#include <data_gamestate.h>
 #include <variant>
 
 enum class StatusCondition{
@@ -39,11 +39,9 @@ struct Move{
     StatChange* statChanges;
 };
 
-
 struct MoveMap{
     int id;
     int* eligible;
 };
-
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef BATTLE_H
 #define BATTLE_H
 #include <DesktopScene.h>
-#include <pokemon_data.h>
+#include <data_poke.h>
 #include <QQuickView>
 #include <QQuickItem>
 #include <WildPokemon.h>

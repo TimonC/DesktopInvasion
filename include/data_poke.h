@@ -1,5 +1,5 @@
-#ifndef POKEMON_DATA_H
-#define POKEMON_DATA_H
+#ifndef DATA_POKE_H
+#define DATA_POKE_H
 
 #include <vector>
 #include <string>

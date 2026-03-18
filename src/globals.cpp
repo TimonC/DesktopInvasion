@@ -1,4 +1,4 @@
-#include "pokemon_data.h"
+#include "data_poke.h"
 #include <globals.h>
 #include <QGuiApplication>
 #include <QScreen>

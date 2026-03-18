@@ -1,7 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "pokemon_data.h"
+#include "data_poke.h"
 #include "PokemonDatabase.h"
 #include <Battle.h>
 #include <GameMenu.h>

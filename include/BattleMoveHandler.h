@@ -2,7 +2,7 @@
 #define BATTLEMOVEHANDLER_H
 
 #include <QObject>
-#include <move_data.h>
+#include <data_battle.h>
 
 struct Static{
     int stats[6];

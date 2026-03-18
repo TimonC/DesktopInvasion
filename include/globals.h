@@ -1,7 +1,7 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#include <pokemon_data.h>
+#include <data_poke.h>
 class QRect;
 class QSize;
 

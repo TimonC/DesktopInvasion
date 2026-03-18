@@ -1,5 +1,5 @@
-#ifndef GAME_DATA_H
-#define GAME_DATA_H
+#ifndef DATA_GAMESTATE_H
+#define DATA_GAMESTATE_H
 #include <string>
 
 enum class Type {
