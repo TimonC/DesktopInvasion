@@ -30,6 +30,11 @@ Item {
     property var attackSequence: []
     property int currentAttackIndex: 0
 
+    // Catch attempt state
+    property int catchShakeCount: 0
+    property int catchShakeInterval: 1500
+    property int catchReleaseDelay: 500
+
     signal runChosen()
     signal opponentWon()
     signal playerWon()
@@ -76,6 +81,54 @@ Item {
     PokeballCatch {
         id: pokeBallSend
         scaleFactor: 2
+
+        onThrowAnimationDone: {
+            root.catchShakeCount = 0
+            catchAttemptTimer.interval = root.catchShakeInterval/2 //half duration on the first shake
+            catchAttemptTimer.start()
+        }
+    }
+
+    // Catch attempt timer
+    Timer {
+        id: catchAttemptTimer
+        interval: root.catchShakeInterval
+        repeat: false
+        onTriggered: root.processCatchAttempt()
+    }
+
+
+    function processCatchAttempt() {
+        var failure = Math.random() < 0.1
+
+        if (failure) {
+            // Release the pokemon
+            pokeBallSend.release()
+            // Hide after delay
+            Qt.callLater(function() {
+                var hideTimer = Qt.createQmlObject('import QtQuick 2.15; Timer {}', root)
+                hideTimer.interval = root.catchReleaseDelay
+                hideTimer.triggered.connect(function() {
+                    pokeBallSend.visible = false
+                    hideTimer.destroy()
+                })
+                hideTimer.start()
+            })
+        } else {
+            root.catchShakeCount++
+
+            if (root.catchShakeCount >= 3) {
+                // Third attempt - jump instead of shake
+                pokeBallSend.jump()
+                // Pokemon caught!
+                console.log("Pokemon caught!")
+            } else {
+                // Shake and try again
+                pokeBallSend.shake()
+                catchAttemptTimer.start()
+            }
+        }
+        catchAttemptTimer.interval = root.catchShakeInterval
     }
 
     // UI
@@ -108,10 +161,11 @@ Item {
                 var x1 = opponent.x + (opponent.width / 2) - (32/4);
                 var x0 = x1 + 2*(root.direction==1 ? -32 : 32);
                 // Y positions
-                var y0 = opponent.y - pokeBallSend.frameHeight/2;
+                var y0 = opponent.y - pokeBallSend.frameHeight;
                 var y1 = opponent.y + opponent.height - pokeBallSend.frameHeight;
 
                 // Start the animation
+                pokeBallSend.visible = true;
                 pokeBallSend.throwAt(x0, x1, y0, y1);
             } else {
                 console.error("Invalid pokeSprite id:", pokeSpriteId)

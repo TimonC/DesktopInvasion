@@ -5,13 +5,16 @@ Item {
     property real scaleFactor: 2
     property int frameWidth: 16
     property int frameHeight: 23
-    property int throwDuration: 1000     // Duration of frames 0-7 to halfway
+    property int throwDuration: 600     // Duration of frames 0-7 to halfway
     property int pauseDuration: 200      // Pause after first animation
-    property int openDuration: 300     // Duration to show frame 8
+    property int catchDuration: 300     // Duration to show frame 0 before drop
     property int dropDuration: 400       // Duration for final drop
     property int bounceUpDuration: 150   // Duration for bounce up
     property int bounceDownDuration: 150 // Duration for bounce down
     property int bounceHeight: 10        // How high to bounce (in pixels)
+
+    // Signal emitted when throw animation completes
+    signal throwAnimationDone()
     width: frameWidth
     height: frameHeight
     z: 9999
@@ -30,6 +33,18 @@ Item {
         throwPokeball.start()
     }
 
+    // Shake the ball at its current position
+    function shake() {
+        shakeAnimation.start()
+    }
+
+    // Make the ball jump
+    function jump() {
+        jumpAnimation.start()
+    }
+  function release() {
+        pokeballSprite.sourceClipRect.x = root.frameWidth * 9
+    }
     // Single image with manual frame control
     Image {
         id: pokeballSprite
@@ -54,6 +69,43 @@ Item {
             if (frameIndex >= 8) {
                 stop()
             }
+        }
+    }
+
+    // Shake animation
+    SequentialAnimation {
+        id: shakeAnimation
+        running: false
+        loops: 1
+
+        PropertyAnimation { target: pokeballSprite; property: "x"; to: pokeballSprite.x + 3; duration: 50 }
+        PropertyAnimation { target: pokeballSprite; property: "x"; to: pokeballSprite.x - 3; duration: 50 }
+        PropertyAnimation { target: pokeballSprite; property: "x"; to: pokeballSprite.x + 2; duration: 50 }
+        PropertyAnimation { target: pokeballSprite; property: "x"; to: pokeballSprite.x - 2; duration: 50 }
+        PropertyAnimation { target: pokeballSprite; property: "x"; to: pokeballSprite.x + 1; duration: 50 }
+        PropertyAnimation { target: pokeballSprite; property: "x"; to: pokeballSprite.x - 1; duration: 50 }
+        PropertyAnimation { target: pokeballSprite; property: "x"; to: pokeballSprite.x; duration: 50 }
+    }
+
+    // Jump animation
+    SequentialAnimation {
+        id: jumpAnimation
+        running: false
+        loops: 1
+
+        PropertyAnimation {
+            target: pokeballSprite
+            property: "y"
+            to: pokeballSprite.y - 20
+            duration: 200
+            easing.type: Easing.OutQuad
+        }
+        PropertyAnimation {
+            target: pokeballSprite
+            property: "y"
+            to: pokeballSprite.y
+            duration: 200
+            easing.type: Easing.InQuad
         }
     }
 
@@ -141,7 +193,7 @@ Item {
             value: root.frameWidth * 8
         }
         PauseAnimation {
-            duration: root.openDuration
+            duration: root.catchDuration
         }
 
         // Frame 9
@@ -151,7 +203,7 @@ Item {
             value: root.frameWidth * 9
         }
         PauseAnimation {
-            duration: root.openDuration
+            duration: root.catchDuration
         }
 
         // Frame 0
@@ -161,7 +213,7 @@ Item {
             value: 0
         }
         PauseAnimation {
-            duration: root.openDuration
+            duration: root.catchDuration
         }
 
         // === PHASE 4: Drop to final position ===
@@ -173,8 +225,8 @@ Item {
             easing.type: Easing.InQuad
         }
 
-        // === PHASE 5: Little bounce at the end ===
-        // Bounce up
+        // === PHASE 5: Three bounces at the end ===
+        // First bounce (full height)
         PropertyAnimation {
             target: pokeballSprite
             property: "y"
@@ -182,13 +234,49 @@ Item {
             duration: root.bounceUpDuration
             easing.type: Easing.OutQuad
         }
-        // Bounce down
         PropertyAnimation {
             target: pokeballSprite
             property: "y"
             to: root.y1
             duration: root.bounceDownDuration
             easing.type: Easing.InQuad
+        }
+
+        // Second bounce (2/3 height)
+        PropertyAnimation {
+            target: pokeballSprite
+            property: "y"
+            to: root.y1 - (root.bounceHeight * 2 / 3)
+            duration: root.bounceUpDuration
+            easing.type: Easing.OutQuad
+        }
+        PropertyAnimation {
+            target: pokeballSprite
+            property: "y"
+            to: root.y1
+            duration: root.bounceDownDuration
+            easing.type: Easing.InQuad
+        }
+
+        // Third bounce (1/3 height)
+        PropertyAnimation {
+            target: pokeballSprite
+            property: "y"
+            to: root.y1 - (root.bounceHeight / 3)
+            duration: root.bounceUpDuration
+            easing.type: Easing.OutQuad
+        }
+        PropertyAnimation {
+            target: pokeballSprite
+            property: "y"
+            to: root.y1
+            duration: root.bounceDownDuration
+            easing.type: Easing.InQuad
+        }
+
+        // Emit signal when done
+        ScriptAction {
+            script: root.throwAnimationDone()
         }
     }
 }
