@@ -85,7 +85,6 @@ Item {
     function positionSpriteAndStatusBar(sprite) {
         switch(sprite.direction) {
             case 0:
-                // sprite.x = Math.round((root.width - root.statusBarWidth - sprite.width)/2 + (sprite.verticalWidth/2 - sprite.hCenterUp))
                 sprite.x = Math.round((root.statusBarWidth + root.width - sprite.width)/2 + (sprite.verticalWidth/2 - sprite.hCenterUp))
                 sprite.y = Math.round(root.height - root.menuHeight - sprite.height - root.frameSize/4)
                 sprite.statusBar.x = root.menuWidth/15

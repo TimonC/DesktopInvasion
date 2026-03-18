@@ -8,7 +8,6 @@ Rectangle {
     color: "transparent"
     property real animationSpeed: 1
 
-    // Menu dimensions
     property int menuWidth: 0
     property int menuHeight: 0
     property int buttonWidth: 0
@@ -20,13 +19,18 @@ Rectangle {
     property double backButtonWidthRatio: 0.1
     property double backButtonHeightRatio: 0.8
 
-    // Calculated dimensions
+    property real mainButtonRadius: 0.5
+    property real moveButtonRadius: 0
+    property real switchButtonRadius: 0
+    property real ballButtonRadius: 0
+    property real runButtonRadius: 0
+    property real textBarRadius: 0
+
     property real contentWidth: Math.floor(menuWidth * (1 - backButtonWidthRatio * 2 - contentMarginsRatio * 2))
     property real contentHeight: Math.floor(menuHeight * (1 - contentMarginsRatio * 2))
     property real backButtonWidth: Math.floor(menuWidth * backButtonWidthRatio)
     property real backButtonHeight: Math.floor(menuHeight * backButtonHeightRatio)
 
-    // Text properties
     property int buttonFontSize: 0
     property int moveFontSize: 0
     property int textBarFontSize: 0
@@ -35,7 +39,6 @@ Rectangle {
     property color textBarTextColor: "black"
     property color menuTextColor: "white"
 
-    // Colors
     property color fightButtonColor: "#ff3333"
     property color switchButtonColor: "green"
     property color catchButtonColor: "#e67a00"
@@ -51,22 +54,19 @@ Rectangle {
     property color backButtonColor: "lightblue"
     property color forceSwitchBackButtonColor: "#b0bec5"
 
-    // Opacity and effects
     property real enabledOpacity: 1.0
     property real disabledOpacity: 0.7
-    property real normalIconOpacity: 1.0
+    property real normalIconOpacity: 0.9
+    property real selectedIconOpacity: 1.0
     property real faintedIconOpacity: 0.7
     property real hoverScale: 1.04
     property real iconScale: 1.0
 
-    // Animation durations
-    property int menuTransitionDuration: Math.max(20, Math.floor(70 / animationSpeed))
-    property int colorAnimationDuration: Math.max(30, Math.floor(110 / animationSpeed))
-    property int downDuration: Math.max(40, Math.floor(140 / animationSpeed))
-    property int upDuration: Math.max(30, Math.floor(110 / animationSpeed))
-    property int clickDelayDuration: Math.max(0, Math.floor(80 / animationSpeed))
+    property int colorAnimationDuration: Math.max(80, Math.floor(200 / animationSpeed))
+    property int downDuration: Math.max(50, Math.floor(140 / animationSpeed))
+    property int upDuration: Math.max(30, Math.floor(100 / animationSpeed))
+    property int clickDelayDuration: downDuration
 
-    // Game state
     property bool textBarShown: false
     property bool forceSwitchMode: false
     property int selectedIndex: 0
@@ -76,15 +76,11 @@ Rectangle {
     property string ballSpriteSheet: "qrc:/assets/HGSS/reordered_pokeballs.png"
     property var nrOfBalls: [1000, 0, 0, 0]
     property list<string> ballNames: ["Poké Ball", "Great Ball", "Ultra Ball", "Master Ball"]
-
-    // Signals
     signal actionRound(int actionIndex, string actionType)
     signal fightChosen(int fightId)
     signal runChosen(bool removeWild)
     signal switchChosen(int newPartyIdx)
     property alias stack: stack
-
-    // Party data
     property var party: {
         "pokedexIds": [-1, -1, -1, -1, -1, -1],
         "spriteIds": [-1, -1, -1, -1, -1, -1],
@@ -103,7 +99,6 @@ Rectangle {
         ]
     }
 
-    // Functions
     function _setPartyMember(partyIdx, pokedexId, spriteId, ballId, pokemonName, lvl, totalHealth, moves) {
         var temp = party
         temp.pokedexIds[partyIdx] = pokedexId
@@ -116,37 +111,31 @@ Rectangle {
         temp.moves[partyIdx] = moves
         party = temp
     }
-
     function showTextBar() {
         root.textBarShown = true
         stack.replace(textBarComponent)
     }
-
     function updateText(text) {
         if (stack.currentItem && stack.currentItem.hasOwnProperty("text")) {
             stack.currentItem.text = text
         }
     }
-
     function getText() {
         if (stack.currentItem && stack.currentItem.hasOwnProperty("text")) {
             return stack.currentItem.text
         }
     }
-
     function forceSwitch() {
         forceSwitchMode = true
         root.textBarShown = false
         stack.replace(switchSelection)
     }
-
     function resetToRoot() {
         forceSwitchMode = false
         root.textBarShown = false
         stack.replace(rootSelection)
     }
 
-    // Components
     component ClickableItem: Item {
         id: clickable
         property var hoverTarget: parent
@@ -165,48 +154,31 @@ Rectangle {
             cursorShape: undefined
             enabled: clickable.enabled
 
-            // Check if mouse is already over when component appears
-            Component.onCompleted: {
-                if (containsMouse && clickable.hoverTarget) {
-                    if (clickable.hoverTarget.hasOwnProperty("hovered"))
-                        clickable.hoverTarget.hovered = true
-                }
-            }
-
             onEntered: {
-                if (clickable.hoverTarget) {
-                    if (clickable.hoverTarget.hasOwnProperty("hovered"))
-                        clickable.hoverTarget.hovered = true
-                }
+                if (clickable.hoverTarget && clickable.hoverTarget.hasOwnProperty("hovered"))
+                    clickable.hoverTarget.hovered = true
             }
-
             onExited: {
-                if (clickable.hoverTarget) {
-                    if (clickable.hoverTarget.hasOwnProperty("hovered"))
-                        clickable.hoverTarget.hovered = false
-                    if (clickable.hoverTarget.hasOwnProperty("down"))
-                        clickable.hoverTarget.down = false
-                }
+                if (clickable.hoverTarget && clickable.hoverTarget.hasOwnProperty("hovered"))
+                    clickable.hoverTarget.hovered = false
+                if (clickable.hoverTarget && clickable.hoverTarget.hasOwnProperty("down"))
+                    clickable.hoverTarget.down = false
             }
-
             onPressed: {
                 if (clickable.hoverTarget && clickable.hoverTarget.hasOwnProperty("down")) {
                     clickable.hoverTarget.down = true
                 }
             }
-
             onReleased: {
                 if (clickable.hoverTarget && clickable.hoverTarget.hasOwnProperty("down")) {
                     clickable.hoverTarget.down = false
                 }
             }
-
             onClicked: {
                 if (clickable.enabled) {
                     clickTimer.start()
                 }
             }
-
             onCanceled: {
                 if (clickable.hoverTarget && clickable.hoverTarget.hasOwnProperty("down")) {
                     clickable.hoverTarget.down = false
@@ -226,10 +198,12 @@ Rectangle {
         property bool hovered: false
         property alias font: label.font
         property bool enabled: true
-        property color borderColor: PokeColor.lighter(buttonColor)
+        property color borderColor: hovered ? buttonColor : PokeColor.lighter(buttonColor)
         property real borderWidth: root.borderWidth
         width: Math.floor(root.contentWidth / 2 - root.gridSpacing)
         height: Math.floor(root.contentHeight / 2 - root.gridSpacing)
+
+        Behavior on borderColor { ColorAnimation { duration: root.colorAnimationDuration; easing.type: Easing.OutQuad } }
 
         ClickableItem {
             anchors.fill: parent
@@ -252,33 +226,36 @@ Rectangle {
 
             Rectangle {
                 anchors.fill: parent
-                radius: height / 2
-                color: gradientButton.enabled ?
-                       (gradientButton.hovered ? buttonColor : borderColor) :
-                       root.disabledBorderColor
+                radius: height * root.mainButtonRadius
+                color: gradientButton.enabled ? borderColor : root.disabledBorderColor
                 opacity: gradientButton.enabled ? root.enabledOpacity : root.disabledOpacity
-                Behavior on color { ColorAnimation { duration: root.colorAnimationDuration } }
             }
+
             Rectangle {
+                id: gradientRect
                 anchors.fill: parent
                 anchors.margins: borderWidth
-                radius: Math.max(0, height / 2 - borderWidth)
+                radius: Math.max(0, (height * root.mainButtonRadius) - borderWidth)
                 gradient: Gradient {
                     GradientStop {
+                        id: gradientStop1
                         position: 0.0;
                         color: gradientButton.enabled ?
                                (gradientButton.hovered ? buttonColor : PokeColor.lighter(buttonColor))
                                : root.disabledBackgroundColor
+                        Behavior on color { ColorAnimation { duration: root.colorAnimationDuration; easing.type: Easing.OutCubic } }
                     }
                     GradientStop {
+                        id: gradientStop2
                         position: 1.0;
                         color: gradientButton.enabled ?
                                (gradientButton.hovered ? PokeColor.darker(PokeColor.darker(buttonColor)) : PokeColor.darker(buttonColor))
                                : root.disabledBackgroundColor
+                        Behavior on color { ColorAnimation { duration: root.colorAnimationDuration; easing.type: Easing.OutCubic } }
                     }
                 }
-                Behavior on gradient { ColorAnimation { duration: root.colorAnimationDuration } }
             }
+
             Text {
                 id: label
                 anchors.centerIn: parent
@@ -297,7 +274,6 @@ Rectangle {
         }
     }
 
-    // StackView
     StackView {
         id: stack
         initialItem: textBarComponent
@@ -308,25 +284,10 @@ Rectangle {
         pushExit: null
         popEnter: null
         popExit: null
-        replaceEnter: Transition {
-            PropertyAnimation {
-                property: "opacity"
-                from: 0
-                to: 1
-                duration: root.menuTransitionDuration
-            }
-        }
-        replaceExit: Transition {
-            PropertyAnimation {
-                property: "opacity"
-                from: 1
-                to: 0
-                duration: root.menuTransitionDuration
-            }
-        }
+        replaceEnter: null
+        replaceExit: null
     }
 
-    // Components
     Component {
         id: textBarComponent
         Rectangle {
@@ -337,7 +298,7 @@ Rectangle {
             border.color: root.textBarBorderColor
             border.width: root.borderWidth
             property string text: ""
-            radius: 5
+            radius: root.textBarRadius
             Text {
                 anchors.fill: parent
                 anchors.margins: Math.floor(root.menuWidth * 0.02)
@@ -420,7 +381,8 @@ Rectangle {
                         property color borderColor: root.borderColor
                         property bool hovered: false
                         property bool down: false
-                        Behavior on borderColor { ColorAnimation { duration: root.colorAnimationDuration } }
+
+                        Behavior on borderColor { ColorAnimation { duration: root.colorAnimationDuration; easing.type: Easing.OutQuad } }
 
                         Item {
                             id: moveContent
@@ -436,21 +398,31 @@ Rectangle {
 
                             Rectangle {
                                 anchors.fill: parent
-                                radius: 4
+                                radius: root.moveButtonRadius
                                 color: moveEnabled ? (moveItem.hovered ? root.highlightBorderColor : root.borderColor) : root.disabledBorderColor
                                 opacity: moveEnabled ? root.enabledOpacity : root.disabledOpacity
-                                Behavior on color { ColorAnimation { duration: root.colorAnimationDuration } }
+                                Behavior on color { ColorAnimation { duration: root.colorAnimationDuration; easing.type: Easing.OutQuad } }
                             }
                             Rectangle {
+                                id: moveGradientRect
                                 anchors.fill: parent
                                 anchors.margins: root.borderWidth
-                                radius: 2
+                                radius: Math.max(0, root.moveButtonRadius - root.borderWidth)
                                 gradient: Gradient {
-                                    GradientStop { position: 0; color: moveEnabled ? (hovered ? baseColor : PokeColor.lighter(baseColor)) : root.disabledBackgroundColor }
-                                    GradientStop { position: 1; color: moveEnabled ? (hovered ? PokeColor.darker(PokeColor.darker(baseColor)) : PokeColor.darker(baseColor)) : root.disabledBackgroundColor }
+                                    GradientStop {
+                                        id: moveGradientStop1
+                                        position: 0
+                                        color: moveEnabled ? (hovered ? baseColor : PokeColor.lighter(baseColor)) : root.disabledBackgroundColor
+                                        Behavior on color { ColorAnimation { duration: root.colorAnimationDuration; easing.type: Easing.OutCubic } }
+                                    }
+                                    GradientStop {
+                                        id: moveGradientStop2
+                                        position: 1
+                                        color: moveEnabled ? (hovered ? PokeColor.darker(PokeColor.darker(baseColor)) : PokeColor.darker(baseColor)) : root.disabledBackgroundColor
+                                        Behavior on color { ColorAnimation { duration: root.colorAnimationDuration; easing.type: Easing.OutCubic } }
+                                    }
                                 }
                                 opacity: moveEnabled ? root.enabledOpacity : root.disabledOpacity
-                                Behavior on gradient { ColorAnimation { duration: root.colorAnimationDuration } }
                             }
                             Text {
                                 anchors.centerIn: parent
@@ -525,35 +497,40 @@ Rectangle {
 
                             Rectangle {
                                 anchors.fill: parent
-                                radius: 4
+                                radius: root.switchButtonRadius
                                 color: (root.party.pokedexIds[index] >= 0 && party.healthRatios[index] > 0)
                                       ? (root.selectedIndex === index ? PokeColor.lighter(healthColor) : (switchItem.hovered && switchItem.isEnabled ? root.highlightBorderColor : root.borderColor))
                                       : root.disabledBorderColor
                                 opacity: root.party.pokedexIds[index] >= 0 ? root.enabledOpacity : root.disabledOpacity
                                 border.width: root.selectedIndex === index ? root.borderWidth * 2 : 0
                                 border.color: root.selectedIndex === index ? PokeColor.lighter(healthColor) : "transparent"
-                                Behavior on color { ColorAnimation { duration: root.colorAnimationDuration } }
+                                Behavior on color { ColorAnimation { duration: root.colorAnimationDuration; easing.type: Easing.OutQuad } }
+                                Behavior on border.color { ColorAnimation { duration: root.colorAnimationDuration; easing.type: Easing.OutQuad } }
                             }
                             Rectangle {
+                                id: switchGradientRect
                                 anchors.fill: parent
                                 anchors.margins: root.borderWidth
-                                radius: 2
+                                radius: Math.max(0, root.switchButtonRadius - root.borderWidth)
                                 opacity: root.party.pokedexIds[index] >= 0 ? root.enabledOpacity : root.disabledOpacity
                                 gradient: Gradient {
                                     GradientStop {
+                                        id: switchGradientStop1
                                         position: 0;
                                         color: root.party.pokedexIds[index] >= 0 ?
                                             (hovered && isEnabled ? healthColor  : PokeColor.lighter(healthColor))
                                             : root.disabledBackgroundColor
+                                        Behavior on color { ColorAnimation { duration: root.colorAnimationDuration; easing.type: Easing.OutCubic } }
                                     }
                                     GradientStop {
+                                        id: switchGradientStop2
                                         position: 1;
                                         color: root.party.pokedexIds[index] >= 0 ?
                                             (hovered && isEnabled ? PokeColor.darker(PokeColor.darker(healthColor)) : PokeColor.darker(healthColor))
                                             : root.disabledBackgroundColor
+                                        Behavior on color { ColorAnimation { duration: root.colorAnimationDuration; easing.type: Easing.OutCubic } }
                                     }
                                 }
-                                Behavior on gradient { ColorAnimation { duration: root.colorAnimationDuration } }
                             }
                             Item {
                                 anchors.centerIn: parent
@@ -562,7 +539,7 @@ Rectangle {
                                     anchors.centerIn: parent
                                     frameIndex: root.party.pokedexIds[index]-1
                                     iconScale: root.iconScale
-                                    opacity: party.healthRatios[index] > 0 ? root.normalIconOpacity : root.faintedIconOpacity
+                                    opacity: party.healthRatios[index] > 0 ? (index==root.currentIndex ? root.selectedIconOpacity : root.normalIconOpacity) : root.faintedIconOpacity
                                 }
                             }
                             Text {
@@ -628,21 +605,31 @@ Rectangle {
 
                             Rectangle {
                                 anchors.fill: parent
-                                radius: 4
+                                radius: root.ballButtonRadius
                                 color: ballEnabled ? (ballItem.hovered ? root.highlightBorderColor : root.borderColor) : root.disabledBorderColor
                                 opacity: ballEnabled ? root.enabledOpacity : root.disabledOpacity
-                                Behavior on color { ColorAnimation { duration: root.colorAnimationDuration } }
+                                Behavior on color { ColorAnimation { duration: root.colorAnimationDuration; easing.type: Easing.OutQuad } }
                             }
                             Rectangle {
+                                id: ballGradientRect
                                 anchors.fill: parent
                                 anchors.margins: root.borderWidth
-                                radius: 2
+                                radius: Math.max(0, root.ballButtonRadius - root.borderWidth)
                                 opacity: ballEnabled ? root.enabledOpacity : root.disabledOpacity
                                 gradient: Gradient {
-                                    GradientStop { position: 0; color: ballEnabled ? (hovered ? typeColor : PokeColor.lighter(typeColor)) : root.disabledBackgroundColor }
-                                    GradientStop { position: 1; color: ballEnabled ? (hovered ? PokeColor.darker(PokeColor.darker(typeColor)) : PokeColor.darker(typeColor)) : root.disabledBackgroundColor }
+                                    GradientStop {
+                                        id: ballGradientStop1
+                                        position: 0
+                                        color: ballEnabled ? (hovered ? typeColor : PokeColor.lighter(typeColor)) : root.disabledBackgroundColor
+                                        Behavior on color { ColorAnimation { duration: root.colorAnimationDuration; easing.type: Easing.OutCubic } }
+                                    }
+                                    GradientStop {
+                                        id: ballGradientStop2
+                                        position: 1
+                                        color: ballEnabled ? (hovered ? PokeColor.darker(PokeColor.darker(typeColor)) : PokeColor.darker(typeColor)) : root.disabledBackgroundColor
+                                        Behavior on color { ColorAnimation { duration: root.colorAnimationDuration; easing.type: Easing.OutCubic } }
+                                    }
                                 }
-                                Behavior on gradient { ColorAnimation { duration: root.colorAnimationDuration } }
                             }
                             Row {
                                 anchors.centerIn: parent
@@ -720,16 +707,26 @@ Rectangle {
                             }
 
                             Rectangle {
+                                id: runGradientRect
                                 anchors.fill: parent
-                                radius: 20
+                                radius: root.runButtonRadius
                                 border.color: runOptionItem.hovered ? root.highlightBorderColor : root.borderColor
                                 border.width: root.borderWidth
-                                Behavior on border.color { ColorAnimation { duration: root.colorAnimationDuration } }
+                                Behavior on border.color { ColorAnimation { duration: root.colorAnimationDuration; easing.type: Easing.OutQuad } }
                                 gradient: Gradient {
-                                    GradientStop { position: 0; color: hovered ? root.runButtonColor : PokeColor.lighter(root.runButtonColor) }
-                                    GradientStop { position: 1; color: hovered ? PokeColor.darker(PokeColor.darker(root.runButtonColor)) : PokeColor.darker(root.runButtonColor) }
+                                    GradientStop {
+                                        id: runGradientStop1
+                                        position: 0
+                                        color: runOptionItem.hovered ? root.runButtonColor : PokeColor.lighter(root.runButtonColor)
+                                        Behavior on color { ColorAnimation { duration: root.colorAnimationDuration; easing.type: Easing.OutCubic } }
+                                    }
+                                    GradientStop {
+                                        id: runGradientStop2
+                                        position: 1
+                                        color: runOptionItem.hovered ? PokeColor.darker(PokeColor.darker(root.runButtonColor)) : PokeColor.darker(root.runButtonColor)
+                                        Behavior on color { ColorAnimation { duration: root.colorAnimationDuration; easing.type: Easing.OutCubic } }
+                                    }
                                 }
-                                Behavior on gradient { ColorAnimation { duration: root.colorAnimationDuration } }
                             }
                             Text {
                                 text: modelData.text
@@ -751,6 +748,7 @@ Rectangle {
                             anchors.fill: parent
                             hoverTarget: runOptionItem
                             onClicked: modelData.action()
+
                         }
                     }
                 }
@@ -811,7 +809,6 @@ Rectangle {
             onLoaded: item.content = fightContent
         }
     }
-
     Component {
         id: switchSelection
         Loader {
@@ -821,7 +818,6 @@ Rectangle {
             onLoaded: item.content = switchContent
         }
     }
-
     Component {
         id: catchSelection
         Loader {
@@ -831,7 +827,6 @@ Rectangle {
             onLoaded: item.content = catchContent
         }
     }
-
     Component {
         id: runSelection
         Loader {
