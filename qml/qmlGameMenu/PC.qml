@@ -14,14 +14,16 @@ Item{
     property int pcColumns: 4
 
     property var partyData: [
-        {iconId: 1, slot: 0},
-        {iconId: 2, slot: 1},
-        {iconId: 3, slot: 4}
+        {iconId: 0, slot: 0},
+        {iconId: 1, slot: 1},
+        {iconId: 2, slot: 2}
     ]
+
     property var pcData: [
         {iconId: 492, row: 0, col: 0},
-        {iconId: 151, row: 5, col: 4}
+        {iconId: 150, row: 3, col: 3}
     ]
+
     property var partyMap: ({})
     property var pcMap: ({})
     Component.onCompleted: {
@@ -104,7 +106,7 @@ Item{
         pcData = dataList
         var map = {}
         for(var i = 0; i < dataList.length; i++) {
-            var key = dataList[i].row * 5 + dataList[i].col
+            var key = dataList[i].row * root.pcRows + dataList[i].col
             map[key] = dataList[i].iconId
         }
         pcMap = map
@@ -114,7 +116,7 @@ Item{
         height: root.slotHeight
         property bool iconVisible: false
         property int frameIndex: 0
-        color: "transparent"
+        color: hoverArea.containsMouse ? "blue" : "transparent"
         Image {
             anchors.fill: parent
             visible: iconVisible
@@ -124,6 +126,11 @@ Item{
             sourceClipRect: Qt.rect(0, frameIndex * spriteHeight, spriteWidth, spriteHeight)
             smooth: false
             antialiasing: false
+        }
+        MouseArea {
+            id: hoverArea
+            anchors.fill: parent
+            hoverEnabled: true
         }
     }
 }

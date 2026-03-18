@@ -83,7 +83,7 @@ Rectangle {
             }
             Text {
                 anchors.centerIn: parent
-                text: "Right Panel (Replaceable)"
+                text: "Right Panel"
                 color: root.textColor
                 font.pixelSize: 16
             }
