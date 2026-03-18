@@ -199,8 +199,8 @@ Item {
 
     // Attack button handler
     function onAttackButtonClicked() {
-        // var playerFirst = Math.random() < 0.5;
-        var playerFirst = false;
+        var playerFirst = Math.random() < 0.5;
+        // var playerFirst = false;
         startAttackChain(playerFirst);
     }
 
@@ -276,7 +276,8 @@ Item {
                 break;
 
             case "change-health":
-                let currentHealthRatio = step.defender.statusBar.incrementHealth(-51);
+                let currentHealthRatio = step.defender.statusBar.incrementHealth(-33);
+                sequenceTimer.interval = step.delay;
 
                 if(currentHealthRatio==0){
                     root.attackSequence = [
@@ -286,12 +287,12 @@ Item {
                     root.currentAttackIndex = 0;
                 }
 
-                sequenceTimer.interval = step.delay;
                 sequenceTimer.start();
                 break;
 
             case "lose-battle":
                 update_text_bar(step.message);
+                step.defender.visible = false;
                 sequenceTimer.interval = step.delay;
                 sequenceTimer.start();
                 break;
