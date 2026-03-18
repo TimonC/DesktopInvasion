@@ -20,6 +20,11 @@ GameMenu::GameMenu()
     }else{
         setSource(QUrl("qrc:/qml/qmlGameMenu/Menu.qml"));
     }
+
+    m_grabCursor = QCursor(QPixmap(":/assets/XY/grab.png"));
+    m_pointerCursor = QCursor(QPixmap(":/assets/XY/pointer.png"), 6, 6);
+    setCursor(m_pointerCursor);
+
     setTitle("DesktopInvasion");
     hide();
 }

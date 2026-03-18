@@ -135,6 +135,7 @@ Item{
             id: hoverArea
             anchors.fill: parent
             hoverEnabled: true
+            cursorShape: undefined
         }
     }
 }

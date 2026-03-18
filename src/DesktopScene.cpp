@@ -16,9 +16,9 @@ DesktopScene::DesktopScene(QWindow *parent)
     );
     setColor(Qt::transparent);
 
-     m_grabCursor = QCursor(QPixmap(":/assets/XY/grab.png"));
-     m_pointerCursor = QCursor(QPixmap(":/assets/XY/pointer.png"), 6, 6);
-     setCursor(m_pointerCursor);
+    m_grabCursor = QCursor(QPixmap(":/assets/XY/grab.png"));
+    m_pointerCursor = QCursor(QPixmap(":/assets/XY/pointer.png"), 6, 6);
+    setCursor(m_pointerCursor);
 }
 
 

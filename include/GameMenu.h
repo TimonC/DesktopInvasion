@@ -17,7 +17,9 @@ signals:
 
 protected:
     bool event(QEvent *event) override;
-
+private:
+    QCursor m_grabCursor;
+    QCursor m_pointerCursor;
 };
 
 #endif
