@@ -18,12 +18,4 @@ Image {
     smooth: false
     antialiasing: false
 
-
-    function scaledWidth() {
-        return spriteWidth * iconScale
-    }
-
-    function scaledHeight() {
-        return spriteHeight * iconScale
-    }
 }

@@ -8,6 +8,7 @@ Rectangle {
     color: "transparent"
 
     property int menuTransitionDuration: 100
+    property int iconScale: 1
 
     property int frameSize: 0
     property int buttonWidth: frameSize * 2
@@ -45,7 +46,6 @@ Rectangle {
     property color textBarBackgroundColor: "white"
     property color textBarBorderColor: "black"
 
-    property real iconScale: 1.0
     property real normalIconOpacity: 1.0
     property real faintedIconOpacity: 0.7
 
@@ -56,7 +56,6 @@ Rectangle {
     property color catchButtonPressedBackground: "#f0f0f0"
     property color catchButtonBorderColor: "black"
 
-    property double spriteScale: 1
     property int ballSpriteWidth: 16
     property int ballSpriteHeight: 23
     property string ballSpriteSheet: "qrc:/assets/HGSS/reordered_pokeballs.png"
@@ -522,8 +521,8 @@ Rectangle {
                             spacing: root.gridSpacing
 
                             Item {
-                                width: root.ballSpriteWidth * root.spriteScale
-                                height: root.ballSpriteHeight * root.spriteScale
+                                width: root.ballSpriteWidth * root.iconScale
+                                height: root.ballSpriteHeight * root.iconScale
 
                                 Image {
                                     anchors.verticalCenter: parent.verticalCenter
@@ -531,8 +530,8 @@ Rectangle {
                                     anchors.horizontalCenter: parent.horizontalCenter
 
                                     source: root.ballSpriteSheet
-                                    width: root.ballSpriteWidth * root.spriteScale
-                                    height: root.ballSpriteHeight * root.spriteScale
+                                    width: root.ballSpriteWidth * root.iconScale
+                                    height: root.ballSpriteHeight * root.iconScale
                                     sourceClipRect: Qt.rect(0, root.ballSpriteHeight * index,
                                                            root.ballSpriteWidth, root.ballSpriteHeight)
                                     smooth: false
