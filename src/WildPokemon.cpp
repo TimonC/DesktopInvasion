@@ -1,12 +1,11 @@
-#include "Pokemon.h"
-#include "WildPokemon.h"
-#include "Player.h"
 #include <QWindow>
 #include <QTimer>
 #include <QQuickItem>
 #include <QQuickView>
 #include <QRandomGenerator>
-#include <qtimer.h>
+#include "Pokemon.h"
+#include "WildPokemon.h"
+#include "Player.h"
 
 WildPokemon::WildPokemon(QWindow *parent, int row)
     : Pokemon(parent, row)
@@ -26,6 +25,9 @@ WildPokemon::WildPokemon(QWindow *parent, int row)
     QQuickItem* openingButtons = m_sprite->property("battleButton").value<QQuickItem*>();
     connect( openingButtons, SIGNAL(clicked()), this, SLOT(startBattle()));
 
+    extern Player* player;
+    // Use the proper signal name
+    connect(openingButtons, SIGNAL(clicked()), player, SLOT(iChooseYou()));
     m_decisionTimer->start();
     makeRandomDecision();
 

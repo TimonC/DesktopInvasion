@@ -1,9 +1,10 @@
 #include "Player.h"
 #include "Pokemon.h"
 
-Pokemon* Player::iChooseYou(int partyId, QPoint mySpot, int direction){
-    Pokemon* chosen = new Pokemon(nullptr, partyId);
-    chosen->setDirection(direction);
-
+Pokemon* Player::iChooseYou(){
+    Pokemon* chosen = new Pokemon(nullptr, 0);
+    chosen->setDirection(0);
+    chosen->show();
+    qDebug() << "I choose you!";
     return chosen;
 };

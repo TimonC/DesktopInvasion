@@ -15,6 +15,7 @@ add_executable(DesktopInvasion)
 qt6_add_resources(RESOURCES_RCC resources.qrc)
 target_sources(DesktopInvasion PRIVATE
     src/main.cpp
+    src/Player.cpp
     src/Pokemon.cpp
     src/WildPokemon.cpp
     ${RESOURCES_RCC}

@@ -14,6 +14,7 @@ private slots:
     void moveStep();
     void onClick();
     void stopOpening();
+public slots:
     void startBattle();
 
 private:
