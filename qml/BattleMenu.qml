@@ -33,10 +33,10 @@ Rectangle {
     property color textBarTextColor: "black"
     property color menuTextColor: "white"
 
-    property color fightButtonColor: PokeColor.darker("red")
-    property color switchButtonColor: PokeColor.darker("green")
-    property color catchButtonColor: PokeColor.darker("orange")
-    property color runButtonColor: PokeColor.darker("blue")
+    property color fightButtonColor: "red"
+    property color switchButtonColor: "green"
+    property color catchButtonColor: "orange"
+    property color runButtonColor: "blue"
 
     property color borderColor: "#999999"
     property color disabledBorderColor: "#777777"
@@ -183,7 +183,6 @@ Rectangle {
         }
     }
 
-    property bool clickedEffect: false
     component GradientRoundButton: Item {
         id: gradientButton
         required property color buttonColor
@@ -195,6 +194,9 @@ Rectangle {
         property bool down: mouseArea.pressed
         property bool hovered: mouseArea.containsMouse
         property alias font: label.font
+        property bool enabled: true
+        property color borderColor: PokeColor.lighter(buttonColor)
+        property real borderWidth: root.borderWidth
 
         width: Math.floor(root.contentWidth / 2 - root.gridSpacing)
         height: Math.floor(root.contentHeight / 2 - root.gridSpacing)
@@ -202,21 +204,33 @@ Rectangle {
         NoCursorMouseArea {
             id: mouseArea
             anchors.fill: parent
+            enabled: gradientButton.enabled
             onClicked: gradientButton.clicked()
         }
-
         Rectangle {
-            id: background
             anchors.fill: parent
             radius: height / 2
+            color: gradientButton.enabled ? borderColor : root.disabledBorderColor
+            opacity: gradientButton.enabled ? enabledOpacity : disabledOpacity
+        }
+
+        // Inner gradient background (slightly smaller than border)
+        Rectangle {
+            anchors.fill: parent
+            anchors.margins: borderWidth
+            radius: Math.max(0, height / 2 - borderWidth)
 
             gradient: Gradient {
-                GradientStop { position: 0.0; color: PokeColor.lighter(gradientButton.buttonColor) }
-                GradientStop { position: 1.0; color: gradientButton.buttonColor }
+                GradientStop {
+                    position: 0.0;
+                    color: gradientButton.enabled ? PokeColor.lighter(buttonColor) : root.disabledBackgroundColor
+                }
+                GradientStop {
+                    position: 1.0;
+                    color: gradientButton.enabled ? PokeColor.darker(buttonColor) : root.disabledBackgroundColor
+                }
             }
 
-            opacity: mouseArea.pressed ? 0.9 : 1.0
-            scale: mouseArea.pressed ? 0.98 : 1.0
 
             Behavior on opacity { NumberAnimation { duration: 100 } }
             Behavior on scale { NumberAnimation { duration: 100 } }
@@ -230,13 +244,15 @@ Rectangle {
             font.pixelSize: root.buttonFontSize
             font.family: root.menuFontFamily
             font.weight: Font.DemiBold
-            color: root.menuTextColor
+            color: gradientButton.enabled ? root.menuTextColor : root.placeholderTextColor
             wrapMode: Text.NoWrap
             elide: Text.ElideRight
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
+            opacity: gradientButton.enabled ? 1.0 : disabledOpacity
         }
     }
+
 
     StackView {
         id: stack
