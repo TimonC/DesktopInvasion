@@ -24,10 +24,12 @@ private slots:
 protected:
     void mousePressEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
 private:
     const PokemonInfo* info;
     int m_currentDirection;
-    QPointF m_oldPos;
+    bool m_isDragged = false;
+    QPoint m_oldMousePos;
     QQuickItem* m_sprite;
     QTimer* m_decisionTimer;
     QTimer* m_moveTimer;

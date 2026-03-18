@@ -43,8 +43,8 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
     m_moveTimer->setInterval(50); // 20fps
 
 
-    int width = Globals::SCALE*50;
-    int height = Globals::SCALE*50;
+    int width = Globals::SCALE*32;
+    int height = Globals::SCALE*32;
 
     m_sprite->setProperty("itemWidth", width);
     m_sprite->setProperty("itemHeight", height);
@@ -52,22 +52,28 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
     setWidth(width);
     setHeight(height);
 
-    m_sprite->setProperty("spriteOffsetX", width/2.5);
-    m_sprite->setProperty("spriteOffsetY", height/2.8);
+    m_sprite->setProperty("spriteOffsetX", width/3);
+    m_sprite->setProperty("spriteOffsetY", height/3);
     startRoaming();
     show();
 }
 
 void WildPokemon::mousePressEvent(QMouseEvent* event){
-    handleDrag(true);
-    m_oldPos = event->position();
-    if(event->button()== Qt::LeftButton) startSystemMove();
-    /* QQuickView::mousePressEvent(event); */
+    if(event->button()== Qt::LeftButton){
+        handleDrag(true);
+        m_oldMousePos = event->globalPos(); //i want QPoint instead of QPointF so i dont have to convert for setPosition, therefore use deprecated method
+    }
 }
 
 void WildPokemon::mouseReleaseEvent(QMouseEvent* event){
     handleDrag(false);
-    /* QQuickView::mouseReleaseEvent(event); */
+}
+
+void WildPokemon::mouseMoveEvent(QMouseEvent* event){
+    if(!m_isDragged) return;
+    const QPoint newMousePos = event->globalPos();
+    setPosition(position() + newMousePos - m_oldMousePos);
+    m_oldMousePos = newMousePos;
 }
 
 void WildPokemon::startRoaming(){
@@ -79,6 +85,7 @@ void WildPokemon::startRoaming(){
 }
 
 void WildPokemon::handleDrag(bool isDragged){
+    m_isDragged = isDragged;
     if(isDragged){
         m_sprite->setProperty("frameRate", 8);
         m_moveTimer->stop();
