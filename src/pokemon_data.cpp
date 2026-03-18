@@ -455,6 +455,7 @@ const PokemonInfo kPokemonList[] = {
     {413, 29, 4,  "Wormadam_sandy"},
     {413, 30, 4,  "Wormadam_trash"},
     {414, 31, 4,  "Mothim"},
+    {415, 33, 4,  "Combee"},
     {416, 34, 4,  "Vespiquen"},
     {417, 35, 4,  "Pachirisu"},
     {418, 36, 4,  "Buizel"},
