@@ -252,11 +252,7 @@ int PokemonDatabase::catchWildPokemon() {
     int caughtId = createPokemon(wild);
     if (caughtId <= 0) return -1;
 
-    if(clearWild()){
-        return caughtId;
-    }else{
-        return -1;
-    }
+    return caughtId;
 }
 
 bool PokemonDatabase::clearWild() {

@@ -292,31 +292,31 @@ void Game::handleBattleEnd(const char* endState) {
                     }
                 }
             }
-        }else{
-            // Player won the battle - add XP
-            if (playerWon) {
-                if (m_db.addPokemonXp(m_partyIds[0], 100)) {
-                    int newXp = m_db.getPokemonXp(m_partyIds[0]);
-                    qDebug() << "Added 100 XP to fighting Pokemon. Total XP:" << newXp;
-                } else {
-                    qWarning() << "Failed to add XP to Pokemon ID:" << m_partyIds[0];
-                }
-            }
-
-            if( m_db.clearWild()){
-                qDebug() << "Cleared wild pokemon instance";
-            }else{
-                qWarning() << "Failed to clear wild pokemon";
-            }
-            // Cleanup
-            if (m_activeBattle)  safelyRemoveBattleScene();
-            if (m_wildPokemon) {
-                m_wildPokemon->deleteLater();
-                m_wildPokemon = nullptr;
-            }
-            m_spawnPoint = QPoint(-1,-1);
-            m_spawnTimer->start();
         }
+
+        // Player won the battle - add XP
+        if (playerWon) {
+            if (m_db.addPokemonXp(m_partyIds[0], 100)) {
+                int newXp = m_db.getPokemonXp(m_partyIds[0]);
+                qDebug() << "Added 100 XP to fighting Pokemon. Total XP:" << newXp;
+            } else {
+                qWarning() << "Failed to add XP to Pokemon ID:" << m_partyIds[0];
+            }
+        }
+
+        // Cleanup wild pokemon and battle
+        if( m_db.clearWild()){
+            qDebug() << "Cleared wild pokemon instance";
+        }else{
+            qWarning() << "Failed to clear wild pokemon";
+        }
+        if (m_activeBattle)  safelyRemoveBattleScene();
+        if (m_wildPokemon) {
+            m_wildPokemon->deleteLater();
+            m_wildPokemon = nullptr;
+        }
+        m_spawnPoint = QPoint(-1,-1);
+        m_spawnTimer->start();
 
     } else {
         // Battle ended without removing wild Pokemon
