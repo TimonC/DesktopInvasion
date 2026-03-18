@@ -16,7 +16,7 @@ Game::Game(QQmlApplicationEngine* engine, QObject* parent) : QObject(parent) {
 
     m_trayIcon = new SystemTrayIcon(this);
     connect(m_trayIcon, &SystemTrayIcon::gameActive,
-            this, &Game::toggleGameActive);
+            this, &Game::setGameActive);
 }
 
 Game::~Game() {
@@ -30,13 +30,18 @@ Game::~Game() {
     delete m_trayIcon;
 }
 
-void Game::toggleGameActive(bool active){
+void Game::setGameActive(bool active){
     static bool processing = false;
     if(processing) return;
 
     processing=true;
     if(active){
-        if(m_wildPokemonInfo) m_wildPokemon = new WildPokemon(m_wildPokemonInfo, m_spawnPoint, m_spawnDirection);
+        if(m_wildPokemon){
+            m_wildPokemon->disconnect();
+            delete m_wildPokemon;
+            m_wildPokemon = nullptr;
+        }
+        if(m_wildPokemonInfo)m_wildPokemon = new WildPokemon(m_wildPokemonInfo, m_spawnPoint, m_spawnDirection);
     }else{
         if(m_activeBattle){
             updateWildPokemonPosToBattlePos();

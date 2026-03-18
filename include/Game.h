@@ -23,15 +23,15 @@ private:
     const PokemonInfo* m_wildPokemonInfo;
     GameMenu* m_menu;
     SystemTrayIcon* m_trayIcon;
-    QPoint m_spawnPoint;
-    int m_spawnDirection;
+    std::optional<QPoint> m_spawnPoint = std::nullopt;
+    int m_spawnDirection = -1;
     const int m_spawnDelay_ms = 5000;
     void updateWildPokemonPosToBattlePos();
 
 private slots:
     void handleBattleStart(Battle* battle);
     void handleBattleEnd(bool removeWild);
-    void toggleGameActive(bool active = true);
+    void setGameActive(bool active = true);
 };
 
 #endif
