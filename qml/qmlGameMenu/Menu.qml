@@ -49,6 +49,11 @@ Rectangle {
     property int    _pendingFrameHeight: 32
     property real   _pendingScaleFactor: 8
 
+    property alias spriteSize:         trainer.spriteSize
+    property alias battleSpeed:        trainer.battleSpeed
+    property alias encounterLevelHigh: trainer.encounterLevelHigh
+    property alias encounterLevelLow:  trainer.encounterLevelLow
+
     MouseArea {
         anchors.fill: parent
         cursorShape:  undefined
@@ -164,6 +169,7 @@ Rectangle {
             Item {
                 width: parent.width; height: root.trainerH
                 Trainer {
+                    id: trainer
                     anchors.fill: parent
                     textColor:    root.textColor
                     fontSizeSm:     root.fontSizeSm

@@ -48,6 +48,14 @@ GameMenu::GameMenu()
 bool GameMenu::event(QEvent* event) {
     if (event->type() == QEvent::WindowDeactivate || event->type() == QEvent::Close) {
         hide();
+
+        QQuickItem* m_menuRoot = rootObject();
+        assert(m_menuRoot);
+        Globals::scale(m_menuRoot->property("spriteSize").toFloat());
+        Globals::animationSpeed(m_menuRoot->property("battleSpeed").toFloat());
+        Globals::encounterLvlHigh(m_menuRoot->property("encounterLevelHigh").toInt());
+        Globals::encounterLvlLow(m_menuRoot->property("encounterLevelLow").toInt());
+
         emit menuClosed();
         return true;
     }

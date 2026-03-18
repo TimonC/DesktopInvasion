@@ -14,6 +14,12 @@ namespace Globals {
     float animationSpeed();
     void animationSpeed(float value);
 
+    int encounterLvlLow();
+    void encounterLvlLow(float value);
+
+    int encounterLvlHigh();
+    void encounterLvlHigh(float value);
+
     const QRect& screenGeometry();
 
 }
