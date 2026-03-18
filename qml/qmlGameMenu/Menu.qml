@@ -102,7 +102,7 @@ Rectangle {
                                               : "qrc:/assets/HGSS/reordered_sprites.png"
             pokeView.frameWidth  = poke.isBig ? 64 : 32
             pokeView.frameHeight = poke.isBig ? 64 : 32
-            pokeView.scaleFactor = poke.isBig ? 4  : 6
+            pokeView.scaleFactor = poke.isBig ? 6  : 8
         }
     }
 

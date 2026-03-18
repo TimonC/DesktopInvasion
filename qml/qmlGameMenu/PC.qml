@@ -4,12 +4,6 @@ import QtQuick.Layouts 1.15
 Item {
     id: root
 
-    // Fixed implicit size – the parent menu sizes itself around these values.
-    // Width:  margin(10) + arrow(36) + spacing(10) + pcGrid(4×80=320) + spacing(10) + arrow(36) + margin(10) = 432
-    // Height: margin(10) + partyRow(2×60=120) + rowGap(10) + pcGrid(4×60=240) + margin(10) = 390
-    implicitWidth:  432
-    implicitHeight: 390
-
     // ── Visual config ──────────────────────────────────────────────────────────
     property string fontFamily:     "sans-serif"
     property color  partyBackground: "white"
@@ -21,8 +15,8 @@ Item {
 
     readonly property int partyRows:    2
     readonly property int partyColumns: 3
-    readonly property int pcRows:       4
-    readonly property int pcColumns:    4
+    readonly property int pcRows:       5
+    readonly property int pcColumns:    6
     readonly property int maxBoxes:     99
 
     // ── Spacing (single source of truth) ──────────────────────────────────────

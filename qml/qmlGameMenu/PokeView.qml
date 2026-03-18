@@ -53,8 +53,11 @@ Item {
                 source:      pokeView.spriteSheet
                 frameWidth:  pokeView.frameWidth
                 frameHeight: pokeView.frameHeight
-                frameCount:  2; frameRate: 4
-                interpolate: false; smooth: false; antialiasing: false
+                frameCount:  2
+                frameRate: 4
+                interpolate: false
+                smooth: false
+                antialiasing: false
                 frameX: pokeView.frameWidth * 4
                 frameY: pokeView.rowId * pokeView.frameHeight
             }
