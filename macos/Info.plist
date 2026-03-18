@@ -8,8 +8,6 @@
     <string>DesktopInvasion</string>
     <key>CFBundleIconFile</key>
     <string>icon.icns</string>
-    <key>CFBundleIdentifier</key>
-    <string>com.yourcompany.DesktopInvasion</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
