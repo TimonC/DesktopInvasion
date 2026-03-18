@@ -82,6 +82,7 @@ QVariantMap Game::pokemonToMenuState(int slot, const PokemonState &p){
     entry["iconId"] = p.pokedex_id-1;
     entry["name"] = QString::fromStdString(p.name);
     entry["level"] = p.lvl;
+    entry["nature"] = QString::fromStdString(PokeTypes::natureToString(p.nature));
 
     const AssetInfo* info = Lookup::getSpriteInfo(p.pokedex_id);
     entry["rowId"] = info->rowId;

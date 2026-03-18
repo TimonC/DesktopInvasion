@@ -2,7 +2,6 @@ import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import "../Style/PokeColor.js" as PokeColor
 
-
 Item {
     id: pokeView
     anchors.fill: parent
@@ -15,177 +14,207 @@ Item {
     property real   scaleFactor:  6
     property int    rowId:        0
 
+    property string mainFont:    root.p2pFont
+    property string bodyFont:    root.dotGothicFont
+    property int    fontSizeLg:  18
+    property int    fontSizeMd:  14
+    property int    fontSizeSm:  11
+    property int    margin:      12
+    property int    spacing:     6
+    property int    maxSprite:   64 * 4
 
-    ColumnLayout {
-        anchors.fill: parent
-        anchors.margins: 8
-        spacing: 6
+    property real   ratioTop:    0.32
+    property real   ratioFlavor: 0.16
+    property real   ratioMoves:  0.52
 
-        // TOP: sprite + identity
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.preferredHeight: parent.height * 0.30
-            spacing: 8
+    readonly property real innerH: height - margin * 2
+    readonly property real halfW:  (width - margin * 2) / 2
+
+    // ── TOP ROW ──────────────────────────────────────────────────────────────
+    Item {
+        id: topRow
+        anchors { top: parent.top; left: parent.left; right: parent.right; margins: margin }
+        height: innerH * ratioTop
+
+        Item {
+            anchors { top: parent.top; bottom: parent.bottom; left: parent.left }
+            width: halfW
 
             AnimatedSprite {
-                id: sprite
-                Layout.preferredWidth:  frameWidth  * scaleFactor
-                Layout.preferredHeight: frameHeight * scaleFactor
-                Layout.alignment: Qt.AlignVCenter
-                running:     true
+                anchors.centerIn: parent
+                width:  pokeView.frameWidth  * pokeView.scaleFactor
+                height: pokeView.frameHeight * pokeView.scaleFactor
+                running: true
                 source:      pokeView.spriteSheet
                 frameWidth:  pokeView.frameWidth
                 frameHeight: pokeView.frameHeight
-                frameCount:  2
-                frameRate:   4
-                interpolate: false
-                smooth:      false
-                antialiasing: false
-                frameX:      pokeView.frameWidth * 4
-                frameY:      pokeView.rowId * pokeView.frameHeight
+                frameCount:  2; frameRate: 4
+                interpolate: false; smooth: false; antialiasing: false
+                frameX: pokeView.frameWidth * 4
+                frameY: pokeView.rowId * pokeView.frameHeight
             }
+        }
 
-            ColumnLayout {
-                Layout.fillWidth: true
-                Layout.alignment: Qt.AlignVCenter
-                spacing: 4
+        Item {
+            anchors { top: parent.top; bottom: parent.bottom; right: parent.right }
+            width: halfW
+
+            Column {
+                anchors.centerIn: parent
+                spacing: spacing
 
                 Text {
                     text: pokeData ? pokeData.name : ""
-                    font.family: root.p2pFont
-                    font.pixelSize: 14
+                    font.family: mainFont; font.pixelSize: fontSizeLg
                     color: root.textColor
                 }
                 Text {
                     text: pokeData ? pokeData.pokeName : ""
-                    font.family: root.dotGothicFont
-                    font.pixelSize: 12
+                    font.family: bodyFont; font.pixelSize: fontSizeMd
                     color: "#aaaaaa"
                 }
-                Text {
-                    text: pokeData ? "Lv. " + pokeData.level : ""
-                    font.family: root.dotGothicFont
-                    font.pixelSize: 12
-                    color: root.textColor
+                Row {
+                    spacing: 8
+                    Text {
+                        text: pokeData ? "Lv. " + pokeData.level : ""
+                        font.family: bodyFont; font.pixelSize: fontSizeMd
+                        color: root.textColor
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                    Text {
+                        text: pokeData ? pokeData.nature : ""
+                        font.family: bodyFont; font.pixelSize: fontSizeSm
+                        color: "#aaaaaa"
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
                 }
-                RowLayout {
-                    spacing: 4
+                Row {
+                    spacing: 6
                     Repeater {
                         model: pokeData ? [pokeData.type1, pokeData.type2].filter(t => t && t !== "None") : []
                         Rectangle {
-                            width:  typeLbl.implicitWidth + 10
-                            height: 18
-                            radius: 4
-                            color:  PokeColor.typeColor(modelData) ?? "#888"
+                            width: lbl.implicitWidth + 12; height: fontSizeMd + 6; radius: 4
+                            color: PokeColor.typeColor(modelData) ?? "#888"
                             Text {
-                                id: typeLbl
-                                anchors.centerIn: parent
+                                id: lbl; anchors.centerIn: parent
                                 text: modelData
-                                font.family: root.dotGothicFont
-                                font.pixelSize: 10
+                                font.family: bodyFont; font.pixelSize: fontSizeSm
                                 color: "#ffffff"
+                            }
+                        }
+                    }
+                }
+
+                Item { width: 1; height: 2 }
+
+                // Stats + nature in a compact grid
+                Grid {
+                    id: statsGrid
+                    columns: 3; columnSpacing: 16; rowSpacing: 2
+                    property var statNames: ["HP","Atk","Def","SpA","SpD","Spe"]
+                    Repeater {
+                        model: pokeData ? pokeData.stats : []
+                        Row {
+                            spacing: 4
+                            Text {
+                                text: statsGrid.statNames[index] + ":"
+                                font.family: bodyFont; font.pixelSize: fontSizeSm
+                                color: "#aaaaaa"; width: 36
+                            }
+                            Text {
+                                text: modelData
+                                font.family: bodyFont; font.pixelSize: fontSizeSm
+                                color: root.textColor
                             }
                         }
                     }
                 }
             }
         }
+    }
 
-        // STATS
-        Grid {
-            Layout.fillWidth: true
-            columns: 2
-            columnSpacing: 12
-            rowSpacing: 2
+    Rectangle {
+        id: divider1
+        anchors { top: topRow.bottom; left: parent.left; right: parent.right; leftMargin: margin; rightMargin: margin }
+        height: 1; color: "#444444"
+    }
 
-            property var statNames: ["HP","Atk","Def","SpA","SpD","Spe"]
+    // ── FLAVOR TEXT ──────────────────────────────────────────────────────────
+    Item {
+        id: flavorRow
+        anchors { top: divider1.bottom; left: parent.left; right: parent.right; leftMargin: margin; rightMargin: margin }
+        height: innerH * ratioFlavor
+
+        Text {
+            anchors.centerIn: parent
+            width: parent.width
+            text: pokeData ? pokeData.flavorText : ""
+            font.family: bodyFont; font.pixelSize: fontSizeMd
+            color: "#cccccc"; wrapMode: Text.WordWrap; elide: Text.ElideRight
+            horizontalAlignment: Text.AlignHCenter
+        }
+    }
+
+    Rectangle {
+        id: divider2
+        anchors { top: flavorRow.bottom; left: parent.left; right: parent.right; leftMargin: margin; rightMargin: margin }
+        height: 1; color: "#444444"
+    }
+
+    // ── MOVES ─────────────────────────────────────────────────────────────────
+    Item {
+        anchors { top: divider2.bottom; left: parent.left; right: parent.right; bottom: parent.bottom; leftMargin: margin; rightMargin: margin; bottomMargin: margin }
+
+        Column {
+            anchors.centerIn: parent
+            width: parent.width
+            spacing: 4
 
             Repeater {
-                model: pokeData ? pokeData.stats : []
-                RowLayout {
-                    spacing: 4
-                    Text {
-                        text: parent.parent.statNames[index] + ":"
-                        font.family: root.dotGothicFont
-                        font.pixelSize: 11
-                        color: "#aaaaaa"
-                        width: 30
-                    }
-                    Text {
-                        text: modelData
-                        font.family: root.dotGothicFont
-                        font.pixelSize: 11
-                        color: root.textColor
-                    }
-                }
-            }
-        }
+                model: pokeData ? pokeData.moves : []
+                Rectangle {
+                    width: parent.width
+                    height: moveInner.implicitHeight + 8
+                    color: "#383838"; radius: 5
 
-        // FLAVOR TEXT
-        Text {
-            Layout.fillWidth: true
-            text: pokeData ? pokeData.flavorText : ""
-            font.family: root.dotGothicFont
-            font.pixelSize: 10
-            color: "#cccccc"
-            wrapMode: Text.WordWrap
-        }
+                    Column {
+                        id: moveInner
+                        anchors { left: parent.left; right: parent.right; top: parent.top; margins: 6 }
+                        spacing: 2
 
-        // MOVES
-        Repeater {
-            model: pokeData ? pokeData.moves : []
-            Rectangle {
-                Layout.fillWidth: true
-                height: moveCol.implicitHeight + 8
-                color: "#3a3a3a"
-                radius: 4
-
-                ColumnLayout {
-                    id: moveCol
-                    anchors { left: parent.left; right: parent.right; top: parent.top; margins: 4 }
-                    spacing: 2
-
-                    RowLayout {
-                        spacing: 6
-                        Text {
-                            text: modelData.name
-                            font.family: root.dotGothicFont
-                            font.pixelSize: 11
-                            color: root.textColor
-                        }
-                        Rectangle {
-                            width:  movTypeLbl.implicitWidth + 8
-                            height: 14
-                            radius: 3
-                            color:  PokeColor.typeColor(modelData.type) ?? "#888"
+                        Row {
+                            spacing: 8
                             Text {
-                                id: movTypeLbl
-                                anchors.centerIn: parent
-                                text: modelData.type
-                                font.family: root.dotGothicFont
-                                font.pixelSize: 9
-                                color: "#ffffff"
+                                text: modelData.name
+                                font.family: bodyFont; font.pixelSize: fontSizeMd
+                                color: root.textColor
+                            }
+                            Rectangle {
+                                width: pill.implicitWidth + 10; height: fontSizeMd + 4; radius: 3
+                                color: PokeColor.typeColor(modelData.type) ?? "#888"
+                                anchors.verticalCenter: parent.verticalCenter
+                                Text {
+                                    id: pill; anchors.centerIn: parent
+                                    text: modelData.type
+                                    font.family: bodyFont; font.pixelSize: fontSizeSm
+                                    color: "#ffffff"
+                                }
+                            }
+                            Text {
+                                text: "Pow: " + modelData.power + "   Acc: " + modelData.accuracy
+                                font.family: bodyFont; font.pixelSize: fontSizeSm
+                                color: "#aaaaaa"; anchors.verticalCenter: parent.verticalCenter
                             }
                         }
                         Text {
-                            text: "Pow:" + modelData.power + "  Acc:" + modelData.accuracy
-                            font.family: root.dotGothicFont
-                            font.pixelSize: 10
-                            color: "#aaaaaa"
+                            width: parent.width
+                            text: modelData.flavor
+                            font.family: bodyFont; font.pixelSize: fontSizeSm
+                            color: "#888888"; wrapMode: Text.WordWrap
                         }
-                    }
-                    Text {
-                        Layout.fillWidth: true
-                        text: modelData.flavor
-                        font.family: root.dotGothicFont
-                        font.pixelSize: 9
-                        color: "#999999"
-                        wrapMode: Text.WordWrap
                     }
                 }
             }
         }
-
-        Item { Layout.fillHeight: true }
     }
 }
