@@ -5,12 +5,12 @@
 #include <QQuickItem>
 #include <QQuickView>
 #include <QRandomGenerator>
+#include <qtimer.h>
 
 WildPokemon::WildPokemon(QWindow *parent, int row)
     : Pokemon(parent, row)
     , m_decisionTimer(new QTimer(this))
     , m_moveTimer(new QTimer(this))
-    , m_openingTimer(new QTimer(this))
     , m_moveSpeed(1 + QRandomGenerator::global()->bounded(2))
 {
     QQuickItem* mouseArea = m_sprite->property("mouseArea").value<QQuickItem*>();
@@ -21,8 +21,6 @@ WildPokemon::WildPokemon(QWindow *parent, int row)
 
     m_moveTimer->setInterval(50); // 20fps
     connect(m_moveTimer, &QTimer::timeout, this, &WildPokemon::moveStep);
-
-    connect(m_openingTimer, &QTimer::timeout, this, &WildPokemon::stopOpening);
 
     QQuickItem* openingButtons = m_sprite->property("battleButton").value<QQuickItem*>();
     connect( openingButtons, SIGNAL(clicked()), this, SLOT(startBattle()));
@@ -36,14 +34,12 @@ void WildPokemon::startBattle(){
     QQuickItem* mouseArea = m_sprite->property("mouseArea").value<QQuickItem*>();
     disconnect(mouseArea, SIGNAL(clicked(QQuickMouseEvent*)), this, SLOT(onClick()));
 
-    mouseArea->property("enabled")=false  ;
-    mouseArea->property("visible")=false  ;
+    mouseArea->setProperty("enabled", false);
+    mouseArea->setProperty("visible", false);
+    m_sprite->setProperty("openingButtons", false);
 
-    stopOpening();
     m_moveTimer->disconnect();
     m_decisionTimer->disconnect();
-
-    qDebug() << "Battle started!";
 }
 
 
@@ -57,21 +53,20 @@ void WildPokemon::onClick(){
 
 void WildPokemon::startOpening(int durationMs){
     m_sprite->setProperty("openingButtons", true);
-    m_openingTimer->start(durationMs);
+    QTimer::singleShot(durationMs, this, &WildPokemon::stopOpening);
 }
 
 void WildPokemon::stopOpening(){
     m_sprite->setProperty("openingButtons", false);
-    m_openingTimer->stop();
     m_decisionTimer->start();
 }
 
 void WildPokemon::makeRandomDecision(){
     int decision = QRandomGenerator::global()->bounded(8);
+    setDirection(decision/2);
 
-    m_currentDirection = decision / 2;
-    m_sprite->setProperty("animation", m_currentDirection);
-bool moving = (decision % 2) == 1; if (moving) {
+    bool moving = (decision % 2) == 1;
+    if (moving) {
         m_moveTimer->start();
     } else {
         m_moveTimer->stop();

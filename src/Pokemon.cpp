@@ -3,6 +3,7 @@
 #include <QGuiApplication>
 #include <QScreen>
 #include <QQuickItem>
+#include <sys/types.h>
 
 Pokemon::Pokemon(QWindow *parent, int row)
     : QQuickView(parent)
@@ -38,7 +39,8 @@ Pokemon::Pokemon(QWindow *parent, int row)
     setY(std::rand()%m_screenGeometry.height());
 }
 
-
-
-
+void Pokemon::setDirection(int direction){
+    m_currentDirection = direction%4;
+    m_sprite->setProperty("animation",m_currentDirection);
+};
 
