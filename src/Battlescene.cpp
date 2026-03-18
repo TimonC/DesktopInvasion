@@ -148,6 +148,7 @@ void Battlescene::mouseMoveEvent(QMouseEvent* event){
 void Battlescene::drag(QPoint delta){
     QPoint pos = position();
     setPosition(pos + delta);
-    m_chosen->movePos(delta, false);
-    m_opp->movePos(delta, false);
+    m_corners->setPosition(m_corners->position() + delta);
+    m_chosen->movePos(delta);
+    m_opp->movePos(delta);
 }

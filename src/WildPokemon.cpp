@@ -96,8 +96,8 @@ void WildPokemon::makeRandomDecision(){
     }
 }
 
-QPoint WildPokemon::movePos(QPoint delta, bool boundsCheck) {
-    QPoint newPos = Pokemon::movePos(delta, boundsCheck);
+QPoint WildPokemon::movePos(QPoint delta) {
+    QPoint newPos = Pokemon::movePos(delta);
     m_hitbox->setPosition(QPoint(newPos.x(), newPos.y()) + m_hitbox->offset);
     return newPos;
 }

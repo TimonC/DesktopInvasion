@@ -18,7 +18,7 @@ private slots:
     void handleDoubleClick();
     void handleDrag(bool isDragged);
 public slots:
-    QPoint movePos(QPoint delta, bool boundsCheck = false) override;
+    QPoint movePos(QPoint delta) override;
 private:
     Hitbox* m_hitbox;
     QTimer* m_decisionTimer;

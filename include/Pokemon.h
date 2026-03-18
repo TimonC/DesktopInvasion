@@ -19,7 +19,7 @@ public:
     QQuickItem* m_sprite;
 
 public slots:
-    virtual QPoint movePos(QPoint delta, bool boundsCheck=true);
+    virtual QPoint movePos(QPoint delta);
 
 protected:
     QString getRandomSpriteSheet();

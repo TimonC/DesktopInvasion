@@ -76,14 +76,8 @@ int Pokemon::direction(){
     return m_currentDirection;
 };
 
-QPoint Pokemon::movePos(QPoint delta, bool boundsCheck) {
+QPoint Pokemon::movePos(QPoint delta){
     QPoint pos = position();
-    /* if(boundsCheck){ */
-        /* if (pos.x() + delta.x() < 0 || pos.x() + delta.x() > getScreenGeometry().width() - SPRITE_SIZE) */
-            /* delta.setX(0); */
-        /* if (pos.y() + delta.y() < 0 || pos.y() + delta.y() > getScreenGeometry().height() - SPRITE_SIZE) */
-            /* delta.setY(0); */
-    /* } */
     QPoint newPos = pos + delta;
     setPosition(newPos);
     return newPos;
