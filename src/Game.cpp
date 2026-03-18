@@ -66,10 +66,9 @@ QVariantList Game::partyToVariantList() {
     for (int slot = 0; slot < PARTY_SIZE; ++slot) {
         const PokemonState& p = party[slot];
         if (p.empty()) continue;
-        const AssetInfo* info = Lookup::getSpriteInfo(p.pokedex_id);
         QVariantMap entry;
         entry["slot"]   = slot;
-        entry["iconId"] = info->rowId;
+        entry["iconId"] = p.pokedex_id-1;
         list.append(entry);
     }
     return list;
@@ -82,10 +81,9 @@ QVariantList Game::boxToVariantList(int boxIndex) {
     for (int slot = 0; slot < BOX_SIZE; ++slot) {
         const PokemonState& p = box[slot];
         if (p.empty()) continue;
-        const AssetInfo* info = Lookup::getSpriteInfo(p.pokedex_id);
         QVariantMap entry;
         entry["slot"]   = slot;
-        entry["iconId"] = info->rowId;
+        entry["iconId"] = p.pokedex_id-1;
         list.append(entry);
     }
     return list;
@@ -318,6 +316,9 @@ void Game::createInitialPokemon() {
     make(92,  "Gastly",     0, 202, 28,  339, 93,  0);
     make(321, "Wailord",    0, 48,  28,  339, 260, 1);
     make(383, "Oysterhead", 2, 14,  53,  426, 434, 2);
+    make(383, "Oysterhead", 2, 14,  53,  426, 434, 3);
+    make(383, "Oysterhead", 2, 14,  53,  426, 434, 4);
+    make(383, "Oysterhead", 2, 14,  53,  426, 434, 5);
 }
 
 void Game::updatePartyXP(std::array<int,6> spread) {
