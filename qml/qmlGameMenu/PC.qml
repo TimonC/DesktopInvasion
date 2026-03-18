@@ -30,6 +30,7 @@ Item{
         fillParty(partyData)
         fillPC(pcData)
     }
+
     ColumnLayout {
         anchors.fill: parent
         spacing: 0
@@ -63,6 +64,7 @@ Item{
                 }
             }
         }
+
         Item{
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -94,6 +96,7 @@ Item{
             }
         }
     }
+
     function fillParty(dataList) {
         partyData = dataList
         var map = {}
@@ -102,6 +105,7 @@ Item{
         }
         partyMap = map
     }
+
     function fillPC(dataList) {
         pcData = dataList
         var map = {}

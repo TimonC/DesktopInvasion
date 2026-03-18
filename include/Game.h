@@ -1,7 +1,6 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "data_poke_asset.h"
 #include "PokemonDatabase.h"
 #include <Battle.h>
 #include <GameMenu.h>
@@ -24,23 +23,18 @@ public slots:
         qDebug() << "Game exit requested";
         deleteLater();
     }
+
 private:
     std::mt19937 m_rng;
-    Party m_cachedParty;
-    bool m_partyDirty = true;
-
-    void fillPartySlot(Party& party, int slot, const PokemonState& pokemon);
-    Party createPartyFromStates(const std::array<PokemonState, 6>& partyStates);
-    void updatePartyCache();
+    bool m_partyDirty = false;
 
     bool m_gameUsedToBeActive;
     QQmlApplicationEngine* m_engine = nullptr;
     GameMenu* m_menu;
     SystemTrayIcon* m_trayIcon;
 
-    std::array<int, 6> m_partyIds;
+    std::array<PokemonState, 6> m_party;
     PokemonDatabase& m_db = PokemonDatabase::instance();
-
 
     WildPokemon* m_wildPokemon = nullptr;
     Battle* m_activeBattle = nullptr;
@@ -53,10 +47,7 @@ private:
     void initializeGame();
     void createInitialPokemon();
     void loadParty();
-    const AssetInfo* getPartyPokemonInfo(int slot) const;
     void spawnPokemon();
-
-    Party getParty();
     void updateWildPokemonPosToBattlePos();
     void safelyRemoveBattleScene();
     void safelyRemoveWildPokemon();
