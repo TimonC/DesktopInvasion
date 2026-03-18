@@ -5,10 +5,10 @@ Item {
     id: root
 
     property string fontFamily:      "sans-serif"
-    property color  partyBackground: "white"
-    property color  pcBackground:    "#383838"
+    property color  partyBackground: "green"
+    property color  pcBackground:    "grey"
     property color  buttonColor:     "#5294e2"
-    property color  panelBorderColor: "#a0b0c040"
+    property color  panelBorderColor: "#80FFFFFF"
     property color  panelShadowColor: "#00000055"
     property int    slotWidth:       120
     property int    slotHeight:      90
@@ -24,7 +24,7 @@ Item {
 
     property real   highlightOpacity:      0.3
     property real   highlightHoverOpacity: 0.5
-    property real   backgroundOpacity:     0.15
+    property real   backgroundOpacity:     0.3
 
     property color  highlightColor:        Qt.rgba(0.29, 0.56, 0.89, highlightOpacity)
     property color  hoverHighlightColor:   Qt.rgba(0.42, 0.68, 0.96, highlightHoverOpacity)
@@ -140,21 +140,42 @@ Item {
                                 position: 0.0
                                 color: {
                                     var c = Qt.color(root.partyBackground)
-                                    return Qt.rgba(c.r, c.g, c.b, root.backgroundOpacity * 1.2)
+                                    return Qt.rgba(c.r, c.g, c.b, root.backgroundOpacity * 1.5)
                                 }
                             }
                             GradientStop {
-                                position: 0.5
+                                position: 0.2
                                 color: {
                                     var c = Qt.color(root.partyBackground)
-                                    return Qt.rgba(c.r, c.g, c.b, root.backgroundOpacity)
+                                    return Qt.rgba(c.r * 0.95, c.g * 0.95, c.b * 0.95, root.backgroundOpacity * 1.3)
+                                }
+                            }
+                            GradientStop {
+                                position: 0.4
+                                color: {
+                                    var c = Qt.color(root.partyBackground)
+                                    return Qt.rgba(c.r * 0.9, c.g * 0.9, c.b * 0.9, root.backgroundOpacity * 1.1)
+                                }
+                            }
+                            GradientStop {
+                                position: 0.6
+                                color: {
+                                    var c = Qt.color(root.partyBackground)
+                                    return Qt.rgba(c.r * 0.85, c.g * 0.85, c.b * 0.85, root.backgroundOpacity)
+                                }
+                            }
+                            GradientStop {
+                                position: 0.8
+                                color: {
+                                    var c = Qt.color(root.partyBackground)
+                                    return Qt.rgba(c.r * 0.8, c.g * 0.8, c.b * 0.8, root.backgroundOpacity * 1.1)
                                 }
                             }
                             GradientStop {
                                 position: 1.0
                                 color: {
                                     var c = Qt.color(root.partyBackground)
-                                    return Qt.rgba(c.r * 0.8, c.g * 0.8, c.b * 0.8, root.backgroundOpacity * 1.2)
+                                    return Qt.rgba(c.r * 0.75, c.g * 0.75, c.b * 0.75, root.backgroundOpacity * 1.3)
                                 }
                             }
                         }
@@ -242,21 +263,42 @@ Item {
                                 position: 0.0
                                 color: {
                                     var c = Qt.color(root.pcBackground)
-                                    return Qt.rgba(c.r, c.g, c.b, root.backgroundOpacity * 1.2)
+                                    return Qt.rgba(c.r, c.g, c.b, root.backgroundOpacity * 1.5)
                                 }
                             }
                             GradientStop {
-                                position: 0.5
+                                position: 0.2
                                 color: {
                                     var c = Qt.color(root.pcBackground)
-                                    return Qt.rgba(c.r, c.g, c.b, root.backgroundOpacity)
+                                    return Qt.rgba(c.r * 0.95, c.g * 0.95, c.b * 0.95, root.backgroundOpacity * 1.3)
+                                }
+                            }
+                            GradientStop {
+                                position: 0.4
+                                color: {
+                                    var c = Qt.color(root.pcBackground)
+                                    return Qt.rgba(c.r * 0.9, c.g * 0.9, c.b * 0.9, root.backgroundOpacity * 1.1)
+                                }
+                            }
+                            GradientStop {
+                                position: 0.6
+                                color: {
+                                    var c = Qt.color(root.pcBackground)
+                                    return Qt.rgba(c.r * 0.85, c.g * 0.85, c.b * 0.85, root.backgroundOpacity)
+                                }
+                            }
+                            GradientStop {
+                                position: 0.8
+                                color: {
+                                    var c = Qt.color(root.pcBackground)
+                                    return Qt.rgba(c.r * 0.8, c.g * 0.8, c.b * 0.8, root.backgroundOpacity * 1.1)
                                 }
                             }
                             GradientStop {
                                 position: 1.0
                                 color: {
                                     var c = Qt.color(root.pcBackground)
-                                    return Qt.rgba(c.r * 0.8, c.g * 0.8, c.b * 0.8, root.backgroundOpacity * 1.2)
+                                    return Qt.rgba(c.r * 0.75, c.g * 0.75, c.b * 0.75, root.backgroundOpacity * 1.3)
                                 }
                             }
                         }
