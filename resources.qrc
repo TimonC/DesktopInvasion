@@ -6,11 +6,11 @@
         <file>qml/StatusBar.qml</file>
         <file>qml/Pokeball.qml</file>
 
-        <file>qml/Menu.qml</file>
-        <file>qml/Party.qml</file>
-        <file>qml/PC.qml</file>
-        <file>qml/Player.qml</file>
-        <file>qml/Settings.qml</file>
+        <file>qml/qmlGameMenu/Menu.qml</file>
+        <file>qml/qmlGameMenu/Party.qml</file>
+        <file>qml/qmlGameMenu/PC.qml</file>
+        <file>qml/qmlGameMenu/Player.qml</file>
+        <file>qml/qmlGameMenu/Settings.qml</file>
 
         <file>assets/HGSS/PokeballIcon.png</file>
         <file>assets/HGSS/PokeballIcon_grayscale.png</file>

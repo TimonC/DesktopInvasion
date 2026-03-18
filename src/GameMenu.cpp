@@ -9,7 +9,7 @@ GameMenu::GameMenu(QWindow *parent)
     qDebug() << "GameMenu constructor called!";
 
     setFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    setSource(QUrl("qrc:/qml/Menu.qml"));
+    setSource(QUrl("qrc:/qml/qmlGameMenu/Menu.qml"));
     setTitle("DesktopInvasion");
     hide();
 }
