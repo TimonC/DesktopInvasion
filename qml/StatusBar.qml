@@ -61,7 +61,7 @@ Item {
             anchors.bottom: progressBar.bottom
             height: progressBar.height
             width: progressBar.width * progressBar.value
-            color: progressBar.value >=0.5 ? "green" :  (progressBar.value >=0.25 ? "yellow" : "red")
+            color: progressBar.value >=0.5 ? "green" :  (progressBar.value >=0.25 ? "orange" : "red")
             radius: 4
         }
     }
