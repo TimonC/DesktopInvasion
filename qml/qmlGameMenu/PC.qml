@@ -1,5 +1,4 @@
 import QtQuick 2.15
-
 import "../Style/PokeColor.js" as PokeColor
 
 Item {
@@ -10,11 +9,30 @@ Item {
     property color  partyBackground: "white"
     property color  pcBackground:    "green"
     property color  buttonColor:     "#5294e2"
-    property color panelBorderColor: "#a0b0c040"
+    property color  panelBorderColor: "#a0b0c040"
     property color  panelShadowColor: "#00000055"
     property int    slotWidth:       120
     property int    slotHeight:      90
     property int    freePartySlot:   -1
+
+    // ── Color system ───────────────────────────────────────────────────────────
+    // Highlight colors (replacing harsh orange)
+    property color  highlightDefault:      "#4a90e2"        // Soft blue
+    property color  highlightHover:        "#6aaef5"        // Lighter blue for hover
+    property color  highlightSwappable:    "#9b9bff"        // Soft purple for available swap slots
+    property color  highlightSwappableHover: "#b3b3ff"      // Lighter purple for hover on swappable
+    property color  highlightDisplayed:    "#64b5f6"        // Bright blue for displayed Pokemon
+
+    // Opacity variants for overlays
+    property real   highlightOpacity:      0.3              // Base opacity for overlays
+    property real   highlightHoverOpacity: 0.5              // Hover opacity
+
+    // Derived highlight colors with opacity (used in PokemonSlot)
+    property color  highlightColor:        Qt.rgba(0.29, 0.56, 0.89, highlightOpacity)      // #4a90e2 with opacity
+    property color  hoverHighlightColor:   Qt.rgba(0.42, 0.68, 0.96, highlightHoverOpacity) // #6aaef5 with opacity
+    property color  swapColor:             Qt.rgba(0.61, 0.61, 1.0, highlightOpacity)       // #9b9bff with opacity
+    property color  swapHoverColor:        Qt.rgba(0.70, 0.70, 1.0, highlightHoverOpacity)  // #b3b3ff with opacity
+    property color  displayedColor:        Qt.rgba(0.39, 0.71, 0.96, highlightHoverOpacity) // #64b5f6 with opacity
 
     readonly property int partyRows:    2
     readonly property int partyColumns: 3
@@ -38,7 +56,7 @@ Item {
     readonly property int labelHeight: fontSizeLg > 0 ? fontSizeLg + 16 : 28
 
     // ── Style tokens ──────────────────────────────────────────────────────────
-    readonly property int   panelRadius:      14
+    readonly property int   panelRadius:      8
     readonly property int   panelBorderWidth: 2
     readonly property int   buttonRadius:     10
 
@@ -53,8 +71,6 @@ Item {
     signal swapRequested(var posx, var posy)
 
     // ── Swap state ─────────────────────────────────────────────────────────────
-    property color highlightColor:       Qt.rgba(0, 0.6, 1, 0.5)
-    property color swapColor:            "orange"
     property bool  inSwapMode:           false
     property var   swapSource:           null
     property var   displayedPokemonSlot: null
@@ -418,9 +434,12 @@ Item {
         }
 
         property color _baseColor: {
-            if (displayed && root.displayedPokemonBox === pcPos[0]) return root.highlightColor
-            if (swappable) return hoverArea.containsMouse ? root.highlightColor : root.swapColor
-            if (hoverArea.containsMouse && iconVisible)   return root.highlightColor
+            if (displayed && root.displayedPokemonBox === pcPos[0])
+                return root.displayedColor
+            if (swappable)
+                return hoverArea.containsMouse ? root.swapHoverColor : root.swapColor
+            if (hoverArea.containsMouse && iconVisible)
+                return root.hoverHighlightColor
             return "transparent"
         }
 
@@ -440,7 +459,7 @@ Item {
         Rectangle {
             anchors.fill:    parent
             anchors.margins: 1
-            radius:          6
+            radius:          root.panelRadius
             color:           pokemonSlot._baseColor
         }
 
@@ -557,4 +576,3 @@ Item {
         _requestAdjacentPreloads(next)
     }
 }
-
