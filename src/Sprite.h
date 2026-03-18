@@ -6,24 +6,29 @@
 #include <QTimer>
 #include <QPixmap>
 #include <QPainter>
-/* #include <qgraphicsscene.h> */
-/* #include <qobjectdefs.h> */
-
-class Sprite: public QObject, public QGraphicsItem{
+#include <QDebug>
+class Sprite : public QObject, public QGraphicsItem
+{
     Q_OBJECT
+    Q_INTERFACES(QGraphicsItem)  // tell Qt MOC about the QGraphicsItem interface
 
-    public:
-       explicit Sprite(QObject *parent = 0);
+public:
+    explicit Sprite(QObject *parent = nullptr);
 
-    private slots:
-        void nextFrame();
+private slots:
+    void nextFrame();
 
-    private:
-        void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-        QRectF boundingRect() const;
-        QTimer *timer;
-        QPixmap *spriteImage;
-        int currentFrame;
+protected:
+    QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
+
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+    QRectF boundingRect() const override;
+
+private:
+    QTimer *timer;
+    QPixmap *spriteImage;
+    int currentFrame;
 };
 
 #endif
+

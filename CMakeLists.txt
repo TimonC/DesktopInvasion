@@ -11,11 +11,14 @@ set(CMAKE_AUTORCC ON)
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
+qt5_add_resources(RESOURCES resources.qrc)
+
 add_executable(DesktopInvasion
     src/main.cpp
     src/InvasionView.cpp
+    src/Sprite.cpp
+    ${RESOURCES}
 )
-
 target_include_directories(DesktopInvasion PRIVATE src)
 target_link_libraries(DesktopInvasion Qt5::Widgets)
 

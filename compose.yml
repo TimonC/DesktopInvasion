@@ -12,7 +12,8 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - /tmp/xdg:/tmp/xdg
       - ./src:/app/src
+      - ./resources.qrc:/app/resources.qrc
+      - ./assets:/app/assets
     stdin_open: true
     tty: true
-    command: /app/build_and_run.sh
 

@@ -16,6 +16,7 @@ class InvasionView : public QGraphicsView
     public:
         InvasionView();
         const QGraphicsScene* getScene() const { return scene; }
+        void addItem(QGraphicsItem* item) { scene->addItem(item); }
     private:
         QGraphicsScene *scene;
         void init();
