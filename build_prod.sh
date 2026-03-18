@@ -32,7 +32,20 @@ fi
 
 cd /app/output
 
+# Clean previous AppDir libs
 rm -rf AppDir/usr/lib/* 2>/dev/null || true
+
+# Explicitly copy the SQLite plugin we need
+mkdir -p AppDir/usr/plugins/sqldrivers/
+cp /opt/Qt/6.8.0/gcc_64/plugins/sqldrivers/libqsqlite.so AppDir/usr/plugins/sqldrivers/
+
+# Remove any problematic plugins that might cause issues
+rm -f /opt/Qt/6.8.0/gcc_64/plugins/sqldrivers/libqsqlmimer.so 2>/dev/null || true
+
+# Run linuxdeploy with explicit Qt installation path
+export QMAKE=/opt/Qt/6.8.0/gcc_64/bin/qmake
+export QML_SOURCES_PATHS=/app/qml
+
 /opt/linuxdeploy/AppRun \
     --appdir AppDir \
     --executable AppDir/usr/bin/DesktopInvasion \

@@ -25,8 +25,8 @@ WildPokemon::WildPokemon(int pokedexId, QPoint spawnPoint, int spawnDirection,  
 
 
     bool isBig = info->spriteSheet==SpriteSheet::Big;
-    /* setSource(QUrl("qrc:/qml/PokemonSprite.qml")); */
-    setSource(QUrl("../qml/PokemonSprite.qml"));
+    setSource(QUrl("qrc:/qml/PokemonSprite.qml"));
+    /* setSource(QUrl("../qml/PokemonSprite.qml")); */
     m_sprite = rootObject();
     m_sprite->setProperty("spriteSheet",
             isBig

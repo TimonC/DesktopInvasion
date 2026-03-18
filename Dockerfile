@@ -1,4 +1,4 @@
-FROM ubuntu:24.04
+FROM stateoftheartio/qt6:6.8-gcc-aqt
 
 USER root
 ENV DEBIAN_FRONTEND=noninteractive
@@ -16,19 +16,7 @@ RUN apt-get update && apt-get install -y \
     wget \
     file \
     squashfs-tools \
-    qt6-base-dev \
-    qt6-declarative-dev \
-    qt6-tools-dev \
-    libqt6sql6-sqlite \
-    qml6-module-qtquick-layouts \
-    qml6-module-qtqml-workerscript \
-    qml6-module-qtquick-dialogs \
-    qml6-module-qtquick-controls \
-    qml6-module-qtquick-templates \
-    qml6-module-qtquick-shapes \
-    qml6-module-qtquick-particles \
-    qml6-module-qtquick-window \
-    qml6-module-qtquick-localstorage \
+    libsqlite3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 RUN wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage -O /tmp/ld.AppImage \
