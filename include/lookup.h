@@ -33,9 +33,9 @@ namespace Lookup {
         };
 
         static std::uniform_int_distribution<int> dists[4] = {
-            std::uniform_int_distribution<int>(0, 2),
-            std::uniform_int_distribution<int>(3, 5),
-            std::uniform_int_distribution<int>(6, 10),
+            std::uniform_int_distribution<int>(0, 15),
+            std::uniform_int_distribution<int>(3, 15),
+            std::uniform_int_distribution<int>(6, 15),
             std::uniform_int_distribution<int>(11, 15)
         };
 
