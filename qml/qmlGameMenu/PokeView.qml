@@ -1,5 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
+import "../Style/PokeColor.js" as PokeColor
+
 
 Item {
     id: pokeView
@@ -13,14 +15,6 @@ Item {
     property real   scaleFactor:  6
     property int    rowId:        0
 
-    readonly property var typeColors: ({
-        "Normal":   "#A8A878", "Fire":    "#F08030", "Water":   "#6890F0",
-        "Electric": "#F8D030", "Grass":   "#78C850", "Ice":     "#98D8D8",
-        "Fighting": "#C03028", "Poison":  "#A040A0", "Ground":  "#E0C068",
-        "Flying":   "#A890F0", "Psychic": "#F85888", "Bug":     "#A8B820",
-        "Rock":     "#B8A038", "Ghost":   "#705898", "Dragon":  "#7038F8",
-        "Dark":     "#705848", "Steel":   "#B8B8D0", "None":    "transparent"
-    })
 
     ColumnLayout {
         anchors.fill: parent
@@ -82,7 +76,7 @@ Item {
                             width:  typeLbl.implicitWidth + 10
                             height: 18
                             radius: 4
-                            color:  typeColors[modelData] ?? "#888"
+                            color:  PokeColor.typeColor(modelData) ?? "#888"
                             Text {
                                 id: typeLbl
                                 anchors.centerIn: parent
@@ -163,7 +157,7 @@ Item {
                             width:  movTypeLbl.implicitWidth + 8
                             height: 14
                             radius: 3
-                            color:  typeColors[modelData.type] ?? "#888"
+                            color:  PokeColor.typeColor(modelData.type) ?? "#888"
                             Text {
                                 id: movTypeLbl
                                 anchors.centerIn: parent
