@@ -2,6 +2,7 @@
     <qresource prefix="/">
         <file>qml/PokemonSprite.qml</file>
         <file>qml/BattleScene.qml</file>
+        <file>qml/HealthBar.qml.qml</file>
 
         <file>assets/HGSS/PokGen1_transparent_reordered.png</file>
         <file>assets/HGSS/PokGen2_transparent_reordered.png</file>

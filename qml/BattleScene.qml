@@ -56,7 +56,7 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
         height: root.textBoxHeight
         width: root.textBoxWidth
-
+        radius: 5
         Text {
             id: textBarText
             anchors.fill: parent
