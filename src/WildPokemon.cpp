@@ -129,5 +129,12 @@ void WildPokemon::moveStep(){
         case 2: delta = QPoint(0, m_moveSpeed); break;
         case 3: delta = QPoint(m_moveSpeed, 0); break;
     }
-    setPosition(position() + delta);
+
+    QPoint newPos = position()+delta;
+
+    QRect screenGeom = Globals::screenGeometry();
+    newPos.setX(qBound(screenGeom.left(), newPos.x(), screenGeom.right()- m_width));
+    newPos.setY(qBound(screenGeom.top(), newPos.y(), screenGeom.bottom() - m_height));
+
+    setPosition(newPos);
 }
