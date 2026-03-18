@@ -37,9 +37,9 @@ Item {
     // Catch attempt state
     property int currentOpponentBallIndex: 0
     property int currentPlayerBallIndex: 0
-    property int catchShakeCount: 0
     property int catchShakeInterval: 1500
     property int ballTransitionDuration: 750
+    property int runEndDuration: 1000
     property bool catchAttemptActive: false
     signal _battleEnded(string endState);
     signal _startActionRound(int actionIndex, string actionState)
@@ -146,9 +146,8 @@ Item {
         circleX: opponent.x + opponent.width/2
         circleY: opponent.y + opponent.height/2
         onThrowAnimationDone: {
-            root.catchShakeCount = 0
-            catchAttemptTimer.interval = root.catchShakeInterval/2
-            catchAttemptTimer.start()
+            sequenceTimer.interval = root.catchShakeInterval/2
+            sequenceTimer.start()
         }
         onPokemonInsideBall:{
             pokeBallOpponent.circleShrink()
@@ -178,7 +177,7 @@ Item {
             if(root.safePokemonSwitch){
                 battleMenu.resetToRoot()
             }else{
-                executeNextStep()
+                _startActionRound(battleMenu.selectedIndex, "Switch");
             }
         })
     }
@@ -210,7 +209,7 @@ Item {
         onRunChosen: function(){
             battleMenu.showTextBar()
             battleMenu.updateText("Got away safely!")
-            root.oneShotTimer(3000, function(){
+            root.oneShotTimer(root.runEndDuration, function(){
                 root._battleEnded("PlayerRun")
             })
         }
@@ -262,6 +261,7 @@ Item {
             return
         }
         var step = root.actionSequence[root.currentActionIndex]
+        console.log(step.type)
         root.currentActionIndex++
         switch(step.type) {
             case "text":
@@ -301,6 +301,48 @@ Item {
                 sequenceTimer.interval = step.delay
                 sequenceTimer.start()
                 break
+
+            case "attempt-catch":
+                var newActions = step.shakes >= 3 ? [
+                    {type: "succeed-catch", delay: 100},
+                    {type: "text", message: "Gotcha! " + opponent.name + " was caught!", delay: 2000},
+                    {type: "jump", delay: 2000}
+                ] : [];
+
+                for (var i = 0; i < step.shakes; i++) {
+                    newActions.push({type: "shake", delay: 2000});
+                }
+
+                root.actionSequence = newActions.reverse().concat(root.actionSequence);
+                var coords = calculateBallCoords(opponent)
+                pokeBallOpponent.visible = true
+                pokeBallOpponent.throwAt(coords[0], coords[1], coords[2], coords[3])
+                break;
+
+            case "shake":
+                 pokeBallOpponent.shake()
+                 sequenceTimer.interval = step.delay
+                 sequenceTimer.start()
+                 break
+            case "jump":
+                 pokeBallOpponent.jump()
+                 sequenceTimer.interval = step.delay
+                 sequenceTimer.start()
+                 break
+            case "fail-catch":
+                pokeBallOpponent.release()
+                root.oneShotTimer(root.ballTransitionDuration, function() {
+                    opponent.visible = true
+                    pokeBallOpponent.visible = false
+                    executeNextStep()
+                })
+                 sequenceTimer.interval = step.delay
+                 sequenceTimer.start()
+                 break
+
+            case "succeed-catch":
+                root._battleEnded("OpponentCaught")
+                break
             case "battle-over":
                 root.actionInProgress = false
                 root.actionSequence = []
@@ -313,18 +355,6 @@ Item {
                     }else{
                         root._battleEnded("OpponentWon")
                     }
-                }
-                break
-            case "catch":
-                if(step.success) {
-                    root._battleEnded("OpponentCaught")
-                } else {
-                    pokeBallOpponent.release()
-                    root.oneShotTimer(root.ballTransitionDuration, function() {
-                        opponent.visible = true
-                        pokeBallOpponent.visible = false
-                        executeNextStep()
-                    })
                 }
                 break
             case "end":
@@ -342,25 +372,6 @@ Item {
         battleMenu.resetToRoot()
     }
 
-    // Catch attempt sequence
-    Timer {
-        id: catchAttemptTimer
-        interval: root.catchShakeInterval
-        repeat: false
-        onTriggered: root.processCatchAttempt()
-    }
-
-    function processCatchAttempt() {
-        root.catchShakeCount++
-        if (root.catchShakeCount >= 3) {
-            pokeBallOpponent.jump()
-            executeNextStep()
-        } else {
-            pokeBallOpponent.shake()
-            catchAttemptTimer.start()
-        }
-        catchAttemptTimer.interval = root.catchShakeInterval
-    }
 
     function calculateBallCoords(sprite){
         var x1 = sprite.x + (sprite.width / 2) - (root.frameSize/4)
@@ -382,4 +393,6 @@ Item {
             hideTimer.start()
         })
     }
+
+    function showTextBar(){battleMenu.showTextBar()}
 }

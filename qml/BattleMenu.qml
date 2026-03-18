@@ -430,9 +430,7 @@ Rectangle {
                                party.healthRatios[index] > 0){
                                 var oldIndex = root.selectedIndex
                                 root.selectedIndex = index
-                                // Emit both signals for compatibility
-                                // root.switchChosen(oldIndex, index)
-                                root.startActionRound(index, "Switch")
+                                root.switchChosen(oldIndex, index)
                             }
                         }
                     }
@@ -520,8 +518,6 @@ Rectangle {
                             anchors.fill: parent
                             enabled: ballEnabled
                             onClicked: {
-                                // Emit both signals for compatibility
-                                // root.catchChosen(index)
                                 root.startActionRound(index, "Catch")
                             }
                         }
@@ -542,7 +538,6 @@ Rectangle {
                 width: root.buttonWidth * 1.5
                 height: root.buttonHeight
                 onClicked: {
-                    // Emit both signals for compatibility
                     root.runChosen()
                 }
             }

@@ -1,6 +1,5 @@
 #ifndef BATTLEMOVEHANDLER_H
 #define BATTLEMOVEHANDLER_H
-
 #include <QObject>
 #include <data_move.h>
 #include <gamestate.h>
@@ -9,7 +8,6 @@
 #include <array>
 #include <QVariant>
 
-
 struct BattleStateDelta{
     bool switchedIn = false;
     int damage = 0;
@@ -17,22 +15,18 @@ struct BattleStateDelta{
     int heal = 0;
     std::array<int, 5> deltaStatModifiers = {0, 0, 0, 0, 0};
     bool miss = false;
-
     bool superEffective = false;
     bool notVeryEffective = false;
     bool noEffect = false;
     bool critical = false;
-
     bool flinched = false;
     bool sleep = false;
     bool paralyzed = false;
     bool freeze = false;
     int ailmentDaamge = -1;
     int confusedDamage = -1;
-
     Ailment addStatusCondition = Ailment::Null;
     Ailment removeStatusCondition = Ailment::Null;
-
     bool addConfusion = false;
     bool removeConfusion = false;
 };
@@ -62,7 +56,6 @@ struct Battler{
 
 class BattleMoveHandler : public QObject{
     Q_OBJECT
-
 public:
     BattleMoveHandler(const PokemonState& wildState, const std::array<PokemonState, 6>& partyStates);
 
@@ -74,10 +67,10 @@ public slots:
 
 private:
     Battler* createBattler(const PokemonState& state);
-    void applyMove(const Move* moveToApply, Battler* caster, Battler* target);
+    void applyMove(const Move* _move, Battler* caster, Battler* target);
     bool canBattlerMove(Battler* caster);
     int calculateConfusionDamage(int level);
-    int calculateTypeEffectiveness(const Move* move, Battler* target);
+    int calculateTypeEffectiveness(const Move* _move, Battler* target);
     int applyStatModifier(int baseStat, int modifier);
 
     // Sequence generation methods
@@ -85,11 +78,13 @@ private:
     void generateMoveSequence(QVariantList& sequence, Battler& attacker, Battler& defender,
                               const QString& attackerName, const QString& defenderName,
                               const QString& attackerRole, const QString& defenderRole);
+    void logActionSequence(const QVariantList& sequence);
+
     QVariantMap createTextAction(const QString& message, int delay);
     QVariantMap createAttackAction(const QString& role, int delay);
     QVariantMap createDamageAction(const QString& role, int damage, int delay);
     QVariantMap createHealthChangeAction(const QString& role, int amount, int delay);
-    QVariantMap createCatchAction(int shakes, bool success);
+    QVariantMap createCatchAction(int shakes, int delay);
     QVariantMap createEndAction();
     QString ailmentToString(Ailment ailment);
     void addPostMoveEffects(QVariantList& sequence, Battler& battler, const QString& name, bool isPlayer);
@@ -100,6 +95,18 @@ private:
     int m_chosenPartyIndex = 0;
     int m_partyPokemonSentOut[6] = {-1,-1,-1,-1,-1,-1};
     std::mt19937 m_rng;
+
+    int ms_moveUsedText = 300;
+    int ms_confusionText = 500;
+    int ms_statusConditionText = 1000;
+    int ms_attackAnimation = 500;
+    int ms_damageAnimation = 200;
+    int ms_healthChange = 1000;
+    int ms_criticalHitText = 800;
+    int ms_effectivenessText = 800;
+    int ms_drainEffectText = 800;
+    int ms_drainHealthChange = 800;
+    int ms_catchStart = 1000;
 };
 
 #endif

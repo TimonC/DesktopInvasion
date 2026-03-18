@@ -54,6 +54,7 @@ Battle::Battle(WildPokemon* opp, Party party, std::unique_ptr<BattleMoveHandler>
 }
 
 void Battle::executeActionSequence(QVariantList sequence) {
+    QMetaObject::invokeMethod(m_battleScene, "showTextBar");
     QMetaObject::invokeMethod(m_battleScene, "executeActionSequence", Q_ARG(QVariant, QVariant(sequence)));
 }
 

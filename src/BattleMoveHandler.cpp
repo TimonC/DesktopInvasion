@@ -71,13 +71,6 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
        switchedIn = actionIndex;
     } else if(action[0]=='C'){
         shakes = processCatchAttempt(m_rng, m_battleOpponent->pokeState.stats[0], m_battleOpponent->battleState.currentHealth, 50);
-        if(shakes > 3){
-            // Generate sequence for successful catch
-            QVariantList sequence = generateActionSequence(*m_battleOpponent, *m_battleParty[m_chosenPartyIndex], playerFirst, switchedIn, shakes);
-            qDebug() << "Catch success sequence generated with" << sequence.size() << "actions";
-            emit actionSequenceReady(sequence);
-            return;
-        }
     }
 
     if(action[0]=='F'){
@@ -114,7 +107,7 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
 
     // Generate the action sequence
     QVariantList sequence = generateActionSequence(*m_battleOpponent, *m_battleParty[m_chosenPartyIndex], playerFirst, switchedIn, shakes);
-    qDebug() << "Action sequence generated with" << sequence.size() << "actions";
+    logActionSequence(sequence);
     emit actionSequenceReady(sequence);
 }
 
@@ -162,42 +155,42 @@ int BattleMoveHandler::calculateConfusionDamage(int level) {
     return (40 * level / 100) + 2;
 }
 
-int BattleMoveHandler::calculateTypeEffectiveness(const Move* move, Battler* target) {
+int BattleMoveHandler::calculateTypeEffectiveness(const Move* _move, Battler* target) {
     Type targetTypes[2] = {target->pokeState.types[0] ? *target->pokeState.types[0] : Null,
                            target->pokeState.types[1] ? *target->pokeState.types[1] : Null};
 
-    return PokemonTypes::getTypeEffectiveness(move->type, targetTypes);
+    return PokemonTypes::getTypeEffectiveness(_move->type, targetTypes);
 }
 
-void BattleMoveHandler::applyMove(const Move* move, Battler* caster, Battler* target){
+void BattleMoveHandler::applyMove(const Move* _move, Battler* caster, Battler* target){
     // First check if the battler can move at all
     if (!canBattlerMove(caster)) {
         return;
     }
 
     // Check accuracy (if move has less than 100% accuracy)
-    if (move->accuracy < 100) {
+    if (_move->accuracy < 100) {
         std::uniform_int_distribution<int> accuracyDist(1, 100);
-        if (accuracyDist(m_rng) > move->accuracy) {
+        if (accuracyDist(m_rng) > _move->accuracy) {
             caster->delta.miss = true;
             return;
         }
     }
 
     // Check for critical hit
-    std::uniform_int_distribution<int> critDist(1, 16/(1+move->crit_rate));
+    std::uniform_int_distribution<int> critDist(1, 16/(1+_move->crit_rate));
     bool crit = critDist(m_rng) == 1;
     caster->delta.critical = crit;
 
-    if(move->category != MoveCategory::NonDamaging){
+    if(_move->category != MoveCategory::NonDamaging){
         // Setup damage parameters
         DamageParams params;
         params.lvl = caster->pokeState.lvl;
-        params.power = move->power;
+        params.power = _move->power;
 
         // Determine which attack/defense stats to use
         int attackStatIndex = 1; // Default to Attack for physical moves
-        if(move->category == MoveCategory::SpecialAtk){
+        if(_move->category == MoveCategory::SpecialAtk){
             attackStatIndex = 3; // Special Attack
         }
 
@@ -205,7 +198,7 @@ void BattleMoveHandler::applyMove(const Move* move, Battler* caster, Battler* ta
         params.defense = target->pokeState.stats[attackStatIndex + 2];
 
         // Apply burn penalty for physical attacks
-        if(move->category == MoveCategory::PhysicalAtk){
+        if(_move->category == MoveCategory::PhysicalAtk){
             if(caster->battleState.statusCondition == Ailment::Burn) {
                 params.burn = 50; // Burn reduces physical damage by 50%
             }
@@ -228,7 +221,7 @@ void BattleMoveHandler::applyMove(const Move* move, Battler* caster, Battler* ta
         // Calculate STAB (Same Type Attack Bonus)
         bool hasStab = false;
         for (int i = 0; i < 2; ++i) {
-            if (caster->pokeState.types[i] && *caster->pokeState.types[i] == move->type) {
+            if (caster->pokeState.types[i] && *caster->pokeState.types[i] == _move->type) {
                 hasStab = true;
                 break;
             }
@@ -246,12 +239,12 @@ void BattleMoveHandler::applyMove(const Move* move, Battler* caster, Battler* ta
         if (!isSpecialMove) {
             // Calculate type1: effectiveness against first type
             Type targetTypes1[2] = {targetType1, Null};
-            params.type1 = PokemonTypes::getTypeEffectiveness(move->type, targetTypes1);
+            params.type1 = PokemonTypes::getTypeEffectiveness(_move->type, targetTypes1);
 
             // Calculate type2: effectiveness against second type (100 if no second type)
             if (targetType2 != Null) {
                 Type targetTypes2[2] = {targetType2, Null};
-                params.type2 = PokemonTypes::getTypeEffectiveness(move->type, targetTypes2);
+                params.type2 = PokemonTypes::getTypeEffectiveness(_move->type, targetTypes2);
             } else {
                 params.type2 = 100; // Default to 1x if no second type
             }
@@ -281,44 +274,44 @@ void BattleMoveHandler::applyMove(const Move* move, Battler* caster, Battler* ta
         }
 
         // Handle drain moves (like Giga Drain, Leech Life)
-        if (move->drain > 0) {
-            int drainAmount = damage * move->drain / 100;
+        if (_move->drain > 0) {
+            int drainAmount = damage * _move->drain / 100;
             caster->delta.drain = drainAmount;
             caster->battleState.currentHealth = std::min(100, caster->battleState.currentHealth + drainAmount);
         }
 
         // Handle healing moves
-        if (move->healing > 0) {
-            int healAmount = caster->pokeState.stats[0] * move->healing / 100; // Heal based on max HP
+        if (_move->healing > 0) {
+            int healAmount = caster->pokeState.stats[0] * _move->healing / 100; // Heal based on max HP
             caster->delta.heal = healAmount;
             caster->battleState.currentHealth = std::min(100, caster->battleState.currentHealth + healAmount);
         }
 
         // Check for secondary effects
-        if (move->ailment_chance > 0) {
+        if (_move->ailment_chance > 0) {
             std::uniform_int_distribution<int> ailmentDist(1, 100);
-            if (ailmentDist(m_rng) <= move->ailment_chance) {
-                caster->delta.addStatusCondition = move->ailment;
+            if (ailmentDist(m_rng) <= _move->ailment_chance) {
+                caster->delta.addStatusCondition = _move->ailment;
             }
         }
 
-        if (move->flinch_chance > 0) {
+        if (_move->flinch_chance > 0) {
             std::uniform_int_distribution<int> flinchDist(1, 100);
-            if (flinchDist(m_rng) <= move->flinch_chance) {
+            if (flinchDist(m_rng) <= _move->flinch_chance) {
                 target->delta.flinched = true;
             }
         }
 
         // Handle stat changes
-        if (move->stat_chance > 0) {
+        if (_move->stat_chance > 0) {
             std::uniform_int_distribution<int> statDist(1, 100);
-            if (statDist(m_rng) <= move->stat_chance) {
+            if (statDist(m_rng) <= _move->stat_chance) {
                 for (int i = 0; i < 5; ++i) {
-                    if (move->stat_changes[i] != 0) {
-                        caster->delta.deltaStatModifiers[i] = move->stat_changes[i];
+                    if (_move->stat_changes[i] != 0) {
+                        caster->delta.deltaStatModifiers[i] = _move->stat_changes[i];
                         // Apply to battle state
                         caster->battleState.statModifiers[i] = std::max(-6, std::min(6,
-                            caster->battleState.statModifiers[i] + move->stat_changes[i]));
+                            caster->battleState.statModifiers[i] + _move->stat_changes[i]));
                     }
                 }
             }
@@ -327,42 +320,43 @@ void BattleMoveHandler::applyMove(const Move* move, Battler* caster, Battler* ta
     } else {
         // Non-damaging move (status move)
         // Handle status conditions
-        if (move->ailment_chance > 0) {
+        if (_move->ailment_chance > 0) {
             std::uniform_int_distribution<int> ailmentDist(1, 100);
-            if (ailmentDist(m_rng) <= move->ailment_chance) {
-                caster->delta.addStatusCondition = move->ailment;
+            if (ailmentDist(m_rng) <= _move->ailment_chance) {
+                caster->delta.addStatusCondition = _move->ailment;
                 if (target->battleState.statusCondition == Ailment::Null) {
-                    target->battleState.statusCondition = move->ailment;
+                    target->battleState.statusCondition = _move->ailment;
                 }
             }
         }
 
         // Handle stat changes for non-damaging moves
-        if (move->stat_changes[0] != 0 || move->stat_changes[1] != 0 ||
-            move->stat_changes[2] != 0 || move->stat_changes[3] != 0 ||
-            move->stat_changes[4] != 0) {
+        if (_move->stat_changes[0] != 0 || _move->stat_changes[1] != 0 ||
+            _move->stat_changes[2] != 0 || _move->stat_changes[3] != 0 ||
+            _move->stat_changes[4] != 0) {
 
             // Check if stat change succeeds
             bool success = true;
-            if (move->stat_chance > 0 && move->stat_chance < 100) {
+            if (_move->stat_chance > 0 && _move->stat_chance < 100) {
                 std::uniform_int_distribution<int> statDist(1, 100);
-                success = (statDist(m_rng) <= move->stat_chance);
+                success = (statDist(m_rng) <= _move->stat_chance);
             }
 
             if (success) {
                 for (int i = 0; i < 5; ++i) {
-                    if (move->stat_changes[i] != 0) {
+                    if (_move->stat_changes[i] != 0) {
                         // Determine if affecting self or target
                         // For simplicity, assume affecting target for now
-                        target->delta.deltaStatModifiers[i] = move->stat_changes[i];
+                        target->delta.deltaStatModifiers[i] = _move->stat_changes[i];
                         target->battleState.statModifiers[i] = std::max(-6, std::min(6,
-                            target->battleState.statModifiers[i] + move->stat_changes[i]));
+                            target->battleState.statModifiers[i] + _move->stat_changes[i]));
                     }
                 }
             }
         }
     }
 }
+
 int BattleMoveHandler::applyStatModifier(int baseStat, int modifier) {
     if (modifier == 0) return baseStat;
 
@@ -381,44 +375,44 @@ int BattleMoveHandler::applyStatModifier(int baseStat, int modifier) {
 void BattleMoveHandler::generateMoveSequence(QVariantList& sequence, Battler& attacker, Battler& defender,
                                              const QString& attackerName, const QString& defenderName,
                                              const QString& attackerRole, const QString& defenderRole) {
-    const Move* move = attacker.pokeState.moves[attacker.battleState.lastMoveIndex];
-    QString moveName = QString::fromStdString(move->name);
+    const Move* _move = attacker.pokeState.moves[attacker.battleState.lastMoveIndex];
+    QString moveName = QString::fromStdString(_move->name);
 
-    sequence.append(createTextAction(attackerName + " used " + moveName + "!", 300));
+    sequence.append(createTextAction(attackerName + " used " + moveName + "!", ms_moveUsedText));
 
     if(attacker.delta.confusedDamage > 0) {
-        sequence.append(createTextAction(attackerName + " hurt itself in its confusion!", 500));
-        sequence.append(createDamageAction(attackerRole, attacker.delta.confusedDamage, 200));
-        sequence.append(createHealthChangeAction(attackerRole, -attacker.delta.confusedDamage, 1000));
+        sequence.append(createTextAction(attackerName + " hurt itself in its confusion!", ms_confusionText));
+        sequence.append(createDamageAction(attackerRole, attacker.delta.confusedDamage, ms_damageAnimation));
+        sequence.append(createHealthChangeAction(attackerRole, -attacker.delta.confusedDamage, ms_healthChange));
     } else if(attacker.delta.flinched) {
-        sequence.append(createTextAction(attackerName + " flinched!", 1000));
+        sequence.append(createTextAction(attackerName + " flinched!", ms_statusConditionText));
     } else if(attacker.delta.sleep) {
-        sequence.append(createTextAction(attackerName + " is fast asleep!", 1000));
+        sequence.append(createTextAction(attackerName + " is fast asleep!", ms_statusConditionText));
     } else if(attacker.delta.freeze) {
-        sequence.append(createTextAction(attackerName + " is frozen solid!", 1000));
+        sequence.append(createTextAction(attackerName + " is frozen solid!", ms_statusConditionText));
     } else if(attacker.delta.paralyzed) {
-        sequence.append(createTextAction(attackerName + " is paralyzed! It can't move!", 1000));
+        sequence.append(createTextAction(attackerName + " is paralyzed! It can't move!", ms_statusConditionText));
     } else if(attacker.delta.miss) {
-        sequence.append(createAttackAction(attackerRole, 500));
-        sequence.append(createTextAction(attackerName + "'s attack missed!", 1000));
+        sequence.append(createAttackAction(attackerRole, ms_attackAnimation));
+        sequence.append(createTextAction(attackerName + "'s attack missed!", ms_statusConditionText));
     } else if(attacker.delta.damage > 0) {
-        sequence.append(createAttackAction(attackerRole, 500));
-        sequence.append(createDamageAction(defenderRole, attacker.delta.damage, 200));
-        sequence.append(createHealthChangeAction(defenderRole, -defender.delta.damage, 1000));
+        sequence.append(createAttackAction(attackerRole, ms_attackAnimation));
+        sequence.append(createDamageAction(defenderRole, attacker.delta.damage, ms_damageAnimation));
+        sequence.append(createHealthChangeAction(defenderRole, -defender.delta.damage, ms_healthChange));
 
         if(defender.delta.critical) {
-            sequence.append(createTextAction("A critical hit!", 800));
+            sequence.append(createTextAction("A critical hit!", ms_criticalHitText));
         }
         if(defender.delta.superEffective) {
-            sequence.append(createTextAction("It's super effective!", 800));
+            sequence.append(createTextAction("It's super effective!", ms_effectivenessText));
         } else if (defender.delta.notVeryEffective) {
-            sequence.append(createTextAction("It's not very effective...", 800));
+            sequence.append(createTextAction("It's not very effective...", ms_effectivenessText));
         }else if(defender.delta.noEffect){
-            sequence.append(createTextAction("It doesn't affect " + defenderName + "...", 800));
+            sequence.append(createTextAction("It doesn't affect " + defenderName + "...", ms_effectivenessText));
         }
         if(attacker.delta.drain > 0) {
-            sequence.append(createTextAction(attackerName + " drained health!", 800));
-            sequence.append(createHealthChangeAction(attackerRole, attacker.delta.drain, 800));
+            sequence.append(createTextAction(attackerName + " drained health!", ms_drainEffectText));
+            sequence.append(createHealthChangeAction(attackerRole, attacker.delta.drain, ms_drainHealthChange));
         }
     }
 
@@ -428,37 +422,6 @@ void BattleMoveHandler::generateMoveSequence(QVariantList& sequence, Battler& at
 
 QVariantList BattleMoveHandler::generateActionSequence(Battler& opponent, Battler& player, bool playerFirst, int switchedIn, int shakes){
     QVariantList sequence;
-
-    // Debug print sequence parameters
-    qDebug() << "Generating action sequence with: playerFirst =" << playerFirst
-             << "switchedIn =" << switchedIn << "shakes =" << shakes;
-
-    // Catch attempt
-    if(shakes > -1) {
-        if(shakes > 3) {
-            // Successful catch
-            sequence.append(createTextAction("Gotcha! " + QString::fromStdString(opponent.pokeState.name) + " was caught!", 2000));
-            sequence.append(createCatchAction(shakes, true));
-            return sequence;
-        } else {
-            // Failed catch - show escape and opponent attacks
-            sequence.append(createTextAction("Aargh! Almost had it!", 300));
-            sequence.append(createCatchAction(shakes, false));
-
-            // Add opponent's move after failed catch
-            generateMoveSequence(sequence, opponent, player, "Opponent", "Player", "opponent", "player");
-
-            sequence.append(createEndAction());
-            return sequence;
-        }
-    }
-
-    // Switch scenario - only opponent attacks
-    if(switchedIn > -1) {
-        generateMoveSequence(sequence, opponent, player, "Opponent", "Player", "opponent", "player");
-        sequence.append(createEndAction());
-        return sequence;
-    }
 
     // Regular battle turn
     QString firstAttackerName = playerFirst ? "Player" : "Opponent";
@@ -474,6 +437,34 @@ QVariantList BattleMoveHandler::generateActionSequence(Battler& opponent, Battle
     // First attacker's turn
     Battler& firstAttacker = playerFirst ? player : opponent;
     Battler& firstDefender = playerFirst ? opponent : player;
+    Battler& secondAttacker = playerFirst ? opponent : player;
+    Battler& secondDefender = playerFirst ? player : opponent;
+    // Debug print sequence parameters
+    qDebug() << "Generating action sequence with: playerFirst =" << playerFirst
+             << "switchedIn =" << switchedIn << "shakes =" << shakes;
+
+    qDebug() <<shakes;
+    // Catch attempt
+    if(shakes > -1) {
+         shakes = 4;
+         sequence.append(createTextAction("Player used one Poké Ball!", 300));
+         sequence.append(createCatchAction(shakes, ms_catchStart));
+
+        generateMoveSequence(sequence, secondAttacker, secondDefender,
+                 secondAttackerName, secondDefenderName,
+                 secondAttackerRole, secondDefenderRole);
+
+        sequence.append(createEndAction());
+        return sequence;
+    }
+
+    // Switch scenario - only opponent attacks
+    if(switchedIn > -1) {
+        generateMoveSequence(sequence, opponent, player, "Opponent", "Player", "opponent", "player");
+        sequence.append(createEndAction());
+        return sequence;
+    }
+
 
     generateMoveSequence(sequence, firstAttacker, firstDefender,
                          firstAttackerName, firstDefenderName,
@@ -481,9 +472,6 @@ QVariantList BattleMoveHandler::generateActionSequence(Battler& opponent, Battle
 
     // Second attacker's turn (only if first defender didn't faint)
     if(firstDefender.battleState.currentHealth > 0) {
-        Battler& secondAttacker = playerFirst ? opponent : player;
-        Battler& secondDefender = playerFirst ? player : opponent;
-
         generateMoveSequence(sequence, secondAttacker, secondDefender,
                              secondAttackerName, secondDefenderName,
                              secondAttackerRole, secondDefenderRole);
@@ -491,15 +479,53 @@ QVariantList BattleMoveHandler::generateActionSequence(Battler& opponent, Battle
 
     sequence.append(createEndAction());
 
-    // Debug print the entire sequence
-    qDebug() << "=== Generated Action Sequence ===";
+    return sequence;
+}
+
+void BattleMoveHandler::logActionSequence(const QVariantList& sequence) {
+    qDebug() << "";
+    qDebug() << "========================================";
+    qDebug() << "       ACTION SEQUENCE LOG";
+    qDebug() << "========================================";
+    qDebug() << "Total actions:" << sequence.size();
+    qDebug() << "";
+
     for (int i = 0; i < sequence.size(); ++i) {
         QVariantMap action = sequence[i].toMap();
-        qDebug() << "Action" << i << ":" << action;
-    }
-    qDebug() << "=== End Sequence ===";
+        QString type = action["type"].toString();
 
-    return sequence;
+        qDebug() << "[" << i << "]" << type.toUpper();
+
+        if (type == "text") {
+            qDebug() << "    Message:" << action["message"].toString();
+            qDebug() << "    Delay:  " << action["delay"].toInt() << "ms";
+        }
+        else if (type == "attack") {
+            qDebug() << "    Role:   " << action["role"].toString();
+            qDebug() << "    Delay:  " << action["delay"].toInt() << "ms";
+        }
+        else if (type == "damage") {
+            qDebug() << "    Role:   " << action["role"].toString();
+            qDebug() << "    Damage: " << action["damage"].toInt();
+            qDebug() << "    Delay:  " << action["delay"].toInt() << "ms";
+        }
+        else if (type == "change-health") {
+            qDebug() << "    Role:   " << action["role"].toString();
+            qDebug() << "    Amount: " << action["amount"].toInt();
+            qDebug() << "    Delay:  " << action["delay"].toInt() << "ms";
+        }
+        else if (type == "attempt-catch") {
+            qDebug() << "    Shakes: " << action["shakes"].toInt();
+        }
+        else if (type == "end") {
+            qDebug() << "    (End of sequence)";
+        }
+
+        qDebug() << "";
+    }
+
+    qDebug() << "========================================";
+    qDebug() << "";
 }
 
 QString BattleMoveHandler::ailmentToString(Ailment ailment) {
@@ -600,16 +626,18 @@ QVariantMap BattleMoveHandler::createHealthChangeAction(const QString& role, int
     return action;
 }
 
-QVariantMap BattleMoveHandler::createCatchAction(int shakes, bool success) {
+QVariantMap BattleMoveHandler::createCatchAction(int shakes, int delay) {
     QVariantMap action;
-    action["type"] = "catch";
+    action["type"] = "attempt-catch";
     action["shakes"] = shakes;
-    action["success"] = success;
+    action["delay"] = delay;
     return action;
 }
+
 
 QVariantMap BattleMoveHandler::createEndAction() {
     QVariantMap action;
     action["type"] = "end";
     return action;
 }
+
