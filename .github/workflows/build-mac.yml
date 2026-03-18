@@ -1,0 +1,122 @@
+name: Build macOS
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Qt (macOS)
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '6.8.0'
+        host: 'mac'
+        target: 'desktop'
+        arch: 'clang_64'
+        cache: true
+
+    - name: Configure CMake
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=Release
+      shell: bash
+
+    - name: Build
+      run: |
+        cmake --build build --parallel
+      shell: bash
+
+    - name: Package (create .app bundle)
+      run: |
+        # Verify executable exists
+        if [ ! -f "build/bin/DesktopInvasion" ]; then
+          echo "Error: Executable not found at build/bin/DesktopInvasion"
+          echo "Searching for executable..."
+          find build -name "DesktopInvasion" -type f
+          exit 1
+        fi
+        echo "Found executable at build/bin/DesktopInvasion"
+
+        # Create macOS app bundle structure
+        mkdir -p DesktopInvasion.app/Contents/{MacOS,Resources,Frameworks}
+
+        # Copy executable to app bundle
+        cp build/bin/DesktopInvasion DesktopInvasion.app/Contents/MacOS/
+
+        # Copy icon if it exists
+        if [ -f "assets/icon/icon.icns" ]; then
+          cp assets/icon/icon.icns DesktopInvasion.app/Contents/Resources/
+          echo "Copied icon.icns"
+        else
+          echo "Warning: icon.icns not found at assets/icon/icon.icns"
+        fi
+
+        # Create Info.plist (required for macOS bundles)
+        cat > DesktopInvasion.app/Contents/Info.plist << 'EOF'
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+            <key>CFBundleDevelopmentRegion</key>
+            <string>en</string>
+            <key>CFBundleExecutable</key>
+            <string>DesktopInvasion</string>
+            <key>CFBundleIconFile</key>
+            <string>icon.icns</string>
+            <key>CFBundleIdentifier</key>
+            <string>com.yourcompany.DesktopInvasion</string>
+            <key>CFBundleInfoDictionaryVersion</key>
+            <string>6.0</string>
+            <key>CFBundleName</key>
+            <string>DesktopInvasion</string>
+            <key>CFBundlePackageType</key>
+            <string>APPL</string>
+            <key>CFBundleShortVersionString</key>
+            <string>1.0.0</string>
+            <key>CFBundleVersion</key>
+            <string>1.0.0</string>
+            <key>LSMinimumSystemVersion</key>
+            <string>11.0</string>
+            <key>NSHighResolutionCapable</key>
+            <true/>
+        </dict>
+        </plist>
+        EOF
+        echo "Created Info.plist"
+
+        # Run macdeployqt (bundles all Qt frameworks into the .app)
+        macdeployqt DesktopInvasion.app -qmldir=qml
+        echo "Ran macdeployqt"
+
+        # Create DMG (standard macOS distribution format)
+        echo "Creating DMG..."
+        hdiutil create -volname "DesktopInvasion" \
+          -srcfolder DesktopInvasion.app \
+          -ov -format UDZO \
+          DesktopInvasion-macOS.dmg
+
+        # Create ZIP backup (smaller download)
+        echo "Creating ZIP..."
+        zip -r DesktopInvasion-macOS.zip DesktopInvasion.app
+
+        echo "Package created: DesktopInvasion-macOS.dmg and DesktopInvasion-macOS.zip"
+
+    - name: Upload DMG artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: DesktopInvasion-macOS-DMG
+        path: DesktopInvasion-macOS.dmg
+
+    - name: Upload ZIP artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: DesktopInvasion-macOS-ZIP
+        path: DesktopInvasion-macOS.zip
