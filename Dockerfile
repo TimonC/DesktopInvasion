@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     inotify-tools \
     libx11-xcb-dev \
     libgl1-mesa-dev \
+    libsqlite3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Set UTF-8 locale
