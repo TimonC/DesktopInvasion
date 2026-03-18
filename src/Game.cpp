@@ -32,6 +32,8 @@ Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
     m_spawnTimer->setInterval(m_spawnDelay_ms);
     connect(m_spawnTimer, &QTimer::timeout, this, &Game::spawnPokemon);
 
+    writeDefaults();
+
     initMenu();
     /* m_spawnTimer->start(); */
     m_spawnTimer->stop();
