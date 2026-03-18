@@ -23,6 +23,20 @@ Item {
     property alias textBar: textBar
     property alias buttonGrid: buttonGrid
 
+    Timer {
+        id: delayTimer
+        repeat: false
+        property var callback: null
+        onTriggered: {
+            if (callback) callback();
+        }
+    }
+
+    function delayedCall(milliseconds, func) {
+        delayTimer.interval = milliseconds;
+        delayTimer.callback = func;
+        delayTimer.start();
+    }
 
     SequentialAnimation {
         id: playerAttackAnim
@@ -32,8 +46,9 @@ Item {
         property int attackDistance: 20
 
         onStopped: {
-            opponentHitAnim.start();
-            root.update_text_bar("It's super effective!");
+            delayedCall(200, function() {
+                opponentHitAnim.start();
+            });
         }
 
         PropertyAnimation {
@@ -67,52 +82,54 @@ Item {
     }
 
     SequentialAnimation {
-            id: opponentHitAnim
-            running: false
-            loops: 1
+        id: opponentHitAnim
+        running: false
+        loops: 1
 
-            property int attackDistance: 10
+        property int attackDistance: 10
 
-            onStopped: {
+        onStopped: {
+            root.update_text_bar("It's super effective!");
+            delayedCall(1000, function() {
                 root.attackInProgress = false;
                 buttonGrid.visible = true;
                 textBarText.visible = false;
                 textBar.color = "transparent";
-                root.update_text_bar("What will you do?");
+            });
+        }
+
+        SequentialAnimation {
+            loops: 3
+            PropertyAnimation {
+                target: opponent
+                property: "opacity"
+                to: 0
+                duration: 50
             }
-
-            SequentialAnimation {
-                loops: 3
-                PropertyAnimation {
-                    target: opponent
-                    property: "opacity"
-                    to: 0
-                    duration: 50
-                }
-                PropertyAnimation {
-                    target: opponent
-                    property: "opacity"
-                    to: 1
-                    duration: 50
-                }
+            PropertyAnimation {
+                target: opponent
+                property: "opacity"
+                to: 1
+                duration: 50
             }
         }
+    }
 
-        PokemonSprite {
-            id: opponent
-            objectName: "opponent"
-            direction: root.direction
-            debugLines: root.debugLines
-            debugColor: "red"
-        }
+    PokemonSprite {
+        id: opponent
+        objectName: "opponent"
+        direction: root.direction
+        debugLines: root.debugLines
+        debugColor: "red"
+    }
 
-        PokemonSprite {
-            id: player
-            objectName: "player"
-            direction: (root.direction + 2) % 4
-            debugLines: root.debugLines
-            debugColor: "blue"
-        }
+    PokemonSprite {
+        id: player
+        objectName: "player"
+        direction: (root.direction + 2) % 4
+        debugLines: root.debugLines
+        debugColor: "blue"
+    }
 
     function positionSprite(sprite) {
         var margin = root.pokeMargin;
