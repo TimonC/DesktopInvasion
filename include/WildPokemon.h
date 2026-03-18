@@ -13,6 +13,7 @@ public:
     void startRoaming();
     void direction(int direction) override;
     const PokemonInfo* info;
+    QQuickItem* m_sprite;
 private slots:
     void handleDrag(bool isDragged) override;
 
@@ -23,7 +24,6 @@ private slots:
 protected:
     void mouseDoubleClickEvent(QMouseEvent* event) override;
 private:
-    QQuickItem* m_sprite;
     QTimer* m_decisionTimer;
     QTimer* m_moveTimer;
 

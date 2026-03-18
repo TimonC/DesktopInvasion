@@ -24,5 +24,5 @@ void Player::iChooseYou(WildPokemon *opp){
     // Store in the member vector, not local variable
     m_activeBattles.push_back(std::make_unique<Battle>(opp->m_currentDirection, opp->position(), opp_info, chosen_info));
 
-    m_pokemonAvailable = false;
+    /* m_pokemonAvailable = false; */
 };

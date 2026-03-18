@@ -5,7 +5,9 @@
 #include "pokemon_data.h"
 #include <QQuickView>
 #include <WildPokemon.h>
+#include <qquickitem.h>
 #include <qtmetamacros.h>
+#include <qvariant.h>
 
 class Battle : public DesktopScene
 {
@@ -18,6 +20,7 @@ public:
     QQuickView *m_corners = nullptr;
     void direction(int direction) override;
 private slots:
+    void onBattleSceneLoaded(QVariant battleSceneItem);
     void handleDrag(bool isDragged) override;
     /* void run(); */
     /* void attack(); */
@@ -25,12 +28,13 @@ private slots:
 
 private:
     void initPosition();
-
     // Store initial positions for perfect sync
     QPoint m_initialOppPos;
 
-    const PokemonInfo* m_chosen;
-    const PokemonInfo* m_opp;
+    QQuickItem* m_opp;
+    QQuickItem* m_chosen;
+    const PokemonInfo* m_chosen_info;
+    const PokemonInfo* m_opp_info;
     QPoint m_origin;
     QQuickItem *m_ui = nullptr;
 };

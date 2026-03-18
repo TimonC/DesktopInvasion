@@ -3,8 +3,8 @@ import QtQuick.Controls 2.15
 
 Item {
     id: root
-    width: (chosenSide === 0 || chosenSide === 2) ? frameSize * 5 : frameSize * 7
-    height: (chosenSide === 0 || chosenSide === 2) ? frameSize * 7 : frameSize * 5
+    width: (chosenSide === 0 || chosenSide === 2) ? frameSize * 5 : frameSize * 8
+    height: (chosenSide === 0 || chosenSide === 2) ? frameSize * 8 : frameSize * 5
     layer.enabled: true
 
     // Scaling properties
