@@ -2,7 +2,6 @@
 #include "sqlite3.h"
 #include <iostream>
 #include <sstream>
-#include <unordered_set>
 #include <unordered_map>
 
 PokemonDatabase& PokemonDatabase::instance() {
@@ -285,20 +284,6 @@ bool PokemonDatabase::updatePokemon(const PokemonState& pokemon) {
     return success;
 }
 
-bool PokemonDatabase::deletePokemon(int id) {
-    if (!m_db || id <= 0) return false;
-
-    const char* sql = "DELETE FROM pokemon WHERE _id = ?";
-    sqlite3_stmt* stmt = nullptr;
-
-    sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr);
-    sqlite3_bind_int(stmt, 1, id);
-    bool success = (sqlite3_step(stmt) == SQLITE_DONE);
-
-    sqlite3_finalize(stmt);
-    return success;
-}
-
 PokemonState PokemonDatabase::getWildPokemon() {
     return getPokemon(0);
 }
@@ -423,173 +408,6 @@ bool PokemonDatabase::setPartyPokemon(int slot, int pokemonId) {
     GameState state = loadGameState();
     state.party_id[slot] = pokemonId;
     return saveGameState(state);
-}
-
-bool PokemonDatabase::clearPartySlot(int slot) {
-    return setPartyPokemon(slot, 0);
-}
-
-bool PokemonDatabase::isValidField(const std::string& field) {
-    static const std::unordered_set<std::string> validFields = {
-        "pokedex_id", "variant_id", "pokeball_id", "name", "nature", "lvl", "current_xp",
-        "iv_hp", "iv_attack", "iv_defense", "iv_spattack", "iv_spdefense", "iv_speed",
-        "ev_hp", "ev_attack", "ev_defense", "ev_spattack", "ev_spdefense", "ev_speed",
-        "move1", "move2", "move3", "move4"
-    };
-    return validFields.find(field) != validFields.end();
-}
-
-bool PokemonDatabase::executeUpdate(const std::string& sql, const std::vector<int>& params) {
-    if (!m_db) return false;
-
-    sqlite3_stmt* stmt = nullptr;
-    if (sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
-        return false;
-    }
-
-    for (size_t i = 0; i < params.size(); i++) {
-        sqlite3_bind_int(stmt, i + 1, params[i]);
-    }
-
-    bool success = (sqlite3_step(stmt) == SQLITE_DONE);
-    sqlite3_finalize(stmt);
-
-    return success;
-}
-
-bool PokemonDatabase::updatePokemonField(int pokemonId, const std::string& field, int value) {
-    if (!isValidField(field)) {
-        std::cerr << "Invalid field: " << field << std::endl;
-        return false;
-    }
-
-    std::string sql = "UPDATE pokemon SET " + field + " = ? WHERE _id = ?";
-    return executeUpdate(sql, {value, pokemonId});
-}
-
-bool PokemonDatabase::incrementPokemonField(int pokemonId, const std::string& field, int amount) {
-    if (!isValidField(field)) {
-        std::cerr << "Invalid field: " << field << std::endl;
-        return false;
-    }
-
-    std::string sql = "UPDATE pokemon SET " + field + " = " + field + " + ? WHERE _id = ?";
-    return executeUpdate(sql, {amount, pokemonId});
-}
-
-bool PokemonDatabase::addPokemonXp(int pokemonId, int xpAmount) {
-    return incrementPokemonField(pokemonId, "current_xp", xpAmount);
-}
-
-int PokemonDatabase::getPokemonXp(int pokemonId) {
-    if (!m_db || pokemonId <= 0) return -1;
-
-    const char* sql = "SELECT current_xp FROM pokemon WHERE _id = ?";
-    sqlite3_stmt* stmt = nullptr;
-
-    if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK) {
-        return -1;
-    }
-
-    sqlite3_bind_int(stmt, 1, pokemonId);
-
-    int xp = 0;
-    if (sqlite3_step(stmt) == SQLITE_ROW) {
-        xp = sqlite3_column_int(stmt, 0);
-    }
-
-    sqlite3_finalize(stmt);
-    return xp;
-}
-
-bool PokemonDatabase::setPokemonLevel(int pokemonId, int level) {
-    return updatePokemonField(pokemonId, "lvl", level);
-}
-
-int PokemonDatabase::getPokemonLevel(int pokemonId) {
-    if (!m_db || pokemonId <= 0) return -1;
-
-    const char* sql = "SELECT lvl FROM pokemon WHERE _id = ?";
-    sqlite3_stmt* stmt = nullptr;
-
-    if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK) {
-        return -1;
-    }
-
-    sqlite3_bind_int(stmt, 1, pokemonId);
-
-    int level = 1;
-    if (sqlite3_step(stmt) == SQLITE_ROW) {
-        level = sqlite3_column_int(stmt, 0);
-    }
-
-    sqlite3_finalize(stmt);
-    return level;
-}
-
-bool PokemonDatabase::updatePokemonName(int pokemonId, const std::string& newName) {
-    if (!m_db || pokemonId <= 0) return false;
-
-    const char* sql = "UPDATE pokemon SET name = ? WHERE _id = ?";
-    sqlite3_stmt* stmt = nullptr;
-
-    if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK) {
-        return false;
-    }
-
-    sqlite3_bind_text(stmt, 1, newName.c_str(), -1, SQLITE_STATIC);
-    sqlite3_bind_int(stmt, 2, pokemonId);
-
-    bool success = (sqlite3_step(stmt) == SQLITE_DONE);
-    sqlite3_finalize(stmt);
-
-    return success;
-}
-
-bool PokemonDatabase::updatePokemonFields(int pokemonId, const std::vector<std::pair<std::string, int>>& updates) {
-    if (updates.empty() || !m_db || pokemonId <= 0) return false;
-
-    std::string sql = "UPDATE pokemon SET ";
-    std::vector<int> params;
-
-    for (size_t i = 0; i < updates.size(); i++) {
-        const auto& [field, value] = updates[i];
-        if (!isValidField(field)) {
-            std::cerr << "Invalid field in batch update: " << field << std::endl;
-            return false;
-        }
-        sql += field + " = ?";
-        params.push_back(value);
-        if (i < updates.size() - 1) sql += ", ";
-    }
-
-    sql += " WHERE _id = ?";
-    params.push_back(pokemonId);
-
-    return executeUpdate(sql, params);
-}
-
-bool PokemonDatabase::incrementPokemonFields(int pokemonId, const std::vector<std::pair<std::string, int>>& increments) {
-    if (increments.empty() || !m_db || pokemonId <= 0) return false;
-
-    std::string sql = "UPDATE pokemon SET ";
-    std::vector<int> params;
-
-    for (size_t i = 0; i < increments.size(); i++) {
-        const auto& [field, amount] = increments[i];
-        if (!isValidField(field)) {
-            std::cerr << "Invalid field in batch increment: " << field << std::endl;
-            return false;
-        }
-        sql += field + " = " + field + " + ?";
-        params.push_back(amount);
-        if (i < increments.size() - 1) sql += ", ";
-    }
-
-    sql += " WHERE _id = ?";
-    params.push_back(pokemonId);
-
-    return executeUpdate(sql, params);
 }
 
 bool PokemonDatabase::batchUpdatePokemon(const std::vector<PokemonState>& updates) {

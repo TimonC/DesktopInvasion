@@ -138,17 +138,8 @@ void Game::initializeGame() {
 
 void Game::loadParty() {
     GameState state = m_db.loadGameState();
-
-    for (int i = 0; i < 6; i++) {
-        m_partyIds[i] = state.party_id[i];
-        if (m_partyIds[i] > 0) {
-            PokemonState pokemon = m_db.getPokemon(m_partyIds[i]);
-            if (pokemon._id > 0) {
-                qDebug() << "Loaded Pokemon" << QString::fromStdString(pokemon.name)
-                         << "to party slot" << i;
-            }
-        }
-    }
+    m_partyIds = {state.party_id[0], state.party_id[1], state.party_id[2],
+                  state.party_id[3], state.party_id[4], state.party_id[5]};
 }
 
 const PokemonInfo* Game::getPartyPokemonInfo(int slot) const {
@@ -171,10 +162,8 @@ void Game::spawnPokemon() {
         m_wildPokemonInfo = Globals::getPokemonInfo(wildState.pokedex_id);
         qDebug() << "Spawning existing wild Pokemon:" << QString::fromStdString(wildState.name);
     } else {
-
         m_spawnDirection = rand()%4;
         m_spawnPoint = QPoint(-1,-1);
-
         m_wildPokemonInfo = Globals::getPokemonInfo();
 
         PokemonState newWild;
@@ -191,7 +180,7 @@ void Game::spawnPokemon() {
         newWild.moves[0] = 1;
         newWild.moves[1] = 109;
         newWild.moves[2] = 181;
-        newWild.moves[3] = 47;
+        newWild.moves[3] = 247;
 
         m_db.spawnWildPokemon(newWild);
         qDebug() << "Created new wild Pokemon:" << QString::fromStdString(newWild.name);
@@ -204,42 +193,57 @@ void Game::spawnPokemon() {
         m_wildPokemon->show();
         m_spawnTimer->stop();
     }
-    /* m_wildPokemon->startABattle(); */
 }
 
 Party Game::getParty() {
     GameState state = m_db.loadGameState();
     Party party;
 
+    std::vector<int> idsToFetch;
+    std::vector<int> partySlots;
+
     for(int i = 0; i < 6; ++i) {
         int pokemonId = state.party_id[i];
-        if(pokemonId <= 0) continue;
+        if(pokemonId > 0) {
+            idsToFetch.push_back(pokemonId);
+            partySlots.push_back(i);
+        }
+    }
 
-        PokemonState pokemon = m_db.getPokemon(pokemonId);
-        const PokemonInfo* info = Globals::getPokemonInfo(pokemon.pokedex_id);
-        if(!info) continue;
+    if (!idsToFetch.empty()) {
+        std::vector<PokemonState> pokemonBatch = m_db.getPokemonBatch(idsToFetch);
 
-        party.pokedexIds[i] = info->pokedexId;
-        party.spriteIds[i] = info->spriteId;
-        party.iconIds[i] = FormMapper::toIconId(pokemon.pokedex_id, 0);
-        party.names[i] = pokemon.name;
-        party.lvls[i] = pokemon.lvl;
-        party.gens[i] = info->generation;
-        party.ballIds[i] = pokemon.pokeball_id;
-        party.healthTotals[i] = PokeMath::calculateHealth(pokemon.lvl, Globals::getPoke(info->pokedexId)->base_stats[0], pokemon.ivs[0], pokemon.evs[0]);
+        for(size_t batchIdx = 0; batchIdx < pokemonBatch.size(); ++batchIdx) {
+            int slot = partySlots[batchIdx];
+            const PokemonState& pokemon = pokemonBatch[batchIdx];
 
-        for (int moveSlot = 0; moveSlot<4; moveSlot++){
-           int moveId = pokemon.moves[moveSlot];
-           if(moveId<1) continue;
+            if(pokemon._id <= 0) continue;
 
-           const Move* _move = Globals::getMove(moveId);
-           party.moves[i][moveSlot] = {_move->name, PokeTypes::typeToString(_move->type)};
-        };
+            const PokemonInfo* info = Globals::getPokemonInfo(pokemon.pokedex_id);
+            if(!info) continue;
 
+            party.pokedexIds[slot] = info->pokedexId;
+            party.spriteIds[slot] = info->spriteId;
+            party.iconIds[slot] = FormMapper::toIconId(pokemon.pokedex_id, 0);
+            party.names[slot] = pokemon.name;
+            party.lvls[slot] = pokemon.lvl;
+            party.gens[slot] = info->generation;
+            party.ballIds[slot] = pokemon.pokeball_id;
+            party.healthTotals[slot] = PokeMath::calculateHealth(pokemon.lvl, Globals::getPoke(info->pokedexId)->base_stats[0], pokemon.ivs[0], pokemon.evs[0]);
+
+            for (int moveSlot = 0; moveSlot<4; moveSlot++){
+               int moveId = pokemon.moves[moveSlot];
+               if(moveId<1) continue;
+
+               const Move* _move = Globals::getMove(moveId);
+               party.moves[slot][moveSlot] = {_move->name, PokeTypes::typeToString(_move->type)};
+            };
+        }
     }
 
     return party;
 }
+
 void Game::handleBattleStart() {
     if (!m_wildPokemon || m_activeBattle) {
         qWarning() << "Cannot start battle - invalid state";
@@ -249,20 +253,17 @@ void Game::handleBattleStart() {
     m_spawnPoint = m_wildPokemon->position();
     m_spawnDirection = m_wildPokemon->m_currentDirection;
 
-    //Cleanup with delay for smooth transition from WildPokemon to Battle
     QTimer::singleShot(200, this, [this]() {
         safelyRemoveWildPokemon();
     });
 
-    // Gather all IDs (wild + party)
-    std::vector<int> idsToFetch = {0}; // Wild Pokemon ID at index 0
+    std::vector<int> idsToFetch = {0};
     for(int i = 0; i < 6; i++){
         idsToFetch.push_back(m_partyIds[i]);
     }
 
     std::vector<PokemonState> pokemonStates = m_db.getPokemonBatch(idsToFetch);
 
-    //Create BattleMoveHandler
     PokemonState wildState = pokemonStates[0];
     std::array<PokemonState, 6> partyStates;
     for(int i = 0; i < 6; i++){
@@ -271,7 +272,6 @@ void Game::handleBattleStart() {
     auto battleMoveHandler = std::make_unique<BattleMoveHandler>(wildState, partyStates);
 
     const Party party = getParty();
-
 
     m_activeBattle = new Battle(m_spawnPoint, m_spawnDirection, wildState, party, std::move(battleMoveHandler));
 
@@ -300,26 +300,16 @@ void Game::handleBattleEnd(const char* endState, bool removeWild) {
 
             int caughtId = m_db.catchWildPokemon(ballIndex);
             if (caughtId > 0) {
-                PokemonState caughtPokemon = m_db.getPokemon(caughtId);
-                QString caughtName = QString::fromStdString(caughtPokemon.name);
-
-                qDebug() << caughtName << "caught! Database ID:" << caughtId;
-
-                // Add to first empty party slot, if possible
                 for (int i = 0; i < 6; i++) {
                     if (m_partyIds[i] == 0) {
                         m_db.setPartyPokemon(i, caughtId);
                         m_partyIds[i] = caughtId;
-
-                        qDebug() << "Added" << caughtName
-                                 << "to party slot" << i;
                         break;
                     }
                 }
             }
         }
 
-        // Cleanup wild pokemon and battle
         if( m_db.clearWild()){
             qDebug() << "Cleared wild pokemon instance";
         }else{
@@ -331,14 +321,12 @@ void Game::handleBattleEnd(const char* endState, bool removeWild) {
         m_spawnTimer->start();
 
     } else {
-        // Battle ended without removing wild Pokemon
         m_activeBattle->handleDrag(false);
         m_spawnPoint = m_activeBattle->position() + m_activeBattle->m_spriteOffset;
         m_spawnDirection = m_activeBattle->m_currentDirection;
 
         spawnPokemon();
 
-        //Cleanup with delay for smooth transition from battlescene to wild pokemon
         QTimer::singleShot(100, this, [this]() {
             safelyRemoveBattleScene();
         });
@@ -384,7 +372,7 @@ void Game::createInitialPokemon() {
     dusknoir.lvl = 99;
     dusknoir.moves[0] = 45;
     dusknoir.moves[1] = 86;
-    dusknoir.moves[2] = 109;//425;
+    dusknoir.moves[2] = 109;
     dusknoir.moves[3] = 53;
 
     int pokemonId2 = m_db.createPokemon(dusknoir);
@@ -394,6 +382,7 @@ void Game::createInitialPokemon() {
         m_partyIds[1] = pokemonId2;
     }
 }
+
 void Game::updatePartyXP(std::array<int, 6> spread) {
     if (!m_activeBattle) {
         qWarning() << "Cannot show XP sequence - battle already ended";
@@ -410,12 +399,10 @@ void Game::updatePartyXP(std::array<int, 6> spread) {
     }
 
     if (idsToUpdate.empty()) {
-        qDebug() << "No Pokémon received XP (all spread values were 0 or negative)";
         m_activeBattle->showXPAndEndBattle(spread, lvlUps);
         return;
     }
 
-    // Single batch fetch
     std::vector<PokemonState> originalPokemon = m_db.getPokemonBatch(idsToUpdate);
     std::vector<PokemonState> updatedPokemon = originalPokemon;
 
@@ -426,33 +413,19 @@ void Game::updatePartyXP(std::array<int, 6> spread) {
         for (int i = 0; i < 6; i++) {
             if (m_partyIds[i] == pokemon._id && spread[i] > 0) {
                 int xpGain = spread[i];
-                int oldXP = pokemon.currentXP;
-                int oldLevel = pokemon.lvl;
-
-                // Add XP to current level's XP
                 pokemon.currentXP += xpGain;
 
-                // Check for level ups with overflow carry
                 while (pokemon.lvl < 100) {
                     int xpNeeded = PokeMath::xpToNextLevel(pokemon.lvl);
 
                     if (pokemon.currentXP >= xpNeeded) {
-                        // Level up!
-                        pokemon.currentXP -= xpNeeded;  // Carry over overflow XP
+                        pokemon.currentXP -= xpNeeded;
                         pokemon.lvl++;
                         lvlUps[i] = pokemon.lvl;
                     } else {
-                        break; // No more level ups
+                        break;
                     }
                 }
-
-                // Debug output for this Pokémon
-                qDebug().nospace()
-                    << "[" << i << "] " << QString::fromStdString(pokemon.name)
-                    << ": XP " << oldXP << "→" << pokemon.currentXP
-                    << " (+" << xpGain << ")"
-                    << ", Lvl " << oldLevel << "→" << pokemon.lvl
-                    << ", NextLvlXP " << PokeMath::xpToNextLevel(pokemon.lvl);
 
                 found = true;
                 break;
