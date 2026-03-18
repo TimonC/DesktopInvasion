@@ -16,6 +16,7 @@ Item {
     property int frameRate: 4
     property alias mouseArea: mouseArea
     property bool jumping: false
+    property bool openingButtons: false
 
     width: itemWidth
     height: itemHeight
@@ -24,6 +25,18 @@ Item {
     MouseArea{
         id: mouseArea
         anchors.fill: parent
+    }
+
+    Loader {
+        id: openingButtonsLoader
+        source: "qrc:/sprites/OpeningButtons.qml"
+        asynchronous: true
+        active: true
+
+        onItemChanged: {
+            item.visible = Qt.binding(() => root.openingButtons);
+            item.enabled = Qt.binding(() => root.openingButtons);
+        }
     }
 
     SequentialAnimation on y {

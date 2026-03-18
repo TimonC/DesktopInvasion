@@ -14,11 +14,15 @@ private slots:
     void makeRandomDecision();
     void moveStep();
     void onClick();
+    void stopOpening();
+
 private:
     QTimer* m_decisionTimer;
     QTimer* m_moveTimer;
+    QTimer* m_openingTimer;
 
     QQuickItem* m_wildPokemon;
+
     int m_row;
 
     int m_scaleFactor;
@@ -32,7 +36,7 @@ private:
     int m_maxY = 0;
     static constexpr int SPRITE_SIZE = 32 * 4;
 
-    void setSpriteBounds();
+    void startOpening(int durationMs = 5000);
 };
 
 #endif

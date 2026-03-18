@@ -6,11 +6,13 @@
 #include <QQuickItem>
 #include <QQuickView>
 #include <qrandom.h>
+#include <qtimer.h>
 PokemonInteractable::PokemonInteractable(QWindow *parent, int row)
     : QQuickView(parent)
     , m_row(row)
     , m_decisionTimer(new QTimer(this))
     , m_moveTimer(new QTimer(this))
+    , m_openingTimer(new QTimer(this))
     , m_moveSpeed(1 + QRandomGenerator::global()->bounded(2))
     , m_currentDirection(0)
     , m_scaleFactor(3)
@@ -21,6 +23,7 @@ PokemonInteractable::PokemonInteractable(QWindow *parent, int row)
             | Qt::FramelessWindowHint);
 
     setColor(Qt::transparent);
+
 
     setSource(QUrl("qrc:/sprites/PokemonSprite.qml"));
     m_wildPokemon = rootObject();
@@ -48,6 +51,8 @@ PokemonInteractable::PokemonInteractable(QWindow *parent, int row)
     m_moveTimer->setInterval(50); // 20fps
     connect(m_moveTimer, &QTimer::timeout, this, &PokemonInteractable::moveStep);
 
+    m_openingTimer->setInterval(0);
+    connect(m_openingTimer, &QTimer::timeout, this, &PokemonInteractable::stopOpening);
 
     m_decisionTimer->start();
     makeRandomDecision();
@@ -59,11 +64,19 @@ void PokemonInteractable::onClick(){
     m_moveTimer->stop();
     m_decisionTimer->stop();
 
-    if(m_wildPokemon){
-        m_wildPokemon->setProperty("jumping", true);
+    m_wildPokemon->setProperty("jumping", true);
+    startOpening();
+}
 
-    }
+void PokemonInteractable::startOpening(int durationMs){
+    m_wildPokemon->setProperty("openingButtons", true);
+    m_openingTimer->start(durationMs);
+}
 
+void PokemonInteractable::stopOpening(){
+    m_wildPokemon->setProperty("openingButtons", false);
+    m_openingTimer->stop();
+    makeRandomDecision();
     m_decisionTimer->start();
 }
 
