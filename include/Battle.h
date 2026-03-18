@@ -21,8 +21,16 @@ public:
     void direction(int direction) override;
 private slots:
     void handleDrag(bool isDragged) override;
-
+    void resetOpp(WildPokemon* opp);
 private:
+
+    template<typename Signal, typename Slot>
+    inline void connectWithQML(Signal signal, Slot slot) {
+        QObject* helper = new QObject(m_battleScene);
+        QObject::connect(m_battleScene, signal, helper, SLOT(deleteLater()));
+        QObject::connect(helper, &QObject::destroyed, slot);
+    }
+
     int m_pokeMargin = 2;
     void initPosition();
     // Store initial positions for perfect sync

@@ -1,8 +1,10 @@
 #include "Battle.h"
 #include "DesktopScene.h"
+#include "WildPokemon.h"
 #include "globals.h"
 #include "pokemon_data.h"
 #include <QQuickItem>
+#include <qmetaobject.h>
 #include <qnamespace.h>
 #include <QMouseEvent>
 #include <QTimer>
@@ -32,18 +34,27 @@ Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent
     });
 
     QObject* helper = new QObject(this);
-    QObject::connect(m_battleScene, SIGNAL(runClicked()),
-                    helper, SLOT(deleteLater()));
-    QObject::connect(helper, &QObject::destroyed,
-                    [this, opp]() { //this assumes opp is untouched
-                        QPoint delta =  position() - m_origin;
-                        opp->setPosition(opp->position() + delta);
-                        opp->startRoaming();
-                        opp->show();
-                        this->close();
+    connectWithQML(SIGNAL(runClicked()), [this, opp]() { //this assumes opp is untouched
+                        resetOpp(opp);
                     });
 
+    connectWithQML(SIGNAL(opponentWon()), [this, opp]() {
+                        resetOpp(opp);
+            });
+    connectWithQML(SIGNAL(playerWon()), [this, opp]() {
+                        opp->close();
+                        this->close();
+            });
+
     qDebug() << "Window shown, visible:" << isVisible();
+}
+
+void Battle::resetOpp(WildPokemon* opp){
+                QPoint delta =  position() - m_origin;
+                opp->setPosition(opp->position() + delta);
+                opp->startRoaming();
+                opp->show();
+                this->close();
 }
 
 QQuickItem* Battle::setupPokemon(const PokemonInfo* info, const char* role) {
