@@ -20,7 +20,6 @@ Rectangle {
 
     property int borderWidth: 2
     property int gridSpacing: 3
-    property color borderColor: "darkgrey"
 
     property color textBarTextColor: "black"
     property color menuTextColor: "black"
@@ -34,7 +33,8 @@ Rectangle {
     property color catchButtonColor: "yellow"
     property color runButtonColor: "blue"
 
-    property color disabledBorderColor: "#999999"
+    property color borderColor: "#999999"
+    property color disabledBorderColor: "#777777"
     property color disabledBackgroundColor: "#b0b0b0"
     property color placeholderTextColor: "#a0a0a0"
     property real enabledOpacity: 1
@@ -301,24 +301,26 @@ Rectangle {
 
             Repeater {
                 model: 4
-                Rectangle {
+                Item {
                     width: cellWidth
                     height: cellHeight
-                    radius: 4
-                    color: "transparent"
 
                     property string moveName: party.moves[0][index].name || "---"
                     property string moveType: party.moves[0][index].type || "Null"
                     property bool moveEnabled: moveType !== "Null"
                     property color baseColor: moveEnabled ? PokeType.typeColor(moveType) : root.disabledBackgroundColor
 
-                    border.width: root.borderWidth
-                    border.color: moveEnabled ? lighterColor(baseColor) : root.disabledBorderColor
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: 4
+                        color: moveEnabled ? lighterColor(baseColor) : root.disabledBorderColor
+                        opacity: moveEnabled ? root.enabledOpacity : root.disabledOpacity
+                    }
 
                     Rectangle {
                         anchors.fill: parent
-                        anchors.margins: border.width
-                        radius: parent.radius
+                        anchors.margins: root.borderWidth
+                        radius: 2
                         gradient: Gradient {
                             GradientStop { position: 0; color: moveEnabled ? lighterColor(baseColor) : root.disabledBackgroundColor }
                             GradientStop { position: 1; color: moveEnabled ? darkerColor(baseColor) : root.disabledBackgroundColor }
@@ -346,7 +348,6 @@ Rectangle {
 
                     MouseArea {
                         anchors.fill: parent
-                        anchors.margins : root.borderWidth
                         enabled: moveEnabled
                         onClicked: root.attackChosen(index)
                     }
@@ -354,6 +355,7 @@ Rectangle {
             }
         }
     }
+
     Component {
         id: switchContent
         Grid {
@@ -366,20 +368,23 @@ Rectangle {
 
             Repeater {
                 model: 6
-                Rectangle {
+                Item {
                     width: cellWidth
                     height: cellHeight
-                    color: "transparent"
-                    radius: 4
-                    border.color: (root.party.iconIds[index] >= 0 && party.healthRatios[index] > 0)
-                                  ? (root.selectedIndex === index ? root.borderColor : root.disabledBorderColor)
-                                  : root.disabledBorderColor
-                    border.width: root.borderWidth
+
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: 4
+                        color: (root.party.iconIds[index] >= 0 && party.healthRatios[index] > 0)
+                              ? (root.selectedIndex === index ? root.borderColor : root.disabledBorderColor)
+                              : root.disabledBorderColor
+                        opacity: root.party.iconIds[index] >= 0 ? root.enabledOpacity : root.disabledOpacity
+                    }
 
                     Rectangle {
                         anchors.fill: parent
                         anchors.margins: root.borderWidth
-                        radius: parent.radius - 2
+                        radius: 2
                         opacity: root.party.iconIds[index] >= 0 ? root.enabledOpacity : root.disabledOpacity
                         gradient: Gradient {
                             GradientStop { position: 0; color: root.party.iconIds[index] >= 0 ? lighterColor(healthColor(party.healthRatios[index])) : root.disabledBackgroundColor }
@@ -415,7 +420,6 @@ Rectangle {
 
                     MouseArea {
                         anchors.fill: parent
-                        anchors.margins : root.borderWidth
                         enabled: !root.forceSwitchMode ||
                                  (root.selectedIndex !== index &&
                                   root.party.iconIds[index] >= 0 &&
@@ -451,25 +455,27 @@ Rectangle {
 
                 Repeater {
                     model: 4
-                    Rectangle {
+                    Item {
                         width: grid.cellWidth
                         height: grid.cellHeight
-                        radius: 4
-                        color: "transparent"
 
-                        property bool isEnabled: root.nrOfBalls[index] > 0
-
-                        border.width: root.borderWidth
-                        border.color: isEnabled ? root.borderColor : root.disabledBorderColor
+                        property bool ballEnabled: root.nrOfBalls[index] > 0
 
                         Rectangle {
                             anchors.fill: parent
-                            anchors.margins : root.borderWidth
-                            radius: parent.radius - 2
-                            opacity: isEnabled ? root.enabledOpacity : root.disabledOpacity
+                            radius: 4
+                            color: ballEnabled ? root.borderColor : root.disabledBorderColor
+                            opacity: ballEnabled ? root.enabledOpacity : root.disabledOpacity
+                        }
+
+                        Rectangle {
+                            anchors.fill: parent
+                            anchors.margins: root.borderWidth
+                            radius: 2
+                            opacity: ballEnabled ? root.enabledOpacity : root.disabledOpacity
                             gradient: Gradient {
-                                GradientStop { position: 0; color: isEnabled ? lighterColor(PokeType.typeColor("Normal")) : root.disabledBackgroundColor }
-                                GradientStop { position: 1; color: isEnabled ? darkerColor(PokeType.typeColor("Normal")) : root.disabledBackgroundColor }
+                                GradientStop { position: 0; color: ballEnabled ? lighterColor(PokeType.typeColor("Normal")) : root.disabledBackgroundColor }
+                                GradientStop { position: 1; color: ballEnabled ? darkerColor(PokeType.typeColor("Normal")) : root.disabledBackgroundColor }
                             }
                         }
 
@@ -493,15 +499,14 @@ Rectangle {
                                                            root.ballSpriteWidth, root.ballSpriteHeight)
                                     smooth: false
                                     antialiasing: false
-                                    opacity: isEnabled ? 1.0 : 0.5
-
+                                    opacity: ballEnabled ? 1.0 : 0.5
                                 }
                             }
 
                             Text {
                                 anchors.verticalCenter: parent.verticalCenter
-                                text: "×" + (isEnabled ? (root.nrOfBalls[index] > 999 ? "∞" : root.nrOfBalls[index]) : "0")
-                                font.pixelSize: root.menuFontSize
+                                text: "×" + (ballEnabled ? (root.nrOfBalls[index] > 999 ? "∞" : root.nrOfBalls[index]) : "0")
+                                font.pixelSize: root.buttonFontSize
                                 font.family: root.menuFontFamily
                                 font.weight: Font.DemiBold
                                 color: root.menuTextColor
@@ -510,8 +515,7 @@ Rectangle {
 
                         MouseArea {
                             anchors.fill: parent
-                            anchors.margins : root.borderWidth
-                            enabled: isEnabled
+                            enabled: ballEnabled
                             onClicked: root.catchChosen(index)
                         }
                     }
@@ -519,6 +523,7 @@ Rectangle {
             }
         }
     }
+
     Component {
             id: runContent
             Item {
@@ -527,7 +532,7 @@ Rectangle {
                     anchors.centerIn: parent
                     palette.button: root.runButtonColor
                     text: "Confirm run"
-                    width: root.buttonWidth*1.5
+                    width: root.buttonWidth*1.6
                     height: root.buttonHeight
                     font.pixelSize: root.buttonFontSize
                     font.family: root.menuFontFamily
