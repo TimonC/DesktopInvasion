@@ -17,7 +17,7 @@ Item {
     // Property to control which side the chosen/opponent buttons are on
     property int chosenSide: 1  // 0, 1, 2, or 3
 
-    property alias attachButton: attackButton
+    property alias attackButton: attackButton
     property alias switchButton: switchButton
     property alias catchButton: catchButton
     property alias runButton: runButton
@@ -98,7 +98,7 @@ Item {
                 width: buttonWidth
                 height: buttonHeight
                 radius: buttonHeight / 2
-                onClicked: {swap_visibility();console.log("Attack clicked")}
+                onClicked: {console.log("Attack clicked")}
             }
 
             // Switch button - top right

@@ -33,11 +33,13 @@ Pokemon::Pokemon(QWindow *parent, int row)
     m_sprite->setProperty("spriteOffsetY",32/2);
 
 }
-
+void Pokemon::useMove(){
+    m_sprite->setProperty("tackle", true);
+}
 
 void Pokemon::direction(int direction){
     m_currentDirection = direction%4;
-    m_sprite->setProperty("animation",m_currentDirection);
+    m_sprite->setProperty("direction",m_currentDirection);
 };
 int Pokemon::direction(){
     return m_currentDirection;

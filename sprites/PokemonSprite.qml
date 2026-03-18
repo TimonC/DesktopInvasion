@@ -4,7 +4,7 @@ Item {
     id: root
     property string spriteSheet: "qrc:/assets/HGSS/PokGen1_transparent_reordered.png"
     property int row: 0
-    property int animation: 0
+    property int direction: 0
     property real scaleFactor: 4
     property int spriteOffsetX: 0
     property int spriteOffsetY: 0
@@ -21,6 +21,7 @@ Item {
     property bool openingButtons: false
     property bool clickable:true
     property bool jumping: false
+    property bool tackle: false
 
     width: itemWidth
     height: itemHeight
@@ -42,6 +43,34 @@ Item {
             visible: root.openingButtons
             z:8000
         }
+
+    AnimatedSprite {
+        id: sprite
+        x: spriteOffsetX
+        y: spriteOffsetY
+        z: 1000
+        scale: scaleFactor
+
+        source: spriteSheet
+        frameWidth: root.frameWidth
+        frameHeight: root.frameHeight
+        frameCount: root.frameCount
+        frameRate: root.frameRate
+        interpolate: false
+        smooth: false
+        antialiasing: false
+
+        frameX: {
+            switch (direction) {
+                case 0: return 0;
+                case 1: return frameWidth * frameCount;
+                case 2: return frameWidth * frameCount * 2;
+                case 3: return frameWidth * frameCount * 3;
+            }
+            return 0;
+        }
+        frameY: row * frameHeight
+    }
 
     SequentialAnimation {
         id: jumpAnim
@@ -65,32 +94,48 @@ Item {
         }
     }
 
-    AnimatedSprite {
-        id: sprite
-        x: spriteOffsetX
-        y: spriteOffsetY
-        z: 1000
-        scale: scaleFactor
+SequentialAnimation {
+    id: tackleAnim
+    running: tackle
+    loops: 1
+    onStopped: tackle = false
 
-        source: spriteSheet
-        frameWidth: root.frameWidth
-        frameHeight: root.frameHeight
-        frameCount: root.frameCount
-        frameRate: root.frameRate
-        interpolate: false
-        smooth: false
-        antialiasing: false
-
-        frameX: {
-            switch (animation) {
-                case 0: return 0;
-                case 1: return frameWidth * frameCount;
-                case 2: return frameWidth * frameCount * 2;
-                case 3: return frameWidth * frameCount * 3;
-            }
-            return 0;
-        }
-        frameY: row * frameHeight
+    PropertyAnimation {
+        target: sprite
+        property: "x"
+        to: (direction==1 ? spriteOffsetX-4*scaleFactor :
+             direction==3 ? spriteOffsetX+4*scaleFactor :
+             sprite.x)
+        duration: 50
+        easing.type: Easing.InQuad
     }
+
+    PropertyAnimation {
+        target: sprite
+        property: "y"
+        to: (direction==0 ? spriteOffsetY-4*scaleFactor :
+             direction==2 ? spriteOffsetY+4*scaleFactor :
+             sprite.y)
+        duration: 50
+        easing.type: Easing.InQuad
+    }
+
+    PropertyAnimation {
+        target: sprite
+        property: "x"
+        to: spriteOffsetX
+        duration: 100
+        easing.type: Easing.OutQuad
+    }
+
+    PropertyAnimation {
+        target: sprite
+        property: "y"
+        to: spriteOffsetY
+        duration: 100
+        easing.type: Easing.OutQuad
+    }
+}
+
 }
 
