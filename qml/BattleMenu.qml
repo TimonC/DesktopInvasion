@@ -116,7 +116,6 @@ Rectangle {
     Component {
         id: rootSelection
         Item {
-            anchors.fill: parent
             Grid {
                 anchors.centerIn: parent
                 columns: 2
@@ -159,7 +158,6 @@ Rectangle {
     Component {
         id: attackSelection
         Item {
-            anchors.fill: parent
             Grid {
                 anchors.centerIn: parent
                 columns: 2
@@ -212,7 +210,6 @@ Rectangle {
     Component {
         id: catchSelection
         Item {
-            anchors.fill: parent
             Rectangle {
                 anchors.centerIn: parent
                 width: root.buttonWidth * 1.5
@@ -271,7 +268,6 @@ Rectangle {
     Component{
         id: runSelection
         Item {
-            anchors.fill: parent
             Grid {
                 anchors.centerIn: parent
                 columns: 2
