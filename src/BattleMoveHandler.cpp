@@ -391,8 +391,10 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
     if (!canMoveResult.moveExecuted) {
         return result;
     }
+    std::string moveName = _move->name;
+    moveName.erase(std::remove(moveName.begin(), moveName.end(), '-'), moveName.end());
     result.addEffect(BattleActionResult::TEXT, caster, nullptr, 0, Ailment::Null, -1, 0,
-                    caster->pokeState.name + " used " + std::string(_move->name) + "!");
+                    caster->pokeState.name + " used " + moveName + "!");
 
     int accModifier = caster->battleState.statModifiers[5] + target->battleState.statModifiers[6];
     accModifier = std::min(std::max(accModifier,-6),6);
