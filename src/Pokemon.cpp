@@ -69,7 +69,7 @@ void Pokemon::useMove(){
 }
 
 void Pokemon::attacked(){
-    /* m_sprite->setProperty("attacked", true); */
+    m_sprite->setProperty("attacked", true);
 }
 
 void Pokemon::direction(int direction){
