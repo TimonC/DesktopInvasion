@@ -11,11 +11,12 @@ Player::Player(QObject* parent) : QObject(parent){
 
 void Player::_iChooseYou(Pokemon* opp, Pokemon* chosen){
         chosen->m_inABattle = true;
+
         m_activeBattles[chosen] =  std::make_unique<Battlescene>(opp, chosen);
+        m_activeBattles[chosen]->updateTextbar("It's a battle...!");
 
         chosen->show();
         m_activeBattles[chosen]->show();
-        m_activeBattles[chosen]->updateTextbar(QString("It's a battle...!"));
 
         qDebug() << "I choose you!";
 };

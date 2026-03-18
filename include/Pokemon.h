@@ -14,6 +14,7 @@ public:
     int m_row;
     int m_scaleFactor;
     bool m_inABattle = false;
+
 protected:
     QQuickItem* m_sprite;
     int m_currentDirection;
@@ -23,7 +24,6 @@ protected:
     int m_minY = 1e5;
     int m_maxY = 0;
     static constexpr int SPRITE_SIZE = 32 * 4;
-
 };
 
 #endif

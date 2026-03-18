@@ -5,16 +5,19 @@
 #include <Pokemon.h>
 #include <qtmetamacros.h>
 
-class Battlescene : public QQuickView{
+class Battlescene : public QQuickView
+{
     Q_OBJECT
 
-    public:
-        explicit Battlescene(Pokemon *opponent, Pokemon *chosen, QWindow* parent = nullptr);
-    signals:
-        QString updateTextbar(const QString &text);
-    private:
-            int m_direction;
-            QPoint m_origin;
+public:
+    Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent = nullptr);
+
+    void updateTextbar(const std::string& text); // Make sure this signal exists
+
+private:
+    QPoint m_origin;
+    int m_direction;
+    QQuickItem *m_ui = nullptr;
 };
 
 #endif
