@@ -91,6 +91,7 @@ Item {
         }
     }
 
+
 SequentialAnimation {
     id: actionForward
     loops: 1

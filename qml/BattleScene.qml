@@ -22,8 +22,8 @@ Item {
     property alias player: player
     property alias statusBarOpponent: statusBarOpponent
     property alias statusBarPlayer: statusBarPlayer
-    property  alias opponentName: statusBarOpponent.pokeName
-    property  alias playerName: statusBarPlayer.pokeName
+    property alias opponentName: statusBarOpponent.pokeName
+    property alias playerName: statusBarPlayer.pokeName
 
     // Attack chain state
     property bool attackInProgress: false
@@ -44,7 +44,7 @@ Item {
     }
 
     // Sprites
-    StatusBar{
+    StatusBar {
         id: statusBarOpponent
     }
 
@@ -58,8 +58,8 @@ Item {
         property alias statusBar: root.statusBarOpponent
     }
 
-   StatusBar{
-       id: statusBarPlayer
+    StatusBar {
+        id: statusBarPlayer
     }
 
     PokemonSprite {
@@ -72,14 +72,19 @@ Item {
         property alias statusBar: root.statusBarPlayer
     }
 
-   // UI
+    // Pokéball animation component
+    PokeballCatch {
+        id: pokeBallSend
+        scaleFactor: 2
+    }
+
+    // UI
     BattleMenu {
         id: battleMenu
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
         height: root.menuHeight
         width: root.menuWidth
-
         frameSize: root.frameSize
         buttonWidth: root.buttonWidth
         buttonHeight: root.buttonHeight
@@ -96,9 +101,16 @@ Item {
                 console.error("Invalid attack id:", attackId)
             }
         }
+
         onCatchChosen: function(pokeSpriteId) {
             if (pokeSpriteId === 3) {
-                console.error("valid pokeSprite id:", pokeSpriteId)
+                // Calculate center X of opponent sprite
+                var centerX = opponent.x + (opponent.width / 2) - (32/4 );
+                // Target Y is the opponent's Y position
+                var targetY = opponent.y + opponent.height
+
+                // Start the animation
+                pokeBallSend.throwAt(centerX, targetY);
             } else {
                 console.error("Invalid pokeSprite id:", pokeSpriteId)
             }
@@ -121,43 +133,38 @@ Item {
             case 0:
                 sprite.x = margin + sprite.containerOffsetX;
                 sprite.y = root.height - (menuHeight + margin + sprite.containerOffsetY + sprite.height);
-
                 sprite.statusBar.x = 3*32 - margin
                 sprite.statusBar.y = sprite.y
                 break;
             case 1:
                 sprite.x = root.width - (margin + sprite.containerOffsetX + sprite.width);
                 sprite.y = root.height - (menuHeight + margin + sprite.height);
-
                 sprite.statusBar.x = root.width - 32*2.5 - margin
-                sprite.statusBar.y = (root.height - menuHeight  - 3*32)/2
+                sprite.statusBar.y = (root.height - menuHeight - 3*32)/2
                 break;
             case 2:
                 sprite.x = margin + sprite.containerOffsetX;
                 sprite.y = margin + sprite.containerOffsetY;
-
                 sprite.statusBar.x = 3*32 - margin
                 sprite.statusBar.y = sprite.y
                 break;
             case 3:
                 sprite.x = margin + sprite.containerOffsetX;
                 sprite.y = root.height - (menuHeight + margin + sprite.height);
-
                 sprite.statusBar.x = 32/2 + margin
-                sprite.statusBar.y = (root.height - menuHeight  - 3*32)/2
+                sprite.statusBar.y = (root.height - menuHeight - 3*32)/2
                 break;
         }
+
         sprite.startingX = sprite.x;
         sprite.startingY = sprite.y;
         sprite.statusBar.visible = true;
     }
 
-
     Component.onCompleted: {
         positionSpriteAndStatusBar(player);
         positionSpriteAndStatusBar(opponent);
     }
-
 
     // Main sequence timer
     Timer {
@@ -172,11 +179,10 @@ Item {
         sequenceTimer.start();
     }
 
-
-
     // Build and start the attack sequence
     function startAttackChain(playerFirst) {
         if (root.attackInProgress) return;
+
         battleMenu.showTextBar();
         root.attackInProgress = true;
         root.currentAttackIndex = 0;
@@ -185,7 +191,6 @@ Item {
         var firstAttacker = playerFirst ? player : opponent;
         var firstDefender = playerFirst ? opponent : player;
         var firstAttackerName = playerFirst ? playerName : opponentName;
-
         var secondAttacker = playerFirst ? opponent : player;
         var secondDefender = playerFirst ? player : opponent;
         var secondAttackerName = playerFirst ? opponentName : playerName;
@@ -197,17 +202,16 @@ Item {
             { type: "damage", defender: firstDefender, delay: 200 },
             { type: "change-health", defender: firstDefender, delay: 1000 },
             { type: "text", message: "It's super effective!", delay: 1200 },
-
             // Second turn
             { type: "text", message: secondAttackerName + " used Tackle!", delay: 300 },
             { type: "attack", attacker: secondAttacker, delay: 500 },
             { type: "damage", defender: secondDefender, delay: 200 },
             { type: "change-health", defender: secondDefender, delay: 1000 },
             { type: "text", message: "It's super effective!", delay: 1200 },
-
             // End
             { type: "end" }
         ];
+
         executeNextStep();
     }
 
@@ -227,41 +231,34 @@ Item {
                 sequenceTimer.interval = step.delay;
                 sequenceTimer.start();
                 break;
-
             case "attack":
                 step.attacker.actionForward.running = true;
                 sequenceTimer.interval = step.delay;
                 sequenceTimer.start();
                 break;
-
             case "damage":
                 step.defender.takeDamage.running = true;
                 sequenceTimer.interval = step.delay;
                 sequenceTimer.start();
                 break;
-
             case "change-health":
                 let currentHealthRatio = step.defender.statusBar.incrementHealth(-75);
                 sequenceTimer.interval = step.delay;
-
                 if(currentHealthRatio==0){
                     root.attackSequence = [
-                        {type: "lose-battle", message: step.defender.name + "  fainted!", defender: step.defender, delay: 2000 },
+                        {type: "lose-battle", message: step.defender.name + " fainted!", defender: step.defender, delay: 2000 },
                         {type: "battle-over", defender: step.defender, delay: 100 }
                     ]
                     root.currentAttackIndex = 0;
                 }
-
                 sequenceTimer.start();
                 break;
-
             case "lose-battle":
                 battleMenu.updateText(step.message);
                 step.defender.visible = false;
                 sequenceTimer.interval = step.delay;
                 sequenceTimer.start();
                 break;
-
             case "battle-over":
                 if(step.defender==root.opponent){
                     root.playerWon()
@@ -273,7 +270,6 @@ Item {
                 break;
         }
     }
-
 
     // End the attack sequence
     function endAttackChain() {
