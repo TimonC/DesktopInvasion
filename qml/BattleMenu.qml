@@ -158,50 +158,38 @@ Rectangle {
     Component {
         id: attackSelection
         Item {
-            Grid {
+            Row {
                 anchors.centerIn: parent
-                columns: 2
                 spacing: root.gridSpacing
 
-                Repeater {
-                    model: 4
-                    Rectangle {
-                        width: root.buttonWidth
-                        height: root.buttonHeight
-                        color: "white"
-                        border.color: "black"
-                        border.width: 2
-                        radius: 3
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: "TACKLE"
-                            font.pixelSize: root.buttonFontSize
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: root.attackChosen(0)
+                Grid {
+                    columns: 2
+                    spacing: root.gridSpacing
+                    Repeater {
+                        model: 4
+                        Rectangle {
+                            width: root.buttonWidth
+                            height: root.buttonHeight
+                            color: "white"
+                            border.color: "black"
+                            border.width: 2
+                            radius: 3
+                            Text {
+                                anchors.centerIn: parent
+                                text: "TACKLE"
+                                font.pixelSize: root.buttonFontSize
+                            }
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: root.attackChosen(0)
+                            }
                         }
                     }
                 }
-            }
-            Rectangle {
-                anchors.right: parent.right
-                anchors.verticalCenter: parent.verticalCenter
-                width: root.buttonHeight
-                height: root.buttonHeight
-                color: "lightblue"
-                radius: 3
-                Text {
-                    anchors.centerIn: parent
-                    text: "←"
-                    color: "white"
-                    font.pixelSize: root.buttonFontSize
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: stack.pop()
+
+                Loader {
+                    anchors.verticalCenter: parent.verticalCenter
+                    sourceComponent: backButton
                 }
             }
         }
@@ -244,24 +232,11 @@ Rectangle {
                     onClicked: root.catchChosen(3)
                 }
             }
-            Rectangle {
-                anchors.right: parent.right
-                anchors.verticalCenter: parent.verticalCenter
-                width: root.buttonHeight
-                height: root.buttonHeight
-                color: "lightblue"
-                radius: 3
-                Text {
-                    anchors.centerIn: parent
-                    text: "←"
-                    color: "white"
-                    font.pixelSize: root.buttonFontSize
+                Loader {
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    sourceComponent: backButton
                 }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: stack.pop()
-                }
-            }
         }
     }
 
@@ -280,15 +255,31 @@ Rectangle {
                     height: root.buttonHeight
                     onClicked: root.runChosen();
                 }
-                RoundButton {
-                    text: "Back"
-                    palette.button: "blue"
-                    font.pixelSize: root.buttonFontSize
-                    width: root.buttonWidth
-                    height: root.buttonHeight
-                    onClicked: stack.pop();
+                Loader {
+                    sourceComponent: backButton
                 }
             }
         }
     }
+Component {
+    id: backButton
+    Rectangle {
+        width: root.buttonHeight
+        height: root.buttonHeight
+        color: "lightblue"
+        radius: 3
+        Text {
+            anchors.centerIn: parent
+            text: "←"
+            color: "white"
+            font.pixelSize: root.buttonFontSize
+        }
+        MouseArea {
+            anchors.fill: parent
+            onClicked: stack.pop()
+        }
+    }
 }
+}
+
+
