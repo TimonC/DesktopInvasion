@@ -25,7 +25,7 @@ Item {
     property bool inNameEditMode:      false
     property int  selectedEligibleIdx: -1
 
-    property int jumpDistance: 12
+    property int jumpDistance:  32
 
     property color colorText:         "#ffffff"
     property color colorSubtext:      "#aaaaaa"
@@ -725,7 +725,7 @@ Item {
             property bool isJumping:        false
             property int  jumpUpDuration:   200
             property int  jumpDownDuration: 150
-            property int  jumpHeight:       ws.jumpDistance * 2
+            property int  jumpHeight:       ws.jumpDistance
 
             SequentialAnimation {
                 id: jumpAnim
