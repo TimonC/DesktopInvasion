@@ -22,7 +22,7 @@ Item {
 
     // Random delay timer to prevent sync
     property Timer startTimer: Timer {
-        interval: Math.random() * 125 // 0-125ms random delay
+        interval: Math.random() * 250 // 0-250ms random delay
         running: true
         onTriggered: sprite.running = true
     }
@@ -38,7 +38,7 @@ Item {
         frameHeight: root.frameHeight
         frameCount: root.frameCount
         frameRate: root.frameRate
-        currentFrame: Math.floor(Math.random() * frameCount)
+        currentFrame: Math.random() < 0.5 ? 0 : 1
         interpolate: false
         smooth: false
         antialiasing: false
