@@ -2,6 +2,9 @@ FROM stateoftheartio/qt6:6.8-gcc-aqt
 
 USER root
 ENV DEBIAN_FRONTEND=noninteractive
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
+ENV LANGUAGE=C.UTF-8
 
 RUN apt-get update && apt-get install -y \
     build-essential \
