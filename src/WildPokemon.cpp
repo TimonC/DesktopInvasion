@@ -86,10 +86,10 @@ void WildPokemon::startBattle(){
             if(x() < 32) direction(3);
             break;
         case 2:
-            if(y()  > screenSize().height() - 32) direction(0);
+            if(y() + height()  > screenSize().height() - 32) direction(0);
             break;
         case 3:
-            if(x()  > screenSize().width() - 32) direction(1);
+            if(x() + width()  > screenSize().width() - 32) direction(1);
             break;
         default:
             break;
