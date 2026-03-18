@@ -364,7 +364,8 @@ Item {
 
 
     function processCatchAttempt() {
-        var failure = Math.random() < 0.1
+        var failureRate = 0.05 + (0.7 * statusBarOpponent.currentHealthRatio); // 75% fail at full HP, 10% at 1 HP
+        var failure = Math.random() < failureRate;
 
         if (failure) {
             // Release the pokemon
