@@ -8,8 +8,7 @@ opener.addheaders = [('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) A
 urllib.request.install_opener(opener)
 
 # List of move IDs to skip
-#todo: sonic boom, dragon rage, counter, mirror coat, metronome, selfdestruct, dream eater, DITTO, super fang, SWAGGER/DRACOMETEOR/FLATTER,
-#pain split? 220
+#This list of moves to exclude was manually compiled to drastically reduce complexity of DesktopInvasion
 SKIP_MOVE_IDS = [
     3,
     4,
@@ -22,7 +21,6 @@ SKIP_MOVE_IDS = [
     20,
     24,
     26,
-    28,
     31,
     32,
     32,
@@ -30,43 +28,47 @@ SKIP_MOVE_IDS = [
     41,
     42,
     46,
+    49,
     50,
     54,
     63,
     67,
+    68,
     69,
     76,
     80,
+    82,
     83,
     90,
     99,
     100,
     101,
     102,
-    104,
-    107,
-    108,
     113,
     114,
     115,
     116,
     117,
+    118,
+    119,
+    120,
     128,
     129,
     130,
     131,
-    134,
     136,
+    138,
     140,
     143,
     144,
     146,
-    148,
+    153,
     154,
     155,
     156,
     160,
     161,
+    162,
     164,
     165,
     166,
@@ -95,6 +97,7 @@ SKIP_MOVE_IDS = [
     201,
     203,
     205,
+    206,
     210,
     212,
     213,
@@ -109,11 +112,11 @@ SKIP_MOVE_IDS = [
     227,
     228,
     229,
-    230,
     233,
     237,
     240,
     241,
+    243,
     244,
     248,
     250,
@@ -212,7 +215,6 @@ SKIP_MOVE_IDS = [
     415,
     416,
     419,
-    432,
     433,
     439,
     445,
@@ -226,6 +228,19 @@ SKIP_MOVE_IDS = [
     462,
     463,
     467,
+]
+
+#This list was made by feeding all the stat-changing moves to DeepSeek and defining exceptions
+MOVE_EFFECT_EXCEPTION_LIST = [
+    207,  # Swagger: +2 Attack to TARGET (confuses, but buffs opponent)
+    260,  # Flatter: +1 Sp. Atk to TARGET (confuses, but buffs opponent)
+    276,  # Superpower: -1 Attack, -1 Defense to USER (self-debuff after damage)
+    315,  # Overheat: -2 Sp. Atk to USER (self-debuff after damage)
+    354,  # Psycho Boost: -2 Sp. Atk to USER (self-debuff after damage)
+    359,  # Hammer Arm: -1 Speed to USER (self-debuff after damage)
+    370,  # Close Combat: -1 Defense, -1 Sp. Defense to USER (self-debuff after damage)
+    434,  # Draco Meteor: -2 Sp. Atk to USER (self-debuff after damage)
+    437,  # Leaf Storm: -2 Sp. Atk to USER (self-debuff after damage)
 ]
 
 # Approved ailments (matching the Ailment enum). 'Badly poisoned' is inserted based on known move name
@@ -243,9 +258,9 @@ def should_skip_move_by_ailment(ailment_name):
     return ailment_name not in APPROVED_AILMENTS
 
 def extract_stat_changes(stat_changes_list):
-    """Extract stat changes into a list of 5 integers: [attack, sp_attack, defense, sp_defense, speed]"""
-    stats = [0, 0, 0, 0, 0]
-    stat_map = {'attack': 0, 'special-attack': 1, 'defense': 2, 'special-defense': 3, 'speed': 4}
+    """Extract stat changes into a list of 7 integers: [attack, sp_attack, defense, sp_defense, speed, accuracy, evasion]"""
+    stats = [0, 0, 0, 0, 0, 0, 0]
+    stat_map = {'attack': 0, 'special-attack': 1, 'defense': 2, 'special-defense': 3, 'speed': 4, 'accuracy': 5, 'evasion': 6}
     for stat_change in stat_changes_list:
         stat_name = stat_change.get('stat', {}).get('name', '')
         change_value = stat_change.get('change', 0)
@@ -322,15 +337,8 @@ def extract_meta_data(meta):
         return None
     ailment_name = meta.get('ailment', {}).get('name', 'none')
 
-    def convert_null_to_neg_one(value):
-        return -1 if value is None else value
-
     return {
         'ailment': ailment_name,
-        'min_hits': convert_null_to_neg_one(meta.get('min_hits')),
-        'max_hits': convert_null_to_neg_one(meta.get('max_hits')),
-        'min_turns': convert_null_to_neg_one(meta.get('min_turns')),
-        'max_turns': convert_null_to_neg_one(meta.get('max_turns')),
         'drain': meta.get('drain', 0),
         'healing': meta.get('healing', 0),
         'crit_rate': meta.get('crit_rate', 0),
@@ -386,6 +394,7 @@ namespace {
 
     # Create all moves in anonymous namespace with const qualifiers
     for move in valid_moves:
+
         move_id = move['id']
         raw_name = move['name']
         formatted_name = format_move_name(raw_name).replace('"', '\\"')
@@ -399,6 +408,15 @@ namespace {
         meta = move['meta']
         ailment_enum = format_ailment_enum(meta['ailment'], move['name'])
 
+        #Below block assumes a move never does both negative and positive status changes (curse is not included so we good)
+        stat_change_target = -1
+        if stats != "{0, 0, 0, 0, 0, 0, 0}":
+            effect_target = True if "-" in stats else False
+            if move_id in MOVE_EFFECT_EXCEPTION_LIST:
+                effect_target = not effect_target
+            stat_change_target = 1 if effect_target else 0
+
+
         source_content += f"""    static constexpr Move move_{move_id} = {{
         {move_id},
         "{formatted_name}",
@@ -410,16 +428,13 @@ namespace {
         {category_enum},
         {stats},
         {ailment_enum},
-        {meta['min_hits']},
-        {meta['max_hits']},
-        {meta['min_turns']},
-        {meta['max_turns']},
         {meta['drain']},
         {meta['healing']},
         {meta['crit_rate']},
         {meta['ailment_chance']},
         {meta['flinch_chance']},
-        {meta['stat_chance']}
+        {meta['stat_chance']},
+        {stat_change_target}
     }};
 
 """

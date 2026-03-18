@@ -13,18 +13,15 @@ struct Move {
     const int accuracy;
     const int priority;
     const MoveCategory category;
-    const std::array<int, 5> stat_changes;
+    const std::array<int, 7> stat_changes;
     const Ailment ailment;
-    const int min_hits;
-    const int max_hits;
-    const int min_turns;
-    const int max_turns;
     const int drain;
     const int healing;
     const int crit_rate;
     const int ailment_chance;
     const int flinch_chance;
     const int stat_chance;
+    const int stat_change_target; //0 means affects caster, 1 means affects target, anything else means no effect
 };
 
 // The Python script generates these in data_move.cpp
