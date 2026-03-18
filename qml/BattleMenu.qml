@@ -2,7 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 
 Rectangle {
-    id: menuContainer
+    id: root
     color: "transparent"
 
     // Expose properties from root
@@ -15,11 +15,26 @@ Rectangle {
     property int menuWidth: frameSize * 5
 
     // Expose signals
-    signal attackButtonClicked()
+    signal attackChosen(int attackId)
     signal runClicked()
 
     // Expose stack for external control
     property alias stack: stack
+
+    // Methods to control the menu from outside
+    function showTextBar() {
+        stack.clear()
+        var item = stack.push(textBarComponent)
+    }
+
+    function updateText(text) {
+        stack.currentItem.text = text
+    }
+
+    function resetToRoot() {
+        stack.clear()
+        stack.push(rootSelectionComponent)
+    }
 
     StackView {
         id: stack
@@ -33,15 +48,15 @@ Rectangle {
         Rectangle {
             id: textBar
             color: "darkgrey"
-            property string text: ""
-            height: menuContainer.menuHeight
-            width: menuContainer.menuWidth
+            property string text: "UNINITIALIZED TEXT!!!!"
+            height: root.menuHeight
+            width: root.menuWidth
             radius: 5
             Text {
                 id: textBarText
                 anchors.fill: parent
                 anchors.margins: 6
-                text: "UNINITIALIZED TEXT!!!"
+                text: textBar.text
                 font.pixelSize: 13
                 verticalAlignment: Text.AlignVCenter
             }
@@ -55,36 +70,71 @@ Rectangle {
             Grid {
                 anchors.centerIn: parent
                 columns: 2
-                spacing: menuContainer.gridSpacing
+                spacing: root.gridSpacing
                 RoundButton {
                     text: "Attack"
                     palette.button: "red"
-                    font.pixelSize: menuContainer.buttonFontSize
-                    width: menuContainer.buttonWidth
-                    height: menuContainer.buttonHeight
-                    onClicked: menuContainer.attackButtonClicked()
+                    font.pixelSize: root.buttonFontSize
+                    width: root.buttonWidth
+                    height: root.buttonHeight
+                    onClicked: stack.push(attackSelectionComponent)
                 }
                 RoundButton {
                     text: "Switch"
                     palette.button: "green"
-                    font.pixelSize: menuContainer.buttonFontSize
-                    width: menuContainer.buttonWidth
-                    height: menuContainer.buttonHeight
+                    font.pixelSize: root.buttonFontSize
+                    width: root.buttonWidth
+                    height: root.buttonHeight
                 }
                 RoundButton {
                     text: "Catch"
                     palette.button: "yellow"
-                    font.pixelSize: menuContainer.buttonFontSize
-                    width: menuContainer.buttonWidth
-                    height: menuContainer.buttonHeight
+                    font.pixelSize: root.buttonFontSize
+                    width: root.buttonWidth
+                    height: root.buttonHeight
                 }
                 RoundButton {
                     text: "Run"
                     palette.button: "blue"
-                    font.pixelSize: menuContainer.buttonFontSize
-                    width: menuContainer.buttonWidth
-                    height: menuContainer.buttonHeight
-                    onClicked: menuContainer.runClicked()
+                    font.pixelSize: root.buttonFontSize
+                    width: root.buttonWidth
+                    height: root.buttonHeight
+                    onClicked: root.runClicked()
+                }
+            }
+        }
+    }
+
+    Component {
+        id: attackSelectionComponent
+        Item {
+            anchors.fill: parent
+            Grid {
+                anchors.centerIn: parent
+                columns: 2
+                spacing: root.gridSpacing
+
+                Repeater {
+                    model: 4
+                    Rectangle {
+                        width: root.buttonWidth
+                        height: root.buttonHeight
+                        color: "white"
+                        border.color: "black"
+                        border.width: 2
+                        radius: 3
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: "TACKLE"
+                            font.pixelSize: root.buttonFontSize
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: root.attackChosen(0)
+                        }
+                    }
                 }
             }
         }

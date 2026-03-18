@@ -88,7 +88,13 @@ Item {
         menuHeight: root.menuHeight
         menuWidth: root.menuWidth
 
-        onAttackButtonClicked: root.onAttackButtonClicked()
+        onAttackChosen: function(attackId) {
+            if (attackId === 0) {
+                root.onAttackChosen()
+            } else {
+                console.error("Invalid attack id:", attackId)
+            }
+        }
         onRunClicked: root.runClicked()
     }
 
@@ -143,12 +149,6 @@ Item {
         positionSpriteAndStatusBar(opponent);
     }
 
-    function update_text_bar(newText) {
-        // Access the textBar through the stack's currentItem
-        if (battleMenu.stack.currentItem && battleMenu.stack.currentItem.text !== undefined) {
-            battleMenu.stack.currentItem.text = newText;
-        }
-    }
 
     // Main sequence timer
     Timer {
@@ -164,16 +164,15 @@ Item {
     }
 
     // Attack button handler
-    function onAttackButtonClicked() {
+    function onAttackChosen() {
         var playerFirst = Math.random() < 0.5;
-        // var playerFirst = false;
         startAttackChain(playerFirst);
     }
 
     // Build and start the attack sequence
     function startAttackChain(playerFirst) {
         if (root.attackInProgress) return;
-
+        battleMenu.showTextBar();
         root.attackInProgress = true;
         root.currentAttackIndex = 0;
 
@@ -219,7 +218,7 @@ Item {
 
         switch(step.type) {
             case "text":
-                update_text_bar(step.message);
+                battleMenu.updateText(step.message);
                 sequenceTimer.interval = step.delay;
                 sequenceTimer.start();
                 break;
@@ -252,7 +251,7 @@ Item {
                 break;
 
             case "lose-battle":
-                update_text_bar(step.message);
+                battleMenu.updateText(step.message);
                 step.defender.visible = false;
                 sequenceTimer.interval = step.delay;
                 sequenceTimer.start();
@@ -276,7 +275,6 @@ Item {
         root.attackInProgress = false;
         root.attackSequence = [];
         root.currentAttackIndex = 0;
-        // rootSelection.visible = true;
-        // textBarText.visible = false;
+        battleMenu.resetToRoot();
     }
 }
