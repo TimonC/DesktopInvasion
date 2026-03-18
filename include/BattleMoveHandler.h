@@ -82,7 +82,7 @@ private:
 
     QVariantMap createTextAction(const QString& message, int delay);
     QVariantMap createAttackAction(const QString& role, int delay);
-    QVariantMap createDamageAction(const QString& role, int damage, int delay);
+    QVariantMap createDamageAction(const QString& role, int delay);
     QVariantMap createHealthChangeAction(const QString& role, int amount, int delay);
     QVariantMap createCatchAction(int shakes, int delay);
     QVariantMap createEndAction();

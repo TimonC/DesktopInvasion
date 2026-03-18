@@ -20,7 +20,6 @@ inline int processCatchAttempt(
     float hpFactor = (3.0f * HP_max - 2.0f * HP_current) / (3.0f * HP_max);
     float modifiedCatchRate = hpFactor * catchRate * (ballMod / 100.0f) * (statusMod / 100.0f);
 
-    return 2;
     if (!processShake(modifiedCatchRate, rng)) return 0;
     if (!processShake(modifiedCatchRate, rng)) return 1;
     if (!processShake(modifiedCatchRate, rng)) return 2;

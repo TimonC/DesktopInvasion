@@ -307,18 +307,20 @@ Item {
                 break
 
             case "attempt-catch":
-                var newActions = step.shakes >= 3
-                    ?
-                [
-                    {type: "succeed-catch", delay: 100},
-                    {type: "text", message: "Gotcha! " + opponent.name + " was caught!", delay: 2000},
-                    {type: "jump", delay: 2000}
-                ]
-                    :
-                [
-                    {type: "reveal-opponent", message: "Aargh! Almost had it!", delay: 1000},
-                    {type: "fail-catch", delay: root.ballTransitionDuration}
-                ]
+                if(step.shakes>=4){
+                    step.shakes = 3;
+                    var newActions = [
+                        {type: "succeed-catch", delay: 100},
+                        {type: "text", message: "Gotcha! " + opponent.name + " was caught!", delay: 2000},
+                        {type: "jump", delay: 2000}
+                    ]
+                }
+                else{
+                    var newActions = [
+                        {type: "reveal-opponent", message: "Aargh! Almost had it!", delay: 1000},
+                        {type: "fail-catch", delay: root.ballTransitionDuration}
+                    ]
+                }
 
                 for (var i = 0; i < step.shakes; i++) {
                     newActions.push({type: "shake", delay: 2000});

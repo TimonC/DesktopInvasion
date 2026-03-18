@@ -382,7 +382,7 @@ void BattleMoveHandler::generateMoveSequence(QVariantList& sequence, Battler& at
 
     if(attacker.delta.confusedDamage > 0) {
         sequence.append(createTextAction(attackerName + " hurt itself in its confusion!", ms_confusionText));
-        sequence.append(createDamageAction(attackerRole, attacker.delta.confusedDamage, ms_damageAnimation));
+        sequence.append(createDamageAction(attackerRole, ms_damageAnimation));
         sequence.append(createHealthChangeAction(attackerRole, -attacker.delta.confusedDamage, ms_healthChange));
     } else if(attacker.delta.flinched) {
         sequence.append(createTextAction(attackerName + " flinched!", ms_statusConditionText));
@@ -397,8 +397,8 @@ void BattleMoveHandler::generateMoveSequence(QVariantList& sequence, Battler& at
         sequence.append(createTextAction(attackerName + "'s attack missed!", ms_statusConditionText));
     } else if(attacker.delta.damage > 0) {
         sequence.append(createAttackAction(attackerRole, ms_attackAnimation));
-        sequence.append(createDamageAction(defenderRole, attacker.delta.damage, ms_damageAnimation));
-        sequence.append(createHealthChangeAction(defenderRole, -defender.delta.damage, ms_healthChange));
+        sequence.append(createDamageAction(defenderRole, ms_damageAnimation));
+        sequence.append(createHealthChangeAction(defenderRole, -attacker.delta.damage, ms_healthChange));
 
         if(defender.delta.critical) {
             sequence.append(createTextAction("A critical hit!", ms_criticalHitText));
@@ -443,9 +443,9 @@ QVariantList BattleMoveHandler::generateActionSequence(Battler& opponent, Battle
     qDebug() << "Generating action sequence with: playerFirst =" << playerFirst
              << "switchedIn =" << switchedIn << "shakes =" << shakes;
 
-    qDebug() <<shakes;
     // Catch attempt
     if(shakes > -1) {
+         shakes = rand()%2 == 0 ? 1 : 4;
          sequence.append(createTextAction("Player used one Poké Ball!", 300));
          sequence.append(createCatchAction(shakes, ms_catchStart));
 
@@ -559,7 +559,7 @@ void BattleMoveHandler::addPostMoveEffects(QVariantList& sequence, Battler& batt
     if(battler.delta.ailmentDaamge > 0) {
         QString ailment = ailmentToString(battler.battleState.statusCondition);
         sequence.append(createTextAction(name + " is hurt by its " + ailment + "!", 500));
-        sequence.append(createDamageAction(role, battler.delta.ailmentDaamge, 200));
+        sequence.append(createDamageAction(role, 200));
         sequence.append(createHealthChangeAction(role, -battler.delta.ailmentDaamge, 800));
     }
 
@@ -607,11 +607,10 @@ QVariantMap BattleMoveHandler::createAttackAction(const QString& role, int delay
     return action;
 }
 
-QVariantMap BattleMoveHandler::createDamageAction(const QString& role, int damage, int delay) {
+QVariantMap BattleMoveHandler::createDamageAction(const QString& role, int delay) {
     QVariantMap action;
     action["type"] = "damage";
     action["role"] = role;
-    action["damage"] = damage;
     action["delay"] = delay;
     return action;
 }
