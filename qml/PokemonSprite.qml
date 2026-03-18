@@ -72,7 +72,7 @@ Item {
         frameWidth: root.frameWidth
         frameHeight: root.frameHeight
         frameCount: root.frameCount
-        frameRate: root.frameRate  // NOT scaled by animationSpeed
+        frameRate: root.frameRate
         currentFrame: Math.random() < 0.5 ? 0 : 1
         interpolate: false
         smooth: false
