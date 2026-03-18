@@ -1,6 +1,9 @@
 import QtQuick 2.15
 import "../Style/PokeColor.js" as PokeColor
 
+// PokeView.
+// Menu gives this a fixed width × height Item and sets anchors.centerIn.
+// All internal layout works from this component's own width/height.
 Item {
     id: pokeView
 
@@ -11,15 +14,15 @@ Item {
     property real   scaleFactor: 6
     property int    rowId:       0
 
-    // ── Fonts ─────────────────────────────────────────────────────────────────
-    property string mainFont:   root.p2pFont
-    property string bodyFont:   root.dotGothicFont
+    // ── Fonts ──────────────────────────────────────────────────────────────────
+    property string mainFont:   "Press Start 2P"
+    property string bodyFont:   "DotGothic16"
     property int    fontSizeLg: 22
     property int    fontSizeMd: 18
     property int    fontSizeSm: 16
 
-    // ── Colors ────────────────────────────────────────────────────────────────
-    property color colorText:          root.textColor
+    // ── Colors ─────────────────────────────────────────────────────────────────
+    property color colorText:          "#ffffff"
     property color colorSubtext:       "#aaaaaa"
     property color colorFaint:         "#cccccc"
     property color colorVeryFaint:     "#999999"
@@ -27,7 +30,7 @@ Item {
     property color colorMoveCard:      "#383838"
     property color colorTypePillText:  "#ffffff"
 
-    // ── Layout constants ──────────────────────────────────────────────────────
+    // ── Layout constants ───────────────────────────────────────────────────────
     property int  margin:        14
     property int  sectionGap:    8
     property int  rowSpacing:    6
@@ -38,23 +41,27 @@ Item {
     property int  moveNameW:     typePillW * 3
     property int  movePillGap:   typePillW / 4
 
+    // Section height ratios (must sum to 1.0)
     property real ratioTop:    0.32
     property real ratioFlavor: 0.16
     property real ratioMoves:  0.52
 
+    // Derived inner height (excludes top + bottom margin)
     readonly property real innerH: height - margin * 2
 
-    // Main content container that centers everything
+    // ── Main content container ─────────────────────────────────────────────────
+    // Centered inside whatever space Menu allocates.
     Item {
-        anchors.fill: parent
-        anchors.margins: margin
+        anchors.centerIn: parent
+        width:  parent.width  - pokeView.margin * 2
+        height: parent.height - pokeView.margin * 2
 
-        // ── TOP ROW ───────────────────────────────────────────────────────────────
+        // ── SECTION 1 – Sprite + Info row ─────────────────────────────────────
         Row {
             id: topRow
             anchors {
-                top: parent.top
-                left: parent.left
+                top:   parent.top
+                left:  parent.left
                 right: parent.right
             }
             height: innerH * ratioTop
@@ -72,16 +79,16 @@ Item {
 
                     AnimatedSprite {
                         id: sprite
-                        width:       pokeView.frameWidth  * pokeView.scaleFactor
-                        height:      pokeView.frameHeight * pokeView.scaleFactor
-                        running:     true
-                        source:      pokeView.spriteSheet
-                        frameWidth:  pokeView.frameWidth
-                        frameHeight: pokeView.frameHeight
-                        frameCount:  2
-                        frameRate:   4
-                        interpolate: false
-                        smooth:      false
+                        width:        pokeView.frameWidth  * pokeView.scaleFactor
+                        height:       pokeView.frameHeight * pokeView.scaleFactor
+                        running:      true
+                        source:       pokeView.spriteSheet
+                        frameWidth:   pokeView.frameWidth
+                        frameHeight:  pokeView.frameHeight
+                        frameCount:   2
+                        frameRate:    4
+                        interpolate:  false
+                        smooth:       false
                         antialiasing: false
                         frameX: pokeView.frameWidth * 4
                         frameY: pokeView.rowId * pokeView.frameHeight
@@ -204,24 +211,24 @@ Item {
             }
         }
 
-        // ── Divider 1 ─────────────────────────────────────────────────────────────
+        // ── Divider 1 – between Section 1 and Section 2 ───────────────────────
         Rectangle {
             id: divider1
             anchors {
-                top: topRow.bottom
-                left: parent.left
+                top:   topRow.bottom
+                left:  parent.left
                 right: parent.right
             }
             height: 1
-            color: colorDivider
+            color:  colorDivider
         }
 
-        // ── FLAVOR TEXT ───────────────────────────────────────────────────────────
+        // ── SECTION 2 – Flavor text ────────────────────────────────────────────
         Item {
             id: flavorRow
             anchors {
-                top: divider1.bottom
-                left: parent.left
+                top:   divider1.bottom
+                left:  parent.left
                 right: parent.right
             }
             height: innerH * ratioFlavor
@@ -238,24 +245,24 @@ Item {
             }
         }
 
-        // ── Divider 2 ─────────────────────────────────────────────────────────────
+        // ── Divider 2 – between Section 2 and Section 3 ───────────────────────
         Rectangle {
             id: divider2
             anchors {
-                top: flavorRow.bottom
-                left: parent.left
+                top:   flavorRow.bottom
+                left:  parent.left
                 right: parent.right
             }
             height: 1
-            color: colorDivider
+            color:  colorDivider
         }
 
-        // ── MOVES ─────────────────────────────────────────────────────────────────
+        // ── SECTION 3 – Moves ──────────────────────────────────────────────────
         Item {
             anchors {
-                top: divider2.bottom
-                left: parent.left
-                right: parent.right
+                top:    divider2.bottom
+                left:   parent.left
+                right:  parent.right
                 bottom: parent.bottom
             }
 

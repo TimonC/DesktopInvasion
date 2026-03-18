@@ -4,22 +4,30 @@ Rectangle {
     id: root
     color: backgroundColor
 
-    readonly property int outerPad:   16
-    readonly property int sectionGap: 12
-    readonly property int panelGap:   1
+    // ── Spacing / geometry ─────────────────────────────────────────────────────
+    readonly property int pad:      12
+    readonly property int dividerW: 1
+    readonly property color dividerColor: "#3a3a3a"
 
+    // ── Section dimensions (single source of truth) ────────────────────────────
     readonly property int trainerH:    260
     readonly property int pcH:         640
     readonly property int pcW:         640
     readonly property int rightPanelW: 640
 
+    // ── Icon scales ────────────────────────────────────────────────────────────
     property int iconScale:           8
     property int iconScaleForBig:     6
     property int iconScaleForTrainer: 5
 
-    width:  outerPad + pcW + outerPad + panelGap + outerPad + rightPanelW + outerPad
-    height: outerPad + trainerH + sectionGap + pcH + outerPad
+    // ── Overall window size ────────────────────────────────────────────────────
+    // Horizontal: pad | pcW | pad  dividerW  pad | rightPanelW | pad
+    width:  pad + pcW + pad + dividerW + pad + rightPanelW + pad
 
+    // Vertical: pad | trainerH | pad  dividerW  pad | pcH | pad
+    height: pad + trainerH + pad + dividerW + pad + pcH + pad
+
+    // ── Theme ──────────────────────────────────────────────────────────────────
     property color  backgroundColor:     "#2b2b2b"
     property color  buttonColor:         "#3c3c3c"
     property color  buttonSelectedColor: "#5294e2"
@@ -36,12 +44,14 @@ Rectangle {
     property var partyPokes: ({})
     property var boxPokes:   ({})
 
+    // ── Background click – cancel swap ─────────────────────────────────────────
     MouseArea {
         anchors.fill: parent
         cursorShape:  undefined
         onClicked: { if (pc.inSwapMode) pc.toggleSwapMode() }
     }
 
+    // ── Bridge connections ─────────────────────────────────────────────────────
     Connections {
         target: menuBridge
 
@@ -101,19 +111,27 @@ Rectangle {
         }
     }
 
-    // ── Main layout ───────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════════
+    //  Main layout  –  two columns separated by a vertical divider
+    //
+    //  Every gap (edge margin, divider breathing room) equals `pad`.
+    //  Layout tree maps exactly to the window size formula above:
+    //
+    //    pad | leftCol(pcW) | pad  [vDivider]  pad | rightCol(rightPanelW) | pad
+    //    pad | section1(trainerH) | pad  [hDivider]  pad | section2(pcH) | pad
+    // ══════════════════════════════════════════════════════════════════════════
     Row {
         anchors.fill:    parent
-        anchors.margins: root.outerPad
-        spacing:         root.panelGap
+        anchors.margins: root.pad
+        spacing:         0
 
-        // ── Left column ───────────────────────────────────────────────────────
+        // ── LEFT COLUMN ───────────────────────────────────────────────────────
         Column {
             width:   root.pcW
             height:  parent.height
-            spacing: root.sectionGap
+            spacing: 0
 
-            // Trainer strip — fills its slot, Trainer centers itself inside
+            // ── SECTION 1 – Trainer ───────────────────────────────────────────
             Item {
                 width:  parent.width
                 height: root.trainerH
@@ -125,26 +143,31 @@ Rectangle {
                     fontFamily:   root.p2pFont
                     iconScale:    root.iconScaleForTrainer
                 }
-
-                Rectangle {
-                    anchors.left:   parent.left
-                    anchors.right:  parent.right
-                    anchors.bottom: parent.bottom
-                    height: 1
-                    color:  "#3a3a3a"
-                }
             }
 
-            // PC — fills its slot, PcWidget centers its content internally
+            // pad gap above divider
+            Item { width: parent.width; height: root.pad }
+
+            // ── Horizontal divider ────────────────────────────────────────────
+            Rectangle {
+                width:  parent.width
+                height: root.dividerW
+                color:  root.dividerColor
+            }
+
+            // pad gap below divider
+            Item { width: parent.width; height: root.pad }
+
+            // ── SECTION 2 – PC ────────────────────────────────────────────────
             Item {
                 width:  parent.width
                 height: root.pcH
 
                 PC {
-                    id:     pc
+                    id:               pc
                     anchors.centerIn: parent
-                    width:      pc.pcColumns * pc.slotWidth + pc.buttonWidth * 2 + pc.layoutSpacing * 2
-                    height:     root.pcH
+                    width:  pc.pcColumns * pc.slotWidth + pc.buttonWidth * 2 + pc.layoutSpacing * 2
+                    height: root.pcH
                     fontSizeLg: root.fontSizeLg
                     fontSizeMd: root.fontSizeMd
                     fontSizeSm: root.fontSizeSm
@@ -153,22 +176,35 @@ Rectangle {
             }
         }
 
-        // ── Divider ───────────────────────────────────────────────────────────
+        // pad gap left of vertical divider
+        Item { width: root.pad; height: parent.height }
+
+        // ── Vertical divider ──────────────────────────────────────────────────
         Rectangle {
-            width:  root.panelGap
+            width:  root.dividerW
             height: parent.height
-            color:  "#3a3a3a"
+            color:  root.dividerColor
         }
 
-        // ── Right column ──────────────────────────────────────────────────────
+        // pad gap right of vertical divider
+        Item { width: root.pad; height: parent.height }
+
+        // ── RIGHT COLUMN  (Section 3) ──────────────────────────────────────────
         Item {
             width:  root.rightPanelW
             height: parent.height
 
+            // ── SECTION 3 – PokeView ───────────────────────────────────────────
             PokeView {
-                id: pokeView
-                anchors.fill: parent
+                id:               pokeView
                 anchors.centerIn: parent
+                width:            parent.width
+                height:           parent.height
+                fontSizeLg:       root.fontSizeLg
+                fontSizeMd:       root.fontSizeMd
+                fontSizeSm:       root.fontSizeSm
+                mainFont:         root.p2pFont
+                bodyFont:         root.dotGothicFont
             }
         }
     }
