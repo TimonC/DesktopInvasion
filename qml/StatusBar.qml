@@ -61,7 +61,8 @@ Item {
             id: statusContainer
             anchors.right: levelLabel.left
             anchors.rightMargin: root.statusPadding/2
-            anchors.verticalCenter: parent.verticalCenter
+            anchors.top: parent.top
+            anchors.topMargin: root.statusPadding/4
             width: statusLabel.implicitWidth + root.statusPadding
             height: statusLabel.implicitHeight + root.statusPadding
             radius: 2
