@@ -526,15 +526,14 @@ Rectangle {
                                                            root.ballSpriteWidth, root.ballSpriteHeight)
 
                                     anchors.verticalCenter: parent.verticalCenter
-                                    anchors.verticalCenterOffset: 1 * root.iconScale  // Scale the offset!
+                                    anchors.verticalCenterOffset: 1 * root.iconScale
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     width: root.ballSpriteWidth * root.iconScale
                                     height: root.ballSpriteHeight * root.iconScale
                                     opacity: ballEnabled ? 1.0 : 0.5
 
                                     smooth:false
-                                    antialiasing: false
-                                    mipmap: true
+                                    antialiasing:false
                                 }
                             }
 

@@ -17,5 +17,4 @@ Image {
 
     smooth: false
     antialiasing: false
-    mipmap: false
 }
