@@ -21,6 +21,7 @@ Item {
     property color  highlightSwappableHover: "#8fc5ff"
     property color  highlightDisplayed:    "#64b5f6"
     property color  swapButtonHighlight:   "#ff9933"
+    property color  labelColor: "#aaaaaa"
 
     property real   highlightOpacity:      0.6
     property real   highlightHoverOpacity: 0.7
@@ -38,17 +39,20 @@ Item {
     readonly property int pcColumns:    4
     readonly property int maxBoxes:     99
 
-    property int fontSizeLg: 0
-    property int fontSizeMd: 0
-    property int fontSizeSm: 0
+    property int fontSizeLg: 22
+    property int fontSizeMd: 18
+    property int fontSizeSm: 16
 
     readonly property int layoutMargin:  30
-    readonly property int layoutSpacing: 20
+    readonly property int layoutSpacing: 30
     readonly property int buttonWidth:   48
     readonly property int buttonHeight:  64
-    readonly property int labelHeight:   fontSizeLg > 0 ? fontSizeLg + 16 : 28
+    readonly property int labelHeight:   24
+    readonly property int contentSpacing: 4
 
-    readonly property int   panelRadius:      3
+    readonly property int sectionSpacing: 40  // Vertical space between party and PC sections
+
+    readonly property int   panelRadius:      8
     readonly property int   panelBorderWidth: 2
     readonly property int   buttonRadius:     10
 
@@ -96,46 +100,47 @@ Item {
     Column {
         anchors.centerIn: parent
         width:            parent.width
-        spacing:          root.layoutSpacing
+        spacing:          root.sectionSpacing  // Changed from layoutSpacing to sectionSpacing
 
-        Item {
-            width:  parent.width
-            height: root.partyRows * root.slotHeight
+        // Party Section
+        Row {
+            anchors.horizontalCenter: parent.horizontalCenter
+            spacing: root.layoutSpacing
 
-            Item {
+            Text {
                 anchors.verticalCenter: parent.verticalCenter
-                anchors.horizontalCenter: parent.horizontalCenter
-                width:  root.partyRowWidth
-                height: root.partyRows * root.slotHeight
+                text: "PARTY"
+                font.family: root.fontFamily
+                font.pixelSize: root.fontSizeSm
+                color: root.labelColor
+                font.bold: true
+            }
+
+            Row {
+                spacing: root.layoutSpacing
 
                 Item {
-                    anchors.left:           parent.left
-                    anchors.verticalCenter: parent.verticalCenter
-                    width:  root.partyColumns * root.slotWidth
-                    height: root.partyRows    * root.slotHeight
+                    width: root.partyColumns * root.slotWidth + root.panelPadding
+                    height: root.partyRows * root.slotHeight + root.panelPadding
 
-                    Rectangle {
-                        anchors.fill:       parent
-                        anchors.margins:    -1
-                        anchors.topMargin:  3
-                        anchors.leftMargin: 3
-                        radius:             root.panelRadius + 1
-                        color:              root.panelShadowColor
-                        z:                  -1
-                    }
-
+                    // Shadow
                     Rectangle {
                         anchors.fill: parent
-                        radius:       root.panelRadius
-                        color:        "transparent"
+                        anchors.margins: -1
+                        anchors.topMargin: 3
+                        anchors.leftMargin: 3
+                        radius: root.panelRadius + 1
+                        color: root.panelShadowColor
+                        z: -1
+                    }
+
+                    // Main panel
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: root.panelRadius
+                        color: "transparent"
                         border.color: root.panelBorderColor
                         border.width: root.panelBorderWidth
-                        z: 1
-                    }
-
-                    Rectangle {
-                        anchors.fill: parent
-                        radius:       root.panelRadius
 
                         gradient: Gradient {
                             GradientStop {
@@ -183,30 +188,38 @@ Item {
                         }
                     }
 
-                    Grid {
-                        anchors.centerIn: parent
-                        rows:             root.partyRows
-                        columns:          root.partyColumns
-                        rowSpacing:       0
-                        columnSpacing:    0
+                    // Party slots with padding
+                    Item {
+                        anchors.fill: parent
+                        anchors.margins: root.panelPadding
 
-                        Repeater {
-                            id: partyRepeater
-                            model: root.partyRows * root.partyColumns
-                            PokemonSlot {
-                                iconVisible: root.partyMap[index] !== undefined
-                                frameIndex:  root.partyMap[index] !== undefined ? root.partyMap[index] : 0
-                                pcPos:       [-1, index]
+                        Grid {
+                            anchors.centerIn: parent
+                            rows: root.partyRows
+                            columns: root.partyColumns
+                            rowSpacing: 0
+                            columnSpacing: 0
+
+                            Repeater {
+                                id: partyRepeater
+                                model: root.partyRows * root.partyColumns
+                                PokemonSlot {
+                                    iconVisible: root.partyMap[index] !== undefined
+                                    frameIndex: root.partyMap[index] !== undefined ? root.partyMap[index] : 0
+                                    pcPos: [-1, index]
+                                }
                             }
                         }
                     }
                 }
 
+                // Swap button
                 PcButton {
                     id: swapButton
-                    anchors.right:          parent.right
                     anchors.verticalCenter: parent.verticalCenter
-                    label:    "SWAP"
+                    width: Math.round(root.buttonWidth * 1.4)
+                    height: root.buttonHeight
+                    label: "SWAP"
                     btnColor: root.buttonColor
                     highlightColor: root.inSwapMode ? root.swapButtonHighlight : root.buttonColor
                     onClicked: root.toggleSwapMode()
@@ -215,88 +228,57 @@ Item {
             }
         }
 
-        Item {
-            width:  parent.width
-            height: root.labelHeight + root.pcRows * root.slotHeight + (root.panelPadding * 2)
+        // PC Section
+        Column {
+            anchors.horizontalCenter: parent.horizontalCenter
+            spacing: root.contentSpacing
+
+            // Box label on top
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: "Box " + (root.currentBoxIndex + 1)
+                font.family: root.fontFamily
+                font.pixelSize: root.fontSizeSm
+                color: root.labelColor
+                font.bold: true
+            }
 
             Row {
-                anchors.centerIn: parent
-                spacing:          root.layoutSpacing
+                anchors.horizontalCenter: parent.horizontalCenter
+                spacing: root.layoutSpacing
 
                 PcButton {
                     anchors.verticalCenter: parent.verticalCenter
-                    anchors.verticalCenterOffset: Math.round(root.labelHeight / 2)
-                    width:     root.buttonWidth
-                    height:    root.buttonHeight
-                    label:     "◀"
-                    btnColor:  root.buttonColor
+                    width: root.buttonWidth
+                    height: root.buttonHeight
+                    label: "◀"
+                    btnColor: root.buttonColor
                     onClicked: root._slideLeft()
+                    fontFamily: root.fontFamily
                 }
 
                 Item {
-                    width:  root.pcColumns * root.slotWidth + root.panelPadding/2
-                    height: root.labelHeight + root.pcRows * root.slotHeight + (root.panelPadding * 2)
+                    width: root.pcColumns * root.slotWidth + root.panelPadding
+                    height: root.pcRows * root.slotHeight + root.panelPadding
 
-                    Rectangle {
-                        anchors.fill:       parent
-                        anchors.margins:    -1
-                        anchors.topMargin:  4
-                        anchors.leftMargin: 4
-                        radius:             root.panelRadius + 1
-                        color:              root.panelShadowColor
-                        z:                  -1
-                    }
-
+                    // Shadow
                     Rectangle {
                         anchors.fill: parent
-                        radius:       root.panelRadius
-                        color:        "transparent"
+                        anchors.margins: -1
+                        anchors.topMargin: 4
+                        anchors.leftMargin: 4
+                        radius: root.panelRadius + 1
+                        color: root.panelShadowColor
+                        z: -1
+                    }
+
+                    // Main panel
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: root.panelRadius
+                        color: "transparent"
                         border.color: root.panelBorderColor
                         border.width: root.panelBorderWidth
-                        z:            1
-                    }
-
-                    Item {
-                        id: labelStrip
-                        anchors.top:   parent.top
-                        anchors.left:  parent.left
-                        anchors.right: parent.right
-                        height:        root.labelHeight + root.panelPadding
-                        z:             2
-
-                        Rectangle {
-                            anchors.fill: parent
-                            radius: root.panelRadius
-                            color: {
-                                var c = Qt.color(root.pcBackground)
-                                return Qt.rgba(c.r, c.g, c.b, root.backgroundOpacity * 1.5)
-                            }
-                        }
-
-                        Text {
-                            anchors.centerIn: parent
-                            text:           "Box " + (root.currentBoxIndex + 1)
-                            color:          "white"
-                            font.family:    root.fontFamily
-                            font.pixelSize: root.fontSizeLg
-                            font.bold:      true
-                        }
-
-                        Rectangle {
-                            anchors.bottom: parent.bottom
-                            anchors.left:   parent.left
-                            anchors.right:  parent.right
-                            height: 1
-                            color: root.panelBorderColor
-                        }
-                    }
-
-                    Rectangle {
-                        anchors.top:    labelStrip.bottom
-                        anchors.left:   parent.left
-                        anchors.right:  parent.right
-                        anchors.bottom: parent.bottom
-                        radius: 0
 
                         gradient: Gradient {
                             GradientStop {
@@ -342,28 +324,29 @@ Item {
                                 }
                             }
                         }
+                    }
 
-                        Item {
-                            anchors.fill: parent
-                            anchors.margins: root.panelPadding
+                    // PC slots with padding
+                    Item {
+                        anchors.fill: parent
+                        anchors.margins: root.panelPadding
 
-                            Grid {
-                                anchors.centerIn: parent
-                                rows:             root.pcRows
-                                columns:          root.pcColumns
-                                rowSpacing:       0
-                                columnSpacing:    0
+                        Grid {
+                            anchors.centerIn: parent
+                            rows: root.pcRows
+                            columns: root.pcColumns
+                            rowSpacing: 0
+                            columnSpacing: 0
 
-                                Repeater {
-                                    id: pcRepeater
-                                    model: root.pcRows * root.pcColumns
-                                    PokemonSlot {
-                                        property var currentBox: root.boxes[root.currentBoxIndex]
-                                        iconVisible: currentBox !== undefined && currentBox[index] !== undefined
-                                        frameIndex:  (currentBox !== undefined && currentBox[index] !== undefined)
-                                                     ? currentBox[index] : 0
-                                        pcPos: [root.currentBoxIndex, index]
-                                    }
+                            Repeater {
+                                id: pcRepeater
+                                model: root.pcRows * root.pcColumns
+                                PokemonSlot {
+                                    property var currentBox: root.boxes[root.currentBoxIndex]
+                                    iconVisible: currentBox !== undefined && currentBox[index] !== undefined
+                                    frameIndex: (currentBox !== undefined && currentBox[index] !== undefined)
+                                                ? currentBox[index] : 0
+                                    pcPos: [root.currentBoxIndex, index]
                                 }
                             }
                         }
@@ -372,12 +355,12 @@ Item {
 
                 PcButton {
                     anchors.verticalCenter: parent.verticalCenter
-                    anchors.verticalCenterOffset: Math.round(root.labelHeight / 2)
-                    width:     root.buttonWidth
-                    height:    root.buttonHeight
-                    label:     "▶"
-                    btnColor:  root.buttonColor
+                    width: root.buttonWidth
+                    height: root.buttonHeight
+                    label: "▶"
+                    btnColor: root.buttonColor
                     onClicked: root._slideRight()
+                    fontFamily: root.fontFamily
                 }
             }
         }

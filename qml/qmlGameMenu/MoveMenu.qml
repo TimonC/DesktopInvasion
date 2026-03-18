@@ -229,9 +229,6 @@ Item {
         }
     }
 
-    // =========================================================================
-    //  Main layout
-    // =========================================================================
     Row {
         anchors.fill:    parent
         anchors.margins: moveMenu.margin
@@ -255,7 +252,12 @@ Item {
                     onClicked: moveMenu.returnClicked()
                 }
 
+
                 Item { width: parent.width; height: moveMenu.secGap }
+
+                Rectangle { width: parent.width; height: 1; color: moveMenu.colorDivider }
+
+                Item { width: parent.width; height: moveMenu.gap*2 }
 
                 Column {
                     width:   parent.width
@@ -395,6 +397,11 @@ Item {
                         }
                     }
                 }
+
+                Item { width: parent.width; height: moveMenu.secGap }
+
+
+                Item { width: parent.width; height: moveMenu.gap }
             }
 
             Rectangle {
@@ -779,16 +786,6 @@ Item {
                     }
                 }
             }
-        }
-
-        // Debug outline — flip visible to true to verify walk boundary.
-        Rectangle {
-            anchors.fill: parent
-            color:        "transparent"
-            border.color: "#ff4444"
-            border.width: 2
-            opacity:      0.5
-            visible:      false
         }
     }
 }
