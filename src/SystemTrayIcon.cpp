@@ -29,7 +29,7 @@ void SystemTrayIcon::enabled(bool enabled){
 
 void SystemTrayIcon::onActivated(QSystemTrayIcon::ActivationReason reason){
     if(m_clickEnabled){
-        if(reason == QSystemTrayIcon::Trigger){//double left click
+        if(reason == QSystemTrayIcon::Trigger){//left click
             toggleGameActive();
         }else if (reason == QSystemTrayIcon::Context) { //right click
             emit menuButtonPressed();

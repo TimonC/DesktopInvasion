@@ -24,7 +24,10 @@ Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
     m_gameUsedToBeActive = true;
     initializeGame();
 
+    connect(m_trayIcon, &SystemTrayIcon::gameActive, this, &Game::setGameActive);
+
     connect(m_trayIcon, &SystemTrayIcon::menuButtonPressed, this, &Game::handleMenuOpen);
+
     connect(m_menu, &GameMenu::menuClosed, this, &Game::handleMenuClosed);
 
     m_spawnTimer->setInterval(m_spawnDelay_ms);
