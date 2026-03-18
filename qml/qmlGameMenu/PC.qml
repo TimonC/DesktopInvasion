@@ -132,9 +132,9 @@ Item {
                 Layout.column:          1
                 Layout.row:             0
                 Layout.alignment:       Qt.AlignVCenter
-                Layout.preferredWidth:  root.buttonWidth*1.75
-                Layout.preferredHeight: root.buttonHeight*0.75
-                label:  "Switch"
+                Layout.preferredWidth:  root.buttonWidth*1.4
+                Layout.preferredHeight: root.buttonHeight*0.6
+                label:  "Swap"
                 color:  root.inSwapMode ? root.swapColor : root.buttonColor
                 onClicked: root.toggleSwapMode()
             }
