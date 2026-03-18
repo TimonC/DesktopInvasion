@@ -96,15 +96,7 @@ jobs:
           }
         }
 
-        # Create README - FIXED VERSION
-        $readmeContent = @"
-Desktop Invasion - Windows Version
-
-To play: Double-click DesktopInvasion.exe
-
-Built with: Qt 6.8.0 (MinGW)
-"@
-        $readmeContent | Out-File -FilePath output/DesktopInvasion-Windows/README.txt -Encoding UTF8
+        "Desktop Invasion - Windows Version" | Out-File -FilePath output/DesktopInvasion-Windows/README.txt -Encoding UTF8
 
         # Create zip
         Compress-Archive -Path output\DesktopInvasion-Windows -DestinationPath DesktopInvasion-Windows.zip -Force
