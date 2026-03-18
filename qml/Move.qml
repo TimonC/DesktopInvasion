@@ -29,16 +29,6 @@ Rectangle {
         elide: Text.ElideRight
     }
 
-    Text {
-        anchors.centerIn: parent
-        anchors.verticalCenterOffset: moveName.height * 0.25
-        text: root.type
-        font.pixelSize: 10
-        color: "white"
-        style: Text.Outline
-        styleColor: "black"
-    }
-
     MouseArea {
         anchors.fill: parent
         onClicked: parent.clicked()

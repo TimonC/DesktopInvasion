@@ -1,24 +1,24 @@
 .pragma library
 
-function typeColor(typeName) {
+function typeColor(typeName) { //trusting the llm on this one
     switch(typeName) {
-        case "Normal": return "#A8A878"
-        case "Fighting": return "#C03028"
-        case "Flying": return "#A890F0"
-        case "Poison": return "#A040A0"
-        case "Ground": return "#E0C068"
-        case "Rock": return "#B8A038"
-        case "Bug": return "#A8B820"
-        case "Ghost": return "#705898"
-        case "Steel": return "#B8B8D0"
-        case "Fire": return "#F08030"
-        case "Water": return "#6890F0"
-        case "Grass": return "#78C850"
-        case "Electric": return "#F8D030"
-        case "Psychic": return "#F85888"
-        case "Ice": return "#98D8D8"
-        case "Dragon": return "#7038F8"
-        case "Dark": return "#705848"
-        default: return "transparent"
+        case "Normal":   return "#9FA19F"
+        case "Fighting": return "#FF8000"
+        case "Flying":   return "#81B9EF"
+        case "Poison":   return "#9141CB"
+        case "Ground":   return "#915121"
+        case "Rock":     return "#AFA981"
+        case "Bug":      return "#91A119"
+        case "Ghost":    return "#704170"
+        case "Steel":    return "#60A1B8"
+        case "Fire":     return "#E62829"
+        case "Water":    return "#2980EF"
+        case "Grass":    return "#3FA129"
+        case "Electric": return "#FAC000"
+        case "Psychic":  return "#EF4179"
+        case "Ice":      return "#3DCEF3"
+        case "Dragon":   return "#5060E1"
+        case "Dark":     return "#624D4E"
+        default:         return "transparent"
     }
 }
