@@ -13,8 +13,8 @@ Pokemon::Pokemon(QWindow *parent, int row)
     setFlags( Qt::WindowStaysOnTopHint
             | Qt::Tool
             | Qt::WindowDoesNotAcceptFocus
-            | Qt::WindowTransparentForInput);
-            /* | Qt::FramelessWindowHint); */
+            | Qt::WindowTransparentForInput
+            | Qt::FramelessWindowHint);
     setColor(Qt::transparent);
 
 

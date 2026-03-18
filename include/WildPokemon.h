@@ -15,7 +15,6 @@ private slots:
     void makeRandomDecision();
     void moveStep();
     void startBattle();
-    void handlePress();
     void handleDoubleClick();
 
 private:

@@ -20,23 +20,22 @@ WildPokemon::WildPokemon(QWindow *parent, int row)
     setX(screen.width()/2);//+ ((std::rand()%2)*2-1) * std::rand()%screen.width()/2);
     setY(screen.height()/2);// + ((std::rand()%2)*2-1) * std::rand()%screen.height()/2);
 
-    m_decisionTimer->setInterval(1000 + QRandomGenerator::global()->bounded(2000));
-    m_moveTimer->setInterval(50); // 20fps
-    startRoaming();
-
+    m_hitbox->offsetX = width()/5;
+    m_hitbox->offsetY = height()/4;
+    m_hitbox->setX(x() + m_hitbox->offsetX);
+    m_hitbox->setY(y() + m_hitbox->offsetY);
     connect(m_hitbox->m_mouseArea, SIGNAL(doubleClicked(QQuickMouseEvent*)), this, SLOT(handleDoubleClick()));
     connect(m_hitbox->m_battleButton, SIGNAL(clicked()), this, SLOT(startBattle()));
 
+    m_decisionTimer->setInterval(1000 + QRandomGenerator::global()->bounded(2000));
+    m_moveTimer->setInterval(50); // 20fps
+
+    startRoaming();
     show();
     m_hitbox->show();
 }
 
 
-
-
-void WildPokemon::handlePress(){
-    m_hitbox->startSystemMove();
-}
 
 void WildPokemon::startRoaming(){
     connect(m_decisionTimer, &QTimer::timeout, this, &WildPokemon::makeRandomDecision);
@@ -103,6 +102,9 @@ void WildPokemon::moveStep(){
 
     setX(newX);
     setY(newY);
+
+    m_hitbox->setX(newX + m_hitbox->offsetX);
+    m_hitbox->setY(newY + m_hitbox->offsetY);
 
     if (newX == 0 || newX == screen.width() - SPRITE_SIZE ||
         newY == 0 || newY == screen.height() - SPRITE_SIZE) {
