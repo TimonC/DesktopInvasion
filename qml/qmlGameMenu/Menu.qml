@@ -44,11 +44,19 @@ Rectangle {
     property var partyPokes: ({})
     property var boxPokes:   ({})
 
+    // ── Menu state ─────────────────────────────────────────────────────────────
+    // "default"  → normal three-section layout
+    // "moveMenu" → full-width MoveMenu overlay
+    property string menuState: "default"
+
     // ── Background click – cancel swap ─────────────────────────────────────────
     MouseArea {
         anchors.fill: parent
         cursorShape:  undefined
-        onClicked: { if (pc.inSwapMode) pc.toggleSwapMode() }
+        onClicked: {
+            if (pc.inSwapMode) pc.toggleSwapMode()
+            if (moveMenu.inNameEditMode) moveMenu.toggleNameEditMode()
+        }
     }
 
     // ── Bridge connections ─────────────────────────────────────────────────────
@@ -75,13 +83,20 @@ Rectangle {
         function onShowBoxRequested(boxIndex) { pc.showBox(boxIndex) }
     }
 
-    Connections{
+    Connections {
         target: pokeView
         function onEditButtonClicked(pokeData) {
-            console.log("--- PokeData Contents ---");
-            for (var field in pokeData) {
-                console.log(field + ": " + JSON.stringify(pokeData[field]));
-            }
+            moveMenu.pokeData    = pokeData
+            moveMenu.rowId       = pokeData.rowId
+            moveMenu.spriteSheet = pokeData.isBig ? "qrc:/assets/HGSS/reordered_sprites_big.png"
+                                                  : "qrc:/assets/HGSS/reordered_sprites.png"
+            moveMenu.frameWidth  = pokeData.isBig ? 64 : 32
+            moveMenu.frameHeight = pokeData.isBig ? 64 : 32
+            moveMenu.scaleFactor = pokeData.isBig ? root.iconScaleForBig : root.iconScale
+            root.menuState       = "moveMenu"
+
+            if (pc.inSwapMode) pc.toggleSwapMode()
+            if (moveMenu.inNameEditMode) moveMenu.toggleNameEditMode()
         }
     }
 
@@ -123,12 +138,6 @@ Rectangle {
 
     // ══════════════════════════════════════════════════════════════════════════
     //  Main layout  –  two columns separated by a vertical divider
-    //
-    //  Every gap (edge margin, divider breathing room) equals `pad`.
-    //  Layout tree maps exactly to the window size formula above:
-    //
-    //    pad | leftCol(pcW) | pad  [vDivider]  pad | rightCol(rightPanelW) | pad
-    //    pad | section1(trainerH) | pad  [hDivider]  pad | section2(pcH) | pad
     // ══════════════════════════════════════════════════════════════════════════
     Row {
         anchors.fill:    parent
@@ -137,9 +146,13 @@ Rectangle {
 
         // ── LEFT COLUMN ───────────────────────────────────────────────────────
         Column {
+            id: leftColumn
             width:   root.pcW
             height:  parent.height
             spacing: 0
+
+            // Visibility: only in default state
+            visible: root.menuState === "default"
 
             // ── SECTION 1 – Trainer ───────────────────────────────────────────
             Item {
@@ -155,17 +168,14 @@ Rectangle {
                 }
             }
 
-            // pad gap above divider
             Item { width: parent.width; height: root.pad }
 
-            // ── Horizontal divider ────────────────────────────────────────────
             Rectangle {
                 width:  parent.width
                 height: root.dividerW
                 color:  root.dividerColor
             }
 
-            // pad gap below divider
             Item { width: parent.width; height: root.pad }
 
             // ── SECTION 2 – PC ────────────────────────────────────────────────
@@ -186,25 +196,28 @@ Rectangle {
             }
         }
 
-        // pad gap left of vertical divider
-        Item { width: root.pad; height: parent.height }
-
-        // ── Vertical divider ──────────────────────────────────────────────────
+        // ── Vertical divider (default state only) ─────────────────────────────
+        Item    { width: root.pad;     height: parent.height; visible: root.menuState === "default" }
         Rectangle {
-            width:  root.dividerW
-            height: parent.height
-            color:  root.dividerColor
+            width:   root.dividerW
+            height:  parent.height
+            color:   root.dividerColor
+            visible: root.menuState === "default"
         }
+        Item    { width: root.pad;     height: parent.height; visible: root.menuState === "default" }
 
-        // pad gap right of vertical divider
-        Item { width: root.pad; height: parent.height }
-
-        // ── RIGHT COLUMN  (Section 3) ──────────────────────────────────────────
+        // ── RIGHT COLUMN  (Section 3 – PokeView) ──────────────────────────────
         Item {
-            width:  root.rightPanelW
+            // In default mode this is rightPanelW wide.
+            // In moveMenu mode left column + dividers are hidden, so this item
+            // naturally stretches to fill the whole Row — we pin width explicitly
+            // based on state so nothing reflows unexpectedly.
+            width: root.menuState === "default"
+                       ? root.rightPanelW
+                       : root.pcW + root.pad * 2 + root.dividerW + root.rightPanelW
             height: parent.height
 
-            // ── SECTION 3 – PokeView ───────────────────────────────────────────
+            // ── DEFAULT: PokeView ──────────────────────────────────────────────
             PokeView {
                 id:               pokeView
                 anchors.centerIn: parent
@@ -215,8 +228,22 @@ Rectangle {
                 fontSizeSm:       root.fontSizeSm
                 mainFont:         root.p2pFont
                 bodyFont:         root.dotGothicFont
+                visible:          root.menuState === "default"
+            }
+
+            // ── MOVE MENU state ────────────────────────────────────────────────
+            MoveMenu {
+                id:         moveMenu
+                anchors.fill: parent
+                fontSizeLg: root.fontSizeLg
+                fontSizeMd: root.fontSizeMd
+                fontSizeSm: root.fontSizeSm
+                mainFont:   root.p2pFont
+                bodyFont:   root.dotGothicFont
+                visible:    root.menuState === "moveMenu"
+
+                onReturnClicked: root.menuState = "default"
             }
         }
     }
 }
-
