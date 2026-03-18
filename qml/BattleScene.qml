@@ -207,33 +207,33 @@ Item {
         switch(sprite.direction) {
             case 0:
                 sprite.x = (root.width - root.statusBarWidth - sprite.width)/2
-                sprite.y = root.height - (menuHeight + sprite.containerOffsetY + sprite.height);
+                sprite.y = root.height - (menuHeight + sprite.containerOffsetY + sprite.height)
                 sprite.statusBar.x = root.width - root.statusBarWidth
                 sprite.statusBar.y = sprite.y
-                break;
+                break
             case 1:
-                sprite.x = root.width - (sprite.containerOffsetX + sprite.width);
-                sprite.y = root.height - (menuHeight + sprite.height);
+                sprite.x = root.width - (sprite.containerOffsetX + sprite.width)
+                sprite.y = root.height - (sprite.height + menuHeight*1.2) //arbitrary 0.2 increase to raise the sprites
                 sprite.statusBar.x = root.width - root.frameSize/2 - root.statusBarWidth
                 sprite.statusBar.y = 0
-                break;
+                break
             case 2:
                 sprite.x = (root.width - root.statusBarWidth - sprite.width)/2
-                sprite.y = sprite.containerOffsetY;
+                sprite.y = sprite.containerOffsetY
                 sprite.statusBar.x = root.width - root.statusBarWidth
                 sprite.statusBar.y = sprite.y
-                break;
+                break
             case 3:
-                sprite.x = sprite.containerOffsetX;
-                sprite.y = root.height - (menuHeight + sprite.height);
+                sprite.x = sprite.containerOffsetX
+                sprite.y = root.height - (sprite.height + menuHeight*1.2)
                 sprite.statusBar.x = root.frameSize/2
                 sprite.statusBar.y = 0
-                break;
+                break
         }
 
-        sprite.startingX = sprite.x;
-        sprite.startingY = sprite.y;
-        sprite.statusBar.visible = true;
+        sprite.startingX = sprite.x
+        sprite.startingY = sprite.y
+        sprite.statusBar.visible = true
     }
 
 
