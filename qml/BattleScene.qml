@@ -152,41 +152,6 @@ Item {
         }
     }
 
-    // Attack chain connections
-    Connections {
-        target: root.currentAttackAnim
-        enabled: root.attackInProgress
-
-        function onStopped() {
-            delayedCall(200, () => {
-                root.currentDefender.takeDamage.running = true;
-            });
-        }
-    }
-
-    Connections {
-        target: root.currentDefender ? root.currentDefender.takeDamage : null
-        enabled: root.attackInProgress
-
-        function onStopped() {
-            update_text_bar("It's super effective!");
-
-            delayedCall(1200, () => {
-                root.turnsCompleted++;
-
-                if (root.turnsCompleted < 2) {
-                    root.isPlayerFirst = !root.isPlayerFirst;
-                    var nextAttacker = root.isPlayerFirst ? player : opponent;
-                    var nextAttackAnim = nextAttacker["actionForward"];
-                    executeAttackTurn(nextAttackAnim);
-                } else {
-                    endAttackChain();
-                }
-            });
-        }
-    }
-
-
     function delayedCall(milliseconds, func) {
         delayTimer.interval = milliseconds;
         delayTimer.callback = func;
@@ -233,8 +198,41 @@ Item {
 
         delayedCall(200, () => {
             attackAnim.pokemon = attacker;
-            attackAnim.running = true;
+            attackAnim.animationRunning = true;
         });
+    }
+
+    Connections {
+        target: root.currentAttackAnim
+        enabled: root.attackInProgress
+
+        function onStopped() {
+            delayedCall(200, () => {
+                root.currentDefender.takeDamage.running = true;
+            });
+        }
+    }
+
+    Connections {
+        target: root.currentDefender ? root.currentDefender.takeDamage : null
+        enabled: root.attackInProgress
+
+        function onStopped() {
+            update_text_bar("It's super effective!");
+
+            delayedCall(1200, () => {
+                root.turnsCompleted++;
+
+                if (root.turnsCompleted < 2) {
+                    root.isPlayerFirst = !root.isPlayerFirst;
+                    var nextAttacker = root.isPlayerFirst ? player : opponent;
+                    var nextAttackAnim = nextAttacker["actionForward"];
+                    executeAttackTurn(nextAttackAnim);
+                } else {
+                    endAttackChain();
+                }
+            });
+        }
     }
 
     function endAttackChain() {

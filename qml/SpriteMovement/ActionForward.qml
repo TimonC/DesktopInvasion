@@ -1,10 +1,11 @@
 import QtQuick 2.15
 SequentialAnimation {
-    running: false
+    id: actionForward
     loops: 1
+    running: false
     property Item pokemon
     property int attackDistance: 20
-
+    property alias animationRunning: actionForward.running
 
     PropertyAnimation {
         target: pokemon
