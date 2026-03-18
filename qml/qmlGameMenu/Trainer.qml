@@ -198,16 +198,6 @@ Rectangle {
             width: Math.ceil(root.frameSize * root.iconScale) + 8
             height: parent.height
 
-            Rectangle {
-                anchors.fill: trainerSprite
-                anchors.margins: -4
-                color: "transparent"
-                border.color: "#7aa9e6"
-                border.width: 2
-                radius: 4
-                visible: mouseArea.containsMouse
-            }
-
             Image {
                 id: trainerSprite
                 anchors.centerIn: parent
