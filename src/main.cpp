@@ -19,29 +19,28 @@ int main(int argc, char *argv[]) {
 
 
     bool isValgrindMode = (valgrindMode && strcmp(valgrindMode, "1") == 0);
-    int timeoutSeconds = 30;
+    const bool DOOM_TIMER = isDev && isValgrindMode;
+    const int DOOM_S = 30;
 
     if (isDev) {
         qDebug() << "=== RUNNING IN DEV MODE ===";
 
         if (isValgrindMode) {
             qDebug() << "=== VALGRIND DEBUG MODE ENABLED ===";
-            qDebug() << "Will auto-exit after" << timeoutSeconds << "seconds";
+            qDebug() << "Will auto-exit after" << DOOM_S << "seconds";
         }
     }
+    /* Globals::debug(true); */
+    float scale = 2;
+    float speed = 2;
+    Globals::scale(scale);
+    Globals::animationSpeed(speed);
 
     QApplication app(argc, argv);
     // Set organization and application name for proper data paths
     QCoreApplication::setOrganizationName("DesktopInvasion");
     QCoreApplication::setApplicationName("DesktopInvasion");
 
-    /* Globals::debug(true); */
-    float scale = 2;
-    float speed = 2;
-    Globals::scale(scale);
-    Globals::animationSpeed(speed);
-    const bool DOOM_TIMER = isDev && isValgrindMode;
-    const int DOOM_S = 10;
 
     // Load fonts from QRC once at app startup
     int pixelFontId = QFontDatabase::addApplicationFont(":/assets/fonts/PressStart2P-Regular.ttf");
@@ -111,7 +110,7 @@ int main(int argc, char *argv[]) {
     QString dbPath = dbDir + "/pokemon.db";
     qDebug() << "Initializing database at:" << dbPath;
 
-    // Initialize the database with the proper path
+    // Initialize the database
     if (!PokemonDatabase::instance().initialize(dbPath.toStdString())) {
         qCritical() << "Failed to initialize database at:" << dbPath;
         return 1;
@@ -119,7 +118,6 @@ int main(int argc, char *argv[]) {
     qDebug() << "Database initialized successfully";
 
     Game *game = new Game(&engine, nullptr);
-    // Connect game destruction to app quit
     QObject::connect(game, &QObject::destroyed, &app, &QApplication::quit);
 
     if (DOOM_TIMER) {
@@ -133,7 +131,6 @@ int main(int argc, char *argv[]) {
             PokemonDatabase::instance().shutdown();
         });
     }
-
 
     return app.exec();
 }
