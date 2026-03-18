@@ -33,6 +33,7 @@ Item {
     // Action chain state
     property bool actionInProgress: false
     property var actionSequence: []
+    property var tempActionSequence: []
     property int currentActionIndex: 0
     // Catch attempt state
     property int currentOpponentBallIndex: 0
@@ -146,6 +147,8 @@ Item {
         circleX: opponent.x + opponent.width/2
         circleY: opponent.y + opponent.height/2
         onThrowAnimationDone: {
+            root.currentActionIndex = 0
+            root.actionSequence = tempActionSequence
             sequenceTimer.interval = root.catchShakeInterval/2
             sequenceTimer.start()
         }
@@ -261,7 +264,8 @@ Item {
             return
         }
         var step = root.actionSequence[root.currentActionIndex]
-        console.log(step.type)
+
+        console.log(root.currentActionIndex + " - " + step.type)
         root.currentActionIndex++
         switch(step.type) {
             case "text":
@@ -303,17 +307,26 @@ Item {
                 break
 
             case "attempt-catch":
-                var newActions = step.shakes >= 3 ? [
+                var newActions = step.shakes >= 3
+                    ?
+                [
                     {type: "succeed-catch", delay: 100},
                     {type: "text", message: "Gotcha! " + opponent.name + " was caught!", delay: 2000},
                     {type: "jump", delay: 2000}
-                ] : [];
+                ]
+                    :
+                [
+                    {type: "reveal-opponent", message: "Aargh! Almost had it!", delay: 1000},
+                    {type: "fail-catch", delay: root.ballTransitionDuration}
+                ]
 
                 for (var i = 0; i < step.shakes; i++) {
                     newActions.push({type: "shake", delay: 2000});
                 }
 
-                root.actionSequence = newActions.reverse().concat(root.actionSequence);
+                root.tempActionSequence = newActions.reverse().concat(root.actionSequence.slice(2)); //slice off the opening text and attempt-catch
+                root.actionSequence = []
+
                 var coords = calculateBallCoords(opponent)
                 pokeBallOpponent.visible = true
                 pokeBallOpponent.throwAt(coords[0], coords[1], coords[2], coords[3])
@@ -326,19 +339,19 @@ Item {
                  break
             case "jump":
                  pokeBallOpponent.jump()
-                 sequenceTimer.interval = step.delay
-                 sequenceTimer.start()
                  break
             case "fail-catch":
-                pokeBallOpponent.release()
-                root.oneShotTimer(root.ballTransitionDuration, function() {
-                    opponent.visible = true
-                    pokeBallOpponent.visible = false
-                    executeNextStep()
-                })
+                 pokeBallOpponent.release()
                  sequenceTimer.interval = step.delay
                  sequenceTimer.start()
                  break
+            case "reveal-opponent":
+                opponent.visible = true
+                pokeBallOpponent.visible = false
+                battleMenu.updateText(step.message)
+                sequenceTimer.interval = step.delay
+                sequenceTimer.start()
+                break
 
             case "succeed-catch":
                 root._battleEnded("OpponentCaught")

@@ -446,7 +446,6 @@ QVariantList BattleMoveHandler::generateActionSequence(Battler& opponent, Battle
     qDebug() <<shakes;
     // Catch attempt
     if(shakes > -1) {
-         shakes = 4;
          sequence.append(createTextAction("Player used one Poké Ball!", 300));
          sequence.append(createCatchAction(shakes, ms_catchStart));
 
