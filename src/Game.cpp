@@ -9,8 +9,8 @@ Game::Game(QObject* parent) : QObject(parent){
     m_menu = new GameMenu();
     pushWildPokemon(Globals::getPokemonInfo());
 
-    connect(&Globals::getPlayer(), SIGNAL(startABattle(Battle*)),
-            this, SLOT(handleBattleStart(Battle*)));
+    connect(&Globals::getPlayer(), &Player::startABattle,
+            this, &Game::handleBattleStart);
     }
 
 void Game::enableSpawn(bool enable){
