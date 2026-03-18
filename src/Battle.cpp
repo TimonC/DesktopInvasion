@@ -55,12 +55,7 @@ Battle::Battle(WildPokemon* opp, PokemonState wildState, Party party, std::uniqu
         Globals::getPoke(opp->info->pokedexId)->base_stats[0],
         wildState.ivs[0],
         wildState.evs[0]);
-
     int playerHealth = party.healthTotals[0];
-    qDebug() << opponentHealth;
-    for(int i = 0; i<6; i++){
-        qDebug() << party.healthTotals[i];
-    }
     QMetaObject::invokeMethod(m_battleScene, "setInitialTotalHealth",
         Q_ARG(QVariant, opponentHealth),
         Q_ARG(QVariant, playerHealth));

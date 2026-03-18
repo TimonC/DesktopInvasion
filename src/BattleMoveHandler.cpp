@@ -50,7 +50,7 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
     assert(actionIndex>-1 && actionIndex<6 && "actionIndex must be between 0 and 5 inclusive");
     assert((!std::strcmp(action,"Switch") || actionIndex<4) && "actionIndex for non-switch action must be between 0 and 3 inclusive");
 
-    int opponentMoveIndex = 0;
+    int opponentMoveIndex = rand()%2;
 
     const Move* opponentMove = m_battleOpponent->pokeState.moves[opponentMoveIndex];
     const Move* playerMove = m_battleParty[m_chosenPartyIndex]->pokeState.moves[actionIndex];
@@ -88,6 +88,7 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
             if(m_battleOpponent->battleState.currentHealth > 0 && !m_battleOpponent->delta.flinched) {
                 applyMove(opponentMove, m_battleOpponent, m_battleParty[m_chosenPartyIndex]);
             }
+            m_battleParty[m_chosenPartyIndex]->delta.flinched = false;
         } else {
             // Opponent attacks first
             applyMove(opponentMove, m_battleOpponent, m_battleParty[m_chosenPartyIndex]);
@@ -96,6 +97,7 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
             if(m_battleParty[m_chosenPartyIndex]->battleState.currentHealth > 0 && !m_battleParty[m_chosenPartyIndex]->delta.flinched) {
                 applyMove(playerMove, m_battleParty[m_chosenPartyIndex], m_battleOpponent);
             }
+            m_battleOpponent->delta.flinched = false;
         }
     } else {
         // For Switch or Catch actions, only opponent attacks
@@ -236,7 +238,6 @@ void BattleMoveHandler::applyMove(const Move* _move, Battler* caster, Battler* t
             params.type2 = 100; // Default to 1x if no second type
         }
 
-        qDebug() << params.type1 << params.type2 << "LOOK AT ME";
 
         // Calculate actual damage
         int damage = calculateDamage(params, m_rng);
@@ -361,8 +362,6 @@ void BattleMoveHandler::generateMoveSequence(QVariantList& sequence, Battler& at
     const Move* _move = attacker.pokeState.moves[attacker.battleState.lastMoveIndex];
     QString moveName = QString::fromStdString(_move->name);
 
-    sequence.append(createTextAction(attackerName + " used " + moveName + "!", ms_moveUsedText));
-
     if(attacker.delta.confusedDamage > 0) {
         sequence.append(createTextAction(attackerName + " hurt itself in its confusion!", ms_confusionText));
         sequence.append(createDamageAction(attackerRole, ms_damageAnimation));
@@ -379,6 +378,7 @@ void BattleMoveHandler::generateMoveSequence(QVariantList& sequence, Battler& at
         sequence.append(createAttackAction(attackerRole, ms_attackAnimation));
         sequence.append(createTextAction(attackerName + "'s attack missed!", ms_statusConditionText));
     } else if(attacker.delta.damage > 0) {
+        sequence.append(createTextAction(attackerName + " used " + moveName + "!", ms_moveUsedText));
         sequence.append(createAttackAction(attackerRole, ms_attackAnimation));
         sequence.append(createDamageAction(defenderRole, ms_damageAnimation));
         sequence.append(createHealthChangeAction(defenderRole, -attacker.delta.damage, ms_healthChange));
@@ -396,6 +396,7 @@ void BattleMoveHandler::generateMoveSequence(QVariantList& sequence, Battler& at
             sequence.append(createHealthChangeAction(attackerRole, attacker.delta.drain, ms_drainHealthChange));
         }
     }else if(attacker.delta.noEffect){
+            sequence.append(createTextAction(attackerName + " used " + moveName + "!", ms_moveUsedText));
             sequence.append(createTextAction("It doesn't affect " + defenderName + "...", ms_effectivenessText));
     }
 

@@ -7,7 +7,7 @@ Item {
     property int scaleFactor: 3
     property real totalHealth: 100
     property alias currentHealthRatio: progressBar.value
-    property real animationSpeed: 1000
+    property real healthChangeDuration: 500
     property int pokeNameFontSize: 0
     property string fontFamily: ""
     property alias pokeName: textBarText.text
@@ -84,7 +84,7 @@ Item {
         var newHealth = Math.min(Math.max(targetValue, 0), 1)
 
         healthAnimation.to = newHealth
-        healthAnimation.duration = Math.abs(healthDelta) * (animationSpeed / totalHealth)
+        healthAnimation.duration = healthChangeDuration
         healthAnimation.start()
         return newHealth
     }

@@ -141,8 +141,9 @@ void Game::createInitialPokemon() {
     duskull.nature = Nature::Hardy;
     duskull.lvl = 10;
     duskull.moves[0] = 1;
-    duskull.moves[1] = 424;
-    duskull.moves[2] = 14;
+    duskull.moves[1] = 14;
+    duskull.moves[2] = 425 ;
+    duskull.moves[3] = 424;
 
     int pokemonId = m_db.createPokemon(duskull);
     if (pokemonId > 0) {
@@ -163,8 +164,9 @@ void Game::createInitialPokemon() {
     dusclops.nature = Nature::Hardy;
     dusclops.lvl = 10;
     dusclops.moves[0] = 1;
-    dusclops.moves[1] = 425;
-    dusclops.moves[2] = 14;
+    dusclops.moves[1] = 14;
+    dusclops.moves[2] = 425;
+    dusclops.moves[3] = 53;
 
     int pokemonId2 = m_db.createPokemon(dusclops);
     if (pokemonId2 > 0) {
@@ -215,7 +217,7 @@ void Game::spawnPokemon() {
         qDebug() << "Spawning existing wild Pokemon:" << QString::fromStdString(wildState.name);
     } else {
 
-        m_wildPokemonInfo = Globals::getPokemonInfo(355);
+        m_wildPokemonInfo = Globals::getPokemonInfo();
 
         PokemonState newWild;
         newWild.pokedex_id = m_wildPokemonInfo->pokedexId;
@@ -229,8 +231,8 @@ void Game::spawnPokemon() {
         }
         newWild.nature = Nature::Hardy;
 
-        newWild.moves[0] = 1 ;
-        /* newWild.moves[1] = 52; */
+        newWild.moves[0] = 1;
+        newWild.moves[1] = 422;
 
         m_db.spawnWildPokemon(newWild);
         qDebug() << "Created new wild Pokemon:" << QString::fromStdString(newWild.name);
