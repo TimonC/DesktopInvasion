@@ -13,10 +13,10 @@ Item {
     property int frameCount: 2
     property int frameRate: 4
 
-    property int horizontalHeight: 0
-    property int verticalWidth: 0
-    property int hCenterUp: 0
-    property int hCenterDown: 0
+    property double horizontalHeight: 0
+    property double verticalWidth: 0
+    property double hCenterUp: 0
+    property double hCenterDown: 0
 
     property int attackDistance: 10*scaleFactor
 
