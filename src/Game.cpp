@@ -429,11 +429,13 @@ void Game::updatePartyXP(std::array<int, 6> spread) {
                     }
                 }
 
+                int xpToNext = PokeMath::xpToNextLevel(pokemon.lvl);
                 qDebug().nospace()
                     << "[#" << pokemon._id << "] " << QString::fromStdString(pokemon.name)
-                    << ": XP " << oldXP << "→" << pokemon.currentXP
+                    << ": Lvl " << oldLevel << "→" << pokemon.lvl
+                    << ", XP " << oldXP << "→" << pokemon.currentXP
                     << " (+" << xpGain << ")"
-                    << ", Lvl " << oldLevel << "→" << pokemon.lvl;
+                    << ", XP For Next lvl: " << xpToNext;
 
                 found = true;
                 break;
@@ -446,7 +448,7 @@ void Game::updatePartyXP(std::array<int, 6> spread) {
     }
 
     if (m_db.batchUpdatePokemon(updatedPokemon)) {
-        qDebug() << "Successfully updated" << updatedPokemon.size() << "Pokémon";
+        qDebug() << "Successfully batch updated" << updatedPokemon.size() << "Pokémon";
     } else {
         qWarning() << "Failed to batch update Pokémon";
     }
