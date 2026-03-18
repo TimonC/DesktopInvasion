@@ -17,8 +17,8 @@ Item {
     property int buttonHeight: frameSize * 0.75
     property int gridSpacing: frameSize * 0.1
 
-    property int pokeNameFontSize: frameSize * 0.4
-    property int buttonFontSize: frameSize * 0.4
+    property int pokeNameFontSize: frameSize * 0.40
+    property int buttonFontSize: frameSize * 0.40
     property int textBarFontSize: frameSize * 0.45
 
     property bool debugLines: false
