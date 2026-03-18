@@ -80,16 +80,16 @@ void Game::setGameActive(bool active) {
         QTimer::singleShot(0, this, &Game::spawnPokemon);
     }
     else{
-        if (m_activeBattle) {
-            m_activeBattle->setSceneVisibility(false);
-            updateWildPokemonPosToBattlePos();
-            safelyRemoveBattleScene();
-        }
         if (m_wildPokemon) {
             m_spawnPoint = m_wildPokemon->position();
             m_spawnDirection = m_wildPokemon->m_currentDirection;
             m_wildPokemon->deleteLater();
             m_wildPokemon = nullptr;
+        }
+        if (m_activeBattle) {
+            m_activeBattle->setSceneVisibility(false);
+            updateWildPokemonPosToBattlePos();
+            safelyRemoveBattleScene();
         }
             //Wait for deletions to complete
         QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
@@ -322,11 +322,11 @@ void Game::handleBattleEnd(const char* endState) {
         }else{
             qWarning() << "Failed to clear wild pokemon";
         }
-        if (m_activeBattle)  safelyRemoveBattleScene();
         if (m_wildPokemon) {
             m_wildPokemon->deleteLater();
             m_wildPokemon = nullptr;
         }
+        if (m_activeBattle)  safelyRemoveBattleScene();
         m_spawnPoint = QPoint(-1,-1);
         m_spawnTimer->start();
 
@@ -344,8 +344,8 @@ void Game::handleBattleEnd(const char* endState) {
 
         //Cleanup with delay for smooth transition from battlescene to wild pokemon
         QTimer::singleShot(100, this, [this]() {
-            if (m_activeBattle) safelyRemoveBattleScene();
             if (m_wildPokemon) m_wildPokemon->roaming(true);
+            if (m_activeBattle) safelyRemoveBattleScene();
         });
     }
 }
