@@ -29,7 +29,6 @@ GameMenu::GameMenu()
     setCursor(m_pointerCursor);
     setTitle("DesktopInvasion");
     hide();
-    /* show(); */
 }
 
 bool GameMenu::event(QEvent* event) {
