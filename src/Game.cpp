@@ -72,6 +72,7 @@ void Game::initMenu(){
     connect(m_menu,     &GameMenu::preloadBoxRequested,     this, &Game::handleMenuPreloadBox);
     connect(m_menu,     &GameMenu::swapRequested,              this, &Game::handlePCSwap);
     connect(m_menu,     &GameMenu::nameChangeRequested,              this, &Game::handleNameChange);
+    connect(m_menu,     &GameMenu::moveChangeRequested,              this, &Game::handleMoveChange);
 }
 
 // --------------------------------------------------------------------------
@@ -185,6 +186,9 @@ void Game::handlePCSwap(int placex, int posx, int placey, int posy){
 
 void Game::handleNameChange(int placex, int posx, QString name){
     m_db.renamePokemon(placex, posx, name.toStdString());
+}
+void Game::handleMoveChange(int placex, int posx, int moveSlot, int moveId){
+    m_db.setPokemonMove(placex, posx, moveSlot, moveId);
 }
 
 void Game::handleMenuOpen() {

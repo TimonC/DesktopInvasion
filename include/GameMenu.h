@@ -23,6 +23,7 @@ signals:
     void preloadBoxRequested(int boxIndex);  // QML -> Game
     void swapRequested(int xplace, int xpos, int yplace, int ypos);
     void nameChangeRequested(int xplace, int xpos, QString name);
+    void moveChangeRequested(int xplace, int xpos, int moveSlot, int moveId);
 
     // Game -> QML (QML listens via Connections { target: menuBridge })
     void partyDataReady(QVariantList data);

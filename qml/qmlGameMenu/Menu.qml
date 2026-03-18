@@ -269,6 +269,7 @@ Rectangle {
                         menuBridge.nameChangeRequested(pc.displayedPokemonBox, pc.displayedPokemonIndex, name)
                     })
                     item.requestMoveChange.connect(function(slot, moveId) {
+                        menuBridge.moveChangeRequested(pc.displayedPokemonBox, pc.displayedPokemonIndex, slot, moveId);
                     })
 
                     item.spriteSheet = root._pendingSheet
