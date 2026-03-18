@@ -53,7 +53,7 @@ void testPokespawnRandomness() {
         if (count > maxCount) maxCount = count, maxId = id;
     }
 
-    std::cout << "PASS\n";
+    std::cout << "Pokemon Random Info PASS\n";
     std::cout << "Min: " << minCount << " (ID " << minId << ")\n";
     std::cout << "Max: " << maxCount << " (ID " << maxId << ")\n";
 }
@@ -95,6 +95,6 @@ void testVariantMapper() {
     assert(VariantMapper::pokedexID2IconID(487, 0) == VariantMapper::pokedexID2IconIDDirect(487, 0));
     assert(VariantMapper::pokedexID2IconID(487, 1) == VariantMapper::pokedexID2IconIDDirect(487, 1));
 
-    std::cout << "All VariantMapper tests PASSED! Total extra variants: "
+    std::cout << "VariantMapper PASS.  Total extra variants: "
               << VariantMapper::getTotalExtraVariants() << "\n";
 }

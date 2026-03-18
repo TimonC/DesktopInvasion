@@ -10,7 +10,7 @@ Item {
     property int frameSize: 32
 
     property int menuWidth: frameSize * 6
-    property int menuHeight: 50
+    property int menuHeight: 60
     property int statusBarWidth: frameSize*2.5
     property int statusBarHeight: 25
     property int buttonWidth: frameSize * 2
