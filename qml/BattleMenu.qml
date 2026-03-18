@@ -571,6 +571,8 @@ Rectangle {
                         width: parent.width / 2 - parent.spacing / 2
                         color: modelData.color
                         radius: 20
+                        border.color: root.borderColor
+                        border.width: root.borderWidth
 
                         Text {
                             text: modelData.text
