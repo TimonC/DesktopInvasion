@@ -5,12 +5,17 @@ SystemTrayIcon::SystemTrayIcon(QObject *parent)
     : QSystemTrayIcon(parent)
     , m_gameActive(true)
     , m_clickEnabled(true)
+    , m_activeIcon(":/assets/HGSS/PokeballIcon.png")
+    , m_inactiveIcon(":/assets/HGSS/PokeballIcon_grayscale.png")
 {
-    setIcon(QIcon(":/assets/HGSS/PokeballIcon.png"));
+    setIcon(m_activeIcon);
     setVisible(true);
-
     connect(this, &QSystemTrayIcon::activated,
             this, &SystemTrayIcon::onActivated);
+}
+
+void SystemTrayIcon::setIconActivityColor(bool active){
+    setIcon(active ? m_activeIcon : m_inactiveIcon);
 }
 
 void SystemTrayIcon::enabled(bool enabled){
@@ -25,14 +30,6 @@ void SystemTrayIcon::onActivated(QSystemTrayIcon::ActivationReason reason){
             emit menuButtonPressed();
         }
     };
-}
-
-void SystemTrayIcon::setIconActivityColor(bool active){
-    if (active) {
-        setIcon(QIcon(":/assets/HGSS/PokeballIcon.png"));
-    } else {
-        setIcon(QIcon(":/assets/HGSS/PokeballIcon_grayscale.png"));
-    }
 }
 
 void SystemTrayIcon::toggleGameActive(){
