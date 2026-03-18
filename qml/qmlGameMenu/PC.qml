@@ -48,14 +48,27 @@ Item {
     // --- Swap state ---
     property color highlightColor:     Qt.rgba(0, 0.6, 1, 0.3)
     property color swapColor:          "orange"
-    property color highlightSwapColor: Qt.rgba(0.6, 0.6, 0, 0.3)
+    property color highlightSwapColor: Qt.rgba(0.6, 0.6, 0, 0.7)
     property bool  inSwapMode:         false
     property var   swapSource:         null   // null = nothing selected; else [boxIndex, slotIndex]
+    property var displayedPokemonSlot: null
+    property int displayedPokemonBox: -2
 
     signal activateSwapMode()
 
     // --- Display
     signal display(var pcPos)
+    function  _display(pcPos){
+        if(root.displayedPokemonSlot) root.displayedPokemonSlot.displayed=false
+        if(pcPos[0]===-1){
+            root.displayedPokemonSlot = partyRepeater.itemAt(pcPos[1])
+        }else{
+            root.displayedPokemonSlot = pcRepeater.itemAt(pcPos[1])
+        }
+        root.displayedPokemonSlot.displayed=true
+        root.displayedPokemonBox = pcPos[0]
+        display(pcPos)
+    }
 
     function toggleSwapMode() {
         if (inSwapMode) {
@@ -102,7 +115,7 @@ Item {
                 Rectangle {
                     anchors.fill: parent
                     color: root.partyBackground
-                    radius: 8
+                    // radius: 8
                     border.color: "#cccccc"
                     border.width: 1
                 }
@@ -115,6 +128,7 @@ Item {
                     columnSpacing: 0
 
                     Repeater {
+                        id: partyRepeater
                         model: root.partyRows * root.partyColumns
                         PokemonSlot {
                             iconVisible: root.partyMap[index] !== undefined
@@ -174,7 +188,7 @@ Item {
                 Rectangle {
                     anchors.fill: parent
                     color: root.pcBackground
-                    radius: 8
+                    // radius: 8
                     border.color: "#cccccc"
                     border.width: 1
                 }
@@ -187,6 +201,7 @@ Item {
                     columnSpacing: 0
 
                     Repeater {
+                        id: pcRepeater
                         model: root.pcRows * root.pcColumns
                         PokemonSlot {
                             property var currentBox: root.boxes[root.currentBoxIndex]
@@ -251,13 +266,13 @@ Item {
         height: root.slotHeight
         property int  frameIndex:  0
         property var  pcPos:       [-1, -1]
+        property bool displayed: false
 
         property bool iconVisible: false
         property bool swappable:{
             if (!root.inSwapMode || root.swapSource === null || root.swapSource  === pcPos){
                 return false
             }
-
             if(root.swapSource[0] === -1){
                 if(pcPos[0]===-1){
                    if(pcPos[1]>=root.freePartySlot){
@@ -278,17 +293,30 @@ Item {
         }
 
         color: {
+            if(root.inSwapMode && displayed && root.displayedPokemonBox===pcPos[0]) return root.highlightColor
             if(swappable){
                 if (hoverArea.containsMouse){
-                    return root.highlightColor
+                    return root.highlightSwapColor
                 }
                 return root.swapColor
             }
 
             if (hoverArea.containsMouse && iconVisible){
-                return root.highlightColor
+                if(root.inSwapMode){
+                    return root.highlightSwapColor
+                }else{
+                    return root.highlightColor
+                }
             }
             return "transparent"
+        }
+
+        Rectangle {
+            anchors.fill: parent
+            color: "transparent"
+            border.color: root.inSwapMode ? "blue" : "transparent"
+            border.width: 1
+            z: 1
         }
 
         Image {
@@ -312,7 +340,7 @@ Item {
                     if (root.swapSource === null) {
                         root.swapSource = pokemonSlot.pcPos
                         if(pokemonSlot.iconVisible){
-                            root.display(pokemonSlot.pcPos)
+                            root._display(pokemonSlot.pcPos)
                         }else{
                             root.toggleSwapMode()
                         }
@@ -345,7 +373,7 @@ Item {
                 }
                 if (!pokemonSlot.iconVisible) return
 
-                root.display(pokemonSlot.pcPos)
+                root._display(pokemonSlot.pcPos)
             }
         }
     }
