@@ -87,8 +87,8 @@ Item {
         PropertyAnimation {
             target: sprite
             property: "x"
-            to: (direction==1 ? spriteOffsetX-4*scaleFactor :
-                 direction==3 ? spriteOffsetX+4*scaleFactor :
+            to: (direction==1 ? spriteOffsetX-6*scaleFactor :
+                 direction==3 ? spriteOffsetX+6*scaleFactor :
                  sprite.x)
             duration: 50
             easing.type: Easing.InQuad
@@ -97,8 +97,8 @@ Item {
         PropertyAnimation {
             target: sprite
             property: "y"
-            to: (direction==0 ? spriteOffsetY-4*scaleFactor :
-                 direction==2 ? spriteOffsetY+4*scaleFactor :
+            to: (direction==0 ? spriteOffsetY-6*scaleFactor :
+                 direction==2 ? spriteOffsetY+6*scaleFactor :
                  sprite.y)
             duration: 50
             easing.type: Easing.InQuad
@@ -130,8 +130,8 @@ Item {
         PropertyAnimation {
             target: sprite
             property: "x"
-            to: (direction==1 ? spriteOffsetX+1*scaleFactor :
-                 direction==3 ? spriteOffsetX-1*scaleFactor :
+            to: (direction==1 ? spriteOffsetX+2.5*scaleFactor :
+                 direction==3 ? spriteOffsetX-2.5*scaleFactor :
                  sprite.x)
             duration: 100
             // easing.type: Easing.OutQuad
@@ -140,8 +140,8 @@ Item {
         PropertyAnimation {
             target: sprite
             property: "y"
-            to: (direction==0 ? spriteOffsetY+1*scaleFactor :
-                 direction==2 ? spriteOffsetY-1*scaleFactor :
+            to: (direction==0 ? spriteOffsetY+2.5*scaleFactor :
+                 direction==2 ? spriteOffsetY-2.5*scaleFactor :
                  sprite.y)
             duration: 100
             // easing.type: Easing.OutQuad
