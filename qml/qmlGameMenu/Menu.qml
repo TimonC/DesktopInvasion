@@ -61,6 +61,7 @@ Rectangle {
         onClicked: {
             if (pc.inSwapMode) pc.toggleSwapMode()
             if (moveMenu.inNameEditMode) moveMenu.toggleNameEditMode()
+            moveMenu.selectedEligibleIdx = -1
         }
     }
 
