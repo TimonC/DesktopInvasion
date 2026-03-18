@@ -25,9 +25,6 @@ Item {
     property  alias opponentName: statusBarOpponent.pokeName
     property  alias playerName: statusBarPlayer.pokeName
 
-    // property alias textBar: textBar
-    // property alias rootSelection: rootSelection
-
     // Attack chain state
     property bool attackInProgress: false
     property var attackSequence: []
@@ -76,87 +73,24 @@ Item {
     }
 
    // UI
-Rectangle {
-    id: menuContainer
-    color: "white"
-    anchors.bottom: parent.bottom
-    anchors.horizontalCenter: parent.horizontalCenter
-    height: root.menuHeight
-    width:  root.menuWidth
+    BattleMenu {
+        id: battleMenu
+        anchors.bottom: parent.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+        height: root.menuHeight
+        width: root.menuWidth
 
-    StackView {
-        id: stack
-        initialItem: rootSelectionComponent
-        anchors.fill: parent
-        z: 1
+        frameSize: root.frameSize
+        buttonWidth: root.buttonWidth
+        buttonHeight: root.buttonHeight
+        buttonFontSize: root.buttonFontSize
+        gridSpacing: root.gridSpacing
+        menuHeight: root.menuHeight
+        menuWidth: root.menuWidth
+
+        onAttackButtonClicked: root.onAttackButtonClicked()
+        onRunClicked: root.runClicked()
     }
-
-    Component {
-        id: textBarComponent
-        Rectangle {
-            id: textBar
-            color: "darkgrey"
-            property string text: ""
-            height: root.menuHeight
-            width: root.menuWidth
-            radius: 5
-            Text {
-                id: textBarText
-                anchors.fill: parent
-                anchors.margins: 6
-                text: "UNINITIALIZED TEXT!!!"
-                font.pixelSize: 13
-                verticalAlignment: Text.AlignVCenter
-            }
-        }
-    }
-
-    Component {
-        id: rootSelectionComponent
-        Item{
-            anchors.fill: parent
-            Grid {
-                anchors.centerIn: parent
-                columns: 2
-                spacing: gridSpacing
-                // x: (parent.width - width) / 2
-                // y: (parent.height - height) / 2
-                RoundButton {
-                    text: "Attack"
-                    palette.button: "red"
-                    font.pixelSize: buttonFontSize
-                    width: buttonWidth
-                    height: buttonHeight
-                    onClicked: root.onAttackButtonClicked()
-                }
-                RoundButton {
-                    text: "Switch"
-                    palette.button: "green"
-                    font.pixelSize: buttonFontSize
-                    width: buttonWidth
-                    height: buttonHeight
-                }
-                RoundButton {
-                    text: "Catch"
-                    palette.button: "yellow"
-                    font.pixelSize: buttonFontSize
-                    width: buttonWidth
-                    height: buttonHeight
-                }
-                RoundButton {
-                    text: "Run"
-                    palette.button: "blue"
-                    font.pixelSize: buttonFontSize
-                    width: buttonWidth
-                    height: buttonHeight
-                    onClicked: root.runClicked()
-                }
-            }
-        }
-    }
-}
-
-
 
     //Relative positioning of elements
     function positionSpriteAndStatusBar(sprite) {
@@ -210,7 +144,10 @@ Rectangle {
     }
 
     function update_text_bar(newText) {
-        textBar.text = newText;
+        // Access the textBar through the stack's currentItem
+        if (battleMenu.stack.currentItem && battleMenu.stack.currentItem.text !== undefined) {
+            battleMenu.stack.currentItem.text = newText;
+        }
     }
 
     // Main sequence timer
