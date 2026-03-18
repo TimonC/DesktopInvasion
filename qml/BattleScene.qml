@@ -175,7 +175,7 @@ Item {
         onRunChosen: function(){
             battleMenu.showTextBar()
             battleMenu.updateText("Got away safely!")
-            root.oneShotTimer(2000, function(){
+            root.oneShotTimer(3000, function(){
                 root.runChosen()
             })
         }

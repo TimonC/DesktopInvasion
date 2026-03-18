@@ -13,7 +13,7 @@ Rectangle {
     property int textBarFontSize: frameSize * 0.42
     property int gridSpacing: frameSize * 0.1
     property int menuHeight:50
-    property int menuWidth: frameSize * 5 * 0.9
+    property int menuWidth: frameSize * 5
 
     property int pokeSpriteId: 3
     property double spriteScale: 1
@@ -110,7 +110,7 @@ Component {
             id: textBarText
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.rightMargin: parent.width * 0.2 //Wrap at 80%
+            anchors.rightMargin: parent.width * 0.15 //Wrap at 85%
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             anchors.margins: 6
@@ -272,7 +272,7 @@ Component {
             RoundButton{
                 palette.button: "blue"
                 text: "Are you sure?"
-                width: root.buttonWidth*2
+                width: root.buttonWidth*1.5
                 height: root.buttonHeight
                 onClicked: root.runChosen()
             }
