@@ -30,7 +30,6 @@ WildPokemon::WildPokemon(QWindow *parent, int row)
 
     startRoaming();
     show();
-    m_hitbox->show();
 }
 
 
@@ -38,6 +37,8 @@ WildPokemon::WildPokemon(QWindow *parent, int row)
 void WildPokemon::startRoaming(){
     connect(m_decisionTimer, &QTimer::timeout, this, &WildPokemon::makeRandomDecision);
     connect(m_moveTimer, &QTimer::timeout, this, &WildPokemon::moveStep);
+
+    m_hitbox->show();
 
     m_decisionTimer->start();
     makeRandomDecision();
@@ -60,6 +61,7 @@ void WildPokemon::handleDoubleClick(){
 
 void WildPokemon::startBattle(){
     m_hitbox->showButton(false);
+    m_hitbox->hide();
 
     getPlayer().iChooseYou(this);
 
