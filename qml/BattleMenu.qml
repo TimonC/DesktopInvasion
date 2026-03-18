@@ -31,8 +31,8 @@ Rectangle {
     property color runButtonColor: PokeColor.darker("blue")
 
     property color borderColor: "#999999"
-    property color selectedBorderColor: "green"
     property color disabledBorderColor: "#777777"
+    property color selectedBorderColor: "#1976D2"
     property color disabledBackgroundColor: "#b0b0b0"
     property color placeholderTextColor: "#a0a0a0"
     property real enabledOpacity: 1
@@ -359,6 +359,8 @@ Rectangle {
                               ? (root.selectedIndex === index ? root.selectedBorderColor : root.borderColor)
                               : root.disabledBorderColor
                         opacity: root.party.iconIds[index] >= 0 ? root.enabledOpacity : root.disabledOpacity
+                        border.width: root.selectedIndex === index ? root.selectedBorderWidth*2 : 0
+                        border.color: root.selectedIndex === index ? root.selectedBorderColor : "transparent"
                     }
 
                     Rectangle {
