@@ -4,47 +4,24 @@
 #include <QObject>
 #include <data_move.h>
 #include <gamestate.h>
-#include <variant>
-
-enum class StatusCondition{
-    Burn, Paralyze, Freeze, Sleep, Confuse, Seeded, Cursed
-};
-
-struct StatChange{
-    int statIndex;
-    int amount;
-};
-
-enum class WeatherCondition{
-    Clear, Sandstorm, Rain, Sunny, Hail
-};
-
-using Effect = std::variant<StatusCondition, StatChange>;
-
-struct SideEffect{
-    Effect effect;
-    int probability;
-};
-
-enum class MoveCategory {
-    Physical, Special, Status
-};
 
 struct Static{
     int uid;
-    int stats[6];
+    int stats[6]; //HP, Atk, SpAtk, Def, SpDef, Spd
     Type types[2];
     int moves[4];
 };
 
 struct State{
-    int currentHealth;
-    StatusCondition conditions[10];
+    int currentHealthRatio = 1;
+    Ailment statusCondition = Ailment::Null;
+    Ailment confused = Ailment::Null;
+    std::array<int, 5> stat_changes = {0, 0, 0, 0, 0}; //Atk, SpAtk, Def, SpDef, Spd
 };
 
 struct Battler{
     Static pokeStatic;
-    State pokeState;
+    State battleState;
 };
 
 class BattleMoveHandler : public QObject{
@@ -63,8 +40,6 @@ private:
     Battler m_party[6];
     int m_chosenPartyIndex = 0;
     int m_partyPokemonSentOut[6] = {-1,-1,-1,-1,-1,-1};
-
-    WeatherCondition m_weatherCondition;
 
     int calculateDamage();
 };

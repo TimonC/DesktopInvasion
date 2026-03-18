@@ -5,8 +5,7 @@
 BattleMoveHandler::BattleMoveHandler(Battler opponent, Battler party[6])
     : m_opponent(opponent)
 {
-    std::copy(party, party + 6, m_party),
-    m_weatherCondition = WeatherCondition::Clear;
+    std::copy(party, party + 6, m_party);
 };
 
 void BattleMoveHandler::startActionRound(int playerMoveIndex){
@@ -15,39 +14,46 @@ void BattleMoveHandler::startActionRound(int playerMoveIndex){
 
    int playerFirst = rand()>0.5;
    Battler& player = m_party[m_chosenPartyIndex];
+
+
 };
 
 void BattleMoveHandler::applyMove(const Move* _move, Battler& caster, Battler& target){
     int statCategoryId=-1;
     int atk = caster.pokeStatic.stats[statCategoryId];
     int def = target.pokeStatic.stats[statCategoryId + 2];
+
+    int rLevel = 1;
+    int rPower = 1;
+    int rA = 1;
+    int rD = 1;
+/* https://bulbapedia.bulbagarden.net/wiki/Damage */
+    _move->power * rA/(50*rD) * (2 + 2/5*rLevel);
 };
 
 
 int BattleMoveHandler::calculateDamage(){
-    int pLevel = 1;
-    int pPower = 1;
-    int pA = 1;
-    int pD = 1;
+/* https://bulbapedia.bulbagarden.net/wiki/Damage */
 
-    int pBurn = 1;
-    int pScreen = 1;
-    int pTargets = 1;
+    int rBurn = 1;
+    /* int rScreen = 1; */
+    int rTargets = 1;
 
-    int pWeather = 1;
-    int pFF = 1;
+    /* int rWeather = 1; */
+    /* int rFF = 1; */
 
-    int pStockpile = 1;
-    int pCritical = 1;
-    int pDoubleDmg = 1;
-    int pCharge = 1;
-    int pHH = 1;
+    int rStockpile = 1;
+    int rCritical = 1;
+    int rDoubleDmg = 1;
+    int rCharge = 1;
+    int rHH = 1;
 
-    int pSTAB = 1;
-    int pType1 = 1;
-    int pType2 = 1;
+    int rSTAB = 1;
+    int rType1 = 1;
+    int rType2 = 1;
 
-    int pRandom = 1;
+    int rRandom = 1;
+
 
     return 1;
 };

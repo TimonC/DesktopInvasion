@@ -8,6 +8,11 @@
 enum class Ailment{
     Burn, Freeze, Paralysis, Poison, Sleep, Confusion, Null
 };
+
+enum class MoveCategory{
+    PhysicalAtk, SpecialAtk, NonDamaging
+};
+
 struct Move {
     int id;
     const char* name;
@@ -16,6 +21,8 @@ struct Move {
     int power;
     int accuracy;
     int priority;
+
+    MoveCategory category;
 
     std::array<int, 5> stat_changes;
     Ailment ailment;
@@ -35,6 +42,5 @@ struct Move {
 extern const Move* const kMovesByIndex[];
 extern const int kMaxMoveId;
 extern const int kMoveCount;
-
 
 #endif

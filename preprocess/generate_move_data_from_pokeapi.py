@@ -121,6 +121,12 @@ def extract_type_name(type_obj):
         return type_obj.get('name', '')
     return ''
 
+def extract_damage_class_name(damage_class_obj):
+    """Extract the name field from the damage_class object"""
+    if damage_class_obj:
+        return damage_class_obj.get('name', '')
+    return ''
+
 def format_type_enum(type_name):
     """Convert type name to Type enum format (e.g., 'normal' -> 'Type::Normal')"""
     if not type_name:
@@ -128,6 +134,19 @@ def format_type_enum(type_name):
     if type_name == "fairy":
         type_name = "normal"
     return f'Type::{type_name.capitalize()}'
+
+def format_category_enum(damage_class_name):
+    """Convert damage class name to MoveCategory enum format"""
+    if not damage_class_name:
+        return 'MoveCategory::NonDamaging'
+
+    category_map = {
+        'physical': 'MoveCategory::PhysicalAtk',
+        'special': 'MoveCategory::SpecialAtk',
+        'status': 'MoveCategory::NonDamaging'
+    }
+
+    return category_map.get(damage_class_name, 'MoveCategory::NonDamaging')
 
 def format_ailment_enum(ailment_name):
     """Convert ailment name to Ailment enum format (e.g., 'burn' -> 'Ailment::Burn')"""
@@ -238,6 +257,7 @@ for i in range(1, 5):
             moveFilled[field] = move_data.get(field)
         moveFilled['stat_changes'] = extract_stat_changes(move_data.get('stat_changes', []))
         moveFilled['type'] = extract_type_name(move_data.get('type'))
+        moveFilled['damage_class'] = extract_damage_class_name(move_data.get('damage_class'))
 
 
         # Extract and clean flavor text
@@ -283,6 +303,7 @@ namespace {
         flavor = move['flavor_text'].replace('"', '\\"')
 
         type_enum = format_type_enum(move['type'])
+        category_enum = format_category_enum(move['damage_class'])
 
         accuracy = move['accuracy'] if move['accuracy'] is not None else -1
         power = move['power'] if move['power'] is not None else -1
@@ -301,6 +322,7 @@ namespace {
         {power},
         {accuracy},
         {move['priority']},
+        {category_enum},
         {stats},
         {ailment_enum},
         {meta['min_hits']},

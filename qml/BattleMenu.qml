@@ -36,14 +36,14 @@ Rectangle {
     property color disabledBackgroundColor: "#757575"
     property color placeholderTextColor: "#a0a0a0"
     property real enabledOpacity: 1
-    property real disabledOpacity: 0.5
+    property real disabledOpacity: 0.7
 
     property color textBarBackgroundColor: "white"
     property color textBarBorderColor: "black"
 
     property real iconScale: 1.0
     property real normalIconOpacity: 1.0
-    property real faintedIconOpacity: 0.8
+    property real faintedIconOpacity: 0.7
 
     property color backButtonColor: "lightblue"
     property color forceSwitchBackButtonColor: "#b0bec5"
@@ -341,7 +341,7 @@ Rectangle {
         Grid {
             columns: 3
             rows: 2
-            spacing: root.gridSpacing/3
+            spacing: root.gridSpacing/2
 
             property real cellWidth: (parent.width - spacing) / 3
             property real cellHeight: (parent.height - spacing) / 2
