@@ -11,6 +11,7 @@
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
+    /* Globals::DEBUG = true; */
 
     // Load fonts from QRC once at app startup
     int pixelFontId = QFontDatabase::addApplicationFont(":/assets/fonts/PressStart2P-Regular.ttf");
@@ -42,7 +43,6 @@ int main(int argc, char *argv[]) {
     engine.rootContext()->setContextProperty("pixelFontFamily", pixelFontFamily);
     engine.rootContext()->setContextProperty("dotGothicFontFamily", dotGothicFamily);
 
-    /* Globals::DEBUG = true; */
     /* if (!Globals::DEBUG)  loggingCategory::setFilterRules("*.debug=false"); */
 
     QOpenGLContext context;
