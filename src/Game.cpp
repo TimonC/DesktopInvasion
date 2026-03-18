@@ -90,7 +90,7 @@ void Game::setGameActive(bool active) {
     processing = true;
 
         // Singleshot to ensure we're in next event loop iteration
-    QTimer::singleShot(0, this, nullptr);
+    /* QTimer::singleShot(0, this, nullptr); */
     if (active){
         spawnPokemon();
     }

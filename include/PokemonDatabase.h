@@ -1,12 +1,9 @@
 #ifndef POKEMONDATABASE_H
 #define POKEMONDATABASE_H
-
 #include <PokeTypes.h>
 #include <string>
 #include <vector>
-
-struct sqlite3;
-struct sqlite3_stmt;
+#include <QSqlQuery>
 
 struct PokemonState {
     int _id = -1;
@@ -14,14 +11,11 @@ struct PokemonState {
     int variant_id = 0;
     int pokeball_id = 0;
     std::string name;
-
     int lvl = 1;
     int currentXP = 0;
-
     int ivs[6];
     int evs[6];
     Nature nature;
-
     int moves[4] = {-1, -1, -1, -1};
 };
 
@@ -35,10 +29,8 @@ struct GameState {
 class PokemonDatabase {
 public:
     static PokemonDatabase& instance();
-
     bool initialize(const std::string& dbPath = "/app/data/pokemon_game.db");
     void shutdown();
-
     PokemonState getPokemon(int id);
     std::vector<PokemonState> getPokemonBatch(const std::vector<int>& ids);
     int createPokemon(const PokemonState& pokemon);
@@ -55,17 +47,13 @@ public:
 private:
     PokemonDatabase() = default;
     ~PokemonDatabase();
-
     PokemonDatabase(const PokemonDatabase&) = delete;
     PokemonDatabase& operator=(const PokemonDatabase&) = delete;
-
     void createTables();
     void ensureWildSlotExists();
-    PokemonState queryToPokemon(sqlite3_stmt* stmt);
-    void bindPokemonParams(sqlite3_stmt* stmt, const PokemonState& pokemon, int startCol = 1);
-
-    sqlite3* m_db = nullptr;
+    PokemonState queryToPokemon(const QSqlQuery& query);
+    void bindPokemonParams(QSqlQuery& query, const PokemonState& pokemon);
+    bool m_initialized = false;
     std::string m_dbPath;
 };
-
 #endif

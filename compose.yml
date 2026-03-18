@@ -1,7 +1,7 @@
 services:
-  invasionview:
+  dev:
     build: .
-    container_name: invasionview
+    container_name: desktopinvasion-dev
     environment:
       - DISPLAY=${DISPLAY}
       - QT_QPA_PLATFORM=xcb
@@ -16,7 +16,14 @@ services:
       - /dev/dri:/dev/dri
     stdin_open: true
     tty: true
+    entrypoint: ["./build_dev.sh"]
+
+  prod:
+    build: .
+    container_name: desktopinvasion-prod
+    entrypoint: ["./build_prod.sh"]
+    volumes:
+      - ./build_output:/app/output
 
 volumes:
   game_state:
-

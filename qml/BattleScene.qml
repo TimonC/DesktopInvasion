@@ -132,7 +132,6 @@ Item {
             battleMenu.updateText(playerName + ", I choose you!")
             var coords = calculateBallCoords(player)
 
-            console.log("completed")
             player.visible = false
             pokeBallPlayer.throwAt(coords[0], coords[1], coords[2], coords[3], coords[4])
         })

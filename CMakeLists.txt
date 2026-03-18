@@ -7,7 +7,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick Widgets Sql)
 qt6_add_resources(RESOURCES_RCC resources.qrc)
 
 file(GLOB_RECURSE ALL_SRC CONFIGURE_DEPENDS src/*.cpp)
@@ -20,6 +20,7 @@ target_include_directories(DesktopInvasion SYSTEM PRIVATE
     ${Qt6Gui_INCLUDE_DIRS}
     ${Qt6Quick_INCLUDE_DIRS}
     ${Qt6Widgets_INCLUDE_DIRS}
+    ${Qt6Sql_INCLUDE_DIRS}
 )
 
 target_precompile_headers(DesktopInvasion PRIVATE
@@ -27,7 +28,8 @@ target_precompile_headers(DesktopInvasion PRIVATE
     <QtGui>
     <QtQuick>
     <QtWidgets>
+    <QtSql>
 )
 
 target_include_directories(DesktopInvasion PRIVATE ${CMAKE_SOURCE_DIR}/include)
-target_link_libraries(DesktopInvasion PRIVATE Qt6::Core Qt6::Gui Qt6::Quick Qt6::Widgets sqlite3)
+target_link_libraries(DesktopInvasion PRIVATE Qt6::Core Qt6::Gui Qt6::Quick Qt6::Widgets Qt6::Sql)
