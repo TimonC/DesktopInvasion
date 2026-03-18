@@ -1,3 +1,4 @@
+#include "PokemonDatabase.h"
 #include <Game.h>
 #include <PokeTypes.h>
 #include <SystemTrayIcon.h>
@@ -52,6 +53,8 @@ Game::~Game() {
     m_spawnTimer->deleteLater();
     m_trayIcon->deleteLater();
     m_menu->deleteLater();
+
+    m_db.shutdown();
 }
 
 void Game::safelyRemoveBattleScene(){

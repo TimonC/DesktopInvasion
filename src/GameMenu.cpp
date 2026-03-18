@@ -2,8 +2,8 @@
 #include <QTimer>
 #include <QScreen>
 
-GameMenu::GameMenu(QWindow *parent)
-    : QQuickView(parent)
+GameMenu::GameMenu()
+    : QQuickView()
 {
     qDebug() << "GameMenu constructor called!";
 

@@ -8,7 +8,7 @@ class GameMenu: public QQuickView{
     Q_OBJECT
 
 public:
-    explicit GameMenu(QWindow *parent = nullptr);
+    explicit GameMenu();
     QQuickItem* m_menu;
     void activate();
 
