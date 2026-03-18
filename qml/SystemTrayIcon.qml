@@ -4,7 +4,7 @@ SystemTrayIcon {
     id: root
     visible: true
     icon.mask: true
-    icon.source: "qrc:/assets/HGSS/PokeballIcon.ico"
+    icon.source: "qrc:/assets/HGSS/PokeballIcon.png"
     property alias iconRoot: root.icon
     property alias hideText: hideItem.text
 
@@ -43,13 +43,13 @@ SystemTrayIcon {
         }
     }
     function swapIcon(){
-        var currentlyVisible = iconRoot.source == "qrc:/assets/HGSS/PokeballIcon.ico";
+        var currentlyVisible = iconRoot.source == "qrc:/assets/HGSS/PokeballIcon.png";
 
         if(currentlyVisible){
-            iconRoot.source = "qrc:/assets/HGSS/PokeballIcon_grayscale.ico"
+            iconRoot.source = "qrc:/assets/HGSS/PokeballIcon_grayscale.png"
             root.hideText = "Show"
         }else{
-            iconRoot.source = "qrc:/assets/HGSS/PokeballIcon.ico"
+            iconRoot.source = "qrc:/assets/HGSS/PokeballIcon.png"
             root.hideText = "Hide"
         }
 

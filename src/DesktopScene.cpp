@@ -11,7 +11,7 @@ DesktopScene::DesktopScene(QWindow *parent)
         | Qt::Tool
         | Qt::WindowDoesNotAcceptFocus
         | Qt::FramelessWindowHint
-        /* | Qt::BypassWindowManagerHint */
+        | Qt::BypassWindowManagerHint
         /* | Qt::WindowTransparentForInput */
         );
      setColor(Qt::transparent);
