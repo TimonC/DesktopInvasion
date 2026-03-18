@@ -5,9 +5,9 @@
 #include "Player.h"
 #include <QGuiApplication>
 
+static bool DEBUG = true;
 Player& getPlayer();
 QRect screenSize();
-static bool DEBUG = false;
 const PokemonInfo* getRandomPokemon();
 const PokemonInfo* findPokemonByPokedexId(int pokedexId);
 #endif

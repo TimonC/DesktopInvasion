@@ -68,6 +68,30 @@ Battlescene::Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent)
     show();
 }
 
+
+void Battlescene::run(){
+    setVisible(false);
+    m_corners->hide();
+
+    m_chosen->setVisible(false);
+    m_chosen->m_inABattle = false;
+    getPlayer().m_pokemonAvailable = true;
+
+    m_opp->startRoaming();
+}
+
+void Battlescene::attack(){
+    m_chosen->useMove();
+    m_opp->attacked();
+}
+
+void Battlescene::updateTextbar(const std::string &text){
+    if (m_ui) {
+        QString qText = QString::fromStdString(text);
+        QMetaObject::invokeMethod(m_ui, "update_text_bar", Q_ARG(QVariant, qText));
+    }
+};
+
 QQuickView* Battlescene::initCorners(){
     int lft = std::min(m_opp->position().x(), m_chosen->position().x());
     int top = std::min(m_opp->position().y(), m_chosen->position().y());
@@ -98,30 +122,6 @@ QQuickView* Battlescene::initCorners(){
 
     return corners;
 }
-
-void Battlescene::run(){
-    setVisible(false);
-    m_corners->hide();
-
-    m_chosen->setVisible(false);
-    m_chosen->m_inABattle = false;
-    getPlayer().m_pokemonAvailable = true;
-
-    m_opp->startRoaming();
-}
-
-void Battlescene::attack(){
-    m_chosen->useMove();
-    m_opp->attacked();
-}
-
-void Battlescene::updateTextbar(const std::string &text){
-    if (m_ui) {
-        QString qText = QString::fromStdString(text);
-        QMetaObject::invokeMethod(m_ui, "update_text_bar", Q_ARG(QVariant, qText));
-    }
-};
-
 
 void Battlescene::mousePressEvent(QMouseEvent* event) {
   if (event->button() == Qt::LeftButton) {
@@ -156,7 +156,7 @@ void Battlescene::mouseMoveEvent(QMouseEvent* event){
 void Battlescene::drag(QPoint& delta){
     // Reject tiny/huge deltas first
     const int MIN_DELTA = 2;
-    const int MAX_DELTA = 300;
+    const int MAX_DELTA = 200;
     if ((qAbs(delta.x()) < MIN_DELTA && qAbs(delta.y()) < MIN_DELTA) ||
         (qAbs(delta.x()) > MAX_DELTA || qAbs(delta.y()) > MAX_DELTA)) {
         return;

@@ -19,7 +19,7 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
     , m_moveSpeed(1 + QRandomGenerator::global()->bounded(2))
 {
 
-    m_hitbox->offset =QPoint(width()/3.3, height()/2.8);
+    m_hitbox->offset =QPoint(width()/3.2, height()/2.8);
     movePos(QPoint(screenSize().width()/2, screenSize().height()/2));
 
     connect(m_hitbox, &Hitbox::drag, this, [this](QPoint delta){
@@ -87,7 +87,7 @@ void WildPokemon::startBattle(){
 
     QPoint delta(0, 0);
 
-    if (y() < BOUNDARY_MARGIN*2) {
+    if (y() < BOUNDARY_MARGIN*2.5) { //manual increase for top screen
         direction(2);
         delta += QPoint(0, BOUNDARY_MARGIN);
     }

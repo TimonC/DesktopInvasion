@@ -58,8 +58,8 @@ void Pokemon::setSize(int size){
     setWidth(width);
     setHeight(height);
 
-    m_sprite->setProperty("spriteOffsetX", width/2.5);
-    m_sprite->setProperty("spriteOffsetY", height/2.8);
+    m_sprite->setProperty("spriteOffsetX", width/2.4);
+    m_sprite->setProperty("spriteOffsetY", height/3);
 }
 
 void Pokemon::useMove(){
