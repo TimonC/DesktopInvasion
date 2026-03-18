@@ -27,7 +27,7 @@ const PokemonInfo kPokemonList[] = {
     {22, 22, 1,"Fearow"},
     {23, 23, 1,"Ekans"},
     {24, 24, 1,"Arbok"},
-    {25, 25, 1,"Pikachu"}, //DOUBLE PIKACHU
+    {25, 25, 1,"Pikachu"}, //DUPLICATE PIKACHU
     {26, 27, 1,"Raichu"},
     {27, 28, 1,"Sandshrew"},
     {28, 29, 1,"Sandslash"},
@@ -176,7 +176,7 @@ const PokemonInfo kPokemonList[] = {
 {169, 18, 2,"Crobat"},
 {170, 19, 2,"Chinchou"},
 {171, 20, 2,"Lanturn"},
-{172, 21, 2,"Pichu"}, // DOUBLE
+{172, 21, 2,"Pichu"}, // DUPLICATE
 {173, 23, 2,"Cleffa"},
 {174, 24, 2,"Igglybuff"},
 {175, 25, 2,"Togepi"},
@@ -234,7 +234,7 @@ const PokemonInfo kPokemonList[] = {
 {201, 77, 2,"Unown_27"},
 {201, 78, 2,"Unown_28"},
 {202, 79, 2,"Wobbuffet"},
-{203, 81, 2,"Girafarig"},  // DOUBLE
+{203, 81, 2,"Girafarig"},  // DUPLICATE
 {204, 82, 2,"Pineco"},
 {205, 83, 2,"Forretress"},
 {206, 84, 2,"Dunsparce"},
@@ -245,7 +245,7 @@ const PokemonInfo kPokemonList[] = {
     {211, 88, 2,"Qwilfish"},
     {212, 89, 2,"Scizor"},
     {213, 90, 2,"Shuckle"},
-    {214, 91, 2,"Heracross"}, // DOUBLE
+    {214, 91, 2,"Heracross"}, // DUPLICATE
     {215, 93, 2,"Sneasel"},
     {216, 94, 2,"Teddiursa"},
     {217, 95, 2,"Ursaring"},
