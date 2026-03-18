@@ -57,6 +57,7 @@ Rectangle {
     property color catchButtonPressedBackground: "#f0f0f0"
     property color catchButtonBorderColor: "black"
 
+
     property int ballSpriteWidth: 16
     property int ballSpriteHeight: 23
     property string ballSpriteSheet: "qrc:/assets/HGSS/reordered_pokeballs.png"

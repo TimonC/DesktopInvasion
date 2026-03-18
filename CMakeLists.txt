@@ -14,5 +14,13 @@ file(GLOB_RECURSE ALL_SRC CONFIGURE_DEPENDS src/*.cpp)
 file(GLOB_RECURSE ALL_HEADERS CONFIGURE_DEPENDS include/*.h src/*.h)
 
 add_executable(DesktopInvasion ${ALL_SRC} ${ALL_HEADERS} ${RESOURCES_RCC})
+
+target_precompile_headers(DesktopInvasion PRIVATE
+    <QtCore>
+    <QtGui>
+    <QtQuick>
+    <QtWidgets>
+)
+
 target_include_directories(DesktopInvasion PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_link_libraries(DesktopInvasion PRIVATE Qt6::Core Qt6::Gui Qt6::Quick Qt6::Widgets sqlite3)
