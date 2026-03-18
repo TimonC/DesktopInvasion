@@ -24,6 +24,18 @@ struct Battler{
     State battleState;
 };
 
+struct DamageParams {
+    int level = 1;
+    int power = 1;
+    int attack = 1;
+    int defense = 1;
+    float burn = 1.0f;
+    float critical = 1.0f;
+    float stab = 1.0f;
+    float type1 = 1.0f;
+    float type2 = 1.0f;
+};
+
 class BattleMoveHandler : public QObject{
     Q_OBJECT
 
@@ -41,7 +53,7 @@ private:
     int m_chosenPartyIndex = 0;
     int m_partyPokemonSentOut[6] = {-1,-1,-1,-1,-1,-1};
 
-    int calculateDamage();
+    const int calculateDamage(const DamageParams& params);
 };
 
 #endif
