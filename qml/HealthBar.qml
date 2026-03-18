@@ -15,8 +15,8 @@ Item {
         anchors.right: parent.right
         width: root.width
         height: parent.height*3/4
-        color: "white"
-        border.color: "darkgrey"
+        color: "grey"
+        border.color: "black"
 
         Text {
             id: textBarText

@@ -208,11 +208,11 @@ Item {
         // Build attack sequence
         var firstAttacker = playerFirst ? player : opponent;
         var firstDefender = playerFirst ? opponent : player;
-        var firstAttackerName = playerFirst ? "Player" : "Opponent";
+        var firstAttackerName = playerFirst ? playerName : opponentName;
 
         var secondAttacker = playerFirst ? opponent : player;
         var secondDefender = playerFirst ? player : opponent;
-        var secondAttackerName = playerFirst ? "Opponent" : "Player";
+        var secondAttackerName = playerFirst ? opponentName : playerName;
 
         root.attackSequence = [
             // First turn
@@ -265,6 +265,10 @@ Item {
                 step.defender.takeDamage.running = true;
                 sequenceTimer.interval = step.delay;
                 sequenceTimer.start();
+                break;
+
+            case "change-health":
+                step.defender
                 break;
 
             case "end":
