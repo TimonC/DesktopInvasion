@@ -4,7 +4,7 @@
 #include "globals.h"
 #include <QTimer>
 #include <QDebug>
-#include <cstring>  // For strcmp
+#include <cstring>
 
 Game::Game(QQmlApplicationEngine* engine, QObject* parent)
     : QObject(parent)
