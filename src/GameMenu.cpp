@@ -13,7 +13,8 @@ GameMenu::GameMenu()
     setFlags(Qt::Dialog
            | Qt::WindowTitleHint
            | Qt::WindowCloseButtonHint
-           | Qt::FramelessWindowHint);
+           /* | Qt::FramelessWindowHint */
+           );
 
     // Must be set BEFORE setSource so menuBridge exists when QML loads
     rootContext()->setContextProperty("menuBridge", this);
@@ -32,7 +33,7 @@ GameMenu::GameMenu()
 }
 
 bool GameMenu::event(QEvent* event) {
-    if (event->type() == QEvent::WindowDeactivate) {
+    if (event->type() == QEvent::WindowDeactivate || event->type() == QEvent::Close) {
         hide();
         emit menuClosed();
         return true;

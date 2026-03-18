@@ -6,45 +6,49 @@ Item {
     id: pokeView
     anchors.fill: parent
 
-    property var pokeData: null
+    property var    pokeData:    null
+    property string spriteSheet: "qrc:/assets/HGSS/reordered_sprites.png"
+    property int    frameWidth:  32
+    property int    frameHeight: 32
+    property real   scaleFactor: 6
+    property int    rowId:       0
 
-    property string spriteSheet:  "qrc:/assets/HGSS/reordered_sprites.png"
-    property int    frameWidth:   32
-    property int    frameHeight:  32
-    property real   scaleFactor:  6
-    property int    rowId:        0
+    // ── Layout constants ──────────────────────────────────────────────────────
+    property string mainFont:   root.p2pFont
+    property string bodyFont:   root.dotGothicFont
+    property int    fontSizeLg: 18
+    property int    fontSizeMd: 14
+    property int    fontSizeSm: 11
+    property int    margin:     14
+    property int    spacing:    6
+    property int    maxSprite:  64 * 4
 
-    property string mainFont:    root.p2pFont
-    property string bodyFont:    root.dotGothicFont
-    property int    fontSizeLg:  18
-    property int    fontSizeMd:  14
-    property int    fontSizeSm:  11
-    property int    margin:      12
-    property int    spacing:     6
-    property int    maxSprite:   64 * 4
+    property color  dividerColor: "#3d3d3d"
 
-    property real   ratioTop:    0.32
-    property real   ratioFlavor: 0.16
-    property real   ratioMoves:  0.52
+    // Section height ratios
+    property real ratioTop:    0.32
+    property real ratioFlavor: 0.16
+    property real ratioMoves:  0.52
 
     readonly property real innerH: height - margin * 2
     readonly property real halfW:  (width - margin * 2) / 2
 
-    // ── TOP ROW ──────────────────────────────────────────────────────────────
+    // ── TOP ROW ───────────────────────────────────────────────────────────────
     Item {
         id: topRow
         anchors { top: parent.top; left: parent.left; right: parent.right; margins: margin }
         height: innerH * ratioTop
 
+        // Sprite half
         Item {
             anchors { top: parent.top; bottom: parent.bottom; left: parent.left }
             width: halfW
 
             AnimatedSprite {
                 anchors.centerIn: parent
-                width:  pokeView.frameWidth  * pokeView.scaleFactor
-                height: pokeView.frameHeight * pokeView.scaleFactor
-                running: true
+                width:       pokeView.frameWidth  * pokeView.scaleFactor
+                height:      pokeView.frameHeight * pokeView.scaleFactor
+                running:     true
                 source:      pokeView.spriteSheet
                 frameWidth:  pokeView.frameWidth
                 frameHeight: pokeView.frameHeight
@@ -55,13 +59,14 @@ Item {
             }
         }
 
+        // Info half
         Item {
             anchors { top: parent.top; bottom: parent.bottom; right: parent.right }
             width: halfW
 
             Column {
                 anchors.centerIn: parent
-                spacing: spacing
+                spacing:          pokeView.spacing
 
                 Text {
                     text: pokeData ? pokeData.name : ""
@@ -107,7 +112,6 @@ Item {
 
                 Item { width: 1; height: 2 }
 
-                // Stats + nature in a compact grid
                 Grid {
                     id: statsGrid
                     columns: 3; columnSpacing: 16; rowSpacing: 2
@@ -133,13 +137,14 @@ Item {
         }
     }
 
+    // Section divider – subtle, only between sections
     Rectangle {
         id: divider1
         anchors { top: topRow.bottom; left: parent.left; right: parent.right; leftMargin: margin; rightMargin: margin }
-        height: 1; color: "#444444"
+        height: 1; color: pokeView.dividerColor
     }
 
-    // ── FLAVOR TEXT ──────────────────────────────────────────────────────────
+    // ── FLAVOR TEXT ───────────────────────────────────────────────────────────
     Item {
         id: flavorRow
         anchors { top: divider1.bottom; left: parent.left; right: parent.right; leftMargin: margin; rightMargin: margin }
@@ -158,24 +163,27 @@ Item {
     Rectangle {
         id: divider2
         anchors { top: flavorRow.bottom; left: parent.left; right: parent.right; leftMargin: margin; rightMargin: margin }
-        height: 1; color: "#444444"
+        height: 1; color: pokeView.dividerColor
     }
 
     // ── MOVES ─────────────────────────────────────────────────────────────────
     Item {
-        anchors { top: divider2.bottom; left: parent.left; right: parent.right; bottom: parent.bottom; leftMargin: margin; rightMargin: margin; bottomMargin: margin }
+        anchors {
+            top: divider2.bottom; left: parent.left; right: parent.right; bottom: parent.bottom
+            leftMargin: margin; rightMargin: margin; bottomMargin: margin
+        }
 
         Column {
             anchors.centerIn: parent
-            width: parent.width
+            width:   parent.width
             spacing: 4
 
             Repeater {
                 model: pokeData ? pokeData.moves : []
                 Rectangle {
-                    width: parent.width
+                    width:  parent.width
                     height: moveInner.implicitHeight + 8
-                    color: "#383838"; radius: 5
+                    color:  "#383838"; radius: 5
 
                     Column {
                         id: moveInner
@@ -208,7 +216,7 @@ Item {
                         }
                         Text {
                             width: parent.width
-                            text: modelData.flavor
+                            text:  modelData.flavor
                             font.family: bodyFont; font.pixelSize: fontSizeSm
                             color: "#888888"; wrapMode: Text.WordWrap
                         }

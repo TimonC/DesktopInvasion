@@ -3,11 +3,29 @@ import QtQuick.Layouts 1.15
 
 Rectangle {
     id: root
-    width:  864
-    height: 546
     color: backgroundColor
 
-    property int    margin:              0
+    // ── Hardcoded layout numbers ───────────────────────────────────────────────
+    // PC block is fixed: 432 wide, 390 tall. Everything else is built around it.
+    // Left col:  pad(16) + pc(432) + pad(16)  = 464
+    // Right col: pad(16) + view(480) + pad(16) = 512
+    // Total W:   464 + divider(1) + 512        = 977
+    // Trainer:   pad(16) + trainer(120) + gap(12) + pc(390) + pad(16) = 554
+    // Total H:   554
+
+    readonly property int outerPad:    16
+    readonly property int sectionGap:  12
+    readonly property int panelGap:    1
+
+    readonly property int trainerH:    120
+    readonly property int pcW:         432
+    readonly property int pcH:         390
+    readonly property int rightPanelW: 480
+
+    width:  outerPad + pcW + outerPad + panelGap + outerPad + rightPanelW + outerPad
+    height: outerPad + trainerH + sectionGap + pcH + outerPad
+
+    // ── Theme ─────────────────────────────────────────────────────────────────
     property color  backgroundColor:     "#2b2b2b"
     property color  buttonColor:         "#3c3c3c"
     property color  buttonSelectedColor: "#5294e2"
@@ -17,165 +35,132 @@ Rectangle {
     property string p2pFont:             "Press Start 2P"
     property string dotGothicFont:       "DotGothic16"
 
-    property string currentMenu:         "Party"
-    property bool   showDebugOutlines:   true
-    property color  debugOutlineColor:   "#FFD700"
-    property double leftSideWidthRatio:  0.5
-    readonly property int pcRows:       4
-    readonly property int pcColumns:    4
+    // ── App state ─────────────────────────────────────────────────────────────
+    property string currentMenu: "Party"
+    readonly property int pcRows:    4
+    readonly property int pcColumns: 4
     property var partyPokes: ({})
-    property var boxPokes: ({})
+    property var boxPokes:   ({})
 
-    MouseArea{
-        onClicked: {
-            console.log("global click")
-            if(pc.inSwapMode) pc.toggleSwapMode();
-        }
-        cursorShape:  undefined
+    MouseArea {
         anchors.fill: parent
+        cursorShape:  undefined
+        onClicked:    { if (pc.inSwapMode) pc.toggleSwapMode() }
     }
 
     Connections {
         target: menuBridge
 
         function onPartyDataReady(data) {
-            console.log("[Menu] party arrived, count:", data.length)
             pc.loadParty(data)
             var map = {}
-            for (var i = 0; i < data.length; i++)
-                map[data[i].slot] = data[i]
+            for (var i = 0; i < data.length; i++) map[data[i].slot] = data[i]
             partyPokes = map
-            pc._display([-1,0])
+            pc._display([-1, 0])
         }
 
         function onBoxDataReady(boxIndex, data) {
-            console.log("[Menu] box", boxIndex, "arrived, count:", data.length)
             pc.loadBox(boxIndex, data)
             var arr = new Array(pcRows * pcColumns)
-            for (var i = 0; i < data.length; i++)
-                arr[data[i].slot] = data[i]
+            for (var i = 0; i < data.length; i++) arr[data[i].slot] = data[i]
             var updated = Object.assign({}, boxPokes)
             updated[boxIndex] = arr
             boxPokes = updated
         }
 
-        function onShowBoxRequested(boxIndex) {
-            console.log("[Menu] showBox", boxIndex)
-            pc.showBox(boxIndex)
-        }
+        function onShowBoxRequested(boxIndex) { pc.showBox(boxIndex) }
     }
 
     Connections {
         target: pc
+
         function onPreloadBoxRequested(boxIndex) { menuBridge.preloadBoxRequested(boxIndex) }
+
         function onSwapRequested(posx, posy) {
             menuBridge.swapRequested(posx[0], posx[1], posy[0], posy[1])
-
             var newParty = Object.assign({}, partyPokes)
             var newBoxes = Object.assign({}, boxPokes)
-
-            var x = posx[0] == -1 ? partyPokes[posx[1]] : boxPokes[posx[0]][posx[1]]
-            var y = posy[0] == -1 ? partyPokes[posy[1]] : boxPokes[posy[0]][posy[1]]
-
-            if(posx[0] == -1) {
-                newParty[posx[1]] = y
-            } else {
-                var arrX = newBoxes[posx[0]].slice()
-                arrX[posx[1]] = y
-                newBoxes[posx[0]] = arrX
-            }
-
-            if(posy[0] == -1) {
-                newParty[posy[1]] = x
-            } else {
-                var arrY = newBoxes[posy[0]].slice()
-                arrY[posy[1]] = x
-                newBoxes[posy[0]] = arrY
-            }
-
+            var x = posx[0] === -1 ? partyPokes[posx[1]] : boxPokes[posx[0]][posx[1]]
+            var y = posy[0] === -1 ? partyPokes[posy[1]] : boxPokes[posy[0]][posy[1]]
+            if (posx[0] === -1) { newParty[posx[1]] = y }
+            else { var arrX = newBoxes[posx[0]].slice(); arrX[posx[1]] = y; newBoxes[posx[0]] = arrX }
+            if (posy[0] === -1) { newParty[posy[1]] = x }
+            else { var arrY = newBoxes[posy[0]].slice(); arrY[posy[1]] = x; newBoxes[posy[0]] = arrY }
             partyPokes = newParty
-            boxPokes = newBoxes
+            boxPokes   = newBoxes
         }
-        function onDisplay(pcPos){
+
+        function onDisplay(pcPos) {
             var poke = null
-            if(pcPos[0] == -1 && partyPokes[pcPos[1]]) {
+            if (pcPos[0] === -1 && partyPokes[pcPos[1]])
                 poke = partyPokes[pcPos[1]]
-            } else if(pcPos[0] > -1 && boxPokes[pcPos[0]] && boxPokes[pcPos[0]][pcPos[1]]) {
+            else if (pcPos[0] > -1 && boxPokes[pcPos[0]] && boxPokes[pcPos[0]][pcPos[1]])
                 poke = boxPokes[pcPos[0]][pcPos[1]]
-            } else {
-                console.log("ERROR faulty display pos")
-                return
-            }
-            pokeView.pokeData     = poke
-            pokeView.rowId        = poke.rowId
-            pokeView.spriteSheet  = poke.isBig ? "qrc:/assets/HGSS/reordered_sprites_big.png" : "qrc:/assets/HGSS/reordered_sprites.png"
-            pokeView.frameWidth   = poke.isBig ? 64 : 32
-            pokeView.frameHeight  = poke.isBig ? 64 : 32
-            pokeView.scaleFactor  = poke.isBig ? 4  : 6
+            else { console.log("ERROR faulty display pos"); return }
+            pokeView.pokeData    = poke
+            pokeView.rowId       = poke.rowId
+            pokeView.spriteSheet = poke.isBig ? "qrc:/assets/HGSS/reordered_sprites_big.png"
+                                              : "qrc:/assets/HGSS/reordered_sprites.png"
+            pokeView.frameWidth  = poke.isBig ? 64 : 32
+            pokeView.frameHeight = poke.isBig ? 64 : 32
+            pokeView.scaleFactor = poke.isBig ? 4  : 6
         }
     }
 
-    RowLayout {
-        anchors.fill: parent
-        anchors.margins: root.margin
-        spacing: 0
+    // ── Left column ───────────────────────────────────────────────────────────
 
-        Rectangle {
-            Layout.fillHeight: true
-            Layout.preferredWidth: parent.width * root.leftSideWidthRatio
-            color: root.backgroundColor
-            border.color: root.showDebugOutlines ? root.debugOutlineColor : "transparent"
-            border.width: root.showDebugOutlines ? 2 : 0
+    // Trainer strip
+    Item {
+        x:      root.outerPad
+        y:      root.outerPad
+        width:  root.pcW
+        height: root.trainerH
 
-            ColumnLayout {
-                anchors.fill: parent
-                spacing: 0
-
-                Rectangle {
-                    id: trainerSection
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: parent.height * (2/7)
-                    color: root.backgroundColor
-                    border.color: root.showDebugOutlines ? root.debugOutlineColor : "transparent"
-                    border.width: root.showDebugOutlines ? 2 : 0
-
-                    Trainer {
-                        anchors.fill: parent
-                        textColor:   root.textColor
-                        fontSize:    root.bodyFontSize
-                        fontFamily:  root.p2pFont
-                    }
-                }
-
-                Rectangle {
-                    id: pcSection
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: parent.height * (5/7)
-                    color: root.backgroundColor
-                    border.color: root.showDebugOutlines ? root.debugOutlineColor : "transparent"
-                    border.width: root.showDebugOutlines ? 2 : 0
-
-                    PC {
-                        id: pc
-                        anchors.fill: parent
-                        fontFamily: root.dotGothicFont
-                    }
-                }
-            }
+        Trainer {
+            anchors.fill: parent
+            textColor:    root.textColor
+            fontSize:     root.bodyFontSize
+            fontFamily:   root.p2pFont
         }
 
         Rectangle {
-            id: rightPanel
-            Layout.fillHeight: true
-            Layout.fillWidth: true
-            color: root.backgroundColor
-            border.color: root.showDebugOutlines ? root.debugOutlineColor : "transparent"
-            border.width: root.showDebugOutlines ? 2 : 0
+            anchors.left:   parent.left
+            anchors.right:  parent.right
+            anchors.bottom: parent.bottom
+            height: 1
+            color:  "#3a3a3a"
+        }
+    }
 
-            PokeView {
-                id: pokeView
-                anchors.fill: parent
-            }
+    // PC block
+    PC {
+        id: pc
+        x:      root.outerPad
+        y:      root.outerPad + root.trainerH + root.sectionGap
+        width:  root.pcW
+        height: root.pcH
+        fontFamily: root.dotGothicFont
+    }
+
+    // ── Vertical divider ──────────────────────────────────────────────────────
+    Rectangle {
+        x:      root.outerPad + root.pcW + root.outerPad
+        y:      root.outerPad
+        width:  root.panelGap
+        height: root.height - root.outerPad * 2
+        color:  "#3a3a3a"
+    }
+
+    // ── Right panel: PokeView ─────────────────────────────────────────────────
+    Item {
+        x:      root.outerPad + root.pcW + root.outerPad + root.panelGap + root.outerPad
+        y:      root.outerPad
+        width:  root.rightPanelW
+        height: root.height - root.outerPad * 2
+
+        PokeView {
+            id: pokeView
+            anchors.fill: parent
         }
     }
 }
