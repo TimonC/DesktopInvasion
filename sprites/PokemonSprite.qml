@@ -1,5 +1,4 @@
 import QtQuick 2.15
-
 Item {
     id: root
 
@@ -7,24 +6,54 @@ Item {
     property int rowIndex: 0
     property int frameWidth: 32
     property int frameHeight: 32
-    property int framesPerDirection: 2
-    property int frameRate: 5
+    property int frameRate: 2
+    property int frameCount: 2
 
-    Sprite {
-        id: sprite
-        source: root.spriteSheet
-        frameWidth: root.frameWidth
-        frameHeight: root.frameHeight
-        frameX: 0
-        frameY: root.rowIndex * root.frameHeight
-        frameCount: root.framesPerDirection
-        frameRate: root.frameRate
-    }
+Sprite{
+    name: up
+    source: root.spriteSheet
+    frameX: 0 * root.frameCount
+    frameY: root.rowIndex * root.frameHeight
+    frameWidth: root.frameWidth
+    frameHeight: root.frameHeight
+    frameCount: root.frameCount
+    frameRate: root.frameRate
+}
 
-    function updateSprite() {
-        sprite.source = root.spriteSheet
-        sprite.frameY = root.rowIndex * root.frameHeight
-        sprite.restart()
-    }
+Sprite{
+    name: left
+    source: root.spriteSheet
+    frameX: 1 * root.frameCount * root.frameWidth
+    frameY: root.rowIndex * root.frameHeight
+    frameWidth: root.frameWidth
+    frameHeight: root.frameHeight
+    frameCount: root.frameCount
+    frameRate: root.frameRate
+}
+
+Sprite{
+    name: down
+    source: root.spriteSheet
+    frameX: 2 * root.frameCount * root.frameWidth
+    frameY: root.rowIndex * root.frameHeight
+    frameWidth: root.frameWidth
+    frameHeight: root.frameHeight
+    frameCount: root.frameCount
+    frameRate: root.frameRate
+}
+
+Sprite{
+    name: right
+    source: root.spriteSheet
+    frameX: 3 * root.frameCount * root.frameWidth
+    frameY: root.rowIndex * root.frameHeight
+    frameWidth: root.frameWidth
+    frameHeight: root.frameHeight
+    frameCount: root.frameCount
+    frameRate: root.frameRate
+}
+
+
+
 }
 

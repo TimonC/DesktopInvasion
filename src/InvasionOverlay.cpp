@@ -25,36 +25,4 @@ InvasionOverlay::InvasionOverlay(QWindow *parent)
     setGeometry(QGuiApplication::primaryScreen()->geometry());
 }
 
-void InvasionOverlay::addSprite(const QString &qmlFile, int x, int y){
-    QQmlComponent component(engine(), QUrl(qmlFile));
-    if (component.isError()) {
-        qDebug() << "Error loading QML:" << component.errors();
-        return;
-    }
 
-    QObject *obj = component.create();
-    if (!obj) {
-        qDebug() << "Failed to create QML object";
-        return;
-    }
-
-    QQuickItem *item = qobject_cast<QQuickItem *>(obj);
-    if (!item) {
-        qDebug() << "Failed to cast to QQuickItem";
-        return;
-    }
-
-    // Find the container
-    QQuickItem *container = rootObject()->findChild<QQuickItem*>("spriteContainer");
-    if (!container) {
-        qDebug() << "spriteContainer not found!";
-        return;
-    }
-
-    // Attach the sprite
-    item->setParentItem(container);
-    item->setX(x);
-    item->setY(y);
-
-    qDebug() << "Sprite added at" << x << y;
-}

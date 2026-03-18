@@ -9,7 +9,7 @@ class InvasionOverlay : public QQuickView
 
 public:
     InvasionOverlay(QWindow *parent = nullptr);
-    Q_INVOKABLE void addSprite(const QString& qmlFile, int x, int y);
+    /* Q_INVOKABLE void addSprite(const QString& qmlFile, int x, int y); */
 };
 
 #endif
