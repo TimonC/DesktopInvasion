@@ -282,7 +282,7 @@ void Game::handleBattleStart() {
     connect(m_activeBattle, &Battle::_updatePartyXP,
             this, &Game::updatePartyXP);
 
-    QTimer::singleShot(40, this, [this]() {
+    QTimer::singleShot(80, this, [this]() {
         safelyRemoveWildPokemon();
     });
 

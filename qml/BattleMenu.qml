@@ -8,14 +8,15 @@ Rectangle {
     color: "transparent"
 
     property bool inClickableArea: false
-    property bool textBarShown: false;
+    property bool textBarShown: false
+    property bool inBackground: false
 
     property int menuTransitionDuration: 100
     property double iconScale: 1.0
 
     property int buttonWidth: 0
     property int buttonHeight: 0
-    property double textBarHeightRatio: 1
+    property double textBarHeightRatio: 0.9
     property int menuHeight: 0
     property int menuWidth: 0
 
@@ -77,6 +78,8 @@ Rectangle {
     property real contentHeight: Math.floor(menuHeight * (1 - contentMarginsRatio * 2))
     property real backButtonWidth: Math.floor(menuWidth * backButtonWidthRatio)
     property real backButtonHeight: Math.floor(menuHeight * backButtonHeightRatio)
+
+    property real hoverScale: 1.05
 
     signal actionRound(int actionIndex, string actionType)
     signal fightChosen(int fightId)
@@ -152,106 +155,74 @@ Rectangle {
         stack.replace(rootSelection)
     }
 
+    MouseArea {
+        cursorShape: undefined
+        hoverEnabled: true
+        z: -1
+        anchors.fill: parent
+        onEntered: {
+            root.inBackground = true
+        }
+        onExited: {
+            if(!root.inClickableArea) root.inBackground = false
+        }
+    }
+
     component NoCursorMouseArea: MouseArea{
         cursorShape: undefined
         hoverEnabled: true
         z: 1
-    }
+        property var hoverTarget: parent
+        property bool hoverEffectEnabled: true
 
-    NoCursorMouseArea{
-        id: menuMouseArea
-        z: 2
-        anchors.fill: parent
-        propagateComposedEvents: true
-        acceptedButtons: Qt.NoButton
-        onPressed: mouse.accepted = false
-        onReleased: mouse.accepted = false
-        onClicked: mouse.accepted = false
-
-        onEntered:{
-           if(!root.inClickableArea){
-               root.inClickableArea = true
-               if(!root.textBarShown) root.clickableAreaEntered(true)
+        onEntered: {
+            if(!root.inClickableArea){
+                root.inClickableArea = true
+                if(!root.textBarShown) root.clickableAreaEntered(true)
             }
-        }
-        onExited:{
-           if(root.inClickableArea) {
-               root.inClickableArea = false
-               if(!root.textBarShown) root.clickableAreaEntered(false)
-            }
-        }
-    }
 
-    component GradientRoundButton: Item {
-        id: gradientButton
-        required property color buttonColor
-        required property string text
-        signal clicked()
-
-        property alias wrapMode: label.wrapMode
-        property alias elide: label.elide
-        property bool down: mouseArea.pressed
-        property bool hovered: mouseArea.containsMouse
-        property alias font: label.font
-        property bool enabled: true
-        property color borderColor: PokeColor.lighter(buttonColor)
-        property real borderWidth: root.borderWidth
-
-        width: Math.floor(root.contentWidth / 2 - root.gridSpacing)
-        height: Math.floor(root.contentHeight / 2 - root.gridSpacing)
-
-        NoCursorMouseArea {
-            id: mouseArea
-            anchors.fill: parent
-            enabled: gradientButton.enabled
-            onClicked: gradientButton.clicked()
-        }
-        Rectangle {
-            anchors.fill: parent
-            radius: height / 2
-            color: gradientButton.enabled ? borderColor : root.disabledBorderColor
-            opacity: gradientButton.enabled ? enabledOpacity : disabledOpacity
-        }
-
-        // Inner gradient background (slightly smaller than border)
-        Rectangle {
-            anchors.fill: parent
-            anchors.margins: borderWidth
-            radius: Math.max(0, height / 2 - borderWidth)
-
-            gradient: Gradient {
-                GradientStop {
-                    position: 0.0;
-                    color: gradientButton.enabled ? PokeColor.lighter(buttonColor) : root.disabledBackgroundColor
+            if (hoverEffectEnabled && hoverTarget) {
+                if (hoverTarget.hasOwnProperty("scale")) {
+                    hoverTarget.scale = root.hoverScale
                 }
-                GradientStop {
-                    position: 1.0;
-                    color: gradientButton.enabled ? PokeColor.darker(buttonColor) : root.disabledBackgroundColor
+                if (hoverTarget.hasOwnProperty("hovered")) {
+                    hoverTarget.hovered = true
                 }
             }
-
-
-            Behavior on opacity { NumberAnimation { duration: 100 } }
-            Behavior on scale { NumberAnimation { duration: 100 } }
         }
-
-        Text {
-            id: label
-            anchors.centerIn: parent
-            width: parent.width * 0.9
-            text: gradientButton.text
-            font.pixelSize: root.buttonFontSize
-            font.family: root.menuFontFamily
-            font.weight: Font.DemiBold
-            color: gradientButton.enabled ? root.menuTextColor : root.placeholderTextColor
-            wrapMode: Text.NoWrap
-            elide: Text.ElideRight
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            opacity: gradientButton.enabled ? 1.0 : disabledOpacity
+        onExited: {
+            if(root.inClickableArea && !root.inBackground){
+                root.inClickableArea = false
+                if(!root.textBarShown) root.clickableAreaEntered(false)
+            }
+            if (hoverEffectEnabled && hoverTarget) {
+                if (hoverTarget.hasOwnProperty("scale")) {
+                    hoverTarget.scale = 1.0
+                }
+                if (hoverTarget.hasOwnProperty("hovered")) {
+                    hoverTarget.hovered = false
+                }
+                if (hoverTarget.hasOwnProperty("down")) {
+                    hoverTarget.down = false
+                }
+            }
+        }
+        onPressed: {
+            if (hoverEffectEnabled && hoverTarget && hoverTarget.hasOwnProperty("down")) {
+                hoverTarget.down = true
+            }
+        }
+        onReleased: {
+            if (hoverEffectEnabled && hoverTarget && hoverTarget.hasOwnProperty("down")) {
+                hoverTarget.down = false
+            }
+        }
+        onCanceled: {
+            if (hoverEffectEnabled && hoverTarget && hoverTarget.hasOwnProperty("down")) {
+                hoverTarget.down = false
+            }
         }
     }
-
 
     StackView {
         id: stack
@@ -377,6 +348,84 @@ Rectangle {
         }
     }
 
+    component GradientRoundButton: Item {
+        id: gradientButton
+        required property color buttonColor
+        required property string text
+        signal clicked()
+
+        property alias wrapMode: label.wrapMode
+        property alias elide: label.elide
+        property bool down: false
+        property bool hovered: false
+        property alias font: label.font
+        property bool enabled: true
+        property color borderColor: PokeColor.lighter(buttonColor)
+        property real borderWidth: root.borderWidth
+
+        width: Math.floor(root.contentWidth / 2 - root.gridSpacing)
+        height: Math.floor(root.contentHeight / 2 - root.gridSpacing)
+
+        scale: 1.0
+        Behavior on scale { NumberAnimation { duration: 100 } }
+
+        NoCursorMouseArea {
+            id: mouseArea
+            anchors.fill: parent
+            enabled: gradientButton.enabled
+            hoverTarget: gradientButton
+            onClicked: gradientButton.clicked()
+        }
+        Rectangle {
+            anchors.fill: parent
+            radius: height / 2
+            color: gradientButton.enabled ? borderColor : root.disabledBorderColor
+            opacity: gradientButton.enabled ? enabledOpacity : disabledOpacity
+        }
+
+        // Inner gradient background (slightly smaller than border)
+        Rectangle {
+            id: innerRect
+            anchors.fill: parent
+            anchors.margins: borderWidth
+            radius: Math.max(0, height / 2 - borderWidth)
+
+            gradient: Gradient {
+                GradientStop {
+                    position: 0.0;
+                    color: gradientButton.enabled ?
+                           (gradientButton.down ? PokeColor.darker(buttonColor) : PokeColor.lighter(buttonColor))
+                           : root.disabledBackgroundColor
+                }
+                GradientStop {
+                    position: 1.0;
+                    color: gradientButton.enabled ?
+                           (gradientButton.down ? PokeColor.darker(PokeColor.darker(buttonColor)) : PokeColor.darker(buttonColor))
+                           : root.disabledBackgroundColor
+                }
+            }
+
+            Behavior on gradient { ColorAnimation { duration: 100 } }
+            Behavior on opacity { NumberAnimation { duration: 100 } }
+        }
+
+        Text {
+            id: label
+            anchors.centerIn: parent
+            width: parent.width * 0.9
+            text: gradientButton.text
+            font.pixelSize: root.buttonFontSize
+            font.family: root.menuFontFamily
+            font.weight: Font.DemiBold
+            color: gradientButton.enabled ? root.menuTextColor : root.placeholderTextColor
+            wrapMode: Text.NoWrap
+            elide: Text.ElideRight
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            opacity: gradientButton.enabled ? 1.0 : disabledOpacity
+        }
+    }
+
     Component {
         id: fightContent
         Item {
@@ -412,12 +461,18 @@ Rectangle {
                         property string moveType: getMoveData().type || "Null"
                         property bool moveEnabled: moveType !== "Null"
                         property color baseColor: moveEnabled ? PokeColor.typeColor(moveType) : root.disabledBackgroundColor
+                        property bool hovered: false
+                        property bool down: false
+
+                        scale: 1.0
+                        Behavior on scale { NumberAnimation { duration: 100 } }
 
                         Rectangle {
                             anchors.fill: parent
                             radius: 4
-                            color: moveEnabled ? PokeColor.lighter(baseColor) : root.disabledBorderColor
+                            color: moveEnabled ? (down ? PokeColor.darker(baseColor) : PokeColor.lighter(baseColor)) : root.disabledBorderColor
                             opacity: moveEnabled ? root.enabledOpacity : root.disabledOpacity
+                            Behavior on color { ColorAnimation { duration: 100 } }
                         }
 
                         Rectangle {
@@ -425,10 +480,11 @@ Rectangle {
                             anchors.margins: root.borderWidth
                             radius: 2
                             gradient: Gradient {
-                                GradientStop { position: 0; color: moveEnabled ? PokeColor.lighter(baseColor) : root.disabledBackgroundColor }
-                                GradientStop { position: 1; color: moveEnabled ? PokeColor.darker(baseColor) : root.disabledBackgroundColor }
+                                GradientStop { position: 0; color: moveEnabled ? (down ? PokeColor.darker(baseColor) : PokeColor.lighter(baseColor)) : root.disabledBackgroundColor }
+                                GradientStop { position: 1; color: moveEnabled ? (down ? PokeColor.darker(PokeColor.darker(baseColor)) : PokeColor.darker(baseColor)) : root.disabledBackgroundColor }
                             }
                             opacity: moveEnabled ? root.enabledOpacity : root.disabledOpacity
+                            Behavior on gradient { ColorAnimation { duration: 100 } }
                         }
 
                         Text {
@@ -450,6 +506,8 @@ Rectangle {
                         NoCursorMouseArea {
                             anchors.fill: parent
                             enabled: moveEnabled
+                            hoverTarget: moveItem
+                            hoverEffectEnabled: moveEnabled  // Disable hover effects for disabled moves
                             onClicked: {
                                 root.actionRound(index, "Fight")
                             }
@@ -477,8 +535,23 @@ Rectangle {
                     model: 6
 
                     Item {
+                        id: switchItem
                         width: Math.floor((parent.width - root.gridSpacing) / 3)
                         height: Math.floor((parent.height - root.gridSpacing) / 2)
+
+                        property bool hovered: false
+                        property bool down: false
+                        property color healthColor: root.party.pokedexIds[index] >= 0 ?
+                                                   PokeColor.healthColor(party.healthRatios[index]) :
+                                                   root.disabledBackgroundColor
+                        property bool isSelected: root.selectedIndex === index
+                        property bool isEmpty: root.party.pokedexIds[index] < 0
+                        property bool isDisabled: !root.forceSwitchMode && (root.selectedIndex === index ||
+                                                   root.party.pokedexIds[index] < 0 ||
+                                                   party.healthRatios[index] <= 0)
+
+                        scale: 1.0
+                        Behavior on scale { NumberAnimation { duration: 100 } }
 
                         Rectangle {
                             anchors.fill: parent
@@ -500,16 +573,17 @@ Rectangle {
                                 GradientStop {
                                     position: 0;
                                     color: root.party.pokedexIds[index] >= 0 ?
-                                        PokeColor.lighter(PokeColor.healthColor(party.healthRatios[index]))
+                                        (down ? PokeColor.darker(healthColor) : PokeColor.lighter(healthColor))
                                         : root.disabledBackgroundColor
                                 }
                                 GradientStop {
                                     position: 1;
                                     color: root.party.pokedexIds[index] >= 0 ?
-                                        PokeColor.darker(PokeColor.healthColor(party.healthRatios[index]))
+                                        (down ? PokeColor.darker(PokeColor.darker(healthColor)) : PokeColor.darker(healthColor))
                                         : root.disabledBackgroundColor
                                 }
                             }
+                            Behavior on gradient { ColorAnimation { duration: 100 } }
                         }
 
                         Item {
@@ -542,6 +616,8 @@ Rectangle {
                                      (root.selectedIndex !== index &&
                                       root.party.pokedexIds[index] >= 0 &&
                                       party.healthRatios[index] > 0)
+                            hoverTarget: switchItem
+                            hoverEffectEnabled: !isSelected && !isEmpty && !isDisabled  // No hover for selected/empty/disabled
                             onClicked: {
                                 if(root.selectedIndex !== index &&
                                    root.party.pokedexIds[index] >= 0 &&
@@ -576,10 +652,17 @@ Rectangle {
                     model: 4
 
                     Item {
+                        id: ballItem
                         width: Math.floor((grid.width - root.gridSpacing) / 2)
                         height: Math.floor((grid.height - root.gridSpacing) / 2)
 
                         property bool ballEnabled: root.nrOfBalls[index] > 0
+                        property bool hovered: false
+                        property bool down: false
+                        property color typeColor: PokeColor.typeColor("Normal")
+
+                        scale: 1.0
+                        Behavior on scale { NumberAnimation { duration: 100 } }
 
                         Rectangle {
                             anchors.fill: parent
@@ -594,9 +677,10 @@ Rectangle {
                             radius: 2
                             opacity: ballEnabled ? root.enabledOpacity : root.disabledOpacity
                             gradient: Gradient {
-                                GradientStop { position: 0; color: ballEnabled ? PokeColor.lighter(PokeColor.typeColor("Normal")) : root.disabledBackgroundColor }
-                                GradientStop { position: 1; color: ballEnabled ? PokeColor.darker(PokeColor.typeColor("Normal")) : root.disabledBackgroundColor }
+                                GradientStop { position: 0; color: ballEnabled ? (down ? PokeColor.darker(typeColor) : PokeColor.lighter(typeColor)) : root.disabledBackgroundColor }
+                                GradientStop { position: 1; color: ballEnabled ? (down ? PokeColor.darker(PokeColor.darker(typeColor)) : PokeColor.darker(typeColor)) : root.disabledBackgroundColor }
                             }
+                            Behavior on gradient { ColorAnimation { duration: 100 } }
                         }
 
                         Row {
@@ -636,6 +720,7 @@ Rectangle {
                         NoCursorMouseArea {
                             anchors.fill: parent
                             enabled: ballEnabled
+                            hoverTarget: ballItem
                             onClicked: {
                                 root.actionRound(index, "Catch")
                             }
@@ -669,16 +754,28 @@ Rectangle {
                         }
                     ]
 
-                    Rectangle {
+                    Item {
+                        id: runOptionItem
                         height: Math.floor((parent.height - root.gridSpacing / 2) / 2)
                         width: parent.width
-                        radius: 20
-                        border.color: root.borderColor
-                        border.width: root.borderWidth
 
-                        gradient: Gradient {
-                            GradientStop { position: 0; color: PokeColor.lighter(root.runButtonColor) }
-                            GradientStop { position: 1; color: PokeColor.darker(root.runButtonColor) }
+                        property bool hovered: false
+                        property bool down: false
+
+                        scale: 1.0
+                        Behavior on scale { NumberAnimation { duration: 100 } }
+
+                        Rectangle {
+                            anchors.fill: parent
+                            radius: 20
+                            border.color: root.borderColor
+                            border.width: root.borderWidth
+
+                            gradient: Gradient {
+                                GradientStop { position: 0; color: down ? PokeColor.darker(root.runButtonColor) : PokeColor.lighter(root.runButtonColor) }
+                                GradientStop { position: 1; color: down ? PokeColor.darker(PokeColor.darker(root.runButtonColor)) : PokeColor.darker(root.runButtonColor) }
+                            }
+                            Behavior on gradient { ColorAnimation { duration: 100 } }
                         }
 
                         Text {
@@ -699,6 +796,7 @@ Rectangle {
 
                         NoCursorMouseArea {
                             anchors.fill: parent
+                            hoverTarget: runOptionItem
                             onClicked: modelData.action()
                         }
                     }
