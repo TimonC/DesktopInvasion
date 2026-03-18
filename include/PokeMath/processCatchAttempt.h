@@ -1,34 +1,30 @@
 #ifndef PROCESSCATCHATTEMPT_H
 #define PROCESSCATCHATTEMPT_H
 
-#include <cmath>
 #include <random>
 
-/* https://bulbapedia.bulbagarden.net/wiki/Catch_rate */
-
-inline bool processShake(float modifiedCatchRate) noexcept {
-    static thread_local std::mt19937 gen(std::random_device{}());
-    static thread_local std::uniform_int_distribution<int> dist(0, 65535);
-
-    const float threshold = 1048560.0f * std::pow(modifiedCatchRate / 16711680.0f, 0.25f);
-
-    return dist(gen) < static_cast<int>(threshold);
+inline bool processShake(float modifiedCatchRate, std::mt19937& rng) {
+    float threshold = 1048560.0f / sqrt(sqrt(16711680.0f / modifiedCatchRate));
+    std::uniform_int_distribution<int> dist(0, 65535);
+    return dist(rng) < static_cast<int>(threshold);
 }
 
 inline int processCatchAttempt(
-        float HP_max,
-        float HP_current,
-        float catchRate,
-        float bonusBall,
-        float bonusStatus
-) noexcept {
-    const float hpFactor = 1.0f - (2.0f * HP_current) / (3.0f * HP_max);
-    const float modifiedCatchRate = hpFactor * catchRate * bonusBall * bonusStatus;
+    std::mt19937& rng,
+    int HP_max,
+    int HP_current,
+    int catchRate,
+    int ballMod = 100,
+    int statusMod = 100
+) {
+    float hpFactor = (3.0f * HP_max - 2.0f * HP_current) / (3.0f * HP_max);
+    float modifiedCatchRate = hpFactor * catchRate * (ballMod / 100.0f) * (statusMod / 100.0f);
 
-    if (!processShake(modifiedCatchRate)) return 0;
-    if (!processShake(modifiedCatchRate)) return 1;
-    if (!processShake(modifiedCatchRate)) return 2;
-    if (!processShake(modifiedCatchRate)) return 3;
+
+    if (!processShake(modifiedCatchRate, rng)) return 0;
+    if (!processShake(modifiedCatchRate, rng)) return 1;
+    if (!processShake(modifiedCatchRate, rng)) return 2;
+    if (!processShake(modifiedCatchRate, rng)) return 3;
     return 4;
 }
 
