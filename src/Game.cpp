@@ -58,18 +58,30 @@ void Game::handleBattleStart(Battle* battle) {
 
 void Game::handleBattleEnd(Battle* battle, WildPokemon* opp, bool removeWild) {
     assert(battle == m_activeBattle && "Battle mismatch in handleBattleEnd");
-
     disconnect(battle, nullptr, this, nullptr);
-    battle->setProperty("visible", false);
-    battle->deleteLater();
-    m_activeBattle = nullptr;
 
     if (removeWild) {
         assert(m_wildPokemon == opp && "WildPokemon mismatch in handleBattleEnd");
+
+        battle->deleteLater();
+        m_activeBattle = nullptr;
+
         m_wildPokemon->deleteLater();
         m_wildPokemon = nullptr;
+
         QTimer::singleShot(m_spawnDelay_ms, this, [this]() {
             spawnWildPokemon(Globals::getPokemonInfo());
+        });
+    }else{
+        QPoint newOppPos = opp->position() + battle->position() - battle->m_origin;;
+        opp->setPosition(newOppPos);
+        opp->startRoaming();
+        opp->show();
+
+        //Short delay to ensure smooth visual transition
+        QTimer::singleShot(50, this, [this, battle]() {
+            battle->deleteLater();
+            m_activeBattle = nullptr;
         });
     }
 }

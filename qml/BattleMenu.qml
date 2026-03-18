@@ -279,8 +279,8 @@ Rectangle {
 
                 RoundButton {
                     palette.button: "blue"
-                    text: "Are you sure?"
-                    width: root.buttonWidth * 1.5
+                    text: "Confirm"
+                    width: root.buttonWidth
                     height: root.buttonHeight
                     onClicked: root.runChosen()
                 }

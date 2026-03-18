@@ -56,36 +56,11 @@ Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent
 }
 
 void Battle::handleRunChosen() {
-    QPoint currentBattlePos = position();
-    QPoint delta = currentBattlePos - m_origin;
-    QPoint newOppPos = m_oppReference->position() + delta;
-
-    // Delay slightly to ensure reposition
-    QTimer::singleShot(20, this, [this, newOppPos]() {
-        if (m_oppReference) {
-            m_oppReference->setPosition(newOppPos);
-            m_oppReference->startRoaming();
-            m_oppReference->show();
-        }
-        QTimer::singleShot(100, this, [this, newOppPos]() { //Short delay to ensure smooth visual transition
-            emit battleEnded(this, m_oppReference, false);
-        });
-    });
+    emit battleEnded(this, m_oppReference, false);
 }
 
 void Battle::handleOpponentWon() {
-    QPoint currentBattlePos = position();
-    QPoint delta = currentBattlePos - m_origin;
-    QPoint newOppPos = m_oppReference->position() + delta;
-
-    QTimer::singleShot(2, this, [this, newOppPos]() {
-        if (m_oppReference) {  // Safety check
-            m_oppReference->setPosition(newOppPos);
-            m_oppReference->startRoaming();
-            m_oppReference->show();
-        }
-        emit battleEnded(this, m_oppReference, false);
-    });
+    emit battleEnded(this, m_oppReference, false);
 }
 
 void Battle::handlePlayerWon() {

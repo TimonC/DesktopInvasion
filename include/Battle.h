@@ -17,6 +17,7 @@ public:
     QQuickView* initCorners();
     QQuickView *m_corners = nullptr;
     void direction(int direction) override;
+    QPoint m_origin;
 
 signals:
     void battleEnded(Battle* battle, WildPokemon* opp, bool removeWild);
@@ -44,7 +45,6 @@ private:
     QQuickItem* m_chosen;
     const PokemonInfo* m_chosen_info;
     const PokemonInfo* m_opp_info;
-    QPoint m_origin;
     QQuickItem *m_ui = nullptr;
 };
 #endif
