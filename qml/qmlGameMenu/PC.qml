@@ -89,13 +89,10 @@ Item {
                                        + Math.round(root.buttonWidth * 1.4)
 
     // ── Root column: party row / pc row ───────────────────────────────────────
-    readonly property int navOffset: root.buttonWidth + root.layoutSpacing
-
     Column {
-        anchors.verticalCenter:             parent.verticalCenter
-        anchors.horizontalCenter:           parent.horizontalCenter
-        anchors.horizontalCenterOffset:     root.navOffset / 2
-        spacing:                            root.layoutSpacing
+        anchors.verticalCenter:   parent.verticalCenter
+        anchors.horizontalCenter: parent.horizontalCenter
+        spacing:                  root.layoutSpacing
 
         // ── Party row ─────────────────────────────────────────────────────────
         Item {

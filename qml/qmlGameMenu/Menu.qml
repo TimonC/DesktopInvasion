@@ -140,7 +140,7 @@ Rectangle {
     // PC block
     PC {
         id: pc
-        x:      root.outerPad
+        x: root.outerPad + Math.round((pc.buttonWidth + pc.layoutSpacing) / 2)
         y:      root.outerPad + root.trainerH + root.sectionGap
         width:  root.pcW
         height: root.pcH

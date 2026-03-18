@@ -35,7 +35,7 @@ Item {
     property int  moveCardPad:   10   // padding inside each move card
     property int  moveCardGap:   8    // vertical gap between move cards
     property int  typePillW:     96   // width of type pill rectangles
-    property int  typePillH:     fontSizeMd + 6
+    property int  typePillH:     fontSizeMd + 8
     property int  moveNameW:     typePillW * 3
     property int  movePillGap:   typePillW / 4
 
@@ -170,7 +170,10 @@ Row {
                             width:  typePillW
                             height: typePillH
                             radius: 4
-                            color:  PokeColor.typeColor(modelData)
+                            gradient: Gradient {
+                                GradientStop { position: 0.0; color: PokeColor.lighter(PokeColor.typeColor(modelData)) }
+                                GradientStop { position: 1.0; color: PokeColor.darker(PokeColor.typeColor(modelData)) }
+                            }
                             Text {
                                 anchors.centerIn: parent
                                 text: PokeColor.typeColor(modelData) === "transparent" ? "" : modelData
@@ -293,9 +296,14 @@ Item {
                                 Rectangle {
                                     anchors.centerIn: parent
                                     width: typePillW
-                                    height: fontSizeMd + 4
+                                    height: typePillH
                                     radius: 3
-                                    color: PokeColor.typeColor(modelData.type)
+                                    gradient: Gradient {
+                                        GradientStop { position: 0.0; color:
+                                            PokeColor.lighter(PokeColor.typeColor(modelData.type)) }
+                                        GradientStop { position: 1.0; color:
+                                            PokeColor.darker(PokeColor.typeColor(modelData.type)) }
+                                    }
 
                                     Text {
                                         anchors.centerIn: parent
