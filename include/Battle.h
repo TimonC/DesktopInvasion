@@ -60,8 +60,11 @@ public:
                value.value<T>() : defaultValue;
     }
 
+    void showXPAndEndBattle(std::array<int,6> spread, std::array<int,6> lvlups);
+
 signals:
     void battleEnded(const char* endState, bool removeWild);
+    void _updatePartyXP(std::array<int, 6> spread);
 
 public slots:
     void handleDrag(bool isDragged) override;
@@ -72,6 +75,7 @@ private slots:
     QQuickItem* updateSprite(int pokedexId, int generation, const char* role = "player");
     void handleSwitchedPokemon(int partyIndex, int generation, int spriteId);
     void executeActionSequence(QVariantList sequence);
+
 
 private:
     void setupParty(Party party);

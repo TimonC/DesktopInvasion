@@ -35,6 +35,7 @@ Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
 
     connect(m_menu, &GameMenu::menuClosed, this, &Game::handleMenuClosed);
 
+
     m_spawnTimer->setInterval(m_spawnDelay_ms);
     connect(m_spawnTimer, &QTimer::timeout, this, &Game::spawnPokemon);
     m_spawnTimer->start();
@@ -179,7 +180,7 @@ void Game::spawnPokemon() {
         PokemonState newWild;
         newWild.pokedex_id = m_wildPokemonInfo->pokedexId;
         newWild.name = m_wildPokemonInfo->name;
-        newWild.lvl = 10;
+        newWild.lvl = 40;
 
         for (int i = 0; i < 6; i++) {
             newWild.ivs[i] = 32;
@@ -276,6 +277,8 @@ void Game::handleBattleStart() {
 
     connect(m_activeBattle, &Battle::battleEnded,
             this, &Game::handleBattleEnd);
+    connect(m_activeBattle, &Battle::_updatePartyXP,
+            this, &Game::updatePartyXP);
 
     qDebug() << "Starting battle...";
 }
@@ -313,16 +316,6 @@ void Game::handleBattleEnd(const char* endState, bool removeWild) {
                         break;
                     }
                 }
-            }
-        }
-
-        // Player won the battle - add XP
-        if (playerWon) {
-            if (m_db.addPokemonXp(m_partyIds[0], 100)) {
-                int newXp = m_db.getPokemonXp(m_partyIds[0]);
-                qDebug() << "Added XP to fighting Pokemon. Total XP:" << newXp;
-            } else {
-                qWarning() << "Failed to add XP to Pokemon ID:" << m_partyIds[0];
             }
         }
 
@@ -401,4 +394,81 @@ void Game::createInitialPokemon() {
         m_partyIds[1] = pokemonId;
     }
 
+}
+void Game::updatePartyXP(std::array<int, 6> spread) {
+    if (!m_activeBattle) {
+        qWarning() << "Cannot show XP sequence - battle already ended";
+        return;
+    }
+
+    std::array<int,6> lvlUps = {-1,-1,-1,-1,-1,-1};
+    std::vector<int> idsToUpdate;
+
+    for (int i = 0; i < 6; i++) {
+        if (spread[i] > 0 && m_partyIds[i] > 0) {
+            idsToUpdate.push_back(m_partyIds[i]);
+        }
+    }
+
+    if (idsToUpdate.empty()) {
+        qDebug() << "No Pokémon received XP (all spread values were 0 or negative)";
+        return;
+    }
+
+    // Single batch fetch
+    std::vector<PokemonState> originalPokemon = m_db.getPokemonBatch(idsToUpdate);
+    std::vector<PokemonState> updatedPokemon = originalPokemon;
+
+    // Process all updates in memory
+    for (size_t idx = 0; idx < updatedPokemon.size(); idx++) {
+        PokemonState& pokemon = updatedPokemon[idx];
+        PokemonState& original = originalPokemon[idx];
+
+        // Find which party slot this is
+        bool found = false;
+        for (int i = 0; i < 6; i++) {
+            if (m_partyIds[i] == pokemon._id && spread[i] > 0) {
+                int xpGain = spread[i];
+                int oldXP = pokemon.currentXP;
+                int oldLevel = pokemon.lvl;
+
+                // Add XP
+                pokemon.currentXP += xpGain;
+
+                // Check for level ups
+                while (pokemon.lvl < 100) {
+                    int xpNeeded = PokeMath::xpForNextLevel(pokemon.lvl, pokemon.currentXP);
+                    if (xpNeeded > 0) break;
+                    pokemon.lvl++;
+                    lvlUps[i] = pokemon.lvl;
+                }
+
+                // Calculate XP needed for next level
+                int xpForNext = PokeMath::xpForNextLevel(pokemon.lvl, pokemon.currentXP);
+
+                // Debug output for this Pokémon
+                qDebug().nospace()
+                    << "[" << i << "] " << QString::fromStdString(pokemon.name)
+                    << ": XP " << oldXP << "→" << pokemon.currentXP
+                    << " (+" << xpGain << ")"
+                    << ", Lvl " << oldLevel << "→" << pokemon.lvl
+                    << ", NextLvlXP " << xpForNext;
+
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            qWarning() << "Pokemon ID" << pokemon._id << "not found in party or no XP gain";
+        }
+    }
+
+    if (m_db.batchUpdatePokemon(updatedPokemon)) {
+        qDebug() << "Successfully batch updated" << updatedPokemon.size() << "Pokémon";
+    } else {
+        qWarning() << "Failed to batch update Pokémon";
+    }
+
+    m_activeBattle->showXPAndEndBattle(spread, lvlUps);
 }

@@ -163,6 +163,16 @@ namespace PokeMath{
     inline int calculateExperience(int lvl, int nrParticipated, int baseXP){
         return static_cast<int>(baseXP*lvl/7.0f * 1/nrParticipated * 1.5f);
     }
+
+    inline int xpForNextLevel(int currentLevel, int currentXP) {
+        if (currentLevel >= 100) return 0;
+
+        // Fast growth rate formula: (4 * n³) / 5
+        int nextLevel = currentLevel + 1;
+        int totalXPForNextLevel = (4 * nextLevel * nextLevel * nextLevel) / 5;
+
+        return totalXPForNextLevel - currentXP;
+    }
 }
 
 #endif

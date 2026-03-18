@@ -27,6 +27,7 @@ private:
     std::array<int, 6> m_partyIds;  // Database IDs of party Pokemon
     PokemonDatabase& m_db = PokemonDatabase::instance();
 
+
     WildPokemon* m_wildPokemon = nullptr;
     Battle* m_activeBattle = nullptr;
     const PokemonInfo* m_wildPokemonInfo = nullptr;
@@ -48,6 +49,7 @@ private:
     void safelyRemoveWildPokemon();
 
 private slots:
+    void updatePartyXP(std::array<int, 6> spread);
     void handleMenuOpen();
     void handleMenuClosed();
     void handleBattleStart();

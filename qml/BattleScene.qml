@@ -433,20 +433,27 @@ Item {
         }
     }
 
-function showExperienceSpreadSequence(spread) {
-    var sequence = []
-    for (var i = 0; i < spread.length; i++) {
-        if (spread[i] > 0) {
-            sequence.push({
-                type: "text",
-                message: battleMenu.party.names[i] + " gained " + spread[i] + " EXP!",
-                delay: 500
-            })
+    function showExperienceSpreadSequence(spread, lvlups) {
+        var sequence = []
+        for (var i = 0; i < 6; i++) {
+            if (lvlups[i] >0){
+                sequence.push({
+                    type: "text",
+                    message: battleMenu.party.names[i] + " leveled up to " + lvlups[i] + "!",
+                    delay: 800
+                })
+            }else if (spread[i] > 0){
+                sequence.push({
+                    type: "text",
+                    message: battleMenu.party.names[i] + " gained " + spread[i] + " EXP!",
+                    delay: 800
+                })
+            }
         }
+        sequence.push({ type: "player-won", delay: 200})
+        executeActionSequence(sequence)
     }
-    sequence.push({ type: "player-won", delay: 100})
-    executeActionSequence(sequence)
-}
+
     // End the action sequence
     function endActionChain() {
         root.actionInProgress = false

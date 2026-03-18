@@ -64,15 +64,20 @@ Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildS
 
 void Battle::handleGettingExperience(){
     std::array<int,6> spread = m_battleMoveHandler->getExperienceSpread();
+    emit _updatePartyXP(spread);
+}
 
+void Battle::showXPAndEndBattle(std::array<int,6> spread, std::array<int,6> lvlUps){
     QVector<int> qmlSpread;
+    QVector<int> qmlLvlUps;
     for (int i = 0; i < 6; i++) {
-        qDebug() << spread[i];
         qmlSpread.append(spread[i]);
+        qmlLvlUps.append(lvlUps[i]);
     }
 
     QMetaObject::invokeMethod(m_battleScene, "showExperienceSpreadSequence",
-                              Q_ARG(QVariant, QVariant::fromValue(qmlSpread)));
+                              Q_ARG(QVariant, QVariant::fromValue(qmlSpread)),
+                              Q_ARG(QVariant, QVariant::fromValue(qmlLvlUps)));
 }
 
 void Battle::handleSwitchedPokemon(int partyIndex, int generation, int spriteId){

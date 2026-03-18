@@ -591,3 +591,63 @@ bool PokemonDatabase::incrementPokemonFields(int pokemonId, const std::vector<st
 
     return executeUpdate(sql, params);
 }
+
+bool PokemonDatabase::batchUpdatePokemon(const std::vector<PokemonState>& updates) {
+    if (!m_db || updates.empty()) return false;
+
+    // Start transaction
+    char* errMsg = nullptr;
+    if (sqlite3_exec(m_db, "BEGIN TRANSACTION", nullptr, nullptr, &errMsg) != SQLITE_OK) {
+        std::cerr << "Failed to begin transaction: " << errMsg << std::endl;
+        sqlite3_free(errMsg);
+        return false;
+    }
+
+    bool success = true;
+    const char* updateSql = R"(
+        UPDATE pokemon SET
+            pokedex_id = ?, variant_id = ?, pokeball_id = ?, name = ?,
+            lvl = ?, current_xp = ?,
+            iv_hp = ?, iv_attack = ?, iv_defense = ?,
+            iv_spattack = ?, iv_spdefense = ?, iv_speed = ?,
+            ev_hp = ?, ev_attack = ?, ev_defense = ?,
+            ev_spattack = ?, ev_spdefense = ?, ev_speed = ?,
+            nature = ?, move1 = ?, move2 = ?, move3 = ?, move4 = ?
+        WHERE _id = ?
+    )";
+
+    sqlite3_stmt* stmt = nullptr;
+    if (sqlite3_prepare_v2(m_db, updateSql, -1, &stmt, nullptr) != SQLITE_OK) {
+        sqlite3_exec(m_db, "ROLLBACK", nullptr, nullptr, nullptr);
+        return false;
+    }
+
+    // Update all Pokémon in the batch
+    for (const auto& pokemon : updates) {
+        if (pokemon._id < 0) continue;
+
+        bindPokemonParams(stmt, pokemon, 1);
+        sqlite3_bind_int(stmt, 24, pokemon._id);
+
+        if (sqlite3_step(stmt) != SQLITE_DONE) {
+            success = false;
+            break;
+        }
+
+        sqlite3_reset(stmt);
+    }
+
+    sqlite3_finalize(stmt);
+
+    if (success) {
+        if (sqlite3_exec(m_db, "COMMIT", nullptr, nullptr, &errMsg) != SQLITE_OK) {
+            std::cerr << "Failed to commit transaction: " << errMsg << std::endl;
+            sqlite3_free(errMsg);
+            success = false;
+        }
+    } else {
+        sqlite3_exec(m_db, "ROLLBACK", nullptr, nullptr, nullptr);
+    }
+
+    return success;
+}
