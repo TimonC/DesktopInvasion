@@ -3,7 +3,6 @@ import QtQuick 2.15
 Item {
     id: root
     property color debugColor: "yellow"
-    // Sprite properties
     property string spriteSheet: "qrc:/assets/HGSS/reordered_sprites.png"
     property int partyId: 0
     property int row: 0
@@ -14,10 +13,8 @@ Item {
     property int frameCount: 2
     property int frameRate: 4
 
-    //Used in battle  positioning
     property int horizontalHeight: 0
 
-    // Container properties
     property int itemWidth: 0
     property int itemHeight: 0
     property bool clickable: true
@@ -29,20 +26,17 @@ Item {
     height: itemHeight > 0 ? itemHeight : frameHeight * scaleFactor
     layer.enabled: true
     z: 1
-    //Store starting pos for animations
+
     property int startingX: 0
     property int startingY: 0
 
-    // Random delay timer to prevent sync between sprites
     property Timer startTimer: Timer {
         interval: Math.random() * 125
         running: true
         onTriggered: sprite.running = true
     }
 
-    // Method to change sprite source
     function updatePokemon(rowId, isBig) {
-        // Update sprite sheet based on generation
         if(isBig){
             spriteSheet = "qrc:/assets/HGSS/reordered_sprites_big.png";
         }else{
@@ -50,7 +44,6 @@ Item {
         }
         row = rowId;
 
-        // Restart the sprite animation
         sprite.running = false;
         Qt.callLater(function() {
             sprite.currentFrame = Math.random() < 0.5 ? 0 : 1;
@@ -60,10 +53,9 @@ Item {
 
     AnimatedSprite {
         id: sprite
-        // REMOVE ANCHORS - use manual positioning
-        x: (parent.width - width) / 2
-        y: (parent.height - height) / 2
-        scale: scaleFactor
+        anchors.centerIn: parent
+        width: root.frameWidth * scaleFactor
+        height: root.frameHeight * scaleFactor
         running: false
         source: root.spriteSheet
         frameWidth: root.frameWidth
@@ -111,7 +103,7 @@ Item {
         id: actionForward
         loops: 1
         running: false
-        property int attackDistance: 20
+        property int attackDistance: 20 * scaleFactor
         PropertyAnimation {
             target: root
             property: "x"
@@ -142,7 +134,6 @@ Item {
         }
     }
 
-    // Debug rectangle
     Rectangle {
         id: containerDebugLines
         anchors.fill: parent

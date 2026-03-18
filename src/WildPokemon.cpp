@@ -66,7 +66,7 @@ WildPokemon::WildPokemon(int pokedexId, QPoint spawnPoint, int spawnDirection,  
 }
 
 WildPokemon::~WildPokemon(){
-    qDebug() << "WildPokemon destructor called, with name!";
+    qDebug() << "WildPokemon destructor called!";
 };
 
 void WildPokemon::roaming(bool active){
