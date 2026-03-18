@@ -188,46 +188,85 @@ Rectangle {
                     }
                 }
             }
+            Rectangle {
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                width: root.buttonHeight
+                height: root.buttonHeight
+                color: "lightblue"
+                radius: 3
+                Text {
+                    anchors.centerIn: parent
+                    text: "←"
+                    color: "white"
+                    font.pixelSize: root.buttonFontSize
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: stack.pop()
+                }
+            }
         }
     }
 
-Component {
-    id: catchSelection
-    Rectangle {
-        anchors.centerIn: parent
-        width: root.buttonWidth * 1.5
-        height: root.buttonHeight * 1.2
-        color: "white"
-        border.color: "black"
-        border.width: 2
-        radius: 3
-        Image {
-            id: pokeImage
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.left: parent.left
-            anchors.leftMargin: 8
-            source: root.spriteSheet
-            width: root.pokeSpriteWidth * root.spriteScale
-            height: root.pokeSpriteHeight * root.spriteScale
-            sourceClipRect: Qt.rect(0, root.pokeSpriteHeight * root.pokeSpriteId, root.pokeSpriteWidth, root.pokeSpriteHeight)
-            smooth: false
-            antialiasing: false
-        }
-
-        Text {
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.left: pokeImage.right
-            anchors.leftMargin: 4
-            text: "Pokeball"
-            font.pixelSize: root.buttonFontSize
-        }
-
-        MouseArea {
+    Component {
+        id: catchSelection
+        Item {
             anchors.fill: parent
-            onClicked: root.catchChosen(3)
+            Rectangle {
+                anchors.centerIn: parent
+                width: root.buttonWidth * 1.5
+                height: root.buttonHeight * 1.2
+                color: "white"
+                border.color: "black"
+                border.width: 2
+                radius: 3
+                Image {
+                    id: pokeImage
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.left: parent.left
+                    anchors.leftMargin: 8
+                    source: root.spriteSheet
+                    width: root.pokeSpriteWidth * root.spriteScale
+                    height: root.pokeSpriteHeight * root.spriteScale
+                    sourceClipRect: Qt.rect(0, root.pokeSpriteHeight * root.pokeSpriteId, root.pokeSpriteWidth, root.pokeSpriteHeight)
+                    smooth: false
+                    antialiasing: false
+                }
+
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.left: pokeImage.right
+                    anchors.leftMargin: 4
+                    text: "Pokeball"
+                    font.pixelSize: root.buttonFontSize
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: root.catchChosen(3)
+                }
+            }
+            Rectangle {
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                width: root.buttonHeight
+                height: root.buttonHeight
+                color: "lightblue"
+                radius: 3
+                Text {
+                    anchors.centerIn: parent
+                    text: "←"
+                    color: "white"
+                    font.pixelSize: root.buttonFontSize
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: stack.pop()
+                }
+            }
         }
     }
-}
 
     Component{
         id: runSelection
