@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <data_move.h>
-#include <data_gamestate.h>
+#include <gamestate.h>
 #include <variant>
 
 enum class StatusCondition{

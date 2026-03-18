@@ -1,7 +1,7 @@
 #ifndef DATA_POKE_H
 #define DATA_POKE_H
 
-#include <data_gamestate.h>
+#include <gamestate.h>
 
 struct EligibleMove {
     int move_id;

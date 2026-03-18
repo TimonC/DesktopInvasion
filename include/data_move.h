@@ -2,7 +2,7 @@
 #define DATA_MOVE_H
 
 #include <array>
-#include <data_gamestate.h>
+#include <gamestate.h>
 
 enum class Ailment{
     Burn, Freeze, Paralysis, Poison, Sleep, Confusion, Null

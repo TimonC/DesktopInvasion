@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <utility>
-#include <data_gamestate.h>
+#include <gamestate.h>
 
 struct sqlite3;
 struct sqlite3_stmt;
