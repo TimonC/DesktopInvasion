@@ -238,7 +238,7 @@ void Game::handleBattleEnd(const char* endState) {
 
     bool playerWon = (strcmp(endState, "PlayerWon") == 0);
     bool opponentCaught = (strcmp(endState, "OpponentCaught") == 0);
-    bool removeWild = playerWon || opponentCaught;
+    bool removeWild = playerWon || opponentCaught || (strcmp(endState, "opponentWon") == 0);
 
     if (removeWild) {
         // Player won the battle - add XP
