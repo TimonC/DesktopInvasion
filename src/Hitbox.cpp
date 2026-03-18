@@ -28,6 +28,7 @@ void Hitbox::mousePressEvent(QMouseEvent* event) {
     if (Qt::LeftButton) {
         m_oldpos = event->globalPosition().toPoint();
     }
+    isDragged(true);
     // QQuickView::mousePressEvent(event);
 }
 
@@ -35,9 +36,13 @@ void Hitbox::mouseMoveEvent(QMouseEvent* event){
     if (event->buttons() & Qt::LeftButton){
         QPoint currentPos = event->globalPosition().toPoint();
         QPoint deltas = currentPos - m_oldpos;
-        emit dragged(deltas);
+        emit drag(deltas);
         m_oldpos = currentPos;
     }
 
     // QQuickView::mouseMoveEvent(event);
+}
+
+void Hitbox::mouseReleaseEvent(QMouseEvent* event){
+    isDragged(false);
 }

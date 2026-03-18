@@ -21,7 +21,8 @@ WildPokemon::WildPokemon(QWindow *parent, int row)
     m_hitbox->offset =QPoint(width()/5, height()/4);
     move(QPoint(getScreenGeometry().width()/2, getScreenGeometry().height()/2));
 
-    connect(m_hitbox, &Hitbox::dragged, this, &WildPokemon::move);
+    connect(m_hitbox, &Hitbox::drag, this, &WildPokemon::move);
+    connect(m_hitbox, &Hitbox::isDragged, this, &WildPokemon::handleDrag);
     connect(m_hitbox->m_mouseArea, SIGNAL(doubleClicked(QQuickMouseEvent*)), this, SLOT(handleDoubleClick()));
     connect(m_hitbox->m_battleButton, SIGNAL(clicked()), this, SLOT(startBattle()));
 
@@ -42,6 +43,17 @@ void WildPokemon::startRoaming(){
 
     m_decisionTimer->start();
     makeRandomDecision();
+}
+
+void WildPokemon::handleDrag(bool isDragged){
+    if(isDragged){
+        m_sprite->setProperty("frameRate", 8);
+        m_moveTimer->stop();
+        m_decisionTimer->stop();
+    }else{
+        m_sprite->setProperty("frameRate", 4);
+        m_decisionTimer->start();
+    }
 }
 
 void WildPokemon::handleDoubleClick(){

@@ -15,10 +15,6 @@ Item {
     property int frameCount: 2
     property int frameRate: 4
 
-    // property alias mouseArea: mouseArea
-    // property alias battleButton: battleButton
-    // property bool openingButtons: false
-
     property bool clickable:true
     property bool jumping: false
     property bool tackle: false
@@ -29,20 +25,6 @@ Item {
     clip: true
     layer.enabled: true
     z: 1
-
-    // MouseArea {
-    //     id: mouseArea
-    //     anchors.fill: parent
-    //     enabled: clickable
-    // }
-
-    // RoundButton {
-    //         id: battleButton
-    //         text: "BATTLE"
-    //         enabled: root.openingButtons
-    //         visible: root.openingButtons
-    //         z:8000
-    //     }
 
     AnimatedSprite {
         id: sprite

@@ -16,12 +16,13 @@ public:
     QQuickItem* m_battleButton;
     QPoint offset = QPoint(0,0);
 signals:
-    QPoint dragged(QPoint delta);
-
+    void drag(QPoint delta);
+    void isDragged(bool dragged);
 protected:
     QPoint m_oldpos = QPoint(0,0);
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent*  event) override;
+    void mouseReleaseEvent(QMouseEvent* event) override;
 
 };
 

@@ -16,6 +16,7 @@ private slots:
     void moveStep();
     void startBattle();
     void handleDoubleClick();
+    void handleDrag(bool isDragged);
 public slots:
     QPoint move(QPoint delta);
 private:
