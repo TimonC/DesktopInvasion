@@ -167,7 +167,7 @@ Item {
         color: "transparent"
         border.color: "yellow"
         border.width: 1
-        // visible: false
+        visible: false
     }
 }
 

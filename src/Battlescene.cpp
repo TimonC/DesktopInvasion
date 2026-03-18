@@ -28,7 +28,6 @@ Battlescene::Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent)
     QQuickItem* attackButton = ui->property("attackButton").value<QQuickItem*>();
     connect(attackButton,  SIGNAL(clicked()), this, SLOT(attack()));
 
-
     QQuickItem* mouseArea = ui->property("mouseArea").value<QQuickItem*>();
 
     int distance = m_opp->direction()%2==0 ? 3*33 : 4*33;
@@ -108,6 +107,6 @@ void Battlescene::drag(QPoint delta){
         delta.setY(0);
 
     setPosition(pos + delta);
-    m_chosen->movePos(delta);
-    m_opp->movePos(delta);
+    m_chosen->movePos(delta, false);
+    m_opp->movePos(delta, false);
 }

@@ -9,7 +9,7 @@ class WildPokemon : public Pokemon{
 
 public:
     explicit WildPokemon(QWindow *parent = nullptr, int row = 0);
-    virtual void startRoaming();
+    void startRoaming() override;
 
 private slots:
     void makeRandomDecision();
@@ -18,7 +18,7 @@ private slots:
     void handleDoubleClick();
     void handleDrag(bool isDragged);
 public slots:
-    QPoint movePos(QPoint delta) override;
+    QPoint movePos(QPoint delta, bool boundsCheck = false) override;
 private:
     Hitbox* m_hitbox;
     QTimer* m_decisionTimer;

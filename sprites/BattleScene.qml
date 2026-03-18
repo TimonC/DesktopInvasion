@@ -144,6 +144,6 @@ Item {
         color: "transparent"
         border.color: "blue"
         border.width: 1
-        // visible: false
+        visible: false
     }
 }

@@ -33,7 +33,7 @@ Item {
         color: "transparent"
         border.color: "red"
         border.width: 1
-        // visible: false
+        visible: false
     }
 }
 

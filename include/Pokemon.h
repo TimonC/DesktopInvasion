@@ -18,7 +18,7 @@ public:
     void attacked();
 
 public slots:
-    virtual QPoint movePos(QPoint delta);
+    virtual QPoint movePos(QPoint delta, bool boundsCheck=true);
 
 protected:
     void setSize(int size);
