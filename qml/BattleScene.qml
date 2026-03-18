@@ -24,10 +24,10 @@ Item {
     property bool debugLines: false
     property int direction: 0
 
-    // Action timing delays
+    // Action timing delays (delays are applied AFTER action)
     property int textDelay: 300
-    property int attackAnimDelay: 500
-    property int damageAnimDelay: 200
+    property int attackDelay: 500
+    property int damageDelay: 200
     property int healthChangeDelay: 1000
     property int effectiveTextDelay: 1200
 
@@ -282,14 +282,14 @@ Item {
             root.actionSequence = [
                 // First turn
                 { type: "text", message: firstAttackerName + " used Tackle!", delay: textDelay },
-                { type: "attack", attacker: firstAttacker, delay: attackAnimDelay },
-                { type: "damage", defender: firstDefender, delay: damageAnimDelay },
+                { type: "attack", attacker: firstAttacker, delay: attackDelay },
+                { type: "damage", defender: firstDefender, delay: damageDelay },
                 { type: "change-health", defender: firstDefender, delay: healthChangeDelay },
                 { type: "text", message: "It's super effective!", delay: effectiveTextDelay },
                 // Second turn
                 { type: "text", message: secondAttackerName + " used Tackle!", delay: textDelay },
-                { type: "attack", attacker: secondAttacker, delay: attackAnimDelay },
-                { type: "damage", defender: secondDefender, delay: damageAnimDelay },
+                { type: "attack", attacker: secondAttacker, delay: attackDelay },
+                { type: "damage", defender: secondDefender, delay: damageDelay },
                 { type: "change-health", defender: secondDefender, delay: healthChangeDelay },
                 { type: "text", message: "It's super effective!", delay: effectiveTextDelay },
                 // End
@@ -401,14 +401,13 @@ Item {
                 opponent.visible = true
                 pokeBallOpponent.visible = false
 
-                // Now opponent counterattacks
                 root.actionSequence = [
-                    { type: "text", message: battleMenu.getText(), delay: 300 },//hack to get a bit more delay after battle
-                    { type: "text", message: opponentName + " used Tackle!", delay: 300 },
-                    { type: "attack", attacker: opponent, delay: 500 },
-                    { type: "damage", defender: player, delay: 200 },
-                    { type: "change-health", defender: player, delay: 1000 },
-                    { type: "text", message: "It's super effective!", delay: 1200 },
+                    { type: "text", message: battleMenu.getText(), delay: 300 },//hack to get a bit more delay after failed catch
+                    { type: "text", message: opponentName + " used Tackle!", delay: textDelay },
+                    { type: "attack", attacker: opponent, delay: attackDelay },
+                    { type: "damage", defender: player, delay: damageDelay },
+                    { type: "change-health", defender: player, delay: healthChangeDelay },
+                    { type: "text", message: "It's super effective!", delay: effectiveTextDelay },
                     { type: "end" }
                 ]
                 root.currentActionIndex = 0
