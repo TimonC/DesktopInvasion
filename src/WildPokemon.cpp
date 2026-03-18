@@ -1,5 +1,6 @@
 #include "Pokemon.h"
 #include "WildPokemon.h"
+#include "Player.h"
 #include <QWindow>
 #include <QTimer>
 #include <QQuickItem>
