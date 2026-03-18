@@ -165,11 +165,9 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
     if(actionChar == 'S'){
        switchedIn = actionIndex;
        m_chosenIndex = actionIndex;
+
     } else if(actionChar == 'C'){
         shakes = PokeMath::calculateBallShakes(m_rng, m_battleOpponent->pokeState.stats[0], m_battleOpponent->battleState.currentHealth, m_battleOpponent->pokeState.catchRate);
-        m_battleOpponent->delta.flinched = false;
-        player->delta.flinched = false;
-
         s.append(createTextAction("Player used one Poké Ball!", ms_ballUsed));
         s.append(createCatchAction(shakes, ms_catchStart));
     }
@@ -202,6 +200,7 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
         turnResult.effects.reserve(20);
 
         if(playerFirst){
+            player->delta.flinched = false;
             BattleActionResult playerResult = applyMove(playerMove, player, m_battleOpponent);
             applyBattleResult(playerResult);
             turnResult.effects.reserve(turnResult.effects.size() + playerResult.effects.size());
@@ -214,6 +213,7 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
                 turnResult.effects.insert(turnResult.effects.end(), opponentResult.effects.begin(), opponentResult.effects.end());
             }
         } else {
+            m_battleOpponent->delta.flinched = false;
             BattleActionResult opponentResult = applyMove(opponentMove, m_battleOpponent, player);
             applyBattleResult(opponentResult);
             turnResult.effects.reserve(turnResult.effects.size() + opponentResult.effects.size());
