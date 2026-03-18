@@ -15,6 +15,7 @@ def has_visible_content(frames):
     return False
 
 def analyze_frame_bounds(frame):
+    """Analyze frame bounds and return width, height, x_min, y_min, x_max, y_max"""
     if frame.mode != 'RGBA':
         frame = frame.convert('RGBA')
 
@@ -24,7 +25,7 @@ def analyze_frame_bounds(frame):
     non_transparent = alpha > 10
 
     if not np.any(non_transparent):
-        return 0, 0, 0, 0
+        return 0, 0, 0, 0, None, None
 
     rows = np.any(non_transparent, axis=1)
     cols = np.any(non_transparent, axis=0)
@@ -35,73 +36,105 @@ def analyze_frame_bounds(frame):
     width = x_max - x_min + 1
     height = y_max - y_min + 1
 
-    return int(width), int(height), int(x_min), int(y_min)
+    return int(width), int(height), int(x_min), int(y_min), int(x_max), int(y_max)
 
 def calculate_sprite_bounds(frames):
     min_x, min_y = float('inf'), float('inf')
     max_x, max_y = float('-inf'), float('-inf')
 
+    # Store individual frame bounds for per-frame centering
+    frame_bounds = []
+
     for frame in frames:
-        width, height, x_min, y_min = analyze_frame_bounds(frame)
+        width, height, x_min, y_min, x_max, y_max = analyze_frame_bounds(frame)
+        frame_bounds.append((width, height, x_min, y_min, x_max, y_max))
+
         if width == 0 or height == 0:
             continue
 
-        x_max = x_min + width
-        y_max = y_min + height
-
-        min_x = min(min_x, x_min)
-        min_y = min(min_y, y_min)
-        max_x = max(max_x, x_max)
-        max_y = max(max_y, y_max)
+        # Only update bounds if we have valid x_max/y_max values
+        if x_max is not None and y_max is not None:
+            min_x = min(min_x, x_min) if x_min is not None else min_x
+            min_y = min(min_y, y_min) if y_min is not None else min_y
+            max_x = max(max_x, x_max) if x_max is not None else max_x
+            max_y = max(max_y, y_max) if y_max is not None else max_y
 
     if min_x == float('inf'):
-        return 0, 0, 0, 0
+        return 0, 0, 0, 0, frame_bounds
 
     union_width = max_x - min_x
     union_height = max_y - min_y
 
-    return union_width, union_height, min_x, min_y
+    return union_width, union_height, min_x, min_y, frame_bounds
 
-def calculate_center_offset(frame_width, frame_height, content_width, content_height, content_x, content_y):
-    extra_width = frame_width - content_width
-    extra_height = frame_height - content_height
+def center_sprite_in_frame(frame, target_width=64, target_height=64):
+    """Center a sprite within a new frame by measuring its content bounds"""
+    if frame.mode != 'RGBA':
+        frame = frame.convert('RGBA')
 
-    desired_x = extra_width // 2
-    desired_y = extra_height // 2
+    # Get the actual image data
+    img_array = np.array(frame)
 
-    offset_x = desired_x - content_x
-    offset_y = desired_y - content_y
+    # Find non-transparent pixels
+    alpha = img_array[:, :, 3]
+    non_transparent = alpha > 10
 
-    return offset_x, offset_y
+    if not np.any(non_transparent):
+        # Empty frame, return transparent 64x64
+        return Image.new('RGBA', (target_width, target_height), (0, 0, 0, 0))
 
-def apply_offset_to_frame(frame, offset_x, offset_y):
-    if offset_x == 0 and offset_y == 0:
-        return frame
+    # Get bounds of non-transparent content
+    rows = np.any(non_transparent, axis=1)
+    cols = np.any(non_transparent, axis=0)
 
-    new_frame = Image.new('RGBA', frame.size)
-    new_frame.paste(frame, (offset_x, offset_y), frame)
+    y_min, y_max = np.where(rows)[0][[0, -1]]
+    x_min, x_max = np.where(cols)[0][[0, -1]]
+
+    content_width = x_max - x_min + 1
+    content_height = y_max - y_min + 1
+
+    # Calculate center position
+    center_x = (target_width - content_width) // 2
+    center_y = (target_height - content_height) // 2
+
+    # Create new transparent frame
+    new_frame = Image.new('RGBA', (target_width, target_height), (0, 0, 0, 0))
+
+    # Crop the sprite content (only the non-transparent part)
+    sprite_content = frame.crop((x_min, y_min, x_max + 1, y_max + 1))
+
+    # Paste centered in new frame
+    new_frame.paste(sprite_content, (center_x, center_y), sprite_content)
 
     return new_frame
 
-def extract_frame_block(img, col_idx, row_idx, frame_width, frame_height):
-    x0 = col_idx * (2 * frame_width + 1)
-    y0 = row_idx * (4 * frame_height + 1)
+def extract_pokemon_frames(img, pokemon_idx, n_cols, frame_width, frame_height):
+    """Extract 8 frames for a single Pokémon from 2 rows x 4 cols layout
 
-    aa = img.crop((x0, y0, x0 + frame_width, y0 + frame_height))
-    ab = img.crop((x0 + frame_width, y0, x0 + 2*frame_width, y0 + frame_height))
+    Layout:
+    aa ab ac ad
+    ba bb bc bd
 
-    ba = img.crop((x0, y0 + frame_height, x0 + frame_width, y0 + 2*frame_height))
-    bb = img.crop((x0 + frame_width, y0 + frame_height, x0 + 2*frame_width, y0 + 2*frame_height))
+    Output order: aa, ba, ac, bc, ab, bb, ad, bd
+    """
+    row_idx = pokemon_idx * 2
 
-    ca = img.crop((x0, y0 + 2*frame_height, x0 + frame_width, y0 + 3*frame_height))
-    cb = img.crop((x0 + frame_width, y0 + 2*frame_height, x0 + 2*frame_width, y0 + 3*frame_height))
+    frames_2x4 = []
+    for r in range(2):
+        for c in range(n_cols):
+            x0 = c * frame_width
+            y0 = (row_idx + r) * frame_height
+            frame = img.crop((x0, y0, x0 + frame_width, y0 + frame_height))
+            frames_2x4.append(frame)
 
-    da = img.crop((x0, y0 + 3*frame_height, x0 + frame_width, y0 + 4*frame_height))
-    db = img.crop((x0 + frame_width, y0 + 3*frame_height, x0 + 2*frame_width, y0 + 4*frame_height))
+    # frames_2x4 is now: [aa, ab, ac, ad, ba, bb, bc, bd]
+    # Reorder to: aa, ba, ac, bc, ab, bb, ad, bd
+    aa, ab, ac, ad, ba, bb, bc, bd = frames_2x4
+    reordered = [aa, ba, ac, bc, ab, bb, ad, bd]
 
-    return [aa, ba, ab, bb, ca, da, cb, db]
+    return reordered
 
-def process_image(image_path, n_rows, n_cols, frame_width, frame_height):
+def process_image(image_path, n_pokemon, n_cols, frame_width, frame_height):
     img = Image.open(image_path)
     print(f"Processing {image_path}...")
 
@@ -112,37 +145,54 @@ def process_image(image_path, n_rows, n_cols, frame_width, frame_height):
         "rows": []
     }
 
-    for row_idx in range(n_rows):
-        for col_idx in range(n_cols):
-            frames = extract_frame_block(img, col_idx, row_idx, frame_width, frame_height)
+    for pokemon_idx in range(n_pokemon):
+        frames = extract_pokemon_frames(img, pokemon_idx, n_cols, frame_width, frame_height)
 
-            if has_visible_content(frames):
-                union_width, union_height, union_x, union_y = calculate_sprite_bounds(frames)
+        if has_visible_content(frames):
+            # Center each frame individually
+            centered_frames = []
+            frame_measurements = []
 
-                if union_width > 0 and union_height > 0:
-                    offset_x, offset_y = calculate_center_offset(
-                        frame_width, frame_height,
-                        union_width, union_height,
-                        union_x, union_y
-                    )
+            for i, frame in enumerate(frames):
+                # Get bounds before centering for metadata
+                width, height, x_min, y_min, x_max, y_max = analyze_frame_bounds(frame)
 
-                    centered_frames = [apply_offset_to_frame(frame, offset_x, offset_y) for frame in frames]
+                # Center this frame
+                centered_frame = center_sprite_in_frame(frame, frame_width, frame_height)
+                centered_frames.append(centered_frame)
 
-                    metadata["rows"].append({
-                        "union_width": union_width,
-                        "union_height": union_height,
-                        "offset_x": offset_x,
-                        "offset_y": offset_y
-                    })
+                # Get bounds after centering for verification
+                c_width, c_height, c_x_min, c_y_min, c_x_max, c_y_max = analyze_frame_bounds(centered_frame)
 
-                    all_rows.append(centered_frames)
+                frame_measurements.append({
+                    "original": {"width": width, "height": height, "x_min": x_min, "y_min": y_min},
+                    "centered": {"width": c_width, "height": c_height, "x_min": c_x_min, "y_min": c_y_min}
+                })
+
+            # Calculate union bounds of centered frames
+            union_width, union_height, union_x, union_y, _ = calculate_sprite_bounds(centered_frames)
+
+            metadata["rows"].append({
+                "pokemon_index": pokemon_idx,
+                "union_width": union_width,
+                "union_height": union_height,
+                "union_x": union_x,
+                "union_y": union_y,
+                "frame_measurements": frame_measurements
+            })
+
+            all_rows.append(centered_frames)
+
+    if not all_rows:
+        print("No visible sprites found!")
+        return
 
     new_width = 8 * frame_width
     new_height = len(all_rows) * frame_height
     new_img = Image.new("RGBA", (new_width, new_height))
 
-    for idx, row in enumerate(all_rows):
-        for j, frame in enumerate(row):
+    for idx, row_frames in enumerate(all_rows):
+        for j, frame in enumerate(row_frames):
             new_img.paste(frame, (j * frame_width, idx * frame_height))
 
     input_path = Path(image_path)
@@ -157,23 +207,23 @@ def process_image(image_path, n_rows, n_cols, frame_width, frame_height):
     print(f"Saved metadata to {metadata_path}")
     print(f"Processed {len(all_rows)} sprite rows")
 
-def preprocess_poke(image_paths, n_rows, n_cols, frame_width, frame_height):
+def preprocess_poke(image_paths, n_pokemon, n_cols, frame_width, frame_height):
     for image_path in image_paths:
-        process_image(image_path, n_rows, n_cols, frame_width, frame_height)
+        process_image(image_path, n_pokemon, n_cols, frame_width, frame_height)
 
 if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
     project_root = os.path.dirname(script_dir)
 
     parser = argparse.ArgumentParser(
-        description="Reorder frames from multiple PNGs, skipping empty sprites and generating metadata."
+        description="Reorder frames from Pokémon sprite sheets (2-row layout), skipping empty sprites and generating metadata."
     )
     parser.add_argument("--input_path", type=str, default="assets/HGSS")
-    parser.add_argument("--inputs", nargs='+', default=["PokGen1_transparent.png", "PokGen2_transparent.png", "PokGen3_transparent.png", "PokGen4_transparent.png"])
-    parser.add_argument("--n_rows", type=int, default=20)
-    parser.add_argument("--n_cols", type=int, default=15)
-    parser.add_argument("--frame_width", type=int, default=32)
-    parser.add_argument("--frame_height", type=int, default=32)
+    parser.add_argument("--inputs", nargs='+', default=["bigboys.png"])
+    parser.add_argument("--n_pokemon", type=int, default=13, help="Number of Pokémon in the sprite sheet")
+    parser.add_argument("--n_cols", type=int, default=4, help="Number of columns per row (always 4 for 2-row layout)")
+    parser.add_argument("--frame_width", type=int, default=64)
+    parser.add_argument("--frame_height", type=int, default=64)
 
     args = parser.parse_args()
 
@@ -182,5 +232,5 @@ if __name__ == "__main__":
 
     input_paths = [os.path.join(args.input_path, input) for input in args.inputs]
     preprocess_poke(
-        input_paths, args.n_rows, args.n_cols, args.frame_width, args.frame_height
+        input_paths, args.n_pokemon, args.n_cols, args.frame_width, args.frame_height
     )
