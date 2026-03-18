@@ -15,14 +15,6 @@ void BattleMoveHandler::startActionRound(int playerMoveIndex){
 
    int playerFirst = rand()>0.5;
    Battler& player = m_party[m_chosenPartyIndex];
-
-   if(playerFirst){
-       applyMove(playerMove, player, m_opponent);
-       applyMove(opponentMove, m_opponent, player);
-    }else{
-       applyMove(opponentMove, m_opponent, player);
-       applyMove(playerMove, player, m_opponent);
-    }
 };
 
 void BattleMoveHandler::applyMove(const Move* _move, Battler& caster, Battler& target){

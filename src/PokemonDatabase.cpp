@@ -44,6 +44,8 @@ void PokemonDatabase::createTables() {
             pokedex_id INTEGER NOT NULL,
             variant_id INTEGER DEFAULT 0,
             name TEXT NOT NULL,
+            lvl INTEGER DEFAULT 1,
+            current_xp INTEGER DEFAULT 0,
             iv_hp INTEGER, iv_attack INTEGER, iv_defense INTEGER,
             iv_spattack INTEGER, iv_spdefense INTEGER, iv_speed INTEGER,
             ev_hp INTEGER DEFAULT 0, ev_attack INTEGER DEFAULT 0,
@@ -51,8 +53,7 @@ void PokemonDatabase::createTables() {
             ev_spdefense INTEGER DEFAULT 0, ev_speed INTEGER DEFAULT 0,
             nature INTEGER,
             move1 INTEGER DEFAULT 0, move2 INTEGER DEFAULT 0,
-            move3 INTEGER DEFAULT 0, move4 INTEGER DEFAULT 0,
-            total_xp INTEGER DEFAULT 0
+            move3 INTEGER DEFAULT 0, move4 INTEGER DEFAULT 0
         )
     )";
 
@@ -110,28 +111,29 @@ PokemonState PokemonDatabase::queryToPokemon(sqlite3_stmt* stmt) {
         pokemon.name = reinterpret_cast<const char*>(nameText);
     }
 
-    pokemon.ivs[0] = sqlite3_column_int(stmt, 4);
-    pokemon.ivs[1] = sqlite3_column_int(stmt, 5);
-    pokemon.ivs[2] = sqlite3_column_int(stmt, 6);
-    pokemon.ivs[3] = sqlite3_column_int(stmt, 7);
-    pokemon.ivs[4] = sqlite3_column_int(stmt, 8);
-    pokemon.ivs[5] = sqlite3_column_int(stmt, 9);
+    pokemon.lvl = sqlite3_column_int(stmt, 4);
+    pokemon.currentXP = sqlite3_column_int(stmt, 5);
 
-    pokemon.evs[0] = sqlite3_column_int(stmt, 10);
-    pokemon.evs[1] = sqlite3_column_int(stmt, 11);
-    pokemon.evs[2] = sqlite3_column_int(stmt, 12);
-    pokemon.evs[3] = sqlite3_column_int(stmt, 13);
-    pokemon.evs[4] = sqlite3_column_int(stmt, 14);
-    pokemon.evs[5] = sqlite3_column_int(stmt, 15);
+    pokemon.ivs[0] = sqlite3_column_int(stmt, 6);
+    pokemon.ivs[1] = sqlite3_column_int(stmt, 7);
+    pokemon.ivs[2] = sqlite3_column_int(stmt, 8);
+    pokemon.ivs[3] = sqlite3_column_int(stmt, 9);
+    pokemon.ivs[4] = sqlite3_column_int(stmt, 10);
+    pokemon.ivs[5] = sqlite3_column_int(stmt, 11);
 
-    pokemon.nature = static_cast<Nature>(sqlite3_column_int(stmt, 16));
+    pokemon.evs[0] = sqlite3_column_int(stmt, 12);
+    pokemon.evs[1] = sqlite3_column_int(stmt, 13);
+    pokemon.evs[2] = sqlite3_column_int(stmt, 14);
+    pokemon.evs[3] = sqlite3_column_int(stmt, 15);
+    pokemon.evs[4] = sqlite3_column_int(stmt, 16);
+    pokemon.evs[5] = sqlite3_column_int(stmt, 17);
 
-    pokemon.moves[0] = sqlite3_column_int(stmt, 17);
-    pokemon.moves[1] = sqlite3_column_int(stmt, 18);
-    pokemon.moves[2] = sqlite3_column_int(stmt, 19);
-    pokemon.moves[3] = sqlite3_column_int(stmt, 20);
+    pokemon.nature = static_cast<Nature>(sqlite3_column_int(stmt, 18));
 
-    pokemon.total_xp = sqlite3_column_int(stmt, 21);
+    pokemon.moves[0] = sqlite3_column_int(stmt, 19);
+    pokemon.moves[1] = sqlite3_column_int(stmt, 20);
+    pokemon.moves[2] = sqlite3_column_int(stmt, 21);
+    pokemon.moves[3] = sqlite3_column_int(stmt, 22);
 
     return pokemon;
 }
@@ -141,6 +143,9 @@ void PokemonDatabase::bindPokemonParams(sqlite3_stmt* stmt, const PokemonState& 
     sqlite3_bind_int(stmt, col++, pokemon.pokedex_id);
     sqlite3_bind_int(stmt, col++, pokemon.variant_id);
     sqlite3_bind_text(stmt, col++, pokemon.name.c_str(), -1, SQLITE_STATIC);
+
+    sqlite3_bind_int(stmt, col++, pokemon.lvl);
+    sqlite3_bind_int(stmt, col++, pokemon.currentXP);
 
     for (int i = 0; i < 6; i++) {
         sqlite3_bind_int(stmt, col++, static_cast<int>(pokemon.ivs[i]));
@@ -155,8 +160,6 @@ void PokemonDatabase::bindPokemonParams(sqlite3_stmt* stmt, const PokemonState& 
     for (int i = 0; i < 4; i++) {
         sqlite3_bind_int(stmt, col++, pokemon.moves[i]);
     }
-
-    sqlite3_bind_int(stmt, col++, pokemon.total_xp);
 }
 
 int PokemonDatabase::createPokemon(const PokemonState& pokemon) {
@@ -172,10 +175,10 @@ int PokemonDatabase::createPokemon(const PokemonState& pokemon) {
 
     const char* insertSql = R"(
         INSERT INTO pokemon VALUES (
-            ?, ?, ?, ?,
             ?, ?, ?, ?, ?, ?,
             ?, ?, ?, ?, ?, ?,
-            ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?,
+            ?, ?, ?, ?, ?
         )
     )";
 
@@ -196,12 +199,12 @@ bool PokemonDatabase::updatePokemon(const PokemonState& pokemon) {
     const char* updateSql = R"(
         UPDATE pokemon SET
             pokedex_id = ?, variant_id = ?, name = ?,
+            lvl = ?, current_xp = ?,
             iv_hp = ?, iv_attack = ?, iv_defense = ?,
             iv_spattack = ?, iv_spdefense = ?, iv_speed = ?,
             ev_hp = ?, ev_attack = ?, ev_defense = ?,
             ev_spattack = ?, ev_spdefense = ?, ev_speed = ?,
-            nature = ?, move1 = ?, move2 = ?, move3 = ?, move4 = ?,
-            total_xp = ?
+            nature = ?, move1 = ?, move2 = ?, move3 = ?, move4 = ?
         WHERE _id = ?
     )";
 
@@ -209,7 +212,7 @@ bool PokemonDatabase::updatePokemon(const PokemonState& pokemon) {
     sqlite3_prepare_v2(m_db, updateSql, -1, &stmt, nullptr);
 
     bindPokemonParams(stmt, pokemon, 1);
-    sqlite3_bind_int(stmt, 22, pokemon._id);
+    sqlite3_bind_int(stmt, 23, pokemon._id);
 
     bool success = (sqlite3_step(stmt) == SQLITE_DONE);
     sqlite3_finalize(stmt);
@@ -261,12 +264,12 @@ bool PokemonDatabase::clearWild() {
     const char* clearWild = R"(
         UPDATE pokemon SET
             pokedex_id = 0, name = 'WILD_SLOT',
+            lvl = 1, current_xp = 0,
             iv_hp = 0, iv_attack = 0, iv_defense = 0,
             iv_spattack = 0, iv_spdefense = 0, iv_speed = 0,
             ev_hp = 0, ev_attack = 0, ev_defense = 0,
             ev_spattack = 0, ev_spdefense = 0, ev_speed = 0,
-            nature = 0, move1 = 0, move2 = 0, move3 = 0, move4 = 0,
-            total_xp = 0
+            nature = 0, move1 = 0, move2 = 0, move3 = 0, move4 = 0
         WHERE _id = 0
     )";
 
@@ -366,7 +369,7 @@ bool PokemonDatabase::clearPartySlot(int slot) {
 bool PokemonDatabase::isValidField(const std::string& field) {
     static const std::unordered_set<std::string> validFields = {
         // Core fields
-        "pokedex_id", "variant_id", "name", "nature", "total_xp",
+        "pokedex_id", "variant_id", "name", "nature", "lvl", "current_xp",
         // IV fields
         "iv_hp", "iv_attack", "iv_defense", "iv_spattack", "iv_spdefense", "iv_speed",
         // EV fields
@@ -416,13 +419,13 @@ bool PokemonDatabase::incrementPokemonField(int pokemonId, const std::string& fi
 }
 
 bool PokemonDatabase::addPokemonXp(int pokemonId, int xpAmount) {
-    return incrementPokemonField(pokemonId, "total_xp", xpAmount);
+    return incrementPokemonField(pokemonId, "current_xp", xpAmount);
 }
 
 int PokemonDatabase::getPokemonXp(int pokemonId) {
     if (!m_db || pokemonId <= 0) return -1;
 
-    const char* sql = "SELECT total_xp FROM pokemon WHERE _id = ?";
+    const char* sql = "SELECT current_xp FROM pokemon WHERE _id = ?";
     sqlite3_stmt* stmt = nullptr;
 
     if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK) {
@@ -440,6 +443,30 @@ int PokemonDatabase::getPokemonXp(int pokemonId) {
     return xp;
 }
 
+bool PokemonDatabase::setPokemonLevel(int pokemonId, int level) {
+    return updatePokemonField(pokemonId, "lvl", level);
+}
+
+int PokemonDatabase::getPokemonLevel(int pokemonId) {
+    if (!m_db || pokemonId <= 0) return -1;
+
+    const char* sql = "SELECT lvl FROM pokemon WHERE _id = ?";
+    sqlite3_stmt* stmt = nullptr;
+
+    if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK) {
+        return -1;
+    }
+
+    sqlite3_bind_int(stmt, 1, pokemonId);
+
+    int level = 1;
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        level = sqlite3_column_int(stmt, 0);
+    }
+
+    sqlite3_finalize(stmt);
+    return level;
+}
 
 bool PokemonDatabase::updatePokemonName(int pokemonId, const std::string& newName) {
     if (!m_db || pokemonId <= 0) return false;

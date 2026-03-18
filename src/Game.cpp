@@ -136,7 +136,10 @@ void Game::createInitialPokemon() {
     }
 
     dusclops.nature = Nature::Hardy;
-    dusclops.total_xp = 0;
+    dusclops.lvl = 10;
+    dusclops.currentXP = 0;
+    dusclops.moves[0] = 1;
+    dusclops.moves[1] = 425;
 
     int pokemonId = m_db.createPokemon(dusclops);
     if (pokemonId > 0) {
@@ -196,7 +199,9 @@ void Game::spawnPokemon() {
         }
 
         newWild.nature = Nature::Hardy;
-        newWild.total_xp = 0;
+        newWild.lvl = 5;
+        newWild.currentXP = 0;
+        newWild.moves[0] = 1;
 
         m_db.spawnWildPokemon(newWild);
         qDebug() << "Created new wild Pokemon:" << QString::fromStdString(newWild.name);
@@ -230,6 +235,15 @@ Party Game::getParty() {
         party.names[i] = pokemon.name;
         party.gens[i] = info->generation;
         party.ballIds[i] = 3;
+
+        for (int moveSlot = 0; moveSlot<4; moveSlot++){
+           int moveId = pokemon.moves[moveSlot];
+           if(moveId<1) continue;
+           const Move* _move = Globals::getMove(moveId);
+           party.moves[i][moveSlot] = {_move->name, _move->type};
+           qDebug() << party.moves[i][moveSlot].name;
+        };
+
     }
 
     return party;

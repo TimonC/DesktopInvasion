@@ -29,6 +29,8 @@ public:
     // Common operations as convenience methods
     bool addPokemonXp(int pokemonId, int xpAmount);
     int getPokemonXp(int pokemonId);
+    bool setPokemonLevel(int pokemonId, int level);
+    int getPokemonLevel(int pokemonId);
     bool updatePokemonName(int pokemonId, const std::string& newName);
 
     // Batch updates

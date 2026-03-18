@@ -8,6 +8,19 @@
 #include <qtmetamacros.h>
 #include <BattleMoveHandler.h>
 
+struct BattleMove{ //stub struct to build the move menu
+    const char* name = "";
+    Type type = Type::Null;
+};
+struct Party {
+    std::array<int, 6> pokedexIds{-1, -1, -1, -1, -1, -1};
+    std::array<int, 6> spriteIds{-1, -1, -1, -1, -1, -1};
+    std::array<int, 6> iconIds{-1, -1, -1, -1, -1, -1};
+    std::array<int, 6> gens{-1, -1, -1, -1, -1, -1};
+    std::array<int, 6> ballIds{-1, -1, -1, -1, -1, -1};
+    std::array<std::string, 6> names{"", "", "", "", "", ""};
+    std::array<std::array<BattleMove, 4>, 6> moves{};
+};
 
 class Battle : public DesktopScene{
 

@@ -25,18 +25,18 @@ struct PokemonState {
     int variant_id = 0;
     std::string name = "";
 
+    int lvl = 1;
+    int currentXP = 0;
+
     int ivs[6] = {};
     int evs[6] = {};
     Nature nature = Nature::Hardy;
 
-    int moves[4] = {0, 0, 0, 0};
-    int total_xp = 0;
+    int moves[4] = {-1, -1, -1, -1};
 };
 
 struct GameState {
     int _id = 1;
-    int wild_pokemon_id = 0;
-
     int player_sprite_id = 0;
     std::string name = "Player";
     int party_id[6] = {0, 0, 0, 0, 0, 0};

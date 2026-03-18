@@ -27,13 +27,5 @@ extern const int kPokemonCount;
 extern const SpriteInfo kSpriteList[];
 extern const int kSpriteCount;
 
-struct Party {
-    std::array<int, 6> pokedexIds{-1, -1, -1, -1, -1, -1};
-    std::array<int, 6> spriteIds{-1, -1, -1, -1, -1, -1};
-    std::array<int, 6> iconIds{-1, -1, -1, -1, -1, -1};
-    std::array<int, 6> gens{-1, -1, -1, -1, -1, -1};
-    std::array<int, 6> ballIds{-1, -1, -1, -1, -1, -1};
-    std::array<std::string, 6> names{"", "", "", "", "", ""};
-};
 
 #endif
