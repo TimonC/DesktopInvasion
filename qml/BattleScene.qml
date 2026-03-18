@@ -157,6 +157,7 @@ Item {
 
     function resetPlayerBall(firstChosen) {
         pokeBallPlayer.reset()
+        pokeBallPlayer.visible = true
 
         pokeBallPlayer.circleBaseRadius = Math.max(player.width/2, player.height/2)
         pokeBallPlayer.circleX = player.x + player.width/2  // Center on player
