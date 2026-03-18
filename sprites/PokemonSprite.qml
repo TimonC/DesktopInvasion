@@ -10,7 +10,7 @@ Item {
     property int frameWidth: 32
     property int frameHeight: 32
     property int frameCount: 2
-    property int frameRate: 4
+    property int frameRate: 3
     property int itemWidth: 0
     property int itemHeight: 0
     property int offsetX: 0

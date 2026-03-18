@@ -10,8 +10,6 @@ Battle::Battle(WildPokemon *opp, WildPokemon *chosen, QWindow *parent)
     /* , m_opp(opp) */
     /* , m_chosen(chosen) */
 {
-    setFlags(Qt::WindowStaysOnTopHint | Qt::Tool | Qt::WindowDoesNotAcceptFocus | Qt::FramelessWindowHint);
-    setColor(Qt::transparent);
 
     /* m_opp->setFlag(Qt::WindowTransparentForInput); */
     /* m_chosen->setFlag(Qt::WindowTransparentForInput); */
