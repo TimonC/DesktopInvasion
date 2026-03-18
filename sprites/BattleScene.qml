@@ -15,7 +15,7 @@ Item {
     property int gridSpacing: frameSize * 0.1
     property int pokeMargin: frameSize*0.25
     property bool debugLines: false
-
+    property int textBoxHeight: 50
     // Only need direction for positioning
     property int direction: 0
 
@@ -76,7 +76,7 @@ Item {
         switch(sprite.direction) {
             case 0:
                 sprite.anchors.bottom = root.bottom;
-                sprite.anchors.bottomMargin = textBar.height + margin + sprite.containerOffsetY;
+                sprite.anchors.bottomMargin = textBoxHeight + margin + sprite.containerOffsetY;
                 sprite.anchors.left = root.left;
                 sprite.anchors.leftMargin = margin + sprite.containerOffsetX;
                 break;
@@ -84,7 +84,7 @@ Item {
                 sprite.anchors.right = root.right;
                 sprite.anchors.rightMargin = margin + sprite.containerOffsetX;
                 sprite.anchors.bottom = root.bottom;
-                sprite.anchors.bottomMargin = textBar.height + margin;// + sprite.containerOffsetY;
+                sprite.anchors.bottomMargin = textBoxHeight + margin;// + sprite.containerOffsetY;
                 break;
             case 2: // South - position at top
                 sprite.anchors.top = root.top;
@@ -96,7 +96,7 @@ Item {
                 sprite.anchors.left = root.left;
                 sprite.anchors.leftMargin = margin + sprite.containerOffsetX;
                 sprite.anchors.bottom = root.bottom;
-                sprite.anchors.bottomMargin = textBar.height + margin;// + sprite.containerOffsetY;
+                sprite.anchors.bottomMargin = textBoxHeight + margin;// + sprite.containerOffsetY;
                 break;
         }
     }
@@ -146,7 +146,7 @@ Item {
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
-        height: frameSize * 1.6
+        height: root.textBoxHeight
 
         color: "transparent"
         border.color: "transparent"

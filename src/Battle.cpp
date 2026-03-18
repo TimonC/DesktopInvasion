@@ -69,24 +69,13 @@ void Battle::setupPokemon(const PokemonInfo* info, const char* role) {
 }
 
 
-void Battle::initPosition(){
-    int textBoxHeight = 32 * 1.6 * Globals::SCALE;
-    int padding = 2 * Globals::SCALE;
+void Battle::initPosition() {
+    QQuickItem* rootItem = qobject_cast<QQuickItem*>(m_battleScene);
+    QQuickItem* opponentItem = m_battleScene->findChild<QQuickItem*>("opponent");
 
-    switch(m_currentDirection) {
-        case 0: //opp look up
-            m_origin = m_initialOppPos; //+ QPoint(-m_pokeMargin, -height() + textBoxHeight - m_pokeMargin);
-            break;
-        case 1: //opp look left
-            m_origin = m_initialOppPos + QPoint(m_pokeMargin - width(),height()/2 - textBoxHeight);
-            break;
-        case 2: //opp look down
-            m_origin = m_initialOppPos + QPoint(-m_pokeMargin, -m_pokeMargin);
-            break;
-        case 3: //opp look right
-            m_origin = m_initialOppPos + QPoint(-m_pokeMargin,height()/2 -textBoxHeight);
-            break;
-    }
+    QPointF spriteOffset = opponentItem->mapToItem(rootItem, QPointF(0, 0));
+
+    m_origin = m_initialOppPos + QPoint(-spriteOffset.x(), -spriteOffset.y());
     setPosition(m_origin);
 }
 
