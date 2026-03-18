@@ -314,7 +314,7 @@ Rectangle {
                                     wrapMode: Text.Wrap
                                     maximumLineCount: 2
                                     elide: Text.ElideRight
-                                    lineHeight: 0.9
+                                    lineHeight: 1.4
                                     color: moveItem.moveEnabled ? root.attackTextColor : root.placeholderTextColor
                                 }
 
