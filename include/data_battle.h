@@ -3,6 +3,8 @@
 
 #include <data_gamestate.h>
 #include <variant>
+#include <array>
+#include <vector>
 
 enum class StatusCondition{
     Burn, Paralyze, Freeze, Sleep, Confuse, Seeded, Cursed
@@ -28,15 +30,17 @@ enum class MoveCategory {
     Physical, Special, Status
 };
 
-struct Move{
+struct Move {
     int id;
     const char* name;
-    Type type;
-    int power = 0;
-    int accuracy = 100;
-    MoveCategory moveCategory;
-    SideEffect* sideEffects = nullptr;
-    StatChange* statChanges = nullptr;
+    int accuracy;
+    int effect_chance;
+    int priority;
+    int power;
+    const char* type;
+    std::array<int, 5> stat_changes;
+    const char* flavor_text;
+    std::vector<int> learned_by_pokemon;
 };
 
 struct MoveMap{
