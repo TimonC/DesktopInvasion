@@ -293,7 +293,13 @@ Item {
         }
 
         color: {
-            if(displayed && root.displayedPokemonBox===pcPos[0]) return root.highlightColor
+            if(displayed && root.displayedPokemonBox===pcPos[0]) {
+                if(hoverArea.containsMouse && !root.isSwapMode){
+                    return  root.highlightSwapColor
+                }else{
+                    return root.highlightColor
+                }
+            }
             if(swappable){
                 if (hoverArea.containsMouse){
                     return root.highlightSwapColor
