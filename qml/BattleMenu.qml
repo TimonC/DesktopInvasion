@@ -6,7 +6,6 @@ import "Style/PokeColor.js" as PokeColor
 Rectangle {
     id: root
     color: "transparent"
-    property real animationSpeed: 1
 
     property int menuWidth: 0
     property int menuHeight: 0
@@ -62,9 +61,9 @@ Rectangle {
     property real hoverScale: 1.04
     property real iconScale: 1.0
 
-    property int colorAnimationDuration: Math.max(80, Math.floor(200))
-    property int downDuration: Math.max(50, Math.floor(140 / animationSpeed))
-    property int upDuration: Math.max(30, Math.floor(100 / animationSpeed))
+    property int colorAnimationDuration: Math.max(80, 200)
+    property int downDuration: Math.max(50, 140)
+    property int upDuration: Math.max(30, 100)
     property int clickDelayDuration: downDuration
 
     property bool textBarShown: false

@@ -245,7 +245,6 @@ Item {
 
     BattleMenu {
         id: battleMenu
-        animationSpeed: root.animationSpeed
         iconScale: root.scale
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
