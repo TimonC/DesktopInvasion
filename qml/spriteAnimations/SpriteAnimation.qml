@@ -3,25 +3,36 @@ import QtQuick 2.15
 SequentialAnimation {
     id: root
 
-    property Item target: parent
+    // Use default property to allow child animations
+    default property var animationChildren
+
+    property Item target: null
     property int direction: 0
     property real scaleFactor: 4
 
     running: false
     loops: 1
 
-    // Signal - emitted when animation finishes
     signal animationFinished()
 
-    // Connect to built-in signal
     onStopped: animationFinished()
 
-    // Slot - call this to start the animation
     function startAnimation() {
         running = true;
     }
 
     function stopAnimation() {
         running = false;
+    }
+
+    // Initialize child animations with our target
+    onTargetChanged: {
+        if (animationChildren && target) {
+            for (var i = 0; i < animationChildren.length; i++) {
+                if (animationChildren[i].hasOwnProperty('target')) {
+                    animationChildren[i].target = target;
+                }
+            }
+        }
     }
 }

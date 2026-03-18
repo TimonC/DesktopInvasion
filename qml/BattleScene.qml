@@ -8,6 +8,7 @@ Item {
     layer.enabled: true
 
     signal runClicked()
+    property bool attackInProgress: false
 
    // Scaling properties
     property int frameSize: 32
@@ -31,7 +32,6 @@ Item {
     property alias catchButton: catchButton
     property alias runButton: runButton
 
-    // Opponent Pokemon (wild) - positioned opposite to player
     PokemonContainer {
         id: opponent
         objectName: "opponent"
@@ -42,8 +42,14 @@ Item {
             opponent.containerLines.border.color = "red"
         }
 
-        Connections {
-            target: root
+        onAttackedAnimationFinished: {
+            console.log("Opponent hit animation finished")
+            // End the attack sequence
+            root.attackInProgress = false;
+            buttonGrid.visible = true;
+            textBarText.visible = false;
+            textBar.color = "transparent";
+            root.update_text_bar("What will you do?");
         }
     }
 
@@ -58,8 +64,11 @@ Item {
             player.containerLines.border.color = "blue"
         }
 
-        Connections {
-            target: root
+        onAttackAnimationFinished: {
+            console.log("Player attack finished - now hitting opponent")
+            // When player attack finishes, trigger opponent hit animation
+            opponent.startAttacked();
+            root.update_text_bar("It's super effective!");
         }
     }
 
@@ -108,7 +117,22 @@ Item {
         textBar.text = newText;
     }
 
+    // Handle attack button click
+    function handleAttack() {
+        if (root.attackInProgress) return;
 
+        root.attackInProgress = true;
+
+        // Hide buttons and show text during animation
+        buttonGrid.visible = false;
+        textBarText.visible = true;
+        textBar.color = "gray";
+
+        root.update_text_bar("Player used Tackle!");
+
+        // Start player attack animation
+        player.startAttack();
+    }
 
     // Text bar at the bottom
     Rectangle {
@@ -120,6 +144,7 @@ Item {
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
+        width: root.width;
         height: root.textBoxHeight
 
         color: "transparent"
@@ -135,7 +160,7 @@ Item {
             font.pixelSize: 14
             verticalAlignment: Text.AlignVCenter
             elide: Text.ElideRight
-            visible: false
+            visible: false  // Start hidden, show during animations
             z: 8000
         }
 
@@ -144,7 +169,7 @@ Item {
             id: buttonGrid
             columns: 2
             spacing: gridSpacing
-            visible: true
+            visible: true  // Start visible
 
             x: (parent.width - width) / 2
             y: (parent.height - height) / 2
@@ -158,7 +183,7 @@ Item {
                 width: buttonWidth
                 height: buttonHeight
                 radius: buttonHeight / 2
-                onClicked: console.log("Attack clicked")
+                onClicked: root.handleAttack()
             }
 
             RoundButton {

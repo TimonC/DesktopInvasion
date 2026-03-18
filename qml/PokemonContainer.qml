@@ -14,16 +14,27 @@ Item {
     property alias frameCount: pokemonSprite.frameCount
     property alias frameRate: pokemonSprite.frameRate
 
+    // Signals
+    signal attackAnimationFinished()
+    signal attackedAnimationFinished()
+
+    // Slots
+    function startAttack() {
+        pokemonSprite.startAttack();
+    }
+
+    function startAttacked() {
+        pokemonSprite.startAttacked();
+    }
+
     // Animation triggers
-    property alias tackle: pokemonSprite.tackle
-    property alias attacked: pokemonSprite.attacked
     property alias containerLines: containerDebugLines
     // Container properties
     property int itemWidth: 0
     property int itemHeight: 0
-    property int containerOffsetX: 0  // Container positioning within parent
+    property int containerOffsetX: 0
     property int containerOffsetY: 0
-    property int spriteOffsetX: 0     // Sprite positioning within container
+    property int spriteOffsetX: 0
     property int spriteOffsetY: 0
     property bool clickable: true
     property bool debugLines: false
@@ -50,6 +61,10 @@ Item {
         PokemonSprite {
             id: pokemonSprite
             anchors.centerIn: parent
+
+            // Forward signals from sprite to container
+            onAttackAnimationFinished: root.attackAnimationFinished()
+            onAttackedAnimationFinished: root.attackedAnimationFinished()
         }
     }
 

@@ -11,7 +11,7 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ./src:/app/src
       - ./include:/app/include
-      - ./sprites:/app/sprites
+      - ./qml:/app/qml
       - /dev/dri:/dev/dri
     stdin_open: true
     tty: true

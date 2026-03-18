@@ -1,31 +1,51 @@
 import QtQuick 2.15
-import "../SpriteAnimation"  // Import base animations
 
-SpriteAnimation {
-    // Get hit movement (backward)
+SequentialAnimation {
+    id: root
+
+    property Item target: parent
+    property int direction: 0
+    property real scaleFactor: 4
+
+    running: false
+    loops: 1
+
+    signal animationFinished()
+
+    onStopped: animationFinished()
+
+    function startAnimation() {
+        running = true;
+    }
+
+    function stopAnimation() {
+        running = false;
+    }
+
     PropertyAnimation {
         target: root.target
         property: "x"
-        to: (root.direction==1 ? 2.5*root.scaleFactor :
-             root.direction==3 ? -2.5*root.scaleFactor :
-             0)
+        from: target.x
+        to: target.x + (root.direction==1 ? 2.5*root.scaleFactor :
+                       root.direction==3 ? -2.5*root.scaleFactor :
+                       0)
         duration: 100
     }
 
     PropertyAnimation {
         target: root.target
         property: "y"
-        to: (root.direction==0 ? 2.5*root.scaleFactor :
-             root.direction==2 ? -2.5*root.scaleFactor :
-             0)
+        from: target.y
+        to: target.y + (root.direction==0 ? 2.5*root.scaleFactor :
+                       root.direction==2 ? -2.5*root.scaleFactor :
+                       0)
         duration: 100
     }
 
-    // Return to original position
     PropertyAnimation {
         target: root.target
         property: "x"
-        to: 0
+        to: target.x
         duration: 100
         easing.type: Easing.InQuad
     }
@@ -33,7 +53,7 @@ SpriteAnimation {
     PropertyAnimation {
         target: root.target
         property: "y"
-        to: 0
+        to: target.y
         duration: 100
         easing.type: Easing.InQuad
     }

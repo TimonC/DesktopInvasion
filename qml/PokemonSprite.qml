@@ -31,7 +31,8 @@ Item {
 
     AnimatedSprite {
         id: sprite
-        anchors.centerIn: parent
+        x: (parent.width - width) / 2  // Center manually using x/y
+        y: (parent.height - height) / 2
         scale: scaleFactor
 
         running: false

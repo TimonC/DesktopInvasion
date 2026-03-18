@@ -4,6 +4,7 @@
         <file>qml/PokemonContainer.qml</file>
         <file>qml/BattleScene.qml</file>
 
+        <file>qml/spriteAnimations/SpriteAnimation.qml</file>
         <file>qml/spriteAnimations/actions/MoveForward.qml</file>
         <file>qml/spriteAnimations/responses/MoveBack.qml</file>
 
