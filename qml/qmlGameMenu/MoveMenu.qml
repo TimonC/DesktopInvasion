@@ -37,6 +37,7 @@ Item {
     property color colorEligHov:      "#3c3c3c"
     property color colorTypePillText: "#ffffff"
     property color colorAccent:       "#5294e2"
+    property color colorError:        "#e25452"
     property color colorNameBg:       "#383838"
     property color colorNameHov:      "#444444"
     property color colorNameEdit:     "#404040"
@@ -54,6 +55,8 @@ Item {
     property int pillH:   fontSizeMd + 6
     property int cardH:   pillH + pad * 2
     property int secGap:  16
+
+    property int _updateCounter: 0
 
     signal returnClicked()
     signal nameChanged(string newName)
@@ -158,7 +161,25 @@ Item {
             onClicked: {
                 if (!cmc.swapReady) return
                 var eligMove = moveMenu.pokeData.eligibleMoves[moveMenu.selectedEligibleIdx]
+
+                var newMoves = moveMenu.pokeData.moves.slice()
+                newMoves[cmc.slotIndex] = {
+                    id:       eligMove.id,
+                    name:     eligMove.name,
+                    type:     eligMove.type,
+                    power:    eligMove.power,
+                    accuracy: eligMove.accuracy
+                }
+                moveMenu.pokeData.moves = newMoves
+                moveMenu._updateCounter++
+
                 moveMenu.requestMoveChange(cmc.slotIndex, eligMove.id)
+
+                moveName = eligMove.name
+                moveType = eligMove.type
+                movePow = eligMove.power !== undefined ? eligMove.power : -1
+                moveAcc = eligMove.accuracy !== undefined ? eligMove.accuracy : -1
+
                 moveMenu.selectedEligibleIdx = -1
             }
         }
@@ -173,13 +194,28 @@ Item {
         property int    eligIdx:  -1
 
         readonly property bool isSelected: moveMenu.selectedEligibleIdx === eligIdx
+        readonly property bool isMoveKnown: {
+            if (!moveMenu.pokeData) return false
+            moveMenu._updateCounter
+            var eligMove = moveMenu.pokeData.eligibleMoves[eligIdx]
+            for (var i = 0; i < moveMenu.pokeData.moves.length; i++) {
+                var currentMove = moveMenu.pokeData.moves[i]
+                if (!currentMove) continue
+                if (currentMove.id !== undefined && currentMove.id === eligMove.id) return true
+                if (currentMove.name === eligMove.name) return true
+            }
+            return false
+        }
 
         width:  parent ? parent.width : 200
         height: moveMenu.cardH
         radius: 4
-        color:  isSelected ? moveMenu.colorSurfaceSel
-                           : (emrMa.containsMouse ? moveMenu.colorEligHov : moveMenu.colorEligCard)
-        border.color: isSelected ? moveMenu.colorAccent : moveMenu.colorDivider
+        color:  isMoveKnown ? moveMenu.colorSurface
+              : isSelected ? moveMenu.colorSurfaceSel
+              : (emrMa.containsMouse ? moveMenu.colorEligHov : moveMenu.colorEligCard)
+        border.color: isMoveKnown ? moveMenu.colorDivider
+                    : isSelected ? moveMenu.colorAccent
+                    : moveMenu.colorDivider
         border.width: isSelected ? 2 : 1
 
         Row {
@@ -200,7 +236,7 @@ Item {
                 text:           emr.moveName
                 font.family:    moveMenu.mainFont
                 font.pixelSize: moveMenu.fontSizeSm - 1
-                color:          moveMenu.colorText
+                color:          isMoveKnown ? moveMenu.colorVeryFaint : moveMenu.colorText
                 elide:          Text.ElideRight
             }
 
@@ -211,7 +247,7 @@ Item {
                                 (emr.moveAcc > 0 ? emr.moveAcc + "%" : "—")
                 font.family:    moveMenu.bodyFont
                 font.pixelSize: moveMenu.fontSizeSm
-                color:          moveMenu.colorSubtext
+                color:          isMoveKnown ? moveMenu.colorVeryFaint : moveMenu.colorSubtext
             }
         }
 
@@ -219,11 +255,13 @@ Item {
             id: emrMa
             anchors.fill:            parent
             hoverEnabled:            true
+            enabled:                 !emr.isMoveKnown
             cursorShape:             undefined
             propagateComposedEvents: false
             onClicked: {
-                moveMenu.selectedEligibleIdx = (moveMenu.selectedEligibleIdx === emr.eligIdx)
-                                               ? -1 : emr.eligIdx
+                var newSelectedIdx = (moveMenu.selectedEligibleIdx === emr.eligIdx) ? -1 : emr.eligIdx
+                moveMenu.selectedEligibleIdx = newSelectedIdx
+
                 if (moveMenu.inNameEditMode) moveMenu.toggleNameEditMode()
             }
         }
@@ -366,7 +404,7 @@ Item {
 
                     Text {
                         anchors { right: parent.right; verticalCenter: parent.verticalCenter }
-                        text:           moveMenu.selectedEligibleIdx !== -1 ? "← pick slot" : ""
+                        text: moveMenu.selectedEligibleIdx !== -1 ? "← pick slot" : ""
                         font.family:    moveMenu.bodyFont
                         font.pixelSize: moveMenu.fontSizeSm
                         color:          moveMenu.colorAccent
@@ -763,4 +801,3 @@ Item {
         }
     }
 }
-
