@@ -72,7 +72,7 @@ namespace PokeMath{
         return confusionDist(rng) == 0;
     }
 
-    inline bool calculateFreezeThaw(std::mt19937& rng){
+    inline bool calculateFreezeBreak(std::mt19937& rng){
         static std::uniform_int_distribution<int> freezeDist(0, 4);
         return freezeDist(rng) == 0;
     }

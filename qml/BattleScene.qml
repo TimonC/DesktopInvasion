@@ -313,15 +313,14 @@ Item {
                 sequenceTimer.start()
                 break
 
-            case "damage":
-                var defender = (step.role === "player") ? player : opponent
-                defender.takeDamage.running = true
-                sequenceTimer.interval = step.delay
-                sequenceTimer.start()
-                break
-
             case "change-health":
                 var target = (step.role === "player") ? player : opponent
+
+                if(step.amount<0){
+                    target.takeDamage.running = true;
+                }
+
+                target.takeDamage.running = true
                 let currentHealthRatio = target.statusBar.changeHealth(step.amount)
                 battleMenu.party.healthRatios[battleMenu.selectedIndex] = currentHealthRatio
                 if(currentHealthRatio==0){

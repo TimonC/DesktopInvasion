@@ -138,19 +138,17 @@ private:
 
     QVariantList generateActionSequence(Battler& opponent, Battler& player, bool playerFirst, int switchedIn, int shakes);
     void logActionSequence(const QVariantList& sequence);
-    void logBattleResult(const BattleActionResult& result);
 
     QVariantMap createTextAction(const QString& message, int delay);
     QVariantMap createAttackAction(const QString& role, int delay);
-    QVariantMap createDamageAction(const QString& role, int delay);
     QVariantMap createHealthChangeAction(const QString& role, int amount, int delay);
     QVariantMap createCatchAction(int shakes, int delay);
-    QVariantMap createStatusCondition(const QString& role, Ailment ailment);
+    QVariantMap createStatusCondition(const QString& role, Ailment ailment, bool remove);
     QVariantMap createEndAction();
 
     QString ailmentToApplicationText(Ailment ailment);
     QString ailmentToHurtText(Ailment ailment);
-    QString ailmentToRemovalText(Ailment ailment);
+    QString ailmentToRemovalText(Ailment ailment, const QString& pokemonName);
     QString getStatName(int statIndex);
 
     Battler* m_battleOpponent;
@@ -158,16 +156,18 @@ private:
     int m_partyPokemonSentOut[6] = {-1,-1,-1,-1,-1,-1};
     std::mt19937 m_rng;
 
-    int ms_moveUsedText = 300;
-    int ms_ailmentText = 300;
-    int ms_statusConditionText = 500;
-    int ms_attackAnimation = 500;
-    int ms_damageAnimation = 200;
-    int ms_healthChange = 1000;
-    int ms_criticalHitText = 800;
-    int ms_effectivenessText = 800;
-    int ms_drainEffectText = 800;
-    int ms_catchStart = 1000;
+    static const int ms_moveUsedText = 300;
+    static const int ms_ailmentText = 300;
+    static const int ms_statusConditionText = 500;
+    static const int ms_attackAnimation = 500;
+    static const int ms_healthChange = 1000;
+    static const int ms_criticalHitText = 800;
+    static const int ms_effectivenessText = 800;
+    static const int ms_drainEffectText = 800;
+    static const int ms_catchStart = 1000;
+    static const int ms_ballUsed = 300;
+    static const int ms_failCatch = 1000;
+    static const int ms_successCatch = 1000;
 };
 
 #endif
