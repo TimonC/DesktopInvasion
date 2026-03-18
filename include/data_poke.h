@@ -21,7 +21,6 @@ struct Poke {
     const int base_xp;
     const EligibleMove* eligible_moves;
     const int eligible_move_count;
-
     const EligibleEvolve* eligible_evolves;
     const int eligible_evolve_count;
 };

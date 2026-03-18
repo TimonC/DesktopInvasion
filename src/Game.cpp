@@ -59,6 +59,33 @@ Game::~Game() {
 // --------------------------------------------------------------------------
 // Menu <-> DB bridge
 // --------------------------------------------------------------------------
+QVariantMap Game::pokemonToMenuState(int slot, const PokemonState &p){
+    QVariantMap entry;
+    entry["slot"]   = slot;
+    entry["iconId"] = p.pokedex_id-1;
+
+    const Poke *poke = Lookup::getPoke(p.pokedex_id);
+    for(int eligible = 0; eligible < poke->eligible_evolve_count; eligible++){
+        if(p.lvl >= poke->eligible_evolves[eligible].level){
+             /* const Pokemontate &eligibleState = p; TODO make copy constructor for pokemonstate */
+             /* entry["evolves"] = {pokemonToMenuState(slot, eligibleState)}; */
+        }
+    }
+
+    QVariantList moves;
+    for(int moveSlot = 0; moveSlot < 4; moveSlot++) {
+        const Move* _move = Lookup::getMove(p.moves[moveSlot]);
+        QVariantMap moveData;
+        moveData["name"] = QString::fromStdString(_move->name);
+        moveData["type"] = QString::fromStdString(PokeTypes::typeToString(_move->type));
+        moveData["flavor"] = QString::fromStdString(_move->flavor_text);
+        moveData["power"] = _move->power;
+        moveData["accuracy"] = _move->accuracy;
+        moves.append(moveData);
+    }
+    entry["moves"] = moves;
+    return entry;
+}
 
 QVariantList Game::partyToVariantList() {
     QVariantList list;
@@ -66,25 +93,19 @@ QVariantList Game::partyToVariantList() {
     for (int slot = 0; slot < PARTY_SIZE; ++slot) {
         const PokemonState& p = party[slot];
         if (p.empty()) continue;
-        QVariantMap entry;
-        entry["slot"]   = slot;
-        entry["iconId"] = p.pokedex_id-1;
-        list.append(entry);
+        list.append(pokemonToMenuState(slot,p));
     }
     return list;
 }
 
 QVariantList Game::boxToVariantList(int boxIndex) {
+    QVariantList list;
     m_db.loadBox(boxIndex);
     const auto& box = m_db.getBox(boxIndex);
-    QVariantList list;
     for (int slot = 0; slot < BOX_SIZE; ++slot) {
         const PokemonState& p = box[slot];
         if (p.empty()) continue;
-        QVariantMap entry;
-        entry["slot"]   = slot;
-        entry["iconId"] = p.pokedex_id-1;
-        list.append(entry);
+        list.append(pokemonToMenuState(slot, p));
     }
     return list;
 }

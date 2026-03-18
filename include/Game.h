@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GAME_H
+#define GAME_H
 
 #include "PokemonDatabase.h"
 #include <Battle.h>
@@ -44,6 +45,7 @@ private:
     void safelyRemoveWildPokemon();
 
     // Menu <-> DB bridge helpers
+    QVariantMap pokemonToMenuState(int slot, const PokemonState& p);
     QVariantList partyToVariantList();
     QVariantList boxToVariantList(int boxIndex);
     void         pushBoxToMenu(int boxIndex);
@@ -57,3 +59,5 @@ private slots:
     void handleBattleEnd(const char* endState, bool removeWild);
     void setGameActive(bool active = true);
 };
+
+#endif

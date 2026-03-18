@@ -9,7 +9,7 @@
 #include <QSqlQuery>
 
 constexpr int PARTY_SIZE  = 6;
-constexpr int BOX_SIZE    = 16;   // 4x4
+constexpr int BOX_SIZE    = 16;
 constexpr int MAX_BOXES   = 99;
 
 struct PokemonState {
@@ -41,7 +41,7 @@ struct PendingSlotChange {
     Kind kind;
     int  a_box=-1, a_slot=-1;
     int  b_box=-1, b_slot=-1;
-    std::optional<PokemonState> data; // for Set operations
+    std::optional<PokemonState> data;
 };
 
 class PokemonDatabase {
