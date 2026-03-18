@@ -7,8 +7,12 @@ Rectangle {
     id: root
     color: "transparent"
 
+    property bool inClickableArea: false
     property int menuTransitionDuration: 100
     property double iconScale: 1.0
+
+    property var handCursor;
+    property var pointerCursor;
 
     property int buttonWidth: 0
     property int buttonHeight: 0
@@ -79,6 +83,7 @@ Rectangle {
     signal fightChosen(int fightId)
     signal runChosen(bool removeWild)
     signal switchChosen(int newPartyIdx)
+    signal clickableAreaEntered(bool enter)
 
     property alias stack: stack
 
@@ -142,21 +147,87 @@ Rectangle {
         stack.replace(rootSelection)
     }
 
-    component GradientRoundButton: RoundButton {
+    component NoCursorMouseArea: MouseArea{
+        cursorShape: undefined
+        hoverEnabled: true
+        z: 3
+    }
+    NoCursorMouseArea{
+        id: menuMouseArea
+        anchors.fill: parent
+        z: 2
+        propagateComposedEvents: true // Allow events to pass through
+        acceptedButtons: Qt.NoButton // Don't consume any clicks
+        onPressed: mouse.accepted = false
+        onReleased: mouse.accepted = false
+        onClicked: mouse.accepted = false
+
+        onEntered:{
+           if(!root.inClickableArea){
+               root.inClickableArea = true
+               root.clickableAreaEntered(true)
+            }
+        }
+        onExited:{
+           if(root.inClickableArea) {
+               root.inClickableArea = false
+               root.clickableAreaEntered(false)
+            }
+            z: 3
+        }
+    }
+    component GradientRoundButton: Item {
         id: gradientButton
         required property color buttonColor
+        required property string text
+        signal clicked()
 
-        property int wrapMode: Text.NoWrap
-        property int elide: Text.ElideRight
-
-        palette.buttonText: root.menuTextColor
-        palette.button: gradientButton.buttonColor
-        font.pixelSize: root.buttonFontSize
-        font.family: root.menuFontFamily
-        font.weight: Font.DemiBold
+        property alias wrapMode: label.wrapMode
+        property alias elide: label.elide
+        property bool down: mouseArea.pressed
+        property bool hovered: mouseArea.containsMouse
+        property alias font: label.font
 
         width: Math.floor(root.contentWidth / 2 - root.gridSpacing)
         height: Math.floor(root.contentHeight / 2 - root.gridSpacing)
+
+        NoCursorMouseArea {
+            id: mouseArea
+            anchors.fill: parent
+            onClicked: gradientButton.clicked()
+        }
+
+        Rectangle {
+            id: background
+            anchors.fill: parent
+            radius: height / 2
+
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: PokeColor.lighter(gradientButton.buttonColor) }
+                GradientStop { position: 1.0; color: gradientButton.buttonColor }
+            }
+
+            opacity: mouseArea.pressed ? 0.9 : 1.0
+            scale: mouseArea.pressed ? 0.98 : 1.0
+
+            Behavior on opacity { NumberAnimation { duration: 100 } }
+            Behavior on scale { NumberAnimation { duration: 100 } }
+        }
+
+        Text {
+            id: label
+            anchors.centerIn: parent
+            width: parent.width * 0.9
+            text: gradientButton.text
+            font.pixelSize: root.buttonFontSize
+            font.family: root.menuFontFamily
+            font.weight: Font.DemiBold
+            color: root.menuTextColor
+            wrapMode: Text.NoWrap
+            elide: Text.ElideRight
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+        }
     }
 
     StackView {
@@ -265,6 +336,7 @@ Rectangle {
                 GradientRoundButton {
                     text: "Fight"
                     buttonColor: root.fightButtonColor
+
                     onClicked: {
                         stack.push(fightSelection)
                     }
@@ -273,19 +345,25 @@ Rectangle {
                 GradientRoundButton {
                     text: "Switch"
                     buttonColor: root.switchButtonColor
-                    onClicked: stack.push(switchSelection)
+                    onClicked: {
+                        stack.push(switchSelection)
+                    }
                 }
 
                 GradientRoundButton {
                     text: "Catch"
                     buttonColor: root.catchButtonColor
-                    onClicked: stack.push(catchSelection)
+                    onClicked: {
+                        stack.push(catchSelection)
+                    }
                 }
 
                 GradientRoundButton {
                     text: "Run"
                     buttonColor: root.runButtonColor
-                    onClicked: stack.push(runSelection)
+                    onClicked: {
+                        stack.push(runSelection)
+                    }
                 }
             }
         }
@@ -361,7 +439,7 @@ Rectangle {
                             color: moveEnabled ? root.menuTextColor : root.placeholderTextColor
                         }
 
-                        MouseArea {
+                        NoCursorMouseArea {
                             anchors.fill: parent
                             enabled: moveEnabled
                             onClicked: {
@@ -450,7 +528,7 @@ Rectangle {
                             verticalAlignment: Text.AlignVCenter
                         }
 
-                        MouseArea {
+                        NoCursorMouseArea {
                             anchors.fill: parent
                             enabled: !root.forceSwitchMode ||
                                      (root.selectedIndex !== index &&
@@ -547,7 +625,7 @@ Rectangle {
                             }
                         }
 
-                        MouseArea {
+                        NoCursorMouseArea {
                             anchors.fill: parent
                             enabled: ballEnabled
                             onClicked: {
@@ -611,7 +689,7 @@ Rectangle {
                             maximumLineCount: 2
                         }
 
-                        MouseArea {
+                        NoCursorMouseArea {
                             anchors.fill: parent
                             onClicked: modelData.action()
                         }
@@ -628,7 +706,6 @@ Rectangle {
             opacity: root.forceSwitchMode ? 0.5 : 1.0
             width: root.backButtonWidth
             height: root.backButtonHeight
-            radius: 6
             onClicked: if(!root.forceSwitchMode) stack.pop()
             text: "←"
         }
@@ -641,7 +718,6 @@ Rectangle {
 
             width: root.menuWidth
             height: root.menuHeight
-
             RowLayout {
                 anchors.fill: parent
                 anchors.margins: Math.floor(root.contentMarginsRatio * root.menuHeight)
@@ -668,6 +744,7 @@ Rectangle {
                     }
                 }
             }
+
         }
     }
 

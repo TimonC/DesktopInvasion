@@ -15,12 +15,17 @@ DesktopScene::DesktopScene(QWindow *parent)
         | Qt::BypassWindowManagerHint
         );
      setColor(Qt::transparent);
-    //Short delay to ensure proper window size
+
+     m_grabCursor = QCursor(QPixmap(":/assets/XY/grab.png"));
+     m_handCursor = QCursor(QPixmap(":/assets/XY/hand.png"));
+     m_pointerCursor = QCursor(QPixmap(":/assets/XY/pointer.png"));
+     setCursor(m_handCursor);
 }
 
 
 void DesktopScene::mouseMoveEvent(QMouseEvent* event){
     if(!m_isDragged) return;
+    setCursor(m_grabCursor);
 
     QPoint mousePos = event->globalPosition().toPoint();
     QPoint newPos = position()+ mousePos - m_oldMousePos;
@@ -42,5 +47,6 @@ void DesktopScene::mousePressEvent(QMouseEvent* event){
 }
 
 void DesktopScene::mouseReleaseEvent(QMouseEvent* event){
+    if(cursor()==m_grabCursor) setCursor(m_handCursor);
     handleDrag(false);
 }

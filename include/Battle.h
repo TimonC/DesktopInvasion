@@ -68,6 +68,7 @@ public slots:
     void handleDrag(bool isDragged) override;
 
 private slots:
+    void handleClickableAreaEnter(bool enter);
     void handleBattleEnded(QString endState, bool removeWild);
     void handleGettingExperience();
     QQuickItem* updateSprite(int pokedexId, const char* role);

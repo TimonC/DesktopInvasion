@@ -3,6 +3,7 @@
 #include <QOpenGLContext>
 #include <globals.h>
 #include <Game.h>
+#include <qnamespace.h>
 #include <tests.h>
 #include <QQmlApplicationEngine>
 #include <QFontDatabase>
@@ -12,8 +13,8 @@
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
-    Globals::debug(true);
-    float scale = 3;
+    /* Globals::debug(true); */
+    float scale = 2;
     float speed = 4;
     Globals::scale(scale);
     Globals::animationSpeed(speed);

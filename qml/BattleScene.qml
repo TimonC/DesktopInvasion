@@ -9,6 +9,7 @@ Item {
     property real frameSize: 32*scale
     property int animationSpeed: 1
 
+    property alias inClickableArea: battleMenu.inClickableArea
 
     width: (direction === 0 || direction === 2) ? Math.round(frameSize * 6) : Math.round(frameSize * 8)
     height: (direction === 0 || direction === 2) ? Math.round(frameSize * 8) : Math.round(frameSize * 6)
@@ -66,10 +67,13 @@ Item {
     property bool catchAttemptActive: false
     property var ballOpenedConnection: null
     property var pokemonInsideBallConnection: null
+
+
     signal _battleEnded(string endState, bool removeWild);
     signal signalToStartActionRound(int actionIndex, string actionState)
     signal switchedPokemon(int pokedexId, int partyIndex)
     signal requestExperienceSpread();
+    signal _clickableAreaEntered(bool enter);
 
     function setInitialTotalHealth(opponentTotalHealth, playerTotalHealth){
         opponent.statusBar.totalHealth  = opponentTotalHealth
@@ -91,7 +95,6 @@ Item {
             case 1:
                 sprite.x = Math.round(root.width - root.frameSize/2 - root.statusBarWidth/2 - sprite.width/2)
                 sprite.y = Math.round(root.height - battleMenu.height - sprite.height + Math.max(0, sprite.height-sprite.horizontalHeight)/2)
-                sprite.y = Math.min(sprite.y, Math.round(root.height-battleMenu.height-frameSize/4))
                 sprite.statusBar.x = Math.round(root.width - root.frameSize/2 - root.statusBarWidth)
                 sprite.statusBar.y = 0
                 break
@@ -244,6 +247,8 @@ Item {
 
     BattleMenu {
         id: battleMenu
+        handCursor: root.handCursor
+        pointerCursor: root.pointerCursor
         iconScale: root.scale
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
@@ -261,6 +266,9 @@ Item {
         textBarFontFamily: root.textBarFontFamily
         menuFontFamily: root.menuFontFamily
         opponentName: root.opponentName
+        onClickableAreaEntered: function(enter){
+            root._clickableAreaEntered(enter)
+        }
         onActionRound: function(actionIndex, actionType) {
             root.signalToStartActionRound(actionIndex, actionType)
         }
