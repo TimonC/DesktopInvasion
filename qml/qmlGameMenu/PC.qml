@@ -378,8 +378,8 @@ Item {
         }
 
         property color _baseColor: {
-            if (displayed && root.displayedPokemonBox === pcPos[0])
-                return root.displayedColor
+            if (displayed)
+                return root.swapHoverColor
             if (swappable)
                 return hoverArea.containsMouse ? root.swapHoverColor : root.swapColor
             if (hoverArea.containsMouse && iconVisible)
@@ -405,6 +405,14 @@ Item {
             color:           pokemonSlot._baseColor
         }
 
+        Rectangle {
+            anchors.fill: parent
+            anchors.margins: 2
+            radius: 4
+            color: "transparent"
+            border.color: displayed ? (swappable ? root.swapHoverColor : root.hoverHighlightColor) : "transparent"
+            border.width: displayed ? 2 : 0
+        }
         Image {
             anchors.fill: parent
             visible:      parent.iconVisible
