@@ -1,4 +1,3 @@
-// Battle.h
 #ifndef BATTLE_H
 #define BATTLE_H
 #include <DesktopScene.h>
@@ -8,8 +7,9 @@
 #include <WildPokemon.h>
 #include <qglobal.h>
 #include <qtmetamacros.h>
-#include <PokemonTypes.h>
+#include <PokeTypes.h>
 #include <BattleMoveHandler.h>
+#include <PokemonDatabase.h>
 
 struct BattleMove{ //stub struct to build the move menu
     std::string name = "";

@@ -1,8 +1,7 @@
 #include <Game.h>
-#include <PokemonTypes.h>
+#include <PokeTypes.h>
 #include <SystemTrayIcon.h>
 #include <WildPokemon.h>
-#include <gamestate.h>
 #include <globals.h>
 #include <PokeMath.h>
 #include <QTimer>
@@ -231,7 +230,7 @@ Party Game::getParty() {
            if(moveId<1) continue;
 
            const Move* _move = Globals::getMove(moveId);
-           party.moves[i][moveSlot] = {_move->name, PokemonTypes::typeToString(_move->type)};
+           party.moves[i][moveSlot] = {_move->name, PokeTypes::typeToString(_move->type)};
         };
 
     }

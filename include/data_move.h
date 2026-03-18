@@ -2,8 +2,7 @@
 #define DATA_MOVE_H
 
 #include <array>
-#include <gamestate.h>
-#include <PokemonTypes.h>
+#include <PokeTypes.h>
 
 enum class Ailment{
     Burn, Freeze, Paralysis, Poison, Sleep, Confusion, Null

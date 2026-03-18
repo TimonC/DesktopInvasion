@@ -1,5 +1,5 @@
-#ifndef POKEMONTYPES_H
-#define POKEMONTYPES_H
+#ifndef POKETYPES_H
+#define POKETYPES_H
 
 #include <string>
 #include <array>
@@ -21,7 +21,7 @@ enum Nature {
     Timid, Hasty, Jolly, Naive
 };
 
-namespace PokemonTypes{
+namespace PokeTypes{
     inline const char* TYPE_NAMES[] = {
         "Null",
         "Normal", "Fighting", "Flying", "Poison", "Ground",

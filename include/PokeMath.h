@@ -43,6 +43,18 @@ namespace PokeMath{
         }
     }
 
+    inline int calculatePoisonDamage(int totalHealth, int counter = -1){
+        if(counter<0){
+            return totalHealth / 8;
+        }else{
+            return counter * totalHealth / 16;
+        }
+    }
+
+    inline int calculateBurnDamage(int totalHealth){
+        return totalHealth / 8;
+    }
+
     inline bool processShake(float modifiedCatchRate, std::mt19937& rng) {
         float threshold = 1048560.0f / sqrt(sqrt(16711680.0f / modifiedCatchRate));
         std::uniform_int_distribution<int> dist(0, 65535);

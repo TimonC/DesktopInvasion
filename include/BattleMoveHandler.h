@@ -2,7 +2,7 @@
 #define BATTLEMOVEHANDLER_H
 #include <QObject>
 #include <data_move.h>
-#include <gamestate.h>
+#include <PokemonDatabase.h>
 #include <qglobal.h>
 #include <qtmetamacros.h>
 #include <random>
@@ -83,7 +83,6 @@ private:
     void applySecondaryEffects(const Move* _move, Battler* target);
     void applyEndOfTurnEffects(Battler* battler);
     bool canBattlerMove(Battler* caster);
-    int calculateConfusionDamage(int level);
     int calculateTypeEffectiveness(const Move* _move, Battler* target);
     int applyStatModifier(int baseStat, int modifier);
 

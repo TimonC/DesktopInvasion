@@ -4,7 +4,7 @@
 #include <globals.h>
 #include <qdebug.h>
 #include <PokeMath.h>
-#include <PokemonTypes.h>
+#include <PokeTypes.h>
 
 
 BattleMoveHandler::BattleMoveHandler(const PokemonState& wildState, const std::array<PokemonState, 6>& partyStates)
@@ -39,7 +39,7 @@ Battler* BattleMoveHandler::createBattler(const PokemonState& state) {
         poke->base_stats,
         state.ivs,
         state.evs,
-        PokemonTypes::getNatureMultipliers(state.nature)
+        PokeTypes::getNatureMultipliers(state.nature)
     );
     return battler;
 }
@@ -82,7 +82,17 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
 
     if(action[0]=='F'){
         if (playerMove->priority == opponentMove->priority){
-           playerFirst = m_battleOpponent->pokeState.stats[5] < m_battleParty[m_chosenIndex]->pokeState.stats[5];
+            int oppModifier = m_battleOpponent->battleState.statModifiers[4];
+            int oppSpeed = applyStatModifier(m_battleOpponent->pokeState.stats[5], oppModifier);
+
+            int playerModifier = m_battleParty[m_chosenIndex]->battleState.statModifiers[4];
+            int playerSpeed = applyStatModifier(m_battleParty[m_chosenIndex]->pokeState.stats[5], playerModifier);
+
+           if(playerSpeed == oppSpeed){
+               playerFirst = rand()%2;
+           }else{
+               playerFirst = playerSpeed > oppSpeed;
+           }
         } else {
            playerFirst = opponentMove->priority < playerMove->priority;
         }
@@ -142,7 +152,19 @@ bool BattleMoveHandler::canBattlerMove(Battler* caster) {
     if (caster->battleState.confused == Ailment::Confusion) {
         std::uniform_int_distribution<int> confuseDist(1, 2);
         if (confuseDist(m_rng) == 1) {
-            int confusionDamage = calculateConfusionDamage(caster->pokeState.lvl);
+            PokeMath::DamageParams confP;
+            confP.lvl = caster->pokeState.lvl;
+            confP.power = 40;
+            if(caster->battleState.statusCondition==Ailment::Burn) confP.burn = 50;
+
+            int atkModifier = caster->battleState.statModifiers[0];
+            int defModifier = caster->battleState.statModifiers[1];
+            confP.attack = caster->pokeState.stats[1];
+            confP.defense = caster->pokeState.stats[2];
+            confP.attack = applyStatModifier(confP.attack, atkModifier);
+            confP.defense = applyStatModifier(confP.defense, defModifier);
+
+            int confusionDamage = PokeMath::calculateDamage(confP, m_rng);
             caster->delta.confusedDamage = confusionDamage;
             caster->battleState.currentHealth = std::max(0, caster->battleState.currentHealth - confusionDamage);
             return false;
@@ -156,21 +178,15 @@ bool BattleMoveHandler::canBattlerMove(Battler* caster) {
     return true;
 }
 
-int BattleMoveHandler::calculateConfusionDamage(int level) {
-    return (40 * level / 100) + 2;
-}
-
 void BattleMoveHandler::applyEndOfTurnEffects(Battler* battler) {
     if (battler->battleState.statusCondition == Ailment::Burn) {
-        int burnDamage = battler->pokeState.stats[0] / 16;
-        if (burnDamage < 1) burnDamage = 1;
+        int burnDamage = PokeMath::calculateBurnDamage(battler->pokeState.stats[0]);
         battler->delta.ailmentDamage = burnDamage;
         battler->battleState.currentHealth = std::max(0, battler->battleState.currentHealth - burnDamage);
     }
 
     if (battler->battleState.statusCondition == Ailment::Poison) {
-        int poisonDamage = battler->pokeState.stats[0] / 8;
-        if (poisonDamage < 1) poisonDamage = 1;
+        int poisonDamage = PokeMath::calculatePoisonDamage(battler->pokeState.stats[0]);
         battler->delta.ailmentDamage = poisonDamage;
         battler->battleState.currentHealth = std::max(0, battler->battleState.currentHealth - poisonDamage);
     }
@@ -203,26 +219,24 @@ void BattleMoveHandler::applyMove(const Move* _move, Battler* caster, Battler* t
             attackStatIndex = 3;
         }
 
+        int atkModifier = caster->battleState.statModifiers[attackStatIndex - 1];
+        int defModifier = target->battleState.statModifiers[attackStatIndex];
+
         params.attack = caster->pokeState.stats[attackStatIndex];
-        params.defense = target->pokeState.stats[attackStatIndex + 2];
+        params.defense = target->pokeState.stats[attackStatIndex + 1];
+        params.attack = applyStatModifier(params.attack, atkModifier);
+        params.defense = applyStatModifier(params.defense, defModifier);
+
 
         if(_move->category == MoveCategory::PhysicalAtk){
-            if(caster->battleState.statusCondition == Ailment::Burn) {
-                params.burn = 50;
-            }
+            if(caster->battleState.statusCondition == Ailment::Burn) params.burn = 50;
         }
-
-        int atkModifier = caster->battleState.statModifiers[attackStatIndex - 1];
-        int defModifier = target->battleState.statModifiers[attackStatIndex + 1];
 
         if(crit){
             params.critical = 150;
             if (atkModifier < 0) atkModifier = 0;
             if (defModifier > 0) defModifier = 0;
         }
-
-        params.attack = applyStatModifier(params.attack, atkModifier);
-        params.defense = applyStatModifier(params.defense, defModifier);
 
         bool hasStab = false;
         for (int i = 0; i < 2; ++i) {
@@ -236,10 +250,10 @@ void BattleMoveHandler::applyMove(const Move* _move, Battler* caster, Battler* t
         const Type* targetType1 = target->pokeState.types[0];
         const Type* targetType2 = target->pokeState.types[1];
 
-        params.type1 = PokemonTypes::getTypeEffectiveness(_move->type, *targetType1);
+        params.type1 = PokeTypes::getTypeEffectiveness(_move->type, *targetType1);
 
         if (*targetType2 != Type::Null) {
-            params.type2 = PokemonTypes::getTypeEffectiveness(_move->type, *targetType2);
+            params.type2 = PokeTypes::getTypeEffectiveness(_move->type, *targetType2);
         } else {
             params.type2 = 100;
         }
