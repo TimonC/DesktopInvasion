@@ -2,25 +2,7 @@
 #define GAMESTATE_H
 
 #include <string>
-
-enum class StatType {
-    HP,
-    Attack,
-    Defense,
-    SpecialAttack,
-    SpecialDefense,
-    Speed,
-    COUNT
-};
-
-enum class Nature {
-    Hardy, Docile, Serious, Bashful, Quirky,
-    Lonely, Adamant, Naughty, Brave,
-    Bold, Impish, Lax, Relaxed,
-    Modest, Mild, Rash, Quiet,
-    Calm, Gentle, Careful, Sassy,
-    Timid, Hasty, Jolly, Naive
-};
+#include <game_data.h>
 
 struct PokemonState {
     int _id = -1;
