@@ -509,7 +509,7 @@ Item {
 
         var y1 = sprite.y + sprite.height/2 - pokeballHeight
 
-        var groundY = sprite.y + sprite.height - pokeballHeight
+        var groundY = sprite.y + sprite.height - pokeballHeight - root.frameSize/2
 
         return [x0, x1, y0, y1, groundY]
     }
