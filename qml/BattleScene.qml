@@ -24,6 +24,13 @@ Item {
     property bool debugLines: false
     property int direction: 0
 
+    // Action timing delays
+    property int textDelay: 300
+    property int attackAnimDelay: 500
+    property int damageAnimDelay: 200
+    property int healthChangeDelay: 1000
+    property int effectiveTextDelay: 1200
+
 
     property alias opponent: opponent
     property alias player: player
@@ -32,15 +39,16 @@ Item {
     property alias opponentName: statusBarOpponent.pokeName
     property alias playerName: statusBarPlayer.pokeName
 
-    // Attack chain state
-    property bool attackInProgress: false
-    property var attackSequence: []
-    property int currentAttackIndex: 0
+    // Action chain state
+    property bool actionInProgress: false
+    property var actionSequence: []
+    property int currentActionIndex: 0
 
     // Catch attempt state
     property int catchShakeCount: 0
     property int catchShakeInterval: 1500
     property int ballTransitionDuration: 750
+    property bool catchAttemptActive: false
 
     signal runChosen()
     signal opponentWon()
@@ -107,7 +115,7 @@ Item {
         property alias statusBar: root.statusBarPlayer
     }
 
-        // Pokéball animation component
+    // Pokéball animation component
     Pokeball {
         id: pokeBallOpponent
         scaleFactor: 2
@@ -165,8 +173,8 @@ Item {
         menuWidth: root.menuWidth
         onAttackChosen: function(attackId) {
             if (attackId === 0) {
-                var playerFirst =  Math.random() < 0.5;
-                startAttackChain(playerFirst)
+                var playerFirst = Math.random() < 0.5;
+                startActionChain("attack", playerFirst)
             } else {
                 console.error("Invalid attack id:", attackId)
             }
@@ -174,14 +182,7 @@ Item {
 
         onCatchChosen: function(pokeSpriteId) {
             if (pokeSpriteId === 3) {
-                // Calculate center X of opponent sprite (this becomes x1)
-                var coords = calculateBallCoords(opponent)
-                // Start the animation
-                pokeBallOpponent.visible = true
-
-                battleMenu.showTextBar()
-                battleMenu.updateText("Player used one Poké Ball!")
-                pokeBallOpponent.throwAt(coords[0], coords[1], coords[2], coords[3])
+                startActionChain("catch")
             } else {
                 console.error("Invalid pokeSprite id:", pokeSpriteId)
             }
@@ -237,7 +238,7 @@ Item {
     }
 
 
-    // Attack sequence
+    // Action sequence
     Timer {
         id: sequenceTimer
         repeat: false
@@ -250,57 +251,79 @@ Item {
         sequenceTimer.start()
     }
 
-    // Build and start the attack sequence
-    function startAttackChain(playerFirst) {
-        if (root.attackInProgress) return
+    // Build and start the action sequence (attack or catch)
+    function startActionChain(actionType, playerFirst) {
+        if (root.actionInProgress) return
 
         battleMenu.showTextBar()
-        root.attackInProgress = true
-        root.currentAttackIndex = 0
+        root.actionInProgress = true
+        root.currentActionIndex = 0
 
-        // Build attack sequence
-        var firstAttacker = playerFirst ? player : opponent
-        var firstDefender = playerFirst ? opponent : player
-        var firstAttackerName = playerFirst ? playerName : opponentName
-        var secondAttacker = playerFirst ? opponent : player
-        var secondDefender = playerFirst ? player : opponent
-        var secondAttackerName = playerFirst ? opponentName : playerName
+        if (actionType === "catch") {
+            // Catch sequence
+            root.catchAttemptActive = true
+            root.catchShakeCount = 0
+            var coords = calculateBallCoords(opponent)
 
-        root.attackSequence = [
-            // First turn
-            { type: "text", message: firstAttackerName + " used Tackle!", delay: 300 },
-            { type: "attack", attacker: firstAttacker, delay: 500 },
-            { type: "damage", defender: firstDefender, delay: 200 },
-            { type: "change-health", defender: firstDefender, delay: 1000 },
-            { type: "text", message: "It's super effective!", delay: 1200 },
-            // Second turn
-            { type: "text", message: secondAttackerName + " used Tackle!", delay: 300 },
-            { type: "attack", attacker: secondAttacker, delay: 500 },
-            { type: "damage", defender: secondDefender, delay: 200 },
-            { type: "change-health", defender: secondDefender, delay: 1000 },
-            { type: "text", message: "It's super effective!", delay: 1200 },
-            // End
-            { type: "end" }
-        ]
+            root.actionSequence = [
+                { type: "text", message: "Player used one Poké Ball!", delay: 300 },
+                { type: "throw-ball", coords: coords, delay: 500 },
+                { type: "wait-catch-result" } // Special step that waits for catch timer
+            ]
+        } else {
+            // Attack sequence
+            var firstAttacker = playerFirst ? player : opponent
+            var firstDefender = playerFirst ? opponent : player
+            var firstAttackerName = playerFirst ? playerName : opponentName
+            var secondAttacker = playerFirst ? opponent : player
+            var secondDefender = playerFirst ? player : opponent
+            var secondAttackerName = playerFirst ? opponentName : playerName
+
+            root.actionSequence = [
+                // First turn
+                { type: "text", message: firstAttackerName + " used Tackle!", delay: textDelay },
+                { type: "attack", attacker: firstAttacker, delay: attackAnimDelay },
+                { type: "damage", defender: firstDefender, delay: damageAnimDelay },
+                { type: "change-health", defender: firstDefender, delay: healthChangeDelay },
+                { type: "text", message: "It's super effective!", delay: effectiveTextDelay },
+                // Second turn
+                { type: "text", message: secondAttackerName + " used Tackle!", delay: textDelay },
+                { type: "attack", attacker: secondAttacker, delay: attackAnimDelay },
+                { type: "damage", defender: secondDefender, delay: damageAnimDelay },
+                { type: "change-health", defender: secondDefender, delay: healthChangeDelay },
+                { type: "text", message: "It's super effective!", delay: effectiveTextDelay },
+                // End
+                { type: "end" }
+            ]
+        }
 
         executeNextStep()
     }
 
     // Execute the next step in the sequence
     function executeNextStep() {
-        if (root.currentAttackIndex >= root.attackSequence.length) {
-            endAttackChain()
+        if (root.currentActionIndex >= root.actionSequence.length) {
+            endActionChain()
             return
         }
 
-        var step = root.attackSequence[root.currentAttackIndex]
-        root.currentAttackIndex++
+        var step = root.actionSequence[root.currentActionIndex]
+        root.currentActionIndex++
 
         switch(step.type) {
             case "text":
                 battleMenu.updateText(step.message)
                 sequenceTimer.interval = step.delay
                 sequenceTimer.start()
+                break
+            case "throw-ball":
+                pokeBallOpponent.visible = true
+                pokeBallOpponent.throwAt(step.coords[0], step.coords[1], step.coords[2], step.coords[3])
+                sequenceTimer.interval = step.delay
+                sequenceTimer.start()
+                break
+            case "wait-catch-result":
+                // Don't proceed - wait for catch timer to resolve
                 break
             case "attack":
                 step.attacker.actionForward.running = true
@@ -316,11 +339,11 @@ Item {
                 let currentHealthRatio = step.defender.statusBar.incrementHealth(-75)
                 sequenceTimer.interval = step.delay
                 if(currentHealthRatio==0){
-                    root.attackSequence = [
+                    root.actionSequence = [
                         {type: "lose-battle", message: step.defender.name + " fainted!", defender: step.defender, delay: 2000 },
                         {type: "battle-over", defender: step.defender, delay: 100 }
                     ]
-                    root.currentAttackIndex = 0
+                    root.currentActionIndex = 0
                 }
                 sequenceTimer.start()
                 break
@@ -336,17 +359,19 @@ Item {
                 }else{
                     root.opponentWon()
                 }
+                break
             case "end":
-                endAttackChain()
+                endActionChain()
                 break
         }
     }
 
-    // End the attack sequence
-    function endAttackChain() {
-        root.attackInProgress = false
-        root.attackSequence = []
-        root.currentAttackIndex = 0
+    // End the action sequence
+    function endActionChain() {
+        root.actionInProgress = false
+        root.actionSequence = []
+        root.currentActionIndex = 0
+        root.catchAttemptActive = false
         battleMenu.resetToRoot()
     }
 
@@ -368,14 +393,26 @@ Item {
         var failure = Math.random() < failureRate;
 
         if (failure) {
-            // Release the pokemon
+            // Release the pokemon and opponent attacks
             pokeBallOpponent.release()
             battleMenu.updateText("Aargh! Almost had it!")
 
             root.oneShotTimer(root.ballTransitionDuration, function() {
                 opponent.visible = true
                 pokeBallOpponent.visible = false
-                battleMenu.resetToRoot()
+
+                // Now opponent counterattacks
+                root.actionSequence = [
+                    { type: "text", message: battleMenu.getText(), delay: 300 },//hack to get a bit more delay after battle
+                    { type: "text", message: opponentName + " used Tackle!", delay: 300 },
+                    { type: "attack", attacker: opponent, delay: 500 },
+                    { type: "damage", defender: player, delay: 200 },
+                    { type: "change-health", defender: player, delay: 1000 },
+                    { type: "text", message: "It's super effective!", delay: 1200 },
+                    { type: "end" }
+                ]
+                root.currentActionIndex = 0
+                executeNextStep()
             })
 
         } else {

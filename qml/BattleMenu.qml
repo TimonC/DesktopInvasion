@@ -35,6 +35,12 @@ Rectangle {
         }
     }
 
+    function getText(){
+        if (stack.currentItem && stack.currentItem.hasOwnProperty("text")) {
+            return stack.currentItem.text
+        }
+    }
+
     function resetToRoot() {
         stack.replace(rootSelection)
     }
