@@ -3,8 +3,8 @@ import QtQuick.Controls 2.15
 
 Item {
     id: root
-    width: (direction === 0 || direction === 2) ? frameSize * 5 : frameSize * 8
-    height: (direction === 0 || direction === 2) ? frameSize * 8 : frameSize * 5
+    width: (direction === 0 || direction === 2) ? frameSize * 6 : frameSize * 8
+    height: (direction === 0 || direction === 2) ? frameSize * 8 : frameSize * 6
 
     // Properties
     property int frameSize: 32
