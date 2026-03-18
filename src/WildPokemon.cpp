@@ -6,7 +6,7 @@
 #include <globals.h>
 #include <pokemon_data.h>
 
-WildPokemon::WildPokemon(const PokemonInfo* info, std::optional<QPoint> spawnPoint, int spawnDirection,  QWindow *parent)
+WildPokemon::WildPokemon(const PokemonInfo* info, QPoint spawnPoint, int spawnDirection,  QWindow *parent)
     : DesktopScene(parent)
     , info(info)
     , m_decisionTimer(new QTimer(this))
@@ -15,8 +15,8 @@ WildPokemon::WildPokemon(const PokemonInfo* info, std::optional<QPoint> spawnPoi
 {
     qDebug() << "WildPokemon constructor called!";
 
-    if(spawnPoint){
-        setPosition(*spawnPoint);
+    if(spawnPoint.x()>=0  && spawnPoint.y()>=0){
+        setPosition(spawnPoint);
     }else{
         const QRect& screen = Globals::screenGeometry();
         setPosition(QPoint(screen.width()/2, screen.height()/2));

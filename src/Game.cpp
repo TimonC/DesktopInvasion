@@ -5,7 +5,8 @@
 #include <QTimer>
 
 Game::Game(QQmlApplicationEngine* engine, QObject* parent) : QObject(parent) {
-    m_menu = new GameMenu(); m_engine  = engine;
+    m_menu = new GameMenu();
+    m_engine  = engine;
 
     spawnPokemon();
 
@@ -20,14 +21,17 @@ Game::Game(QQmlApplicationEngine* engine, QObject* parent) : QObject(parent) {
 Game::~Game() {
     if (m_activeBattle) {
         m_activeBattle->disconnect();
-        delete m_activeBattle;
+        m_activeBattle->deleteLater();
     }
     if (m_wildPokemon) {
         m_wildPokemon->disconnect();
-        delete m_wildPokemon;
+        m_wildPokemon->deleteLater();
+    }
+    if(m_trayIcon){
+        m_trayIcon->disconnect();
+        m_trayIcon->deleteLater();
     }
     delete m_menu;
-    delete m_trayIcon;
 }
 
 void Game::spawnPokemon(){
@@ -58,14 +62,14 @@ void Game::setGameActive(bool active){
         if(m_activeBattle){
             updateWildPokemonPosToBattlePos();
             m_activeBattle->disconnect();
-            delete m_activeBattle;
+            m_activeBattle->deleteLater();
             m_activeBattle = nullptr;
         }
         if(m_wildPokemon){
             m_spawnPoint = m_wildPokemon->position();
             m_spawnDirection = m_wildPokemon->m_currentDirection;
             m_wildPokemon->disconnect();
-            delete m_wildPokemon;
+            m_wildPokemon->deleteLater();
             m_wildPokemon = nullptr;
         }
     }

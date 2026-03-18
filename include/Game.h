@@ -23,7 +23,7 @@ private:
     const PokemonInfo* m_wildPokemonInfo;
     GameMenu* m_menu;
     SystemTrayIcon* m_trayIcon;
-    std::optional<QPoint> m_spawnPoint = std::nullopt;
+    QPoint m_spawnPoint = QPoint(-1,-1);
     int m_spawnDirection = -1;
     const int m_spawnDelay_ms = 5000;
     void updateWildPokemonPosToBattlePos();
