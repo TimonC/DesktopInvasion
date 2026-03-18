@@ -169,7 +169,7 @@ void Game::spawnPokemon() {
         PokemonState newWild;
         newWild.pokedex_id = m_wildPokemonInfo->pokedexId;
         newWild.name = m_wildPokemonInfo->name;
-        newWild.lvl = 20;
+        newWild.lvl = 15;
 
         for (int i = 0; i < 6; i++) {
             newWild.ivs[i] = 32;
@@ -179,8 +179,8 @@ void Game::spawnPokemon() {
 
         newWild.moves[0] = 1;
         newWild.moves[1] = 1;
-        newWild.moves[2] = 247;
-        newWild.moves[3] = 247;
+        newWild.moves[2] = 422;
+        newWild.moves[3] = 422;
 
         m_db.spawnWildPokemon(newWild);
         qDebug() << "Created new wild Pokemon:" << QString::fromStdString(newWild.name);
@@ -370,6 +370,31 @@ void Game::handleBattleEnd(const char* endState, bool removeWild) {
 
 
 void Game::createInitialPokemon() {
+    PokemonState gastly;
+    gastly.pokedex_id = 92;
+    gastly.name = "Gastly";
+    gastly.pokeball_id = 0;
+
+    for (int i = 0; i < 6; i++) {
+        gastly.ivs[i] = 32;
+        gastly.evs[i] = 50;
+    }
+
+    gastly.nature = Nature::Hardy;
+    gastly.lvl = 10;
+    gastly.moves[0] = 14;
+    gastly.moves[1] = 28;
+    gastly.moves[2] = 104;
+    gastly.moves[3] = 260;
+
+
+    int pokemonId1 = m_db.createPokemon(gastly);
+    if (pokemonId1 > 0) {
+        qDebug() << "Created gastly with database ID:" << pokemonId1;
+        m_db.setPartyPokemon(0, pokemonId1);
+        m_partyIds[0] = pokemonId1;
+    }
+
     PokemonState dusknoir;
     dusknoir.pokedex_id = 477;
     dusknoir.name = "Dusknoir";
@@ -383,15 +408,15 @@ void Game::createInitialPokemon() {
     dusknoir.nature = Nature::Hardy;
     dusknoir.lvl = 10;
     dusknoir.moves[0] = 14;
-    dusknoir.moves[1] = 207;
-    dusknoir.moves[2] = 28;
+    dusknoir.moves[1] = 104;
+    dusknoir.moves[2] = 426;
     dusknoir.moves[3] = 434;
 
     int pokemonId = m_db.createPokemon(dusknoir);
     if (pokemonId > 0) {
         qDebug() << "Created dusknoir with database ID:" << pokemonId;
-        m_db.setPartyPokemon(0, pokemonId);
-        m_partyIds[0] = pokemonId;
+        m_db.setPartyPokemon(1, pokemonId);
+        m_partyIds[1] = pokemonId;
     }
 }
 void Game::updatePartyXP(std::array<int, 6> spread) {

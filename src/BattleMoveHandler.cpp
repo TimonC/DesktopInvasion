@@ -398,8 +398,6 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
     accModifier = std::min(std::max(accModifier,-6),6);
     if (!PokeMath::checkAccuracy(_move->accuracy, accModifier, m_rng)) {
         result.addEffect(BattleActionResult::MISS, caster, target);
-        result.addEffect(BattleActionResult::TEXT, caster, nullptr, 0, Ailment::Null, -1, 0,
-                        caster->pokeState.name + "'s attack missed!");
         return result;
     }
 
@@ -537,7 +535,7 @@ BattleActionResult BattleMoveHandler::applySecondaryEffects(const Move* _move, B
     }
 
     if (statApplied) {
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 7; i++) {
             if (_move->stat_changes[i] != 0) {
                 int currentModifier = target->battleState.statModifiers[i];
                 int newModifier = currentModifier + _move->stat_changes[i];
@@ -718,7 +716,7 @@ QVariantList BattleMoveHandler::generateSequenceFromResult(const BattleActionRes
                 break;
 
             case BattleActionResult::STAT_CHANGED:
-                if (effect.statIndex >= 0 && effect.statIndex < 5) {
+                if (effect.statIndex >= 0 && effect.statIndex < 7) {
                     QString statName = getStatName(effect.statIndex);
                     if(effect.statChange == 1) {
                         sequence.append(createTextAction(targetName + "'s " + statName + " rose!", ms_statusConditionText));
@@ -778,10 +776,10 @@ QString BattleMoveHandler::ailmentToHurtText(Ailment ailment){
 };
 
 QString BattleMoveHandler::getStatName(int statIndex) {
-    static const QString statNames[5] = {
-        "Attack", "Defense", "Special Attack", "Special Defense", "Speed"
+    static const QString statNames[7] = {
+        "attack", "defense", "special attack", "special defense", "speed", "accuracy", "evasion"
     };
-    return (statIndex >= 0 && statIndex < 5) ? statNames[statIndex] : "Stat";
+    return (statIndex >= 0 && statIndex < 7) ? statNames[statIndex] : "Stat";
 }
 
 const QString BattleMoveHandler::ailmentToLabel(Ailment ailment){
