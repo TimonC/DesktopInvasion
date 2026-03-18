@@ -44,7 +44,6 @@ private:
     void spawnPokemon();
     void safelyRemoveBattleScene();
     void safelyRemoveWildPokemon();
-    void safelyRemoveMenu();
 
     // Menu <-> DB bridge helpers
     QVariantMap pokemonToMenuState(int slot, const PokemonState& p);

@@ -73,13 +73,6 @@ void Game::initMenu(){
     connect(m_menu,     &GameMenu::swapRequested,              this, &Game::handlePCSwap);
 }
 
-void Game::safelyRemoveMenu(){
-    disconnect(m_menu, nullptr, this, nullptr);
-    disconnect(this, nullptr, m_menu, nullptr);
-    m_menu->deleteLater();
-    m_menu = nullptr;
-}
-
 // --------------------------------------------------------------------------
 // Menu <-> DB bridge
 // --------------------------------------------------------------------------
@@ -160,7 +153,6 @@ void Game::handleMenuOpen() {
     setGameActive(false);
     m_gameUsedToBeActive = usedToBeActive;
 
-    initMenu();
     m_menu->activate();
 
     // Push party and bootstrap boxes
@@ -178,7 +170,6 @@ void Game::handleMenuClosed() {
     m_db.commitMenuSession();
     m_trayIcon->enabled(true);
     if (m_gameUsedToBeActive) setGameActive(true);
-    safelyRemoveMenu();
 }
 
 // --------------------------------------------------------------------------
