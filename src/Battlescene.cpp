@@ -89,11 +89,26 @@ void Battlescene::updateTextbar(const std::string &text){
 void Battlescene::mousePressEvent(QMouseEvent* event) {
     if (Qt::LeftButton) {
         m_oldpos = event->globalPosition().toPoint();
+        m_dragging = true;
+
+        // Check if click is on any button
+        QPoint localPos = mapFromGlobal(m_oldpos);
+        QQuickItem* runButton = m_ui->property("runButton").value<QQuickItem*>();
+        QQuickItem* attackButton = m_ui->property("attackButton").value<QQuickItem*>();
+        QQuickItem* switchButton = m_ui->property("switchButton").value<QQuickItem*>();
+        QQuickItem* catchButton = m_ui->property("catchButton").value<QQuickItem*>();
+
+        if ((runButton && runButton->contains(runButton->mapFromScene(localPos))) ||
+            (attackButton && attackButton->contains(attackButton->mapFromScene(localPos))) ||
+            (switchButton && switchButton->contains(switchButton->mapFromScene(localPos))) ||
+            (catchButton && catchButton->contains(catchButton->mapFromScene(localPos)))) {
+            m_dragging = false;
+        }
     }
 }
 
 void Battlescene::mouseMoveEvent(QMouseEvent* event){
-    if (event->buttons() & Qt::LeftButton){
+    if (m_dragging && (event->buttons() & Qt::LeftButton)){
         QPoint currentPos = event->globalPosition().toPoint();
         drag(currentPos-m_oldpos);
         m_oldpos = currentPos;

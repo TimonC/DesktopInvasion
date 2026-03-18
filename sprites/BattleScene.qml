@@ -17,6 +17,8 @@ Item {
     // Property to control which side the chosen/opponent buttons are on
     property int chosenSide: 1  // 0, 1, 2, or 3
 
+    property alias textBar: textBar
+    property alias buttonGrid: buttonGrid;
     property alias attackButton: attackButton
     property alias switchButton: switchButton
     property alias catchButton: catchButton
