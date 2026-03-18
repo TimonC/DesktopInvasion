@@ -62,9 +62,15 @@ jobs:
           exit 1
         }
 
+        # Locate windeployqt.exe correctly
+        $qt6Dir = "${{ env.Qt6_Dir }}"
+        # Qt6_Dir points to .../lib/cmake/Qt6; go up two levels to the Qt installation root
+        $qtRoot = $qt6Dir | Split-Path -Parent | Split-Path -Parent
+        $windeployqt = Join-Path $qtRoot "bin\windeployqt.exe"
+        Write-Host "Using windeployqt: $windeployqt"
+
         # Run windeployqt
-        $qtBin = "${{ env.Qt6_Dir }}" -replace 'lib\\cmake\\Qt6', 'bin'
-        & "$qtBin/windeployqt.exe" --release --qmldir qml output/DesktopInvasion-Windows/DesktopInvasion.exe
+        & $windeployqt --release --qmldir qml output/DesktopInvasion-Windows/DesktopInvasion.exe
 
         # Copy MinGW runtime DLLs
         $mingwPaths = @(
