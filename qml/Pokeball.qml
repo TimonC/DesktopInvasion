@@ -9,6 +9,7 @@ Item {
     property real scale: 2 * scaleFactor
     property int frameWidth: 16
     property int frameHeight: 23
+    property int groundY: 0
 
     property int throwDuration: Math.round(600 / speed)
     property int pauseDuration: Math.round(250 / speed)
@@ -39,11 +40,12 @@ Item {
     property int y0: 0
     property int y1: 0
 
-    function throwAt(startX, endX, topY, bottomY) {
+    function throwAt(startX, endX, topY, bottomY, groundPosition) {
         x0 = startX
         x1 = endX
         y0 = topY
         y1 = bottomY
+        groundY = groundPosition
         throwPokeball.start()
     }
 
@@ -273,7 +275,7 @@ Item {
             PropertyAnimation {
                 target: pokeballSprite
                 property: "y"
-                to: root.y1
+                to: root.y0 + 32 * root.scaleFactor
                 duration: root.throwDuration / 2
                 easing.type: Easing.InQuad
             }
@@ -297,7 +299,7 @@ Item {
         PropertyAnimation {
             target: pokeballSprite
             property: "y"
-            to: root.y1
+            to: root.groundY
             duration: root.dropDuration
             easing.type: Easing.InQuad
         }
@@ -305,14 +307,14 @@ Item {
         PropertyAnimation {
             target: pokeballSprite
             property: "y"
-            to: root.y1 - root.bounceHeight
+            to: root.groundY - root.bounceHeight
             duration: root.bounceUpDuration
             easing.type: Easing.OutQuad
         }
         PropertyAnimation {
             target: pokeballSprite
             property: "y"
-            to: root.y1
+            to: root.groundY
             duration: root.bounceDownDuration
             easing.type: Easing.InQuad
         }
@@ -320,14 +322,14 @@ Item {
         PropertyAnimation {
             target: pokeballSprite
             property: "y"
-            to: root.y1 - (root.bounceHeight * 2 / 3)
+            to: root.groundY - (root.bounceHeight * 2 / 3)
             duration: root.bounceUpDuration
             easing.type: Easing.OutQuad
         }
         PropertyAnimation {
             target: pokeballSprite
             property: "y"
-            to: root.y1
+            to: root.groundY
             duration: root.bounceDownDuration
             easing.type: Easing.InQuad
         }
@@ -335,14 +337,14 @@ Item {
         PropertyAnimation {
             target: pokeballSprite
             property: "y"
-            to: root.y1 - (root.bounceHeight / 3)
+            to: root.groundY - (root.bounceHeight / 3)
             duration: root.bounceUpDuration
             easing.type: Easing.OutQuad
         }
         PropertyAnimation {
             target: pokeballSprite
             property: "y"
-            to: root.y1
+            to: root.groundY
             duration: root.bounceDownDuration
             easing.type: Easing.InQuad
         }
@@ -377,5 +379,6 @@ Item {
         x1 = 0
         y0 = 0
         y1 = 0
+        groundY = 0
     }
 }

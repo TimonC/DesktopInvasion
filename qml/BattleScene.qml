@@ -123,7 +123,7 @@ Item {
             var coords = calculateBallCoords(player)
             player.visible = false
 
-            pokeBallPlayer.throwAt(coords[0], coords[1], coords[2], coords[3])
+            pokeBallPlayer.throwAt(coords[0], coords[1], coords[2], coords[3], coords[4])
         })
     }
 
@@ -189,10 +189,6 @@ Item {
         onPokemonInsideBall:{
             pokeBallOpponent.circleShrink()
             opponent.visible =  false
-            battleMenu.visible = false
-        }
-        onBallOpened:{
-            battleMenu.visible = true
         }
     }
 
@@ -236,7 +232,6 @@ Item {
                 }else{
                     root.signalToStartActionRound(battleMenu.selectedIndex, "Switch");
                 }
-                battleMenu.visible = true
             }
 
             pokeBallPlayer.onPokemonInsideBall.connect(root.pokemonInsideBallConnection)
@@ -292,7 +287,7 @@ Item {
             root.safePokemonSwitch = battleMenu.forceSwitchMode
             root.resetPlayerBall()
             var coords = calculateBallCoords(player)
-            pokeBallPlayer.throwAt(coords[0], coords[1], coords[2], coords[3])
+            pokeBallPlayer.throwAt(coords[0], coords[1], coords[2], coords[3], coords[4])
         }
     }
 
@@ -430,7 +425,7 @@ Item {
 
                 var coords = calculateBallCoords(opponent)
                 pokeBallOpponent.visible = true
-                pokeBallOpponent.throwAt(coords[0], coords[1], coords[2], coords[3])
+                pokeBallOpponent.throwAt(coords[0], coords[1], coords[2], coords[3], coords[4])
                 break;
             case "shake":
                  pokeBallOpponent.shake()
@@ -504,16 +499,15 @@ Item {
         var pokeballHeight = pokeBallOpponent.height
 
         var x1 = sprite.x + (sprite.width / 2) - (pokeballWidth / 2)
-
         var x0 = x1 + (sprite.direction == 1 ? -sprite.width : sprite.width)
 
-        var y0 = sprite.y - pokeballHeight
-        var y1 = sprite.y + sprite.height - pokeballHeight
+        var y0 = Math.max(pokeballHeight, sprite.y - pokeballHeight)
 
-        y0 = Math.max(pokeballHeight/2, y0)
-        y1 = Math.max(pokeballHeight/2, y1)
+        var y1 = sprite.y + sprite.height/2 - pokeballHeight
 
-        return [x0, x1, y0, y1]
+        var groundY = sprite.y + sprite.height - pokeballHeight
+
+        return [x0, x1, y0, y1, groundY]
     }
 
     function oneShotTimer(duration, onFinish){
