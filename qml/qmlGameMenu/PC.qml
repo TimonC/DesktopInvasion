@@ -162,12 +162,11 @@ Item {
                     id: swapButton
                     anchors.right:          parent.right
                     anchors.verticalCenter: parent.verticalCenter
-                    width:    Math.round(root.buttonWidth * 1.4)
-                    height:   Math.round(root.buttonHeight * 0.6)
-                    label:    "Swap"
+                    label:    "SWAP"
                     btnColor: root.buttonColor
                     highlightColor: root.inSwapMode ? root.swapButtonHighlight : root.buttonColor
                     onClicked: root.toggleSwapMode()
+                    fontFamily: root.fontFamily
                 }
             }
         }
@@ -294,94 +293,6 @@ Item {
         }
     }
 
-component PcButton: Item {
-    id: pcButtonRoot
-    width:  root.buttonWidth
-    height: root.buttonHeight
-
-    property string label:    ""
-    property bool   active:   true
-    property color  btnColor: root.buttonColor
-    property color  highlightColor: btnColor
-
-    signal clicked()
-
-    property bool _hovered: mouseArea.containsMouse && active
-    property bool _pressed: mouseArea.pressed        && active
-
-    // Use highlightColor as base color when it's different from btnColor (swap mode)
-    property color _currentBaseColor: highlightColor != btnColor ? highlightColor : btnColor
-
-    property color _borderColor: active
-        ? (_hovered ? _currentBaseColor : PokeColor.lighter(_currentBaseColor))
-        : "#555555"
-    Behavior on _borderColor { ColorAnimation { duration: 120; easing.type: Easing.OutQuad } }
-
-    Item {
-        id: buttonContent
-        anchors.fill: parent
-        scale: pcButtonRoot._pressed ? 0.92 : 1.0
-        Behavior on scale {
-            NumberAnimation {
-                duration:          pcButtonRoot._pressed ? 80 : 200
-                easing.type:       pcButtonRoot._pressed ? Easing.OutQuad : Easing.OutBack
-                easing.overshoot:  1.2
-            }
-        }
-
-        Rectangle {
-            anchors.fill: parent
-            radius:       root.buttonRadius
-            color:        pcButtonRoot._borderColor
-        }
-
-        Rectangle {
-            anchors.fill:    parent
-            anchors.margins: 2
-            radius:          Math.max(0, root.buttonRadius - 2)
-            gradient: Gradient {
-                GradientStop {
-                    position: 0.0
-                    color: pcButtonRoot.active
-                        ? (pcButtonRoot._hovered
-                           ? pcButtonRoot._currentBaseColor
-                           : PokeColor.lighter(pcButtonRoot._currentBaseColor))
-                        : "#444444"
-                    Behavior on color { ColorAnimation { duration: 120; easing.type: Easing.OutCubic } }
-                }
-                GradientStop {
-                    position: 1.0
-                    color: pcButtonRoot.active
-                        ? (pcButtonRoot._hovered
-                           ? PokeColor.darker(PokeColor.darker(pcButtonRoot._currentBaseColor))
-                           : PokeColor.darker(pcButtonRoot._currentBaseColor))
-                        : "#333333"
-                    Behavior on color { ColorAnimation { duration: 120; easing.type: Easing.OutCubic } }
-                }
-            }
-        }
-
-        Text {
-            anchors.centerIn: parent
-            text:             pcButtonRoot.label
-            color:            pcButtonRoot.active ? "#ffffff" : "#888888"
-            font.family:      root.fontFamily
-            font.pixelSize:   root.fontSizeMd
-            font.bold:        true
-            style:            Text.Raised
-            styleColor:       "#00000060"
-        }
-    }
-
-    MouseArea {
-        id: mouseArea
-        anchors.fill: parent
-        enabled:      pcButtonRoot.active
-        hoverEnabled: true
-        onClicked:    pcButtonRoot.clicked()
-        cursorShape:  undefined
-    }
-}
 
     component PokemonSlot: Rectangle {
         id: pokemonSlot

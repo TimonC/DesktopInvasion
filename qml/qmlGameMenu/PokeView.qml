@@ -209,6 +209,20 @@ Item {
                     }
                 }
             }
+            Item{
+               width:  parent.width / 2
+               height: parent.height
+               PcButton {
+                   id: swapButton
+                   anchors.right:          parent.right
+                   anchors.verticalCenter: parent.verticalCenter
+                   width:   48*1.4
+                   height:   64*0.6
+                   label:    "Swap"
+                   // highlightColor: root.inSwapMode ? root.swapButtonHighlight : root.buttonColor
+                   // onClicked: root.toggleSwapMode()
+               }
+            }
         }
 
         // ── Divider 1 – between Section 1 and Section 2 ───────────────────────

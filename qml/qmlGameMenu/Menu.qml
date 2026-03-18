@@ -139,7 +139,7 @@ Rectangle {
                 Trainer {
                     anchors.fill: parent
                     textColor:    root.textColor
-                    fontSize:     root.fontSizeMd
+                    fontSize:     root.fontSizeLg
                     fontFamily:   root.p2pFont
                     iconScale:    root.iconScaleForTrainer
                 }
@@ -171,7 +171,7 @@ Rectangle {
                     fontSizeLg: root.fontSizeLg
                     fontSizeMd: root.fontSizeMd
                     fontSizeSm: root.fontSizeSm
-                    fontFamily: root.dotGothicFont
+                    fontFamily: root.p2pFont
                 }
             }
         }
