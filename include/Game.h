@@ -7,7 +7,6 @@
 #include <WildPokemon.h>
 #include <QObject>
 #include <vector>
-#include <utility>
 
 class Game : public QObject{
     Q_OBJECT
@@ -24,12 +23,22 @@ private:
     WildPokemon* m_wildSpawns[MAX_WILD_SPAWNS];
     int m_activeSpawnCount = 0;
 
-    std::vector<std::pair<WildPokemon*, Battle*>> m_wildBattlePairs;
+    // Each Battle must have a WildPokemon, but not vice versa
+    struct BattleEntry {
+        Battle* battle;
+        WildPokemon* wild;
+        QMetaObject::Connection connection;  // Store the connection
+
+        BattleEntry(Battle* b, WildPokemon* w) : battle(b), wild(w) {}
+    };
+
+    std::vector<BattleEntry> m_battles;
 
 private slots:
     void pushWildPokemon(const PokemonInfo* info);
     void popWildPokemon();
     void handleBattleStart(Battle* battle);
+    void cleanupBattle(Battle* battle);  // When battle ends
 };
 
 #endif
