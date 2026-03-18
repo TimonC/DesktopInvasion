@@ -14,10 +14,16 @@ Item {
     property int frameHeight: 32
     property int frameCount: 2
     property int frameRate: 4
+    property alias mouseArea: mouseArea
 
     width: itemWidth
     height: itemHeight
     clip: true
+
+    MouseArea{
+        id: mouseArea
+        anchors.fill: parent
+    }
 
     AnimatedSprite {
         x: spriteOffsetX

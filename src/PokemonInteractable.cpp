@@ -2,10 +2,9 @@
 #include <QRandomGenerator>
 #include <QGuiApplication>
 #include <QScreen>
-#include <QQuickItem>
 #include <QTimer>
-#include <qquickview.h>
-
+#include <QQuickItem>
+#include <QQuickView>
 PokemonInteractable::PokemonInteractable(QWindow *parent, int row)
     : QQuickView(parent)
     , m_row(row)
@@ -15,7 +14,7 @@ PokemonInteractable::PokemonInteractable(QWindow *parent, int row)
     , m_currentDirection(0)
     , m_scaleFactor(4)
 {
-    setFlags(Qt::WindowStaysOnTopHint | Qt::Tool | Qt::FramelessWindowHint) ;
+    setFlags(Qt::WindowStaysOnTopHint | Qt::Tool);// | Qt::FramelessWindowHint) ;
     setColor(Qt::transparent);
 
     /* setSpriteBounds(); */
@@ -35,6 +34,8 @@ PokemonInteractable::PokemonInteractable(QWindow *parent, int row)
     m_wildPokemon->setProperty("spriteOffsetX", 32);
     m_wildPokemon->setProperty("spriteOffsetY",32);
 
+    QQuickItem* mouseArea = m_wildPokemon->property("mouseArea").value<QQuickItem*>();
+    connect(mouseArea, SIGNAL(clicked(QQuickMouseEvent*)), this, SLOT(makeRandomDecision()));
 
     m_screenGeometry = QGuiApplication::primaryScreen()->geometry();
     setX((m_screenGeometry.width() - SPRITE_SIZE) / 2);
