@@ -1,9 +1,10 @@
 #include <globals.h>
 #include <QGuiApplication>
-#include <unordered_map>
 #include <QScreen>
 #include <QRect>
 #include <QSize>
+#include <cassert>
+#include <vector>
 
 namespace Globals {
     bool DEBUG = false;
@@ -17,49 +18,61 @@ namespace Globals {
     }
 
     const PokemonInfo* getPokemonInfo(int pokedexId) {
-        static std::unordered_map<int, const PokemonInfo*> lookup;
-        static std::vector<const PokemonInfo*> pokemonVector;
+        static const PokemonInfo* pokeLookup[MAX_POKEDEX_ID + 1] = {};
+        static std::vector<const PokemonInfo*> uniquePokemon;
 
-        if (lookup.empty()) {
+        static bool initialized = false;
+        if (!initialized) {
             for (int i = 0; i < kPokemonCount; ++i) {
-
                 int id = kPokemonList[i].pokedexId;
-                if(lookup.find(id)==lookup.end()){
-                    lookup[id] = &kPokemonList[i];
-                    pokemonVector.push_back(&kPokemonList[i]);
+                if (id >= 1 && id <= MAX_POKEDEX_ID && pokeLookup[id] == nullptr) {
+                    pokeLookup[id] = &kPokemonList[i];
+                    uniquePokemon.push_back(&kPokemonList[i]);
                 }
-
             }
+            initialized = true;
         }
 
-        if (pokedexId>0) {
-            if (pokedexId > MAX_POKEDEX_ID) {
-                assert(!"Max pokedex id is ${MAX_POKEDEX_ID}");
-            }
-
-            auto it = lookup.find(pokedexId);
-            if (it == lookup.end()) {
-                assert(!"Pokemon ID not available in this version");
-            }
-            return it->second;
+        if (pokedexId <= 0) {
+            return uniquePokemon[std::rand() % uniquePokemon.size()];
         }
 
-        return pokemonVector[std::rand() % pokemonVector.size()];
+        if (pokedexId > MAX_POKEDEX_ID) {
+            assert(!"Max pokedex id is ${MAX_POKEDEX_ID}");
+        }
+
+        const PokemonInfo* result = pokeLookup[pokedexId];
+        if (!result) {
+            assert(!"Pokemon ID not available in this version");
+        }
+        return result;
     }
 
     const SpriteInfo* getSpriteInfo(int spriteId, int generation) {
-        static std::unordered_map<int, const SpriteInfo*> lookup;
+        constexpr int MAX_SPRITE_ID = 1000;
+        constexpr int MAX_GEN = 9;
 
-        if (lookup.empty()) {
+        static const SpriteInfo* spriteLookup[MAX_SPRITE_ID][MAX_GEN] = {};
+
+        static bool initialized = false;
+        if (!initialized) {
             for (int i = 0; i < kSpriteCount; ++i) {
-                int key = (kSpriteList[i].spriteId << 16) | kSpriteList[i].generation;
-                lookup[key] = &kSpriteList[i];
+                int id = kSpriteList[i].spriteId;
+                int gen = kSpriteList[i].generation;
+                if (id >= 0 && id < MAX_SPRITE_ID &&
+                    gen >= 1 && gen <= MAX_GEN) {
+                    spriteLookup[id][gen - 1] = &kSpriteList[i];
+                }
             }
+            initialized = true;
         }
 
-        int key = (spriteId << 16) | generation;
-        auto it = lookup.find(key);
-        return it != lookup.end() ? it->second : nullptr;
+        if (spriteId >= 0 && spriteId < MAX_SPRITE_ID &&
+            generation >= 1 && generation <= MAX_GEN) {
+            return spriteLookup[spriteId][generation - 1];
+        }
+
+        return nullptr;
     }
 
     QSize getSpriteSize(int spriteId, int generation) {
@@ -67,6 +80,6 @@ namespace Globals {
         if (info) {
             return QSize(info->max_width, info->max_height);
         }
-        return QSize(0, 0); // Return invalid size if not found
+        return QSize(0, 0);
     }
 }
