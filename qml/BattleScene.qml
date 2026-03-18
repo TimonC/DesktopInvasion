@@ -25,8 +25,8 @@ Item {
 
     // Attack chain state
     property bool attackInProgress: false
-    property bool isPlayerTurn: true
-    property int turnsCompleted: 0
+    property var attackSequence: []
+    property int currentAttackIndex: 0
 
     signal runClicked()
 
@@ -141,20 +141,17 @@ Item {
         textBar.text = newText;
     }
 
-    // Delay timer for sequencing
+    // Main sequence timer
     Timer {
-        id: delayTimer
+        id: sequenceTimer
         repeat: false
-        property var callback: null
-        onTriggered: {
-            if (callback) callback();
-        }
+        onTriggered: executeNextStep()
     }
 
-    function delayedCall(milliseconds, func) {
-        delayTimer.interval = milliseconds;
-        delayTimer.callback = func;
-        delayTimer.start();
+    function scheduleNext(delay, func) {
+        sequenceTimer.interval = delay;
+        sequenceTimer.callback = func;
+        sequenceTimer.start();
     }
 
     // Attack button handler
@@ -163,103 +160,86 @@ Item {
         startAttackChain(playerFirst);
     }
 
-    // Start the attack sequence
+    // Build and start the attack sequence
     function startAttackChain(playerFirst) {
         if (root.attackInProgress) return;
 
         root.attackInProgress = true;
-        root.isPlayerTurn = playerFirst;
-        root.turnsCompleted = 0;
+        root.currentAttackIndex = 0;
+
+        // Build attack sequence
+        var firstAttacker = playerFirst ? player : opponent;
+        var firstDefender = playerFirst ? opponent : player;
+        var firstAttackerName = playerFirst ? "Player" : "Opponent";
+
+        var secondAttacker = playerFirst ? opponent : player;
+        var secondDefender = playerFirst ? player : opponent;
+        var secondAttackerName = playerFirst ? "Opponent" : "Player";
+
+        root.attackSequence = [
+            // First turn
+            { type: "text", message: firstAttackerName + " used Tackle!", delay: 300 },
+            { type: "attack", attacker: firstAttacker, delay: 500 },
+            { type: "damage", defender: firstDefender, delay: 500 },
+            { type: "text", message: "It's super effective!", delay: 1200 },
+
+            // Second turn
+            { type: "text", message: secondAttackerName + " used Tackle!", delay: 300 },
+            { type: "attack", attacker: secondAttacker, delay: 500 },
+            { type: "damage", defender: secondDefender, delay: 500 },
+            { type: "text", message: "It's super effective!", delay: 1200 },
+
+            // End
+            { type: "end" }
+        ];
 
         buttonGrid.visible = false;
         textBar.color = "darkgrey";
         textBarText.visible = true;
 
-        executeAttackTurn();
+        executeNextStep();
     }
 
-    // Execute one turn of attack
-    function executeAttackTurn() {
-        var attacker = root.isPlayerTurn ? player : opponent;
-        var defender = root.isPlayerTurn ? opponent : player;
-        var attackerName = root.isPlayerTurn ? "Player" : "Opponent";
-
-        update_text_bar(attackerName + " used Tackle!");
-
-        // Start attack animation after brief delay
-        delayedCall(300, function() {
-            attacker.actionForward.running = true;
-        });
-    }
-
-    // Monitor player attack animation
-    Connections {
-        target: player.actionForward
-        enabled: root.attackInProgress && root.isPlayerTurn
-
-        function onRunningChanged() {
-            if(target.running) return;
-            delayedCall(500, function() {
-                opponent.takeDamage.running = true;
-            });
+    // Execute the next step in the sequence
+    function executeNextStep() {
+        if (root.currentAttackIndex >= root.attackSequence.length) {
+            endAttackChain();
+            return;
         }
-    }
 
-    // Monitor opponent attack animation
-    Connections {
-        target: opponent.actionForward
-        enabled: root.attackInProgress && !root.isPlayerTurn
+        var step = root.attackSequence[root.currentAttackIndex];
+        root.currentAttackIndex++;
 
-        function onRunningChanged() {
-            if(target.running) return;
-            delayedCall(500, function() {
-                player.takeDamage.running = true;
-            });
-        }
-    }
+        switch(step.type) {
+            case "text":
+                update_text_bar(step.message);
+                sequenceTimer.interval = step.delay;
+                sequenceTimer.start();
+                break;
 
-    // Monitor player taking damage
-    Connections {
-        target: player.takeDamage
-        enabled: root.attackInProgress && !root.isPlayerTurn
+            case "attack":
+                step.attacker.actionForward.running = true;
+                sequenceTimer.interval = step.delay;
+                sequenceTimer.start();
+                break;
 
-        function onRunningChanged() {
-            update_text_bar("It's super effective!");
-            handleTurnComplete();
-        }
-    }
+            case "damage":
+                step.defender.takeDamage.running = true;
+                sequenceTimer.interval = step.delay;
+                sequenceTimer.start();
+                break;
 
-    // Monitor opponent taking damage
-    Connections {
-        target: opponent.takeDamage
-        enabled: root.attackInProgress && root.isPlayerTurn
-
-        function onRunningChanged() {
-            handleTurnComplete();
-        }
-    }
-
-    // Handle completion of one turn
-    function handleTurnComplete() {
-
-        delayedCall(1200, function() {
-            root.turnsCompleted++;
-
-            if (root.turnsCompleted < 2) {
-                // Switch turns and execute next attack
-                root.isPlayerTurn = !root.isPlayerTurn;
-                executeAttackTurn();
-            } else {
-                // Both turns complete, end battle
+            case "end":
                 endAttackChain();
-            }
-        });
+                break;
+        }
     }
 
     // End the attack sequence
     function endAttackChain() {
         root.attackInProgress = false;
-        root.turnsCompleted = 0;
+        root.attackSequence = [];
+        root.currentAttackIndex = 0;
         buttonGrid.visible = true;
         textBarText.visible = false;
         textBar.color = "transparent";
