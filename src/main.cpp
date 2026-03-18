@@ -13,8 +13,10 @@ int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
     /* Globals::debug(true); */
-    Globals::scale(1.5);
-    Globals::animationSpeed(4);
+    float scale = 3;
+    float speed = 12;
+    Globals::scale(scale);
+    Globals::animationSpeed(speed);
 
 
     // Load fonts from QRC once at app startup

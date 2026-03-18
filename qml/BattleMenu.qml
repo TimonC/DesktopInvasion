@@ -67,7 +67,7 @@ Rectangle {
     property bool forceSwitchMode: false
 
     property real backButtonWidthRatio: 0.1
-    property real backButtonHeightRatio: 0.9
+    property real backButtonHeightRatio: 0.8
     property real contentMarginsRatio: 0.02
 
     property real contentWidth: Math.floor(menuWidth * (1 - backButtonWidthRatio * 2 - contentMarginsRatio * 2))
