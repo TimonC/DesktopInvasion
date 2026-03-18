@@ -67,9 +67,9 @@ Rectangle {
     property bool forceSwitchMode: false
 
     // Layout proportions
-    property real backButtonWidthRatio: 0.1  // 10% of width
-    property real backButtonHeightRatio: 0.9  // 90% of height
-    property real contentMarginsRatio: 0.02  // 2% margin
+    property real backButtonWidthRatio: 0.1
+    property real backButtonHeightRatio: 0.8
+    property real contentMarginsRatio: 0.02
 
     // Dynamic calculated properties
     property real contentWidth: menuWidth * (1 - backButtonWidthRatio * 2 - contentMarginsRatio * 4)
@@ -627,26 +627,14 @@ Rectangle {
 
     Component {
         id: backButton
-        Rectangle {
+        GradientRoundButton {
+            buttonColor: root.forceSwitchMode ? root.forceSwitchBackButtonColor : root.backButtonColor
+            opacity: root.forceSwitchMode ? 0.5 : 1.0
             width: root.backButtonWidth
             height: root.backButtonHeight
-            radius: 3
-            color: root.forceSwitchMode ? root.forceSwitchBackButtonColor : root.backButtonColor
-            opacity: root.forceSwitchMode ? 0.5 : 1.0
-
-            Text {
-                anchors.centerIn: parent
-                text: "←"
-                color: "white"
-                font.pixelSize: Math.min(root.buttonFontSize * 1.5, root.backButtonHeight * 0.5)
-                font.family: root.menuFontFamily
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                enabled: !root.forceSwitchMode
-                onClicked: stack.pop()
-            }
+            radius: 6
+            onClicked: if(!root.forceSwitchMode) stack.pop()
+            text: "←"
         }
     }
 
