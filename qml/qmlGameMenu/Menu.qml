@@ -65,23 +65,6 @@ Rectangle {
     }
 
     Connections {
-        target: pokeView
-        function onEditButtonClicked(pokeData) {
-            moveMenu.pokeData    = pokeData
-            moveMenu.rowId       = pokeData.rowId
-            moveMenu.spriteSheet = pokeData.isBig ? "qrc:/assets/HGSS/reordered_sprites_big.png"
-                                                  : "qrc:/assets/HGSS/reordered_sprites.png"
-            moveMenu.frameWidth  = pokeData.isBig ? 64 : 32
-            moveMenu.frameHeight = pokeData.isBig ? 64 : 32
-            moveMenu.scaleFactor = pokeData.isBig ? root.iconScaleForBig : root.iconScale
-            root.menuState       = "moveMenu"
-
-            if (pc.inSwapMode) pc.toggleSwapMode()
-            if (moveMenu.inNameEditMode) moveMenu.toggleNameEditMode()
-        }
-    }
-
-    Connections {
         target: moveMenu
         function onNameChanged(name) {
             menuBridge.nameChangeRequested(pc.displayedPokemonBox, pc.displayedPokemonSlot, name)
@@ -262,15 +245,24 @@ Rectangle {
                 visible: root.menuState === "default"
                 spacing: 0
 
-                Text {
-                    width: parent.width
+                Row{
+                    width: parent.width - 64 //hardcode the buttonsize for offset
                     height: root.labelHeight
-                    text: "SUMMARY"
-                    font.family: root.p2pFont
-                    font.pixelSize: root.fontSizeSm
-                    color: root.subheaderColor
-                    horizontalAlignment: Text.AlignLeft
-                    verticalAlignment: Text.AlignVCenter
+                    Text {
+                        width: parent.width
+                        height: root.labelHeight
+                        text: "SUMMARY"
+                        font.family: root.p2pFont
+                        font.pixelSize: root.fontSizeSm
+                        color: root.subheaderColor
+                        horizontalAlignment: Text.AlignLeft
+                        verticalAlignment: Text.AlignVCenter
+                    }
+                   PcButton {
+                       id: pokeEditButton
+                       label:    "EDIT"
+                       onClicked: editButtonClicked(pokeView.pokeData)
+                   }
                 }
 
                 Item { width: parent.width; height: root.contentSpacing }
@@ -302,4 +294,18 @@ Rectangle {
             }
         }
     }
+    function editButtonClicked(pokeData) {
+        moveMenu.pokeData    = pokeData
+        moveMenu.rowId       = pokeData.rowId
+        moveMenu.spriteSheet = pokeData.isBig ? "qrc:/assets/HGSS/reordered_sprites_big.png"
+                                              : "qrc:/assets/HGSS/reordered_sprites.png"
+        moveMenu.frameWidth  = pokeData.isBig ? 64 : 32
+        moveMenu.frameHeight = pokeData.isBig ? 64 : 32
+        moveMenu.scaleFactor = pokeData.isBig ? root.iconScaleForBig : root.iconScale
+        root.menuState       = "moveMenu"
+
+        if (pc.inSwapMode) pc.toggleSwapMode()
+        if (moveMenu.inNameEditMode) moveMenu.toggleNameEditMode()
+    }
+
 }

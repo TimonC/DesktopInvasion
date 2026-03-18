@@ -49,7 +49,6 @@ Item {
     // Derived inner height (excludes top + bottom margin)
     readonly property real innerH: height - margin * 2
 
-    signal editButtonClicked(var pokeData)
 
     // ── Main content container ─────────────────────────────────────────────────
     // Centered inside whatever space Menu allocates.
@@ -139,12 +138,6 @@ Item {
                     width:   parent.width * 0.9
                     spacing: pokeView.sectionGap/2
 
-                   PcButton {
-                       id: pokeEditButton
-                       anchors.right:          parent.right
-                       label:    "EDIT"
-                       onClicked: pokeView.editButtonClicked(pokeView.pokeData)
-                   }
 
                    Text {
                         text: pokeData ? pokeData.name : ""
