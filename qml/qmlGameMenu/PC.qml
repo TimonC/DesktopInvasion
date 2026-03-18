@@ -10,6 +10,8 @@ Item {
     property color  partyBackground: "white"
     property color  pcBackground:    "green"
     property color  buttonColor:     "#5294e2"
+    property color panelBorderColor: "#a0b0c040"
+    property color  panelShadowColor: "#00000055"
     property int    slotWidth:       120
     property int    slotHeight:      90
     property int    freePartySlot:   -1
@@ -38,8 +40,6 @@ Item {
     // ── Style tokens ──────────────────────────────────────────────────────────
     readonly property int   panelRadius:      14
     readonly property int   panelBorderWidth: 2
-    readonly property color panelBorderColor: "#ffffff30"
-    readonly property color panelShadowColor: "#00000040"
     readonly property int   buttonRadius:     10
 
     // ── State ─────────────────────────────────────────────────────────────────
@@ -255,7 +255,7 @@ Item {
                         anchors.left:   parent.left
                         anchors.right:  parent.right
                         height: 1
-                        color:  "#ffffff25"
+                        color: root.panelBorderColor
                     }
                 }
 
