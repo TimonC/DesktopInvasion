@@ -664,7 +664,7 @@ Rectangle {
                                 Text {
                                     text: index === 0 ? "Remove '" + root.opponentName + "'" : "Escape battle"
                                     color: root.menuTextColor
-                                    font.pixelSize: root.buttonFontSize
+                                    font.pixelSize: root.moveFontSize
                                     font.family: root.menuFontFamily
                                     font.weight: Font.DemiBold
                                     horizontalAlignment: Text.AlignHCenter

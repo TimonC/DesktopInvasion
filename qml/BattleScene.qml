@@ -18,11 +18,14 @@ Item {
     property int buttonWidth: frameSize * 2.25
     property int buttonHeight: frameSize * 0.75
     property int gridSpacing: frameSize * 0.1
+
     property int pokeNameFontSize:9
     property int buttonFontSize:9
     property int moveFontSize:8
-    property int textBarFontSize: 15
+    property int textBarFontSize: 16
+
     property bool debugLines: false
+
     property int direction: 0
     property bool safePokemonSwitch: true
     property alias opponent: opponent
