@@ -257,7 +257,7 @@ Rectangle {
                                 opacity: root.selectedIndex === index ? 0.4 : 0.8
                                 color: party.healthRatios[index] >= 0.5 ? "#4CAF50" :
                                        (party.healthRatios[index] >= 0.25 ? "#FF9800" :
-                                       (party.healthRatios[index] > 0 ? "#F44336" : "#C62828"))
+                                       (party.healthRatios[index] > 0 ? "#FF0000" : "#8B0000"))
                             }
                             PokemonIcon {
                                 anchors.centerIn: parent
