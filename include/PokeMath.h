@@ -193,6 +193,16 @@ namespace PokeMath{
         return accuracyDist(rng) <= modifiedAccuracy;
     }
 
+//https://bulbapedia.bulbagarden.net/wiki/Giga_Drain_(move)#Generation_II
+    inline int calculateDrain(int damage, int drainRate){
+        return std::max(1, damage * drainRate / 100);
+    }
+
+//https://bulbapedia.bulbagarden.net/wiki/Recover_(move)
+    inline int calculateHeal(int totalHealth, int healRate){
+        return totalHealth *  healRate / 100;
+    }
+
 // https://bulbapedia.bulbagarden.net/wiki/Critical_hit#Generation_II_onwards
     inline bool checkCriticalHit(int critRate, std::mt19937& rng) {
         if (critRate >= 2) return true;

@@ -466,14 +466,13 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
                 result.addEffect(BattleActionResult::NOT_VERY_EFFECTIVE, caster, target);
             }
             if (_move->drain > 0) {
-
-                int drainAmount = damage * _move->drain / 100;
+                int drainAmount = PokeMath::calculateDrain(damage, _move->drain);
                 result.addEffect(BattleActionResult::DRAIN, caster, target, drainAmount);
             }
         }
 
         if (_move->healing > 0) {
-            int healAmount = caster->pokeState.stats[0] * _move->healing / 100;
+            int healAmount = PokeMath::calculateHeal(caster->pokeState.stats[0], _move->healing);
             result.addEffect(BattleActionResult::HEAL, caster, caster, healAmount);
         }
 
