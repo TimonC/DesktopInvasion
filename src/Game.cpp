@@ -45,8 +45,9 @@ void Game::handleBattleEnd(Battle* battle, WildPokemon* opp, bool removeWild) {
     assert(battle == m_activeBattle && "Battle mismatch in handleBattleEnd");
 
     disconnect(battle, nullptr, this, nullptr);
-    m_activeBattle = nullptr;
+    battle->close();
     battle->deleteLater();
+    m_activeBattle = nullptr;
 
     if (removeWild) {
         assert(m_wildPokemon == opp && "WildPokemon mismatch in handleBattleEnd");
