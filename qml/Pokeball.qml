@@ -15,7 +15,7 @@ Item {
     property int bounceHeight: 10        // How high to bounce (in pixels)
 
     // Circle properties
-    property real circleShrinkScale: 0.7    // Circle starts at 0.8x size
+    property real circleShrinkScale: 0.6    // Circle starts at 0.8x size
     property int circleAnimationDuration: 750
     property int circleX: 0               // X position for circle center
     property int circleY: 0               // Y position for circle center
@@ -24,6 +24,7 @@ Item {
     // Signal emitted when throw animation completes
     signal throwAnimationDone()
     signal pokemonInsideBall()
+    signal ballOpened()
 
     width: frameWidth
     height: frameHeight
@@ -70,10 +71,10 @@ Item {
         antialiasing: false
     }
 
-    // White circle overlay for animations
+    // Red outer circle layer
     Rectangle {
-        id: circleOverlay
-        color: "white"
+        id: outerCircle
+        color: "#FF6B6B" // Red color
         radius: width / 2
         opacity: 0
         visible: false
@@ -82,6 +83,23 @@ Item {
         // Position at configured circle center
         x: root.circleX - width / 2
         y: root.circleY - height / 2
+    }
+
+    // Orange inner circle layer
+    Rectangle {
+        id: innerCircle
+        color: "#FFA726" // Orange color
+        radius: width / 2
+        opacity: 0
+        visible: false
+        z: 98 // Below outer circle
+
+        // Position at configured circle center
+        x: root.circleX - width / 2
+        y: root.circleY - height / 2
+
+        // Inner circle is 70% the size of outer circle
+        property real innerScale: 0.7
     }
 
     // Timer to animate frames 0-7
@@ -136,24 +154,24 @@ Item {
         }
     }
 
-    // Single animation that can run forward or reverse for circle
+    // Outer circle animation
     ParallelAnimation {
-        id: circleAnimation
+        id: outerCircleAnimation
         running: false
         loops: 1
 
         // Circle size animation
         NumberAnimation {
-            id: sizeAnim
-            target: circleOverlay
+            id: outerSizeAnim
+            target: outerCircle
             property: "width"
             duration: root.circleAnimationDuration
             easing.type: Easing.InOutQuad
         }
 
         NumberAnimation {
-            id: heightAnim
-            target: circleOverlay
+            id: outerHeightAnim
+            target: outerCircle
             property: "height"
             duration: root.circleAnimationDuration
             easing.type: Easing.InOutQuad
@@ -161,16 +179,16 @@ Item {
 
         // Position animation to keep centered
         NumberAnimation {
-            id: xAnim
-            target: circleOverlay
+            id: outerXAnim
+            target: outerCircle
             property: "x"
             duration: root.circleAnimationDuration
             easing.type: Easing.InOutQuad
         }
 
         NumberAnimation {
-            id: yAnim
-            target: circleOverlay
+            id: outerYAnim
+            target: outerCircle
             property: "y"
             duration: root.circleAnimationDuration
             easing.type: Easing.InOutQuad
@@ -178,69 +196,168 @@ Item {
 
         // Opacity animation
         NumberAnimation {
-            id: opacityAnim
-            target: circleOverlay
+            id: outerOpacityAnim
+            target: outerCircle
             property: "opacity"
             duration: root.circleAnimationDuration
             easing.type: Easing.InOutQuad
         }
 
         onStarted: {
-            circleOverlay.visible = true;
+            outerCircle.visible = true;
         }
 
         onStopped: {
-            circleOverlay.visible = false;
+            outerCircle.visible = false;
         }
     }
 
+    // Inner circle animation
+    ParallelAnimation {
+        id: innerCircleAnimation
+        running: false
+        loops: 1
+
+        // Circle size animation
+        NumberAnimation {
+            id: innerSizeAnim
+            target: innerCircle
+            property: "width"
+            duration: root.circleAnimationDuration
+            easing.type: Easing.InOutQuad
+        }
+
+        NumberAnimation {
+            id: innerHeightAnim
+            target: innerCircle
+            property: "height"
+            duration: root.circleAnimationDuration
+            easing.type: Easing.InOutQuad
+        }
+
+        // Position animation to keep centered
+        NumberAnimation {
+            id: innerXAnim
+            target: innerCircle
+            property: "x"
+            duration: root.circleAnimationDuration
+            easing.type: Easing.InOutQuad
+        }
+
+        NumberAnimation {
+            id: innerYAnim
+            target: innerCircle
+            property: "y"
+            duration: root.circleAnimationDuration
+            easing.type: Easing.InOutQuad
+        }
+
+        // Opacity animation
+        NumberAnimation {
+            id: innerOpacityAnim
+            target: innerCircle
+            property: "opacity"
+            duration: root.circleAnimationDuration
+            easing.type: Easing.InOutQuad
+        }
+
+        onStarted: {
+            innerCircle.visible = true;
+        }
+
+        onStopped: {
+            innerCircle.visible = false;
+        }
+    }
 
     // Circle expands outward (for pokemon release)
     function circleExpand() {
-        // Setup animation: start at startScale, expand to endScale
-        var start =2 * root.circleBaseRadius * root.circleShrinkScale
-        var end = 2 * root.circleBaseRadius;
+        // Setup outer circle animation: start at startScale, expand to full scale
+        var outerStart = 2 * root.circleBaseRadius * root.circleShrinkScale;
+        var outerEnd = 2 * root.circleBaseRadius;
 
-        sizeAnim.from = start;
-        sizeAnim.to = end;
+        outerSizeAnim.from = outerStart;
+        outerSizeAnim.to = outerEnd;
 
-        heightAnim.from = start;
-        heightAnim.to = end;
+        outerHeightAnim.from = outerStart;
+        outerHeightAnim.to = outerEnd;
 
-        xAnim.from = root.circleX - start / 2;
-        xAnim.to = root.circleX - end / 2;
+        outerXAnim.from = root.circleX - outerStart / 2;
+        outerXAnim.to = root.circleX - outerEnd / 2;
 
-        yAnim.from = root.circleY - start / 2;
-        yAnim.to = root.circleY - end / 2;
+        outerYAnim.from = root.circleY - outerStart / 2;
+        outerYAnim.to = root.circleY - outerEnd / 2;
 
-        opacityAnim.from = 1;
-        opacityAnim.to = 0.8;
+        outerOpacityAnim.from = 1;
+        outerOpacityAnim.to = 0.7;
 
-        circleAnimation.start();
+        // Setup inner circle animation (70% of outer size)
+        var innerStart = outerStart * innerCircle.innerScale;
+        var innerEnd = outerEnd * innerCircle.innerScale;
+
+        innerSizeAnim.from = innerStart;
+        innerSizeAnim.to = innerEnd;
+
+        innerHeightAnim.from = innerStart;
+        innerHeightAnim.to = innerEnd;
+
+        innerXAnim.from = root.circleX - innerStart / 2;
+        innerXAnim.to = root.circleX - innerEnd / 2;
+
+        innerYAnim.from = root.circleY - innerStart / 2;
+        innerYAnim.to = root.circleY - innerEnd / 2;
+
+        innerOpacityAnim.from = 1;
+        innerOpacityAnim.to = 0.8; // Inner circle slightly more opaque
+
+        // Start both animations
+        outerCircleAnimation.start();
+        innerCircleAnimation.start();
     }
 
     // Circle shrinks inward (for pokemon capture)
     function circleShrink() {
-        // Setup animation: start at endScale, shrink to startScale
-        var start = 2 * root.circleBaseRadius;
-        var end = 2 * root.circleBaseRadius * root.circleShrinkScale;
+        // Setup outer circle animation: start at full scale, shrink to startScale
+        var outerStart = 2 * root.circleBaseRadius;
+        var outerEnd = 2 * root.circleBaseRadius * root.circleShrinkScale;
 
-        sizeAnim.from = start;
-        sizeAnim.to = end;
+        outerSizeAnim.from = outerStart;
+        outerSizeAnim.to = outerEnd;
 
-        heightAnim.from = start;
-        heightAnim.to = end;
+        outerHeightAnim.from = outerStart;
+        outerHeightAnim.to = outerEnd;
 
-        xAnim.from = root.circleX - start / 2;
-        xAnim.to = root.circleX - end / 2;
+        outerXAnim.from = root.circleX - outerStart / 2;
+        outerXAnim.to = root.circleX - outerEnd / 2;
 
-        yAnim.from = root.circleY - start / 2;
-        yAnim.to = root.circleY - end / 2;
+        outerYAnim.from = root.circleY - outerStart / 2;
+        outerYAnim.to = root.circleY - outerEnd / 2;
 
-        opacityAnim.from = 0.8;
-        opacityAnim.to = 1;
+        outerOpacityAnim.from = 0.7;
+        outerOpacityAnim.to = 1;
 
-        circleAnimation.start();
+        // Setup inner circle animation (70% of outer size)
+        var innerStart = outerStart * innerCircle.innerScale;
+        var innerEnd = outerEnd * innerCircle.innerScale;
+
+        innerSizeAnim.from = innerStart;
+        innerSizeAnim.to = innerEnd;
+
+        innerHeightAnim.from = innerStart;
+        innerHeightAnim.to = innerEnd;
+
+        innerXAnim.from = root.circleX - innerStart / 2;
+        innerXAnim.to = root.circleX - innerEnd / 2;
+
+        innerYAnim.from = root.circleY - innerStart / 2;
+        innerYAnim.to = root.circleY - innerEnd / 2;
+
+        innerOpacityAnim.from = 0.8; // Inner circle slightly more opaque
+        innerOpacityAnim.to = 1;
+
+        // Start both animations
+        outerCircleAnimation.start();
+        innerCircleAnimation.start();
     }
 
     // Pokéball throw animation
@@ -338,12 +455,14 @@ Item {
         }
         ScriptAction{
             script: {
-                circleShrink() // Circle shrinks on capture
                 root.pokemonInsideBall()
             }
         }
         PauseAnimation {
             duration: root.catchDuration
+        }
+        ScriptAction{
+            script: root.ballOpened()
         }
 
         // Frame 0

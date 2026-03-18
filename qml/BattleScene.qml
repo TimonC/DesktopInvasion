@@ -39,6 +39,17 @@ Item {
     signal opponentWon()
     signal playerWon()
 
+    Component.onCompleted: {
+        positionSpriteAndStatusBar(player);
+        positionSpriteAndStatusBar(opponent);
+
+        // Schedule for next event loop
+        Qt.callLater(function() {
+            var coords = calculateBallCoords(player)
+            player.visible = false
+            pokeBallPlayer.throwAt(coords[0], coords[1], coords[2], coords[3])
+        })
+    }
     // Debug rectangle
     Rectangle {
         id: containerDebugLines
@@ -70,6 +81,7 @@ Item {
     PokemonSprite {
         id: player
         objectName: "player"
+        visible: false
         name: playerName
         direction: (root.direction + 2) % 4
         debugLines: root.debugLines
@@ -77,26 +89,45 @@ Item {
         property alias statusBar: root.statusBarPlayer
     }
 
-    // Pokéball animation component
-PokeballCatch {
-    id: pokeBallSend
-    scaleFactor: 2
+        // Pokéball animation component
+    Pokeball {
+        id: pokeBallOpponent
+        scaleFactor: 2
 
-    // Configure circle properties
-    circleBaseRadius: Math.max(opponent.width/2, opponent.height/2)
-    circleAnimationDuration: root.ballTransitionDuration
-    circleX: opponent.x + opponent.width/2  // Center on opponent
-    circleY: opponent.y + opponent.height/2
+        // Configure circle properties
+        circleBaseRadius: Math.max(opponent.width/2, opponent.height/2)
+        circleAnimationDuration: root.ballTransitionDuration
+        circleX: opponent.x + opponent.width/2  // Center on opponent
+        circleY: opponent.y + opponent.height/2
 
-    onThrowAnimationDone: {
-        root.catchShakeCount = 0
-        catchAttemptTimer.interval = root.catchShakeInterval/2
-        catchAttemptTimer.start()
+        onThrowAnimationDone: {
+            root.catchShakeCount = 0
+            catchAttemptTimer.interval = root.catchShakeInterval/2
+            catchAttemptTimer.start()
+        }
+        onPokemonInsideBall:{
+            pokeBallOpponent.circleShrink();
+            opponent.visible=false
+        }
     }
-    onPokemonInsideBall:{
-        opponent.visible=false
+    Pokeball {
+        id: pokeBallPlayer
+        scaleFactor: 2
+
+        // Configure circle properties
+        circleBaseRadius: Math.max(player.width/2, player.height/2)
+        circleAnimationDuration: root.ballTransitionDuration
+        circleX: player.x + player.width/2  // Center on player
+        circleY: player.y + player.height/2
+
+        onPokemonInsideBall:{
+            pokeBallPlayer.circleExpand();
+        }
+        onBallOpened:{
+            player.visible=true
+            pokeBallPlayer.visible=false
+        }
     }
-}
 
     // Catch attempt timer
     Timer {
@@ -108,18 +139,18 @@ PokeballCatch {
 
 
     function processCatchAttempt() {
-        var failure = Math.random() > 0.1
+        var failure = Math.random() > 0.5
 
         if (failure) {
             // Release the pokemon
-            pokeBallSend.release()
+            pokeBallOpponent.release()
             // Hide after delay
             Qt.callLater(function() {
                 var hideTimer = Qt.createQmlObject('import QtQuick 2.15; Timer {}', root)
                 hideTimer.interval = root.ballTransitionDuration
                 hideTimer.triggered.connect(function() {
                     opponent.visible=true
-                    pokeBallSend.visible = false
+                    pokeBallOpponent.visible = false
                     hideTimer.destroy()
                 })
                 hideTimer.start()
@@ -129,12 +160,12 @@ PokeballCatch {
 
             if (root.catchShakeCount >= 3) {
                 // Third attempt - jump instead of shake
-                pokeBallSend.jump()
+                pokeBallOpponent.jump()
                 // Pokemon caught!
                 console.log("Pokemon caught!")
             } else {
                 // Shake and try again
-                pokeBallSend.shake()
+                pokeBallOpponent.shake()
                 catchAttemptTimer.start()
             }
         }
@@ -168,21 +199,25 @@ PokeballCatch {
         onCatchChosen: function(pokeSpriteId) {
             if (pokeSpriteId === 3) {
                 // Calculate center X of opponent sprite (this becomes x1)
-                var x1 = opponent.x + (opponent.width / 2) - (32/4);
-                var x0 = x1 + 2*(root.direction==1 ? -32 : 32);
-                // Y positions
-                var y0 = opponent.y - pokeBallSend.frameHeight;
-                var y1 = opponent.y + opponent.height - pokeBallSend.frameHeight;
-
+                var coords = calculateBallCoords(opponent)
                 // Start the animation
-                pokeBallSend.visible = true;
-                pokeBallSend.throwAt(x0, x1, y0, y1);
+                pokeBallOpponent.visible = true;
+                pokeBallOpponent.throwAt(coords[0], coords[1], coords[2], coords[3]);
             } else {
                 console.error("Invalid pokeSprite id:", pokeSpriteId)
             }
         }
 
         onRunChosen: root.runChosen()
+    }
+
+    function calculateBallCoords(sprite){
+            var x1 = sprite.x + (sprite.width / 2) - (32/4);
+            var x0 = x1 + 2*(sprite.direction==1 ? -32 : 32);
+            // Y positions
+            var y0 = sprite.y - pokeBallOpponent.frameHeight;
+            var y1 = sprite.y + sprite.height - pokeBallOpponent.frameHeight;
+            return [x0, x1, y0, y1]
     }
 
     //Relative positioning of elements
@@ -227,10 +262,6 @@ PokeballCatch {
         sprite.statusBar.visible = true;
     }
 
-    Component.onCompleted: {
-        positionSpriteAndStatusBar(player);
-        positionSpriteAndStatusBar(opponent);
-    }
 
     // Main sequence timer
     Timer {
