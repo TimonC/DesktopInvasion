@@ -25,20 +25,21 @@ Rectangle {
     property color menuTextColor: "white"
     property color attackTextColor: "white"
 
-    property color textBarBackgroundColor: "white"
-    property color textBarBorderColor: "black"
-
     property color attackButtonColor: PokeColor.darker("red")
     property color switchButtonColor: PokeColor.darker("green")
     property color catchButtonColor: PokeColor.darker("orange")
     property color runButtonColor: PokeColor.darker("blue")
 
     property color borderColor: "#999999"
+    property color selectedBorderColor: "yellow"
     property color disabledBorderColor: "#777777"
     property color disabledBackgroundColor: "#b0b0b0"
     property color placeholderTextColor: "#a0a0a0"
     property real enabledOpacity: 1
     property real disabledOpacity: 0.5
+
+    property color textBarBackgroundColor: "white"
+    property color textBarBorderColor: "black"
 
     property real iconScale: 1.0
     property real normalIconOpacity: 1.0
@@ -355,7 +356,7 @@ Rectangle {
                         anchors.fill: parent
                         radius: 4
                         color: (root.party.iconIds[index] >= 0 && party.healthRatios[index] > 0)
-                              ? (root.selectedIndex === index ? root.borderColor : root.disabledBorderColor)
+                              ? (root.selectedIndex === index ? root.selectedBorderColor : root.borderColor)
                               : root.disabledBorderColor
                         opacity: root.party.iconIds[index] >= 0 ? root.enabledOpacity : root.disabledOpacity
                     }
