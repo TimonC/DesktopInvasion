@@ -16,9 +16,9 @@ Item {
     // ── Layout constants ──────────────────────────────────────────────────────
     property string mainFont:   root.p2pFont
     property string bodyFont:   root.dotGothicFont
-    property int    fontSizeLg: 18
-    property int    fontSizeMd: 14
-    property int    fontSizeSm: 11
+    property int    fontSizeLg: 22
+    property int    fontSizeMd: 18
+    property int    fontSizeSm: 14
     property int    margin:     14
     property int    spacing:    6
     property int    maxSprite:  64 * 4
@@ -156,7 +156,7 @@ Item {
             text: pokeData ? pokeData.flavorText : ""
             font.family: bodyFont; font.pixelSize: fontSizeMd
             color: "#cccccc"; wrapMode: Text.WordWrap; elide: Text.ElideRight
-            horizontalAlignment: Text.AlignHCenter
+            horizontalAlignment: Text.AlignJustify
         }
     }
 
@@ -192,13 +192,8 @@ Item {
 
                         Row {
                             spacing: 8
-                            Text {
-                                text: modelData.name
-                                font.family: bodyFont; font.pixelSize: fontSizeMd
-                                color: root.textColor
-                            }
                             Rectangle {
-                                width: pill.implicitWidth + 10; height: fontSizeMd + 4; radius: 3
+                                width: 64; height: fontSizeMd + 4; radius: 3
                                 color: PokeColor.typeColor(modelData.type) ?? "#888"
                                 anchors.verticalCenter: parent.verticalCenter
                                 Text {
@@ -207,18 +202,28 @@ Item {
                                     font.family: bodyFont; font.pixelSize: fontSizeSm
                                     color: "#ffffff"
                                 }
+                            }Text {
+                                width: 64*1.6
+                                text: modelData.name
+                                font.family: bodyFont; font.pixelSize: fontSizeMd
+                                color: root.textColor
                             }
                             Text {
+                                width: 64*1.6*1.6
                                 text: "Pow: " + modelData.power + "   Acc: " + modelData.accuracy
                                 font.family: bodyFont; font.pixelSize: fontSizeSm
                                 color: "#aaaaaa"; anchors.verticalCenter: parent.verticalCenter
                             }
+
                         }
                         Text {
+                            height: fontSizeSm*3
                             width: parent.width
                             text:  modelData.flavor
-                            font.family: bodyFont; font.pixelSize: fontSizeSm
-                            color: "#888888"; wrapMode: Text.WordWrap
+                            font.family: bodyFont;
+                            font.pixelSize: fontSizeSm
+                            color: "#888888";
+                            wrapMode: Text.WordWrap
                         }
                     }
                 }
