@@ -11,6 +11,7 @@ class SystemTrayIcon : public QSystemTrayIcon
 public:
     explicit SystemTrayIcon(QObject *parent = nullptr);
     void updateIconAndMenu();
+    void enabled(bool enabled);
 
 signals:
     void gameActive(bool active);
@@ -21,13 +22,12 @@ private slots:
     void toggleGameActive();
 
 private:
-    void setupMenu();
     void setIconActivityColor(bool active);
 
-    QMenu *m_menu;
-    QAction *m_gameActiveToggle;
-    QAction *m_menuButton;
+    /* QAction *m_gameActiveToggle; */
+    /* QAction *m_menuButton; */
     bool m_gameActive;
+    bool m_clickEnabled;
 };
 
 #endif // SYSTEMTRAYICON_H

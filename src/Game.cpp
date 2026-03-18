@@ -58,11 +58,11 @@ void Game::handleMenuOpen(){
     m_gameUsedToBeActive = usedToBeActive;
 
     m_menu->activate();
-    m_trayIcon->setVisible(false);
+    m_trayIcon->enabled(false);
 };
 
 void Game::handleMenuClosed(){
-    m_trayIcon->setVisible(true);
+    m_trayIcon->enabled(true);
     if(m_gameUsedToBeActive) setGameActive(true);
 };
 

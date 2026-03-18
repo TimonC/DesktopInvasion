@@ -1,47 +1,32 @@
 #include "SystemTrayIcon.h"
 #include <QApplication>
 
-SystemTrayIcon::SystemTrayIcon(QObject *parent) : QSystemTrayIcon(parent),
-    m_menu(new QMenu()),
-    m_gameActive(true)
+SystemTrayIcon::SystemTrayIcon(QObject *parent)
+    : QSystemTrayIcon(parent)
+    , m_gameActive(true)
+    , m_clickEnabled(true)
 {
     // Set initial icon
     setIcon(QIcon(":/assets/HGSS/PokeballIcon.png"));
     setVisible(true);
-
-    // Setup context menu
-    setupMenu();
 
     // Connect signal
     connect(this, &QSystemTrayIcon::activated,
             this, &SystemTrayIcon::onActivated);
 }
 
-void SystemTrayIcon::setupMenu(){
-    m_menuButton = m_menu->addAction("Menu");
-    connect(m_menuButton, &QAction::triggered,
-            this, &SystemTrayIcon::menuButtonPressed);
-
-    m_menu->addSeparator();
-
-    m_gameActiveToggle = m_menu->addAction("Active");
-    m_gameActiveToggle->setCheckable(true);
-    m_gameActiveToggle->setChecked(m_gameActive);
-    connect(m_gameActiveToggle, &QAction::triggered,
-            this, &SystemTrayIcon::toggleGameActive);
-
-    setContextMenu(m_menu);
+void SystemTrayIcon::enabled(bool enabled){
+    m_clickEnabled = enabled;
 }
 
 void SystemTrayIcon::onActivated(QSystemTrayIcon::ActivationReason reason){
-    if (reason == QSystemTrayIcon::Trigger && reason == QSystemTrayIcon::Context) { //right click
-        QPoint pos = QCursor::pos();
-        QPoint hotspot = QCursor().hotSpot();
-        pos.setX(pos.x() - hotspot.x());
-        m_menu->popup(pos);
-    }else if(reason == QSystemTrayIcon::Trigger){//left click
-        toggleGameActive();
-    }
+    if(m_clickEnabled){
+        if(reason == QSystemTrayIcon::Trigger){//left click
+            toggleGameActive();
+        }else if (reason == QSystemTrayIcon::Context) { //right click
+            emit menuButtonPressed();
+        }
+    };
 }
 
 void SystemTrayIcon::setIconActivityColor(bool active){
@@ -54,10 +39,7 @@ void SystemTrayIcon::setIconActivityColor(bool active){
 
 void SystemTrayIcon::toggleGameActive(){
     m_gameActive = !m_gameActive;
-
     setIconActivityColor(m_gameActive);
-    m_gameActiveToggle->setChecked(m_gameActive);
-
     emit gameActive(m_gameActive);
 }
 
