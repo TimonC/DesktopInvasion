@@ -1,4 +1,5 @@
-#pragma once
+#ifndef POKEMON_DATA_H
+#define POKEMON_DATA_H
 
 struct PokemonInfo {
     int pokedexId;
@@ -9,3 +10,5 @@ struct PokemonInfo {
 
 extern const PokemonInfo kPokemonList[];
 extern const int kPokemonCount;
+
+#endif
