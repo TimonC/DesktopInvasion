@@ -3,7 +3,7 @@ import QtQuick.Layouts 1.15
 
 Rectangle {
     id: root
-    width: 800
+    width: 820
     height: 600
     color: backgroundColor
 
