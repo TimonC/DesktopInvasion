@@ -21,6 +21,7 @@ Item {
     property bool openingButtons: false
     property bool clickable:true
     property bool jumping: false
+
     width: itemWidth
     height: itemHeight
     clip: true

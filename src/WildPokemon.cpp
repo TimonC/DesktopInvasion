@@ -27,8 +27,8 @@ WildPokemon::WildPokemon(QWindow *parent, int row)
     connect( openingButtons, SIGNAL(clicked()), this, SLOT(startBattle()));
 
     QRect& screen = getScreenGeometry();
-    setX(std::rand()%screen.width()/2);
-    setY(std::rand()%screen.height()/2);
+    setX(screen.width()/2 + ((std::rand()%2)*2-1) * std::rand()%screen.width()/2);
+    setY(screen.height()/2 + ((std::rand()%2)*2-1) * std::rand()%screen.height()/2);
     m_decisionTimer->start();
     makeRandomDecision();
 

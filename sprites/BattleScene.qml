@@ -3,17 +3,17 @@ import QtQuick.Controls 2.15
 
 Item {
     id: root
-    width: (chosenSide === 0 || chosenSide === 2) ? frameSize * 6 : frameSize * 8
+    width: (chosenSide === 0 || chosenSide === 2) ? frameSize * 6 : frameSize * 8.25
     height: (chosenSide === 0 || chosenSide === 2) ? frameSize * 6.5 : frameSize * 4
 
     // Scaling properties
     property int frameSize: 32
-    property int buttonWidth: frameSize * 1.5
-    property int buttonHeight: frameSize * 0.75
-    property int buttonFontSize: frameSize * 0.25
-    property int buttonSpacing: frameSize * 0.125
-    property int stackSpacing: frameSize  // New property for spacing between column stacks
-    property int textBarMargin: frameSize * 0.25  // Tiny margin above text bar
+    property int buttonWidth: frameSize*1.25
+    property int buttonHeight: frameSize*0.75
+    property int buttonFontSize: frameSize*0.25
+    property int buttonSpacing: frameSize*0.125
+    property int stackSpacing: frameSize*1.2  // New property for spacing between column stacks
+    property int textBarMargin: frameSize*0.25  // Tiny margin above text bar
 
     // Property to control which side the chosen/opponent buttons are on
     property int chosenSide: 1  // 0, 1, 2, or 3

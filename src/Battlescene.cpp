@@ -4,33 +4,37 @@
 Battlescene::Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent)
     : QQuickView(parent)
 {
-    setFlags(Qt::WindowStaysOnTopHint | Qt::Tool | Qt::WindowDoesNotAcceptFocus);
+    setFlags(     Qt::WindowStaysOnTopHint
+                | Qt::Tool
+                | Qt::WindowDoesNotAcceptFocus
+                | Qt::FramelessWindowHint);
     setColor(Qt::transparent);
 
     setSource(QUrl("qrc:/sprites/BattleScene.qml"));
 
     QQuickItem *ui = rootObject();
     m_ui = ui;
+
     // Position calculation
     int distance = 100;
     switch(opp->direction()) {
         case 0:
-            m_origin = opp->position(); //+ QPoint(-32, 32*2.5);
+            m_origin = opp->position() + QPoint(-ui->width()/2+32*2, -ui->height()+32);
             chosen->setPosition(opp->position() + QPoint(0, -distance));
             chosen->direction(2);
             break;
         case 1:
-            m_origin = opp->position(); // QPoint(-distance + 32/2, 32*2.5);
+            m_origin = opp->position() + QPoint(-ui->width()/2 , -16);
             chosen->setPosition(opp->position() + QPoint(-distance, 0));
             chosen->direction(3);
             break;
         case 2:
-            m_origin = opp->position();// + QPoint(-32, distance + 32*2.5);
+            m_origin = opp->position() + QPoint(-ui->width()/2+32*2, 0);
             chosen->setPosition(opp->position() + QPoint(0, distance));
             chosen->direction(0);
             break;
         case 3:
-            m_origin = opp->position();// + QPoint(32/2, 32*2.5);
+            m_origin = opp->position() + QPoint(-32*1.25, -16);
             chosen->setPosition(opp->position() + QPoint(distance, 0));
             chosen->direction(1);
             break;
