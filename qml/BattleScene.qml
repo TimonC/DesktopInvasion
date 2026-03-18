@@ -367,12 +367,12 @@ Item {
                 sequenceTimer.start()
                 break
             case "battle-over":
+                root.actionInProgress = false
+                root.actionSequence = []
+                root.currentActionIndex = 0
                 if(step.defender==root.opponent){
                     root.playerWon()
                 }else{
-                    root.actionInProgress = false
-                    root.actionSequence = []
-                    root.currentActionIndex = 0
                     if(battleMenu.party.healthRatios.some(ratio => ratio > 0)){
                         battleMenu.forceSwitch();
                     }else{

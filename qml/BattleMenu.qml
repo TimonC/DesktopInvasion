@@ -249,20 +249,21 @@ Rectangle {
                             visible: root.party.iconIds[index] >= 0
                             color: "transparent"
                             radius: 4
-                            border.color: root.selectedIndex === index ? "#4CAF50" : "#e0e0e0"
-                            border.width: root.selectedIndex === index ? 2 : 0.5
+                            border.color: root.selectedIndex === index ? "darkgrey" : "#e0e0e0"
+                            border.width: root.selectedIndex === index ? 0.5 : 2
                             Rectangle {
                                 anchors.fill: parent
                                 radius: parent.radius
-                                opacity: root.selectedIndex === index ? 0.4 : 0.8
-                                color: party.healthRatios[index] >= 0.5 ? "#4CAF50" :
-                                       (party.healthRatios[index] >= 0.25 ? "#FF9800" :
-                                       (party.healthRatios[index] > 0 ? "#FF0000" : "#8B0000"))
+                                opacity: root.selectedIndex === index ? 0.4 : 0.6
+                                color:   root.selectedIndex === index ? "grey" :
+                                         (party.healthRatios[index] >= 0.5 ? "#4CAF50" :
+                                         (party.healthRatios[index] >= 0.25 ? "#FF9800" :
+                                         (party.healthRatios[index] > 0 ? "#FF0000" : "#8B0000")))
                             }
                             PokemonIcon {
                                 anchors.centerIn: parent
                                 frameIndex: root.party.iconIds[index]
-                                scale: root.selectedIndex === index ? 1.05 : 1
+                                scale: root.selectedIndex === index ? 1.1 : 1
                             }
                             MouseArea {
                                 anchors.fill: parent
