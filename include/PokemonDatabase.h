@@ -61,6 +61,8 @@ public:
     void                                    setPartySlot(int slot, const PokemonState& p);
     void                                    clearPartySlot(int slot);
     void                                    swapPartySlots(int a, int b);
+    int                                     partySize()                const;
+    int                                     firstFreePartySlot()       const;
 
     // --- PC (demand-loaded, box-granular) ---
     void                                    loadBox(int box);

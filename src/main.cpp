@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
     }
     /* Globals::debug(true); */
     float scale = 1.5;
-    float speed = 2;
+    float speed = 6;
     Globals::scale(scale);
     Globals::animationSpeed(speed);
 
