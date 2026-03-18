@@ -43,14 +43,12 @@ Item {
     property int fontSizeMd: 18
     property int fontSizeSm: 16
 
-    readonly property int layoutMargin:  30
     readonly property int layoutSpacing: 20
+    readonly property int sectionSpacing: 30
     readonly property int buttonWidth:   48
     readonly property int buttonHeight:  64
     readonly property int labelHeight:   24
     readonly property int contentSpacing: 4
-
-    readonly property int sectionSpacing: 40
 
     readonly property int   panelRadius:      8
     readonly property int   panelBorderWidth: 2

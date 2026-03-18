@@ -4,7 +4,7 @@ Rectangle {
     id: root
     color: backgroundColor
 
-    readonly property int pad:      12
+    readonly property int pad:      20
     readonly property int dividerW: 1
     readonly property color dividerColor: "#3a3a3a"
 
@@ -152,105 +152,124 @@ Rectangle {
         root.menuState = "moveMenu"
     }
 
-    Row {
-        anchors.fill:    parent
+    Item {
+        anchors.fill: parent
         anchors.margins: root.pad
-        spacing:         0
 
-        Column {
-            id: leftColumn
-            width:   root.pcW
-            height:  parent.height
-            spacing: 0
-            visible: root.menuState === "default"
-
-            Text {
-                width: parent.width; height: root.labelHeight
-                text: "TRAINER"
-                font.family: root.p2pFont;
-                font.pixelSize: root.fontSizeSm
-                color: root.subheaderColor
-                horizontalAlignment: Text.AlignLeft; verticalAlignment: Text.AlignVCenter
-            }
-
-            Item { width: parent.width; height: root.contentSpacing }
-
-            Item {
-                width: parent.width; height: root.trainerH
-                Trainer {
-                    id: trainer
-                    anchors.fill: parent
-                    textColor:    root.textColor
-                    fontSizeSm:     root.fontSizeSm
-                    fontSizeMd:     root.fontSizeMd
-                    fontSizeLg:     root.fontSizeLg
-                    iconScale:    root.iconScaleForTrainer
-                }
-            }
-
-            Item { width: parent.width; height: root.pad }
-            Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
-            Item { width: parent.width; height: root.pad }
-
-            Item { width: parent.width; height: root.contentSpacing }
-
-            Item {
-                width: parent.width; height: root.pcH
-                PC {
-                    id:               pc
-                    anchors.centerIn: parent
-                    width:  pc.pcColumns * pc.slotWidth + pc.buttonWidth * 2 + pc.layoutSpacing * 2
-                    height: root.pcH
-                    fontSizeLg: root.fontSizeLg
-                    fontSizeMd: root.fontSizeMd
-                    fontSizeSm: root.fontSizeSm
-                    fontFamily: root.p2pFont
-                }
-            }
-        }
-
-        Item      { width: root.pad;     height: parent.height; visible: root.menuState === "default" }
-        Rectangle { width: root.dividerW; height: parent.height; color: root.dividerColor; visible: root.menuState === "default" }
-        Item      { width: root.pad;     height: parent.height; visible: root.menuState === "default" }
-
-        Item {
-            width: root.menuState === "default"
-                       ? root.rightPanelW
-                       : root.pcW + root.pad * 2 + root.dividerW + root.rightPanelW
-            height: parent.height
+        Row {
+            anchors.fill: parent
+            spacing:         0
 
             Column {
-                width:   parent.width
+                id: leftColumn
+                width:   root.pcW
                 height:  parent.height
                 spacing: 0
                 visible: root.menuState === "default"
 
-                Row {
-                    width:  parent.width - pc.buttonWidth * 4//this should always be same as pokeEditButton
-                    height: root.labelHeight
-                    Text {
-                        width: parent.width; height: root.labelHeight
-                        text: "SUMMARY"
-                        font.family: root.p2pFont; font.pixelSize: root.fontSizeSm
-                        color: root.subheaderColor
-                        horizontalAlignment: Text.AlignLeft; verticalAlignment: Text.AlignVCenter
-                    }
-                    PcButton {
-                        id:    pokeEditButton
-                        label: "VIEW →"
-                        width: pc.buttonWidth * 4
-                        onClicked: editButtonClicked(pokeViewLoader.item ? pokeViewLoader.item.pokeData : null)
-                    }
+                Text {
+                    width: parent.width; height: root.labelHeight
+                    text: "TRAINER"
+                    font.family: root.p2pFont;
+                    font.pixelSize: root.fontSizeSm
+                    color: root.subheaderColor
+                    horizontalAlignment: Text.AlignLeft; verticalAlignment: Text.AlignVCenter
                 }
 
                 Item { width: parent.width; height: root.contentSpacing }
 
+                Item {
+                    width: parent.width; height: root.trainerH
+                    Trainer {
+                        id: trainer
+                        anchors.fill: parent
+                        textColor:    root.textColor
+                        fontSizeSm:     root.fontSizeSm
+                        fontSizeMd:     root.fontSizeMd
+                        fontSizeLg:     root.fontSizeLg
+                        iconScale:    root.iconScaleForTrainer
+                    }
+                }
+
+                Item { width: parent.width; height: root.pad }
+                Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
+                Item { width: parent.width; height: root.pad }
+
+                Item { width: parent.width; height: root.contentSpacing }
+
+                Item {
+                    width: parent.width; height: root.pcH
+                    PC {
+                        id:               pc
+                        anchors.centerIn: parent
+                        width:  pc.pcColumns * pc.slotWidth + pc.buttonWidth * 2 + pc.layoutSpacing * 2
+                        height: root.pcH
+                        fontSizeLg: root.fontSizeLg
+                        fontSizeMd: root.fontSizeMd
+                        fontSizeSm: root.fontSizeSm
+                        fontFamily: root.p2pFont
+                    }
+                }
+            }
+
+            Item      { width: root.pad;     height: parent.height; visible: root.menuState === "default" }
+            Rectangle { width: root.dividerW; height: parent.height; color: root.dividerColor; visible: root.menuState === "default" }
+            Item      { width: root.pad;     height: parent.height; visible: root.menuState === "default" }
+
+            Item {
+                width: root.menuState === "default"
+                           ? root.rightPanelW
+                           : root.pcW + root.pad * 2 + root.dividerW + root.rightPanelW
+                height: parent.height
+
+                Column {
+                    width:   parent.width
+                    height:  parent.height
+                    spacing: 0
+                    visible: root.menuState === "default"
+
+                    Row {
+                        width:  parent.width - pc.buttonWidth * 4//this should always be same as pokeEditButton
+                        height: root.labelHeight
+                        Text {
+                            width: parent.width; height: root.labelHeight
+                            text: "SUMMARY"
+                            font.family: root.p2pFont; font.pixelSize: root.fontSizeSm
+                            color: root.subheaderColor
+                            horizontalAlignment: Text.AlignLeft; verticalAlignment: Text.AlignVCenter
+                        }
+                        PcButton {
+                            id:    pokeEditButton
+                            label: "VIEW →"
+                            width: pc.buttonWidth * 4
+                            onClicked: editButtonClicked(pokeViewLoader.item ? pokeViewLoader.item.pokeData : null)
+                        }
+                    }
+
+                    Item { width: parent.width; height: root.contentSpacing }
+
+                    Loader {
+                        id:     pokeViewLoader
+                        width:  parent.width
+                        height: parent.height - root.labelHeight - root.contentSpacing
+                        active: root.menuState === "default"
+                        source: "PokeView.qml"
+
+                        onLoaded: {
+                            item.fontSizeLg = root.fontSizeLg
+                            item.fontSizeMd = root.fontSizeMd
+                            item.fontSizeSm = root.fontSizeSm
+                            item.mainFont   = root.p2pFont
+                            item.bodyFont   = root.dotGothicFont
+                        }
+                    }
+                }
+
                 Loader {
-                    id:     pokeViewLoader
-                    width:  parent.width
-                    height: parent.height - root.labelHeight - root.contentSpacing
-                    active: root.menuState === "default"
-                    source: "PokeView.qml"
+                    id:           moveMenuLoader
+                    anchors.fill: parent
+                    active:       root.menuState === "moveMenu"
+                    source:       "MoveMenu.qml"
 
                     onLoaded: {
                         item.fontSizeLg = root.fontSizeLg
@@ -258,41 +277,26 @@ Rectangle {
                         item.fontSizeSm = root.fontSizeSm
                         item.mainFont   = root.p2pFont
                         item.bodyFont   = root.dotGothicFont
+
+                        item.returnClicked.connect(function() {
+                            root.menuState = "default"
+                            pc._display([pc.displayedPokemonBox, pc.displayedPokemonIndex])
+                        })
+
+                        item.nameChanged.connect(function(name) {
+                            menuBridge.nameChangeRequested(pc.displayedPokemonBox, pc.displayedPokemonIndex, name)
+                        })
+                        item.requestMoveChange.connect(function(slot, moveId) {
+                            menuBridge.moveChangeRequested(pc.displayedPokemonBox, pc.displayedPokemonIndex, slot, moveId);
+                        })
+
+                        item.spriteSheet = root._pendingSheet
+                        item.frameWidth  = root._pendingFrameWidth
+                        item.frameHeight = root._pendingFrameHeight
+                        item.scaleFactor = root._pendingScaleFactor
+                        item.rowId       = root._pendingRowId
+                        item.pokeData    = root._pendingPokeData
                     }
-                }
-            }
-
-            Loader {
-                id:           moveMenuLoader
-                anchors.fill: parent
-                active:       root.menuState === "moveMenu"
-                source:       "MoveMenu.qml"
-
-                onLoaded: {
-                    item.fontSizeLg = root.fontSizeLg
-                    item.fontSizeMd = root.fontSizeMd
-                    item.fontSizeSm = root.fontSizeSm
-                    item.mainFont   = root.p2pFont
-                    item.bodyFont   = root.dotGothicFont
-
-                    item.returnClicked.connect(function() {
-                        root.menuState = "default"
-                        pc._display([pc.displayedPokemonBox, pc.displayedPokemonIndex])
-                    })
-
-                    item.nameChanged.connect(function(name) {
-                        menuBridge.nameChangeRequested(pc.displayedPokemonBox, pc.displayedPokemonIndex, name)
-                    })
-                    item.requestMoveChange.connect(function(slot, moveId) {
-                        menuBridge.moveChangeRequested(pc.displayedPokemonBox, pc.displayedPokemonIndex, slot, moveId);
-                    })
-
-                    item.spriteSheet = root._pendingSheet
-                    item.frameWidth  = root._pendingFrameWidth
-                    item.frameHeight = root._pendingFrameHeight
-                    item.scaleFactor = root._pendingScaleFactor
-                    item.rowId       = root._pendingRowId
-                    item.pokeData    = root._pendingPokeData
                 }
             }
         }

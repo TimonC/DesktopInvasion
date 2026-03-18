@@ -35,8 +35,8 @@ GameMenu::GameMenu()
     //Hardcoded values based on printing the size
     //I'm doing this cause it's the easiest way to
     //fix size and I'm too lazy to handle window resize
-    int fixedWidth = std::min(1329, Globals::screenGeometry().width());
-    int fixedHeight = std::min(913, Globals::screenGeometry().height());
+    int fixedWidth = std::min(1361, Globals::screenGeometry().width());
+    int fixedHeight = std::min(945, Globals::screenGeometry().height());
 
     setMinimumSize( QSize(fixedWidth, fixedHeight));
     setMaximumSize( QSize(fixedWidth, fixedHeight));

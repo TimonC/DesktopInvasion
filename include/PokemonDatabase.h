@@ -34,7 +34,7 @@ struct GameState {
 };
 
 struct Defaults {
-    int scale = 1;
+    int scale = 2;
     int speed = 1;
     int lvlRangeUp = 5;
     int lvlRangeDown = 5;
