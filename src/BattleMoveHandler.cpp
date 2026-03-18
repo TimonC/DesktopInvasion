@@ -22,9 +22,9 @@ BattleMoveHandler::BattleMoveHandler(const PokemonState& wildState, const std::a
         //I am too lazy to debug this for now and it doesn't really cause issues since the empty party slots are inaccessible
         //But ideally, empty party slots should just be able to be nullptrs without silently crashing everything
             m_battleParty[i] = createBattler(wildState);
-            m_nrInParty+=1;
         }else{
             m_battleParty[i] = createBattler(partyStates[i]);
+            m_nrInParty+=1;
         }
     }
     if(m_expShare) m_includedPartyIndices.insert(m_chosenIndex);
@@ -68,7 +68,7 @@ Battler* BattleMoveHandler::createBattler(const PokemonState& state) {
 
 std::array<int, 6> BattleMoveHandler::getExperienceSpread(){
     std::array<int,6> spread = {-1,-1,-1,-1,-1,-1};
-    if(m_expShare){
+    if(!m_expShare){
         int includedCount = 0;
         for(int partyIndex : m_includedPartyIndices){
             Battler* member = m_battleParty[partyIndex];
@@ -85,7 +85,7 @@ std::array<int, 6> BattleMoveHandler::getExperienceSpread(){
         }
     }else{
         int xp = PokeMath::calculateExperience(m_battleOpponent->pokeState.lvl, m_nrInParty, m_battleOpponent->pokeState.baseXP);
-        for(int partyIndex = 0; partyIndex<6; partyIndex++){
+        for(int partyIndex = 0; partyIndex<m_nrInParty; partyIndex++){
             Battler* member = m_battleParty[partyIndex];
             if(member->battleState.currentHealth > 0 && member->pokeState.lvl<100){
                 spread[partyIndex] = xp;
