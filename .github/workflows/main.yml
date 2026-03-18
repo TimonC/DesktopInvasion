@@ -48,10 +48,8 @@ jobs:
     - name: Package
       shell: powershell
       run: |
-        # Create output folder
         New-Item -ItemType Directory -Force -Path output/DesktopInvasion-Windows
 
-        # Copy executable (CMake puts it in build/bin/)
         $exePath = "build/bin/DesktopInvasion.exe"
         if (Test-Path $exePath) {
           Copy-Item $exePath output/DesktopInvasion-Windows/
@@ -62,34 +60,22 @@ jobs:
           exit 1
         }
 
-        # windeployqt is in PATH – run it directly
         windeployqt.exe --release --qmldir qml output/DesktopInvasion-Windows/DesktopInvasion.exe
 
-        # Copy MinGW runtime DLLs
-        $mingwPaths = @(
-          "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin",
-          "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\x86_64-w64-mingw32\lib",
-          "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\lib"
-        )
-        $mingwDlls = @("libstdc++-6.dll", "libgcc_s_seh-1.dll", "libwinpthread-1.dll")
-
-        foreach ($dll in $mingwDlls) {
-          $found = $false
-          foreach ($path in $mingwPaths) {
-            $dllPath = Join-Path $path $dll
-            if (Test-Path $dllPath) {
-              Copy-Item $dllPath output/DesktopInvasion-Windows/
-              Write-Host "Copied $dll"
-              $found = $true
-              break
-            }
+        $mingwRoot = "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64"
+        if (Test-Path $mingwRoot) {
+          $dlls = Get-ChildItem -Path $mingwRoot -Recurse -Include "libstdc++-6.dll", "libgcc_s_seh-1.dll", "libwinpthread-1.dll" -ErrorAction SilentlyContinue
+          foreach ($dll in $dlls) {
+            Copy-Item $dll.FullName output/DesktopInvasion-Windows/
+            Write-Host "Copied $($dll.Name)"
           }
-          if (-not $found) {
-            Write-Host "Warning: $dll not found"
+          if ($dlls.Count -eq 0) {
+            Write-Host "Warning: MinGW runtime DLLs not found in $mingwRoot"
           }
+        } else {
+          Write-Host "Warning: MinGW root not found at $mingwRoot"
         }
 
-        # Create zip
         Compress-Archive -Path output\DesktopInvasion-Windows -DestinationPath DesktopInvasion-Windows.zip -Force
         Write-Host "Package created: DesktopInvasion-Windows.zip"
 
