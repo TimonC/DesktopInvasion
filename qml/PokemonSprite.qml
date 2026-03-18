@@ -14,6 +14,7 @@ Item {
     property int frameRate: 4
 
     property int horizontalHeight: 0
+    property int verticalWidth: 0
 
     property int attackDistance: 10*scaleFactor
 

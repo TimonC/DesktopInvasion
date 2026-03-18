@@ -177,10 +177,11 @@ Item {
         id: pokeBallOpponent
         speed: root.animationSpeed
         scaleFactor: root.scale
-        circleBaseWidth: opponent.width
-        circleBaseHeight: opponent.height
         circleX: opponent.x + opponent.width/2
         circleY: opponent.y + opponent.height/2
+        circleBaseWidth: direction%2!=0 ? opponent.verticalWidth : opponent.width
+        circleBaseHeight: direction%2!=0 ? opponent.horizontalHeight : opponent.height
+
         onThrowAnimationDone: {
             root.currentActionIndex = 0
             root.actionSequence = tempActionSequence
@@ -206,8 +207,8 @@ Item {
             pokeBallPlayer.circleX = player.x + player.width/2
             pokeBallPlayer.circleY = player.y + player.height/2
 
-            pokeBallPlayer.circleBaseWidth = player.width
-            pokeBallPlayer.circleBaseHeight = player.height
+            pokeBallPlayer.circleBaseWidth = direction%2!=0 ? player.verticalWidth : player.width
+            pokeBallPlayer.circleBaseHeight = direction%2!=0 ? player.horizontalHeight : player.height
             if (pokeBallPlayer.circleY - pokeBallPlayer.circleBaseHeight/2 < 0) {
                 pokeBallPlayer.circleBaseHeight = pokeBallPlayer.circleY * 2
             }

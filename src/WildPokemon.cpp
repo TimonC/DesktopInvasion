@@ -55,7 +55,7 @@ WildPokemon::WildPokemon(int pokedexId, QPoint spawnPoint, int spawnDirection,  
     }
 
     m_decisionTimer->setInterval(2000 + std::rand()%2000);
-    m_moveTimer->setInterval(50); // 20fps
+    m_moveTimer->setInterval(50);
 
     roaming(true);
     show();
@@ -110,7 +110,7 @@ void WildPokemon::startBattle(){
     m_moveTimer->disconnect();
     m_decisionTimer->disconnect();
 
-    const int BOUNDARY_MARGIN = 16;
+    int BOUNDARY_MARGIN = 16*Globals::scale();
     const QRect& screen = Globals::screenGeometry();
 
     bool intop = y() < screen.y() + BOUNDARY_MARGIN;
