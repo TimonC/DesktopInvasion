@@ -5,6 +5,8 @@ services:
     environment:
       - QT_QPA_PLATFORM=wayland
       - XDG_RUNTIME_DIR=/tmp/xdg
+      - LIBGL_ALWAYS_SOFTWARE=1
+      - QT_QPA_EGLFS_FORCE_SOFTWARE=1
     volumes:
       - /run/user/1000/wayland-0:/tmp/xdg/wayland-0
       - ./src:/app/src

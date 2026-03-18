@@ -29,8 +29,3 @@ COPY CMakeLists.txt /app/CMakeLists.txt
 
 # Make build script executable
 RUN chmod +x /app/build_and_run.sh
-
-# Set default platform to Wayland
-ENV QT_QPA_PLATFORM=wayland
-ENV XDG_RUNTIME_DIR=/tmp/xdg
-

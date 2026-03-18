@@ -7,7 +7,10 @@ cd build
 cmake ..
 make
 
-export LIBGL_ALWAYS_SOFTWARE=1
+
+# Ensure XDG_RUNTIME_DIR exists and has correct permissions
+mkdir -p "$XDG_RUNTIME_DIR"
+chmod 0700 "$XDG_RUNTIME_DIR"
 # Run the app in background
 ./DesktopInvasion &
 APP_PID=$!
