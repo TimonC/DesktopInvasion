@@ -21,6 +21,7 @@ namespace PokeMath{
         int type2 = 100;
     };
 
+// https://bulbapedia.bulbagarden.net/wiki/Damage
     inline int calculateDamage(const DamageParams& p, std::mt19937& rng) {
         static std::uniform_int_distribution<int> damageRandomDist(85, 100);
 
@@ -38,6 +39,7 @@ namespace PokeMath{
         return static_cast<int>(damage);
     }
 
+// https://bulbapedia.bulbagarden.net/wiki/Statistic#Stat_modifiers
     inline int applyStatModifier(int stat, int modifier) {
         // Precomputed lookup tables for stat modifiers (0 to 6, -6 to 0)
         static constexpr int positiveModifiers[7] = {2, 3, 4, 5, 6, 7, 8}; // numerator values for (2 + modifier)/2
@@ -54,6 +56,7 @@ namespace PokeMath{
         }
     }
 
+// https://bulbapedia.bulbagarden.net/wiki/Poison_(status_condition)#Damage
     inline int calculatePoisonDamage(int totalHealth, int counter = -1){
         if(counter < 0){
             return totalHealth >> 3; // division by 8 using bit shift
@@ -62,29 +65,35 @@ namespace PokeMath{
         }
     }
 
+// https://bulbapedia.bulbagarden.net/wiki/Burn_(status_condition)#Damage
     inline int calculateBurnDamage(int totalHealth){
         return totalHealth >> 3; // division by 8 using bit shift
     }
 
+// https://bulbapedia.bulbagarden.net/wiki/Paralysis_(status_condition)#Speed_reduction
     inline int calculateParalysisSpeed(int speed){
         return speed >> 1; // division by 2 using bit shift
     }
 
+// https://bulbapedia.bulbagarden.net/wiki/Paralysis_(status_condition)#Move_prevention
     inline bool calculateParalysisHit(std::mt19937& rng){
         static std::uniform_int_distribution<int> paralysisDist(0, 3);
         return paralysisDist(rng) != 0; // 75% chance to hit (1 in 4 to fail)
     }
 
+// https://bulbapedia.bulbagarden.net/wiki/Confusion_(status_condition)#Self-inflicted_damage
     inline bool calculateConfusionHit(std::mt19937& rng){
         static std::uniform_int_distribution<int> confusionDist(0, 1);
         return confusionDist(rng) == 0; // 50% chance to hit
     }
 
+// https://bulbapedia.bulbagarden.net/wiki/Freeze_(status_condition)#Thawing
     inline bool calculateFreezeBreak(std::mt19937& rng){
         static std::uniform_int_distribution<int> freezeDist(0, 4);
         return freezeDist(rng) == 0; // 20% chance to break
     }
 
+// https://bulbapedia.bulbagarden.net/wiki/Sleep_(status_condition)#Duration
     inline int calculateAilmentTurns(Ailment ailment, std::mt19937& rng){
         if(ailment == Ailment::Confusion || ailment == Ailment::Sleep){
             static std::uniform_int_distribution<int> ailmentTurnsDist(2, 5);
@@ -93,7 +102,7 @@ namespace PokeMath{
         return -1;
     }
 
-    // Precomputed power of 0.25 values for common catch rates
+// https://bulbapedia.bulbagarden.net/wiki/Catch_rate#Capture_method_.28Generation_I.29
     inline bool processShake(float modifiedCatchRate, std::mt19937& rng) {
         // Early exit for impossible catches
         if (modifiedCatchRate <= 0.0f) return false;
@@ -108,6 +117,7 @@ namespace PokeMath{
         return shakeDist(rng) < static_cast<int>(a);
     }
 
+// https://bulbapedia.bulbagarden.net/wiki/Catch_rate#Capture_method_.28Generation_I.29
     inline int calculateBallShakes(
         std::mt19937& rng,
         int HP_max,
@@ -135,15 +145,17 @@ namespace PokeMath{
         return 4;
     }
 
-    // Precompute common calculations
+// https://bulbapedia.bulbagarden.net/wiki/Statistic#In_Generations_III_and_IV
     inline int calculateStat(int lvl, int base, int iv, int ev) {
         return (lvl * (2 * base + iv + (ev >> 2))) / 100; // ev/4 using bit shift
     }
 
+// https://bulbapedia.bulbagarden.net/wiki/Statistic#Hit_Points
     inline int calculateHealth(int lvl, int base, int iv, int ev){
         return 10 + lvl + calculateStat(lvl, base, iv, ev);
     }
 
+// https://bulbapedia.bulbagarden.net/wiki/Statistic#In_Generations_III_and_IV
     inline std::array<int, 6> calculatePokeStats(
         int lvl,
         const int baseStats[6],
@@ -172,6 +184,7 @@ namespace PokeMath{
             return result;
         }
 
+// https://bulbapedia.bulbagarden.net/wiki/Accuracy#Calculation
     inline bool checkAccuracy(int accuracy, std::mt19937& rng) {
         // Early exit for guaranteed hits
         if (accuracy >= 100) return true;
@@ -181,6 +194,7 @@ namespace PokeMath{
         return accuracyDist(rng) <= accuracy;
     }
 
+// https://bulbapedia.bulbagarden.net/wiki/Critical_hit#Probability
     inline bool checkCriticalHit(int critRate, std::mt19937& rng) {
         // Early exits for guaranteed or impossible crits
         if (critRate >= 4) return true; // Always crit for high enough rate
@@ -192,6 +206,7 @@ namespace PokeMath{
         return critDist(rng) == 1;
     }
 
+// https://bulbapedia.bulbagarden.net/wiki/Additional_effect#Activation
     inline bool checkSecondaryEffect(int chance, std::mt19937& rng) {
         // Early exits
         if (chance >= 100) return true;
@@ -201,12 +216,13 @@ namespace PokeMath{
         return effectDist(rng) <= chance;
     }
 
+// https://bulbapedia.bulbagarden.net/wiki/Speed#Turns
     inline bool checkSpeedTie(std::mt19937& rng) {
         static std::uniform_int_distribution<int> speedTieDist(0, 1);
         return speedTieDist(rng) == 0;
     }
 
-    // Precomputed level-up experience table for Medium Fast (cubic growth)
+// https://bulbapedia.bulbagarden.net/wiki/Experience#Medium_Fast
     inline int xpToNextLevel(int currentLevel) {
         if (currentLevel >= 100) return 0;
 
@@ -215,6 +231,7 @@ namespace PokeMath{
         return nextLevel * nextLevel * nextLevel - currentLevel * currentLevel * currentLevel;
     }
 
+// https://bulbapedia.bulbagarden.net/wiki/Experience#Gain_formula
     inline int calculateExperience(int defeatedLevel, int nrParticipated, int baseXP) {
         if (nrParticipated <= 0) return 0;
 
