@@ -7,6 +7,12 @@ import random
 MAX_POKEMON_ID = 493
 BASE_DELAY = 0.5
 JITTER = 0.3
+
+GEN4_VERSION_GROUPS = [
+    'diamond-pearl',
+    'platinum',
+    'heartgold-soulsilver'
+]
 pokemons = []
 
 def format_type_enum(type_name):
@@ -37,7 +43,7 @@ def extract_base_stats(stats_list):
 
 def extract_eligible_moves(moves_list):
     eligible_moves = []
-    move_dict = {}
+    move_dict = {}  # move_id -> (level, is_level_up)
 
     for move_entry in moves_list:
         version_details = move_entry.get('version_group_details', [])
@@ -45,26 +51,36 @@ def extract_eligible_moves(moves_list):
         target_details = []
         for detail in version_details:
             version_group = detail.get('version_group', {}).get('name', '')
-            if version_group == 'diamond-pearl':
+            if version_group in GEN4_VERSION_GROUPS:
                 target_details.append(detail)
 
         if not target_details:
-            target_details = version_details
+            continue
 
         for detail in target_details:
             learn_method = detail.get('move_learn_method', {}).get('name', '')
             level_learned = detail.get('level_learned_at', 0)
 
-            if learn_method == 'level-up':
+            if learn_method in ['level-up', 'machine', 'egg', 'tutor', 'stadium-surfing-pikachu']:
                 move_url = move_entry.get('move', {}).get('url', '')
                 if move_url:
                     parts = move_url.rstrip('/').split('/')
                     if parts:
                         move_id = int(parts[-1])
-                        if move_id not in move_dict or level_learned < move_dict[move_id]:
-                            move_dict[move_id] = level_learned
 
-    for move_id, level in move_dict.items():
+                        is_level_up = (learn_method == 'level-up')
+
+                        if not is_level_up:
+                            level_learned = -1
+
+                        if move_id not in move_dict:
+                            move_dict[move_id] = (level_learned, is_level_up)
+                        elif is_level_up and not move_dict[move_id][1]:
+                            move_dict[move_id] = (level_learned, is_level_up)
+                        elif is_level_up and level_learned < move_dict[move_id][0]:
+                            move_dict[move_id] = (level_learned, is_level_up)
+
+    for move_id, (level, _) in move_dict.items():
         eligible_moves.append({'move_id': move_id, 'level': level})
 
     eligible_moves.sort(key=lambda x: (x['level'], x['move_id']))
@@ -247,3 +263,15 @@ with open(output_path, 'w', encoding='utf-8') as f:
 print(f"\nGenerated src/data_poke.cpp")
 print(f"Total Pokémon: {len(pokemons)}")
 print(f"Array size: {MAX_POKEMON_ID + 1}")
+
+print("\nSample moves for Bulbasaur (showing level-up vs non-level-up):")
+bulbasaur = pokemons[0]
+level_up_count = sum(1 for m in bulbasaur['eligible_moves'] if m['level'] >= 1)
+tm_count = sum(1 for m in bulbasaur['eligible_moves'] if m['level'] == -1)
+print(f"  Total: {len(bulbasaur['eligible_moves'])}")
+print(f"  Level-up moves: {level_up_count}")
+print(f"  TM/HM/other moves: {tm_count}")
+
+for i, move in enumerate(bulbasaur['eligible_moves'][:15]):
+    type_str = "LVL" if move['level'] >= 1 else "TM "
+    print(f"  {type_str}: Move {move['move_id']} at level {move['level']}")
