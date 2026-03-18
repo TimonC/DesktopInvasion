@@ -4,6 +4,7 @@
 void runAllTests();
 void testPokespawnRandomness();
 void testFormMapper();
+void testPokeMath();
 
 
 #endif
