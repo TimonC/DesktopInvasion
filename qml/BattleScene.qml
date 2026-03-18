@@ -56,6 +56,45 @@ Item {
     signal pokemonCaught()
 
 
+    //Relative positioning of elements
+    function positionSpriteAndStatusBar(sprite) {
+        // Clear all anchors first
+        sprite.statusBar.anchors.left = undefined
+        sprite.statusBar.anchors.right = undefined
+        sprite.statusBar.anchors.top = undefined
+        sprite.statusBar.anchors.bottom = undefined
+
+        switch(sprite.direction) {
+            case 0:
+                sprite.x = (root.width - root.statusBarWidth - sprite.width)/2
+                sprite.y = root.height - (menuHeight + sprite.containerOffsetY + sprite.height)
+                sprite.statusBar.x = root.width - root.statusBarWidth
+                sprite.statusBar.y = sprite.y
+                break
+            case 1:
+                sprite.x = root.width - (sprite.containerOffsetX + sprite.width)
+                sprite.y = root.height - (sprite.height + menuHeight*1.2) //arbitrary 0.2 increase to raise the sprites
+                sprite.statusBar.x = root.width - root.frameSize/2 - root.statusBarWidth
+                sprite.statusBar.y = 0
+                break
+            case 2:
+                sprite.x = (root.width - root.statusBarWidth - sprite.width)/2
+                sprite.y = sprite.containerOffsetY
+                sprite.statusBar.x = root.width - root.statusBarWidth
+                sprite.statusBar.y = sprite.y
+                break
+            case 3:
+                sprite.x = sprite.containerOffsetX
+                sprite.y = root.height - (sprite.height + menuHeight*1.2)
+                sprite.statusBar.x = root.frameSize/2
+                sprite.statusBar.y = 0
+                break
+        }
+
+        sprite.startingX = sprite.x
+        sprite.startingY = sprite.y
+        sprite.statusBar.visible = true
+    }
 
     Component.onCompleted: {
         positionSpriteAndStatusBar(player)
@@ -195,49 +234,26 @@ Item {
                 root.runChosen()
             })
         }
-    }
 
-    //Relative positioning of elements
-    function positionSpriteAndStatusBar(sprite) {
-        // Clear all anchors first
-        sprite.statusBar.anchors.left = undefined
-        sprite.statusBar.anchors.right = undefined
-        sprite.statusBar.anchors.top = undefined
-        sprite.statusBar.anchors.bottom = undefined
+        onSwitchChosen: function(partyIdx){
+            battleMenu.showTextBar()
+            battleMenu.updateText(player.name + ", come back!")
 
-        switch(sprite.direction) {
-            case 0:
-                sprite.x = (root.width - root.statusBarWidth - sprite.width)/2
-                sprite.y = root.height - (menuHeight + sprite.containerOffsetY + sprite.height)
-                sprite.statusBar.x = root.width - root.statusBarWidth
-                sprite.statusBar.y = sprite.y
-                break
-            case 1:
-                sprite.x = root.width - (sprite.containerOffsetX + sprite.width)
-                sprite.y = root.height - (sprite.height + menuHeight*1.2) //arbitrary 0.2 increase to raise the sprites
-                sprite.statusBar.x = root.width - root.frameSize/2 - root.statusBarWidth
-                sprite.statusBar.y = 0
-                break
-            case 2:
-                sprite.x = (root.width - root.statusBarWidth - sprite.width)/2
-                sprite.y = sprite.containerOffsetY
-                sprite.statusBar.x = root.width - root.statusBarWidth
-                sprite.statusBar.y = sprite.y
-                break
-            case 3:
-                sprite.x = sprite.containerOffsetX
-                sprite.y = root.height - (sprite.height + menuHeight*1.2)
-                sprite.statusBar.x = root.frameSize/2
-                sprite.statusBar.y = 0
-                break
+            player.spriteSheet = "qrc:/assets/HGSS/PokGen" + battleMenu.party.gens[partyIdx] + "_transparent_reordered.png";
+            player.row = battleMenu.party.spriteIds[partyIdx];
+            statusBarPlayer.pokeName = battleMenu.party.names[partyIdx];
+            statusBarPlayer.health = 1;
+
+            var coords = calculateBallCoords(player)
+            player.visible = false
+            pokeBallPlayer.throwAt(coords[0], coords[1], coords[2], coords[3])
+
+            startActionChain("switch", true)
         }
-
-        sprite.startingX = sprite.x
-        sprite.startingY = sprite.y
-        sprite.statusBar.visible = true
     }
-    function setPartyMember(partyIdx, iconId, pokemonName) {
-       battleMenu._setPartyMember(partyIdx, iconId, pokemonName);
+
+    function setPartyMember(partyIdx, spriteId, iconId, pokemonName) {
+       battleMenu._setPartyMember(partyIdx, spriteId, iconId, pokemonName);
     }
 
 
@@ -273,6 +289,13 @@ Item {
                 { type: "throw-ball", coords: coords, delay: 500 },
                 { type: "wait-catch-result" } // Special step that waits for catch timer
             ]
+        } else if (actionType === "switch") {
+            var coords = calculateBallCoords(opponent)
+
+            root.actionSequence = [
+                { type: "text", message: "Go! "+player.name, delay: 300 },
+            ]
+
         } else {
             // Attack sequence
             var firstAttacker = playerFirst ? player : opponent

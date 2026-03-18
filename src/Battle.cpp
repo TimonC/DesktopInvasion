@@ -40,6 +40,10 @@ Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent
         battleEnded("OpponentCaught");
     });
 
+    connectWithQML(m_battleScene, SIGNAL(switchToPartyId), [this](){
+        /* pokemonSprite->setProperty("spriteSheet", QString("qrc:/assets/HGSS/PokGen%1_transparent_reordered.png").arg(info->generation)); */
+    });
+
     m_battleScene->setProperty("direction", m_currentDirection);
     m_battleScene->setProperty("pokeMargin", m_pokeMargin);
     m_battleScene->setProperty("debugLines", Globals::DEBUG);
@@ -55,14 +59,15 @@ Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent
     });
 }
 
-void Battle::setupParty(const std::vector<std::pair<int, std::string>>& party){
-    assert(party.size() >= 1 && party.size() <= 6);
+void Battle::setupParty(Party party){
 
-    for(size_t i = 0; i < party.size(); ++i){
+    for(size_t i = 0; i < party.spriteIds.size(); ++i){
         QMetaObject::invokeMethod(m_battleScene, "setPartyMember",
             Q_ARG(QVariant, QVariant(static_cast<int>(i))),
-            Q_ARG(QVariant, QVariant(party[i].first)),
-            Q_ARG(QVariant, QVariant(QString::fromStdString(party[i].second))));}
+            Q_ARG(QVariant, QVariant(party.spriteIds[i])),
+            Q_ARG(QVariant, QVariant(party.iconIds[i])),
+            Q_ARG(QVariant, QString::fromStdString(party.names[i])));
+    };
 }
 QQuickItem* Battle::setupPokemon(const PokemonInfo* info, const char* role) {
     QQuickItem* pokemonSprite = m_battleScene->property(role).value<QQuickItem*>();

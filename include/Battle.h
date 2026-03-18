@@ -20,7 +20,7 @@ public:
     QQuickView *m_corners = nullptr;
     void direction(int direction) override;
     QPoint m_origin;
-    void setupParty(const std::vector<std::pair<int, std::string>>& party);
+    void setupParty(Party party);
     void setSceneVisibility(bool visibility){
         m_battleScene->setProperty("visible",visibility);
     };
@@ -37,7 +37,7 @@ private:
 
     WildPokemon* m_oppReference = nullptr;
 
-    // Store initial positions for perfect sync
+    // Store initial positions position swap with WildPokemon
     QPoint m_initialOppPos;
 
     QQuickItem* setupPokemon(const PokemonInfo* info, const char* role = "opponent");

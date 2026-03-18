@@ -13,7 +13,6 @@ DesktopScene::DesktopScene(QWindow *parent)
         | Qt::WindowDoesNotAcceptFocus
         | Qt::FramelessWindowHint
         | Qt::BypassWindowManagerHint
-        /* | Qt::WindowTransparentForInput */
         );
      setColor(Qt::transparent);
     //Short delay to ensure proper window size

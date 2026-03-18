@@ -22,16 +22,16 @@ Rectangle {
     signal switchChosen(int partyIdx)
     property alias stack: stack
     property var partyMembers: [
-        {iconId: -1, name: ""},
-        {iconId: -1, name: ""},
-        {iconId: -1, name: ""},
-        {iconId: -1, name: ""},
-        {iconId: -1, name: ""},
-        {iconId: -1, name: ""}
+        {spriteId: -1, iconId: -1, name: ""},
+        {spriteId: -1, iconId: -1, name: ""},
+        {spriteId: -1, iconId: -1, name: ""},
+        {spriteId: -1, iconId: -1, name: ""},
+        {spriteId: -1, iconId: -1, name: ""},
+        {spriteId: -1, iconId: -1, name: ""}
     ]
-    function _setPartyMember(partyIdx, iconId, pokemonName) {
+    function _setPartyMember(partyIdx, iconId, iconId, pokemonName) {
         var temp = partyMembers
-        temp[partyIdx] = {iconId: iconId, name: pokemonName}
+        temp[partyIdx] = {spriteId: spriteId, iconId: iconId, name: pokemonName}
         partyMembers = temp
     }
     function showTextBar() {

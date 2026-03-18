@@ -205,22 +205,23 @@ void Game::spawnPokemon() {
     }
 }
 
-std::vector<std::pair<int, std::string>> Game::getParty() {
-    std::vector<std::pair<int, std::string>> party;
+void Game::getParty() {
     GameState state = m_db.loadGameState();
-
+    std::vector<int> spriteIds;
+    std::vector<int> iconIds;
+    std::vector<std::string> names;
     for(int i = 0; i < 6; ++i) {
         int pokemonId = state.party_id[i];
         if(pokemonId > 0) {
             PokemonState pokemon = m_db.getPokemon(pokemonId);
             const PokemonInfo* info = Globals::getPokemonInfo(pokemon.pokedex_id);
             if(info) {
-                party.push_back({VariantMapper::pokedexID2IconID(pokemon.pokedex_id,0), pokemon.name});
+                party.spriteIds[i] = info->spriteId;
+                party.iconIds[i] = VariantMapper::pokedexID2IconID(pokemon.pokedex_id,0);
+                party.names[i] = pokemon.name;
             }
         }
     }
-
-    return party;
 }
 
 void Game::handleBattleStart() {
@@ -238,10 +239,8 @@ void Game::handleBattleStart() {
     connect(m_activeBattle, &Battle::battleEnded,
             this, &Game::handleBattleEnd);
 
-    std::vector<std::pair<int, std::string>> party = getParty();
-    if(!party.empty()) {
-        m_activeBattle->setupParty(party);
-    }
+    m_activeBattle->setupParty(getParty());
+;
 }
 
 void Game::handleBattleEnd(const char* endState) {

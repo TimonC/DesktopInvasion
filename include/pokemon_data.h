@@ -1,6 +1,9 @@
 #ifndef POKEMON_DATA_H
 #define POKEMON_DATA_H
 
+#include <vector>
+#include <string>
+
 struct PokemonInfo {
     const int pokedexId;
     const int spriteId;
@@ -23,5 +26,11 @@ extern const int kPokemonCount;
 
 extern const SpriteInfo kSpriteList[];
 extern const int kSpriteCount;
+
+struct Party{
+    std::vector<int> spriteIds;
+    std::vector<int> iconIds;
+    std::vector<std::string> names;
+};
 
 #endif
