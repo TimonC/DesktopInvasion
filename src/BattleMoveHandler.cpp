@@ -1,10 +1,12 @@
 #include <BattleMoveHandler.h>
+#include "Battle.h"
 #include "data_move.h"
 #include <cstring>
 #include <globals.h>
 #include <qdebug.h>
 #include <PokeMath.h>
 #include <PokeTypes.h>
+#include <random>
 
 
 BattleMoveHandler::BattleMoveHandler(const PokemonState& wildState, const std::array<PokemonState, 6>& partyStates)
@@ -30,7 +32,7 @@ Battler* BattleMoveHandler::createBattler(const PokemonState& state) {
     battler->pokeState.types[0] = &poke->types[0];
     battler->pokeState.types[1] = &poke->types[1];
 
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < 4; i++) {
         battler->pokeState.moves[i] = Globals::getMove(state.moves[i]);
     }
 
@@ -76,8 +78,10 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
     bool playerFirst = true;
     int shakes = -1;
 
-    if(action[0]=='S'){
+    checkRemoveAilment(*m_battleOpponent);
+    checkRemoveAilment(*m_battleParty[m_chosenIndex]);
 
+    if(action[0]=='S'){
        switchedIn = actionIndex;
     } else if(action[0]=='C'){
         shakes = PokeMath::calculateBallShakes(m_rng, m_battleOpponent->pokeState.stats[0], m_battleOpponent->battleState.currentHealth, 50);
@@ -93,7 +97,8 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
            if(m_battleOpponent->battleState.statusCondition==Ailment::Paralysis) oppSpeed = oppSpeed/2;
            if(m_battleParty[m_chosenIndex]->battleState.statusCondition==Ailment::Paralysis) playerSpeed = playerSpeed/2;
            if(playerSpeed == oppSpeed){
-               playerFirst = rand()%2;
+               std::uniform_int_distribution<int> dist(0,1);
+               playerFirst = dist(m_rng)==0;
            }else{
                playerFirst = playerSpeed > oppSpeed;
            }
@@ -126,6 +131,7 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
         applyEndOfTurnEffects(m_battleOpponent);
     }
 
+
     QVariantList sequence = generateActionSequence(*m_battleOpponent, *m_battleParty[m_chosenIndex], playerFirst, switchedIn, shakes);
 
     logActionSequence(sequence);
@@ -133,6 +139,19 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
     emit actionSequenceReady(sequence);
 }
 
+
+void BattleMoveHandler::checkRemoveAilment(Battler& battler){
+    if(battler.battleState.confused==Ailment::Confusion){
+        battler.delta.removeConfusion = battler.battleState.confusedCounter>=battler.battleState.confusedTurns;
+    }
+    if(battler.battleState.statusCondition!=Ailment::Null && battler.battleState.conditionTurns>=0){
+        battler.delta.removeStatusCondition = battler.battleState.conditionCounter>=battler.battleState.conditionTurns;
+    }
+
+    if(battler.battleState.statusCondition==Ailment::Freeze && battler.battleState.conditionCounter>0){
+        battler.delta.removeStatusCondition = PokeMath::calculateFreezeThaw(m_rng);
+    }
+}
 
 bool BattleMoveHandler::canBattlerMove(Battler* caster) {
     if (caster->battleState.statusCondition == Ailment::Sleep) {
@@ -146,11 +165,8 @@ bool BattleMoveHandler::canBattlerMove(Battler* caster) {
     }
 
     if (caster->battleState.statusCondition == Ailment::Paralysis) {
-        std::uniform_int_distribution<int> paraDist(1, 4);
-        if (paraDist(m_rng) == 1) {
-            caster->delta.paralyzed = true;
-            return false;
-        }
+        caster->delta.paralyzed = PokeMath::calculateParalysisHit(m_rng);
+        return false;
     }
 
     if (caster->battleState.confused == Ailment::Confusion) {
@@ -191,7 +207,7 @@ void BattleMoveHandler::applyEndOfTurnEffects(Battler* battler) {
 
     if (battler->battleState.statusCondition == Ailment::Poison ||  battler->battleState.statusCondition == Ailment::Toxic) {
         int counter = -1;
-        if(battler->battleState.statusCondition == Ailment::Toxic) counter = battler->battleState.statusConditionCounter;
+        if(battler->battleState.statusCondition == Ailment::Toxic) counter = battler->battleState.conditionCounter;
         int poisonDamage = PokeMath::calculatePoisonDamage(battler->pokeState.stats[0], counter);
         battler->delta.ailmentDamage = poisonDamage;
         battler->battleState.currentHealth = std::max(0, battler->battleState.currentHealth - poisonDamage);
@@ -245,7 +261,7 @@ void BattleMoveHandler::applyMove(const Move* _move, Battler* caster, Battler* t
         }
 
         bool hasStab = false;
-        for (int i = 0; i < 2; ++i) {
+        for (int i = 0; i < 2; i++) {
             if (caster->pokeState.types[i] && *caster->pokeState.types[i] == _move->type) {
                 hasStab = true;
                 break;
@@ -304,18 +320,22 @@ void BattleMoveHandler::applySecondaryEffects(const Move* _move, Battler* target
 
     if (ailmentApplied && _move->ailment != Ailment::Null) {
         if(_move->ailment==Ailment::Confusion){
-            if(target->battleState.confused == Ailment::Confusion) {
+            if(target->battleState.confused == Ailment::Confusion && _move->category==MoveCategory::NonDamaging) {
                 target->delta.failedConfusion = true;
             } else {
                 target->delta.addConfusion = true;
                 target->battleState.confused = Ailment::Confusion;
+                target->battleState.confusedTurns = PokeMath::calculateAilmentTurns(Ailment::Confusion, m_rng);
+                target->battleState.confusedCounter = 0;
             }
         }else{
-            if(target->battleState.statusCondition != Ailment::Null) {
+            if(target->battleState.statusCondition != Ailment::Null && _move->category==MoveCategory::NonDamaging) {
                 target->delta.failedStatusCondition = true;
             } else {
                 target->delta.addStatusCondition = _move->ailment;
                 target->battleState.statusCondition = _move->ailment;
+                target->battleState.conditionCounter = 0;
+                target->battleState.conditionTurns = PokeMath::calculateAilmentTurns(_move->ailment, m_rng);
             }
         }
     }
@@ -328,7 +348,7 @@ void BattleMoveHandler::applySecondaryEffects(const Move* _move, Battler* target
     }
 
     if (statApplied) {
-        for (int i = 0; i < 5; ++i) {
+        for (int i = 0; i < 5; i++) {
             if (_move->stat_changes[i] != 0) {
                 int newModifier = target->battleState.statModifiers[i] + _move->stat_changes[i];
                 int clampedModifier = std::max(-6, std::min(6, newModifier));
@@ -422,9 +442,11 @@ void BattleMoveHandler::generateMoveSequence(QVariantList& sequence, Battler& at
     addPostMoveEffects(sequence, defender, defenderName, !isAttackerPlayer);
 }
 
-QVariantList BattleMoveHandler::generateActionSequence(Battler& opponent, Battler& player, bool playerFirst, int switchedIn, int shakes){
-    QVariantList sequence;
 
+QVariantList BattleMoveHandler::generateActionSequence(Battler& opponent, Battler& player, bool playerFirst, int switchedIn, int shakes){
+
+
+    QVariantList sequence;
     if(shakes > -1) {
         QString playerName = QString::fromStdString(player.pokeState.name);
         shakes = rand()%2 == 0 ? 1 : 4;
@@ -475,7 +497,7 @@ void BattleMoveHandler::logActionSequence(const QVariantList& sequence) {
     qDebug() << "========================================";
     qDebug() << "Total actions:" << sequence.size();
 
-    for (int i = 0; i < sequence.size(); ++i) {
+    for (int i = 0; i < sequence.size(); i++) {
         QVariantMap action = sequence[i].toMap();
         QString type = action["type"].toString();
 
@@ -570,17 +592,23 @@ void BattleMoveHandler::addPostMoveEffects(QVariantList& sequence, Battler& batt
         sequence.append(createTextAction("But it failed!", ms_statusConditionText));
     }
 
-    if(battler.delta.removeStatusCondition != Ailment::Null) {
+    if(battler.delta.removeStatusCondition) {
         sequence.append(createStatusCondition(role, Ailment::Null));
-        QString ailment = ailmentToRemovalText(battler.delta.removeStatusCondition);
+        QString ailment = ailmentToRemovalText(battler.battleState.statusCondition);
         sequence.append(createTextAction(name + " is no longer " + ailment + "!", ms_statusConditionText));
+        battler.battleState.statusCondition  = Ailment::Null;
+        battler.battleState.conditionCounter = -1;
+        battler.battleState.conditionTurns = -1;
     }
 
     if(battler.delta.removeConfusion) {
         sequence.append(createTextAction(name + " snapped out of confusion!", ms_statusConditionText));
+        battler.battleState.confused = Ailment::Null;
+        battler.battleState.confusedCounter = -1;
+        battler.battleState.confusedTurns = -1;
     }
 
-    for (int i = 0; i < 5; ++i) {
+    for (int i = 0; i < 5; i++) {
         if (battler.delta.deltaStatModifiers[i] != 0) {
             QString statName = getStatName(i);
             int change = battler.delta.deltaStatModifiers[i];
@@ -617,6 +645,9 @@ void BattleMoveHandler::addEndOfTurnEffects(QVariantList& sequence, Battler& bat
         sequence.append(createDamageAction(role, ms_damageAnimation));
         sequence.append(createHealthChangeAction(role, -battler.delta.ailmentDamage, ms_healthChange));
     }
+
+   if(battler.battleState.confused==Ailment::Confusion) battler.battleState.confusedCounter++;
+   if(battler.battleState.statusCondition!=Ailment::Null) battler.battleState.conditionCounter++;
 }
 
 QString BattleMoveHandler::getStatName(int statIndex) {

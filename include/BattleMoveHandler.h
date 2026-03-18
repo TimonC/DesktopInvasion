@@ -29,7 +29,7 @@ struct BattleStateDelta{
     int ailmentDamage = -1;
     int confusedDamage = -1;
     Ailment addStatusCondition = Ailment::Null;
-    Ailment removeStatusCondition = Ailment::Null;
+    bool removeStatusCondition = false;
     bool addConfusion = false;
     bool removeConfusion = false;
     bool failedStatusCondition = false;
@@ -50,7 +50,9 @@ struct BattleState{
     int currentHealth = -1;
     Ailment statusCondition = Ailment::Null;
     Ailment confused = Ailment::Null;
-    int statusConditionCounter = -1;
+    int conditionTurns = -1;
+    int confusedTurns = -1;
+    int conditionCounter = -1;
     int confusedCounter = -1;
     std::array<int, 5> statModifiers = {0, 0, 0, 0, 0};
     int lastMoveIndex = -1;
@@ -85,6 +87,7 @@ private:
     bool canBattlerMove(Battler* caster);
     int calculateTypeEffectiveness(const Move* _move, Battler* target);
     int applyStatModifier(int baseStat, int modifier);
+    void checkRemoveAilment(Battler& battler);
 
     QVariantList generateActionSequence(Battler& opponent, Battler& player, bool playerFirst, int switchedIn, int shakes);
     void generateMoveSequence(QVariantList& sequence, Battler& attacker, Battler& defender, bool isAttackerPlayer);

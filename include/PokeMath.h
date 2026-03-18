@@ -3,6 +3,7 @@
 
 #include <random>
 #include <array>
+#include <data_move.h>
 
 namespace PokeMath{
 
@@ -53,6 +54,33 @@ namespace PokeMath{
 
     inline int calculateBurnDamage(int totalHealth){
         return totalHealth / 8;
+    }
+
+    inline int calculateParalysisSpeed(int speed){
+        return speed / 4;
+    }
+
+    inline bool calculateParalysisHit(std::mt19937& rng){
+        std::uniform_int_distribution<int> dist(0,3);
+        return dist(rng)==0;
+    }
+
+    inline bool calculateConfusionHit(std::mt19937& rng){
+        std::uniform_int_distribution<int> dist(0,1);
+        return dist(rng)==0;
+    }
+
+    inline bool calculateFreezeThaw(std::mt19937& rng){
+        std::uniform_int_distribution<int> dist(0,4);
+        return dist(rng)==0;
+    }
+
+    inline int calculateAilmentTurns(Ailment ailment, std::mt19937& rng){
+        if(ailment==Ailment::Confusion || ailment==Ailment::Sleep){
+            std::uniform_int_distribution<int> dist(2,5);
+            return dist(rng);
+        }
+        return -1;
     }
 
     inline bool processShake(float modifiedCatchRate, std::mt19937& rng) {

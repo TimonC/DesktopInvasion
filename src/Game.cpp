@@ -364,9 +364,9 @@ void Game::createInitialPokemon() {
     duskull.nature = Nature::Hardy;
     duskull.lvl = 10;
     duskull.moves[0] = 45;
-    duskull.moves[1] = 92;
-    duskull.moves[2] = 77;
-    duskull.moves[3] = 424;
+    duskull.moves[1] = 109;
+    duskull.moves[2] = 181;
+    duskull.moves[3] = 47;
 
     int pokemonId = m_db.createPokemon(duskull);
     if (pokemonId > 0) {
