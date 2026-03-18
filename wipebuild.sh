@@ -1,5 +1,6 @@
 #!/bin/bash
 
+rm -rf build/
 rm -rf .cache
 rm -rf CMakeFiles
 rm cmake_install.cmake

@@ -15,7 +15,7 @@ Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent
     qDebug() << "Battle constructor called!";
     m_currentDirection = opp->m_currentDirection;
     // Load the PokemonSprite as root
-    setSource(QUrl("qrc:/sprites/BattleScene.qml"));
+    setSource(QUrl("qrc:/qml/BattleScene.qml"));
     m_battleScene = rootObject();
     assert(m_battleScene);
 

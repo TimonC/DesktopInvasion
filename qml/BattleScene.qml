@@ -104,39 +104,11 @@ Item {
     }
 
     // Public functions
-
     function update_text_bar(newText) {
         textBar.text = newText;
     }
 
-    function swap_visibility() {
-        var showButtons = !buttonGrid.visible;
-        buttonGrid.visible = showButtons;
-        textBarText.visible = !showButtons;
 
-        if (showButtons) {
-            textBar.color = "transparent";
-        } else {
-            textBar.color = "lightgrey";
-        }
-    }
-
-    // Trigger animations directly on the containers
-    function playOpponentTackle() {
-        opponent.tackle = true;
-    }
-
-    function playPlayerTackle() {
-        player.tackle = true;
-    }
-
-    function playOpponentAttacked() {
-        opponent.attacked = true;
-    }
-
-    function playPlayerAttacked() {
-        player.attacked = true;
-    }
 
     // Text bar at the bottom
     Rectangle {
