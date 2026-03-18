@@ -34,11 +34,11 @@ Battle::Battle(int opp_direction, QPoint opp_pos, const PokemonInfo* opp_info, c
 }
 
 void Battle::onBattleSceneLoaded(QVariant battleSceneItem) {
-    QQuickItem* scene = battleSceneItem.value<QQuickItem*>();
-    if (scene) {
-        resize(scene->width(), scene->height());
-        qDebug() << "Battle scene loaded, resized to:" << scene->width() << "x" << scene->height();
-    }
+    /* QQuickItem* scene = battleSceneItem.value<QQuickItem*>(); */
+    /* if (scene) { */
+    /*     resize(scene->width(), scene->height()); */
+    /*     qDebug() << "Battle scene loaded, resized to:" << scene->width() << "x" << scene->height(); */
+    /* } */
 }
 
 
@@ -68,7 +68,6 @@ void Battle::setupPokemon(const PokemonInfo* info, const char* role) {
     QMetaObject::invokeMethod(m_battleScene, "positionSprite", Q_ARG(QVariant, QVariant::fromValue(container)));
 }
 
-void Battle::handleDrag(bool isDragged){m_isDragged = isDragged;};
 
 void Battle::initPosition(){
     int textBoxHeight = 32 * 1.6 * Globals::SCALE;
@@ -76,7 +75,7 @@ void Battle::initPosition(){
 
     switch(m_currentDirection) {
         case 0: //opp look up
-            m_origin = m_initialOppPos + QPoint(-m_pokeMargin, -height() + textBoxHeight - m_pokeMargin);
+            m_origin = m_initialOppPos; //+ QPoint(-m_pokeMargin, -height() + textBoxHeight - m_pokeMargin);
             break;
         case 1: //opp look left
             m_origin = m_initialOppPos + QPoint(m_pokeMargin - width(),height()/2 - textBoxHeight);
@@ -90,4 +89,6 @@ void Battle::initPosition(){
     }
     setPosition(m_origin);
 }
-void Battle::direction(int direction){};
+
+void Battle::direction(int direction){m_currentDirection=direction;};
+void Battle::handleDrag(bool isDragged){m_isDragged = isDragged;};
