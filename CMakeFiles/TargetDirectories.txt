@@ -1,0 +1,5 @@
+/home/timon/DesktopInvasion/CMakeFiles/DesktopInvasion.dir
+/home/timon/DesktopInvasion/CMakeFiles/edit_cache.dir
+/home/timon/DesktopInvasion/CMakeFiles/rebuild_cache.dir
+/home/timon/DesktopInvasion/CMakeFiles/DesktopInvasion_autogen_timestamp_deps.dir
+/home/timon/DesktopInvasion/CMakeFiles/DesktopInvasion_autogen.dir

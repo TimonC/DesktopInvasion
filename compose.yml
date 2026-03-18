@@ -2,18 +2,17 @@ services:
   invasionview:
     build: .
     container_name: invasionview
-    user: "${UID}:${GID}"
     environment:
       - DISPLAY=${DISPLAY}
       - QT_QPA_PLATFORM=xcb
-      - LIBGL_ALWAYS_SOFTWARE=1
-      - QT_QPA_EGLFS_FORCE_SOFTWARE=1
       - XDG_RUNTIME_DIR=/tmp/xdg
+      - TZ=Europe/Berlin
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ./src:/app/src
-      - ./sprites:/app/sprites  # For new QML files
+      - ./sprites:/app/sprites
       - ./assets:/app/assets
+      - /dev/dri:/dev/dri   # <-- forward GPU device
     stdin_open: true
     tty: true
 
