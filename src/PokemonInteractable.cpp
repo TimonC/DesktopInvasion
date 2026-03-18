@@ -15,23 +15,25 @@ PokemonInteractable::PokemonInteractable(QWindow *parent, int row)
     , m_currentDirection(0)
     , m_scaleFactor(4)
 {
-    setFlags(Qt::WindowStaysOnTopHint | Qt::Tool);// | Qt::FramelessWindowHint) ;
+    setFlags(Qt::WindowStaysOnTopHint | Qt::Tool | Qt::FramelessWindowHint) ;
     setColor(Qt::transparent);
 
-    setSpriteBounds();
-
+    /* setSpriteBounds(); */
+    /* setResizeMode(SizeRootObjectToView); */
     setSource(QUrl("qrc:/sprites/PokemonSprite.qml"));
     m_wildPokemon = rootObject();
     m_wildPokemon->setProperty("scaleFactor", m_scaleFactor);
     m_wildPokemon->setProperty("row", m_row);
 
-    int width = 1.2 * m_scaleFactor*(m_maxX - m_minX);
-    int height = 1.2 * m_scaleFactor*(m_maxY - m_minY);
+    /* int width = 1.2 * m_scaleFactor*(m_maxX - m_minX); */
+    /* int height = 1.2 * m_scaleFactor*(m_maxY - m_minY); */
+    int width = 3.5*32;
+    int height = 4*32;
     m_wildPokemon->setProperty("itemWidth", width);
     m_wildPokemon->setProperty("itemHeight", height);
 
-    m_wildPokemon->setProperty("spriteOffsetX", 20);
-    m_wildPokemon->setProperty("spriteOffsetY",-m_minY);
+    m_wildPokemon->setProperty("spriteOffsetX", 32);
+    m_wildPokemon->setProperty("spriteOffsetY",32);
 
 
     m_screenGeometry = QGuiApplication::primaryScreen()->geometry();
