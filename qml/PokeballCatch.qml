@@ -7,8 +7,8 @@ Item {
     property int frameWidth: 16
     property int frameHeight: 23
     property int throwDuration: 600     // Duration of frames 0-7 to halfway
-    property int pauseDuration: 200      // Pause after first animation
-    property int catchDuration: 300     // Duration to show frame 0 before drop
+    property int pauseDuration: 250      // Pause after first animation
+    property int catchDuration: 500     // Duration to show frame 0 before drop
     property int dropDuration: 400       // Duration for final drop
     property int bounceUpDuration: 150   // Duration for bounce up
     property int bounceDownDuration: 150 // Duration for bounce down
@@ -16,7 +16,7 @@ Item {
 
     // Circle properties
     property real circleShrinkScale: 0.7    // Circle starts at 0.8x size
-    property int circleAnimationDuration: 1000
+    property int circleAnimationDuration: 750
     property int circleX: 0               // X position for circle center
     property int circleY: 0               // Y position for circle center
     property int circleBaseRadius: 0       // Base circle radius

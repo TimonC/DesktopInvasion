@@ -33,7 +33,7 @@ Item {
     // Catch attempt state
     property int catchShakeCount: 0
     property int catchShakeInterval: 1500
-    property int ballTransitionDuration: 1000
+    property int ballTransitionDuration: 750
 
     signal runChosen()
     signal opponentWon()
