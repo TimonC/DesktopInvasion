@@ -94,12 +94,10 @@ QVariantMap Game::pokemonToMenuState(int slot, const PokemonState &p){
     for (int value : stats) {
         statsList.append(value);
     }
-    std::uniform_int_distribution<int> dist(0, 27);
     entry["pokeName"] = QString::fromStdString(poke->name);
     entry["type1"] = QString::fromStdString(PokeTypes::typeToString(poke->types[0]));
     entry["type2"] = QString::fromStdString(PokeTypes::typeToString(poke->types[1]));
-    entry["flavorText"] = Lookup::getFlavorText(p.pokedex_id, dist(m_rng));
-    qDebug() << entry["flavorText"];
+    entry["flavorText"] = Lookup::getRandomFlavorText(p.pokedex_id, m_rng);
     entry["stats"] = statsList;
 
     for(int eligible = 0; eligible < poke->eligible_evolve_count; eligible++){
