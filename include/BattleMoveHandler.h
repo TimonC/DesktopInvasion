@@ -129,7 +129,6 @@ private:
     BattleActionResult applySecondaryEffects(const Move* _move, Battler* target, bool damageLanded);
     BattleActionResult applyEndOfTurnEffects(Battler* battler);
     BattleActionResult canBattlerMove(Battler* caster);
-    int applyStatModifier(int baseStat, int modifier);
     void checkRemoveAilment(Battler& battler, BattleActionResult& result);
     void resetDeltaState(BattleStateDelta& delta);
 

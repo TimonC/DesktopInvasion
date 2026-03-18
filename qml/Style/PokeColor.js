@@ -55,11 +55,11 @@ function typeColor(typeName) {
 
     function statusConditionColor(label) {
         switch(label) {
-            case "BRN": return "#E67C22"  // Burnt orange from Pokémon games
-            case "FRZ": return "#5DADE2"  // Ice blue from Pokémon games
-            case "PAR": return "#F4D03F"  // Electric yellow from Pokémon games
-            case "SLP": return "#7D3C98"  // Dark purple from Pokémon games
-            case "PSN": return "#9B59B6"  // Poison purple from Pokémon games
+            case "BRN": return typeColor("Fire")
+            case "FRZ": return typeColor("Ice")
+            case "PAR": return typeColor("Electric")
+            case "SLP": return typeColor("Normal")
+            case "PSN": return typeColor("Poison")
             default:    return "transparent"
         }
     }

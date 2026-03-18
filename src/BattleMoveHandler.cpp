@@ -118,12 +118,12 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
             int oppSpeed = m_battleOpponent->pokeState.stats[5];
             if(m_battleOpponent->battleState.statusCondition==Ailment::Paralysis) oppSpeed = oppSpeed/2;
             int oppModifier = m_battleOpponent->battleState.statModifiers[4];
-            oppSpeed = applyStatModifier(oppSpeed, oppModifier);
+            oppSpeed = PokeMath::applyStatModifier(oppSpeed, oppModifier);
 
             int playerSpeed = player->pokeState.stats[5];
             if(player->battleState.statusCondition==Ailment::Paralysis) playerSpeed = playerSpeed/2;
             int playerModifier = player->battleState.statModifiers[4];
-            playerSpeed = applyStatModifier(playerSpeed, playerModifier);
+            playerSpeed = PokeMath::applyStatModifier(playerSpeed, playerModifier);
 
            if(playerSpeed == oppSpeed){
                std::uniform_int_distribution<int> speedTieDist(0, 1);
@@ -258,8 +258,8 @@ BattleActionResult BattleMoveHandler::canBattlerMove(Battler* caster) {
             int defModifier = caster->battleState.statModifiers[1];
             confP.attack = caster->pokeState.stats[1];
             confP.defense = caster->pokeState.stats[2];
-            confP.attack = applyStatModifier(confP.attack, atkModifier);
-            confP.defense = applyStatModifier(confP.defense, defModifier);
+            confP.attack = PokeMath::applyStatModifier(confP.attack, atkModifier);
+            confP.defense = PokeMath::applyStatModifier(confP.defense, defModifier);
 
             int confusionDamage = PokeMath::calculateDamage(confP, m_rng);
             result.addEffect(BattleActionResult::CONFUSION_SELF_HIT, caster, caster, confusionDamage);
@@ -354,8 +354,8 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
             if (defModifier > 0) defModifier = 0;
         }
 
-        params.attack = applyStatModifier(params.attack, atkModifier);
-        params.defense = applyStatModifier(params.defense, defModifier);
+        params.attack = PokeMath::applyStatModifier(params.attack, atkModifier);
+        params.defense = PokeMath::applyStatModifier(params.defense, defModifier);
 
         if(_move->category == MoveCategory::PhysicalAtk){
             if(caster->battleState.statusCondition == Ailment::Burn) params.burn = 50;
@@ -659,21 +659,6 @@ QVariantList BattleMoveHandler::generateSequenceFromResult(const BattleActionRes
     }
 
     return sequence;
-}
-
-int BattleMoveHandler::applyStatModifier(int baseStat, int modifier) {
-    if (modifier == 0) return baseStat;
-
-    modifier = std::max(-6, std::min(6, modifier));
-
-    static const float multiplier[13] = {
-        0.25f, 0.28f, 0.33f, 0.40f, 0.50f, 0.66f,
-        1.0f,
-        1.5f, 2.0f, 2.5f, 3.0f, 3.5f, 4.0f
-    };
-
-    int index = modifier + 6;
-    return static_cast<int>(baseStat * multiplier[index]);
 }
 
 QVariantList BattleMoveHandler::generateActionSequence(Battler& opponent, Battler& player, bool playerFirst, int switchedIn, int shakes){

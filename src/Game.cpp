@@ -188,7 +188,9 @@ void Game::spawnPokemon() {
         newWild.nature = Nature::Hardy;
 
         newWild.moves[0] = 1;
-        newWild.moves[1] = 422;
+        newWild.moves[1] = 109;
+        newWild.moves[2] = 181;
+        newWild.moves[3] = 47;
 
         m_db.spawnWildPokemon(newWild);
         qDebug() << "Created new wild Pokemon:" << QString::fromStdString(newWild.name);
@@ -363,8 +365,8 @@ void Game::createInitialPokemon() {
 
     duskull.nature = Nature::Hardy;
     duskull.lvl = 10;
-    duskull.moves[0] = 45;
-    duskull.moves[1] = 109;
+    duskull.moves[0] = 261;
+    duskull.moves[1] = 425;
     duskull.moves[2] = 181;
     duskull.moves[3] = 47;
 

@@ -5,6 +5,7 @@
 #include <array>
 #include <data_move.h>
 #include <PokeTypes.h>
+#include <cmath>
 
 namespace PokeMath{
 
@@ -21,8 +22,8 @@ namespace PokeMath{
     };
 
     inline int calculateDamage(const DamageParams& p, std::mt19937& rng) {
-        std::uniform_int_distribution<int> dist(85, 100);
-        int random = dist(rng);
+        static std::uniform_int_distribution<int> damageRandomDist(85, 100);
+        int random = damageRandomDist(rng);
 
         int damage = (2 * p.lvl / 5 + 2) * p.power * p.attack / p.defense;
         damage = damage / 50;
@@ -58,36 +59,36 @@ namespace PokeMath{
     }
 
     inline int calculateParalysisSpeed(int speed){
-        return speed / 4;
+        return speed / 2;
     }
 
     inline bool calculateParalysisHit(std::mt19937& rng){
-        std::uniform_int_distribution<int> dist(0,3);
-        return dist(rng)==0;
+        static std::uniform_int_distribution<int> paralysisDist(0, 3);
+        return paralysisDist(rng) == 0;
     }
 
     inline bool calculateConfusionHit(std::mt19937& rng){
-        std::uniform_int_distribution<int> dist(0,1);
-        return dist(rng)==0;
+        static std::uniform_int_distribution<int> confusionDist(0, 1);
+        return confusionDist(rng) == 0;
     }
 
     inline bool calculateFreezeThaw(std::mt19937& rng){
-        std::uniform_int_distribution<int> dist(0,4);
-        return dist(rng)==0;
+        static std::uniform_int_distribution<int> freezeDist(0, 4);
+        return freezeDist(rng) == 0;
     }
 
     inline int calculateAilmentTurns(Ailment ailment, std::mt19937& rng){
         if(ailment==Ailment::Confusion || ailment==Ailment::Sleep){
-            std::uniform_int_distribution<int> dist(2,5);
-            return dist(rng);
+            static std::uniform_int_distribution<int> ailmentTurnsDist(2, 5);
+            return ailmentTurnsDist(rng);
         }
         return -1;
     }
 
     inline bool processShake(float modifiedCatchRate, std::mt19937& rng) {
         float threshold = 1048560.0f / sqrt(sqrt(16711680.0f / modifiedCatchRate));
-        std::uniform_int_distribution<int> dist(0, 65535);
-        return dist(rng) < static_cast<int>(threshold);
+        static std::uniform_int_distribution<int> shakeDist(0, 65535);
+        return shakeDist(rng) < static_cast<int>(threshold);
     }
 
     inline int calculateBallShakes(
@@ -136,6 +137,26 @@ namespace PokeMath{
 
             return result;
         }
+
+    inline bool checkAccuracy(int accuracy, std::mt19937& rng) {
+        static std::uniform_int_distribution<int> accuracyDist(1, 100);
+        return accuracyDist(rng) <= accuracy;
     }
+
+    inline bool checkCriticalHit(int critRate, std::mt19937& rng) {
+        static std::uniform_int_distribution<int> critDist(1, 16/(1+critRate));
+        return critDist(rng) == 1;
+    }
+
+    inline bool checkSecondaryEffect(int chance, std::mt19937& rng) {
+        static std::uniform_int_distribution<int> effectDist(1, 100);
+        return effectDist(rng) <= chance;
+    }
+
+    inline bool checkSpeedTie(std::mt19937& rng) {
+        static std::uniform_int_distribution<int> speedTieDist(0, 1);
+        return speedTieDist(rng) == 0;
+    }
+}
 
 #endif
