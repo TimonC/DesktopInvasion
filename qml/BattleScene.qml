@@ -199,7 +199,8 @@ Item {
 
     // Attack button handler
     function onAttackButtonClicked() {
-        var playerFirst = Math.random() < 0.5;
+        // var playerFirst = Math.random() < 0.5;
+        var playerFirst = false;
         startAttackChain(playerFirst);
     }
 
@@ -279,7 +280,7 @@ Item {
 
                 if(currentHealthRatio==0){
                     root.attackSequence = [
-                        {type: "lose-battle", message: step.defender.name + "  fainted!", defender: step.defender, delay: 1000 },
+                        {type: "lose-battle", message: step.defender.name + "  fainted!", defender: step.defender, delay: 2000 },
                         {type: "battle-over", defender: step.defender, delay: 100 }
                     ]
                     root.currentAttackIndex = 0;
