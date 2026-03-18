@@ -40,9 +40,6 @@ Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildS
     connect(m_battleScene, SIGNAL(requestExperienceSpread()),
         this, SLOT(handleGettingExperience()));
 
-    connect(m_battleScene, SIGNAL(_clickableAreaEntered(bool)),
-            this,  SLOT(handleClickableAreaEnter(bool)));
-
 
     m_battleScene->setProperty("direction", m_currentDirection);
     m_battleScene->setProperty("pokeMargin", m_pokeMargin);
@@ -71,13 +68,6 @@ Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildS
     });
 }
 
-void Battle::handleClickableAreaEnter(bool enter){
-    if(enter){
-        setCursor(m_pointerCursor);
-    }else{
-        setCursor(m_handCursor);
-    }
-}
 void Battle::handleGettingExperience(){
     std::array<int,6> spread = m_battleMoveHandler->getExperienceSpread();
     emit _updatePartyXP(spread);
@@ -203,9 +193,4 @@ void Battle::initPosition() {
 }
 
 void Battle::direction(int direction) { m_currentDirection = direction; }
-void Battle::handleDrag(bool isDragged) {
-    m_isDragged = isDragged;
-    if(m_battleScene->property("inClickableArea").toBool() && !(m_battleScene->property("textBarShown").toBool())){
-        setCursor(m_pointerCursor);
-    };
-}
+void Battle::handleDrag(bool isDragged) {m_isDragged = isDragged;}

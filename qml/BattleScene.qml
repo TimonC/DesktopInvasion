@@ -9,8 +9,6 @@ Item {
     property real frameSize: 32*scale
     property int animationSpeed: 1
 
-    property alias inClickableArea: battleMenu.inClickableArea
-    property alias textBarShown: battleMenu.textBarShown
 
     width: (direction === 0 || direction === 2) ? Math.round(frameSize * 6) : Math.round(frameSize * 8)
     height: (direction === 0 || direction === 2) ? Math.round(frameSize * 8) : Math.round(frameSize * 6)
@@ -74,7 +72,6 @@ Item {
     signal signalToStartActionRound(int actionIndex, string actionState)
     signal switchedPokemon(int pokedexId, int partyIndex)
     signal requestExperienceSpread();
-    signal _clickableAreaEntered(bool enter);
 
     function setInitialTotalHealth(opponentTotalHealth, playerTotalHealth){
         opponent.statusBar.totalHealth  = opponentTotalHealth
@@ -265,9 +262,6 @@ Item {
         textBarFontFamily: root.textBarFontFamily
         menuFontFamily: root.menuFontFamily
         opponentName: root.opponentName
-        onClickableAreaEntered: function(enter){
-            root._clickableAreaEntered(enter)
-        }
         onActionRound: function(actionIndex, actionType) {
             root.signalToStartActionRound(actionIndex, actionType)
         }

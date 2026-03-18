@@ -13,7 +13,6 @@
         <file>assets/HGSS/reordered_icons.png</file>
         <file>assets/HGSS/reordered_pokeballs.png</file>
 
-        <file>assets/XY/hand.png</file>
         <file>assets/XY/grab.png</file>
         <file>assets/XY/pointer.png</file>
     </qresource>

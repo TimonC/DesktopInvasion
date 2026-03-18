@@ -17,9 +17,8 @@ DesktopScene::DesktopScene(QWindow *parent)
      setColor(Qt::transparent);
 
      m_grabCursor = QCursor(QPixmap(":/assets/XY/grab.png"));
-     m_handCursor = QCursor(QPixmap(":/assets/XY/hand.png"));
      m_pointerCursor = QCursor(QPixmap(":/assets/XY/pointer.png"), 6, 6);
-     setCursor(m_handCursor);
+     setCursor(m_pointerCursor);
 }
 
 
@@ -47,6 +46,6 @@ void DesktopScene::mousePressEvent(QMouseEvent* event){
 }
 
 void DesktopScene::mouseReleaseEvent(QMouseEvent* event){
-    if(cursor()==m_grabCursor) setCursor(m_handCursor);
+    if(cursor()==m_grabCursor) setCursor(m_pointerCursor);
     handleDrag(false);
 }

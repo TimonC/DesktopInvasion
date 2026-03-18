@@ -7,88 +7,77 @@ Rectangle {
     id: root
     color: "transparent"
 
-    property bool inClickableArea: false
-    property bool textBarShown: false
-    property bool inBackground: false
-
-    property int menuTransitionDuration: 100
-    property double iconScale: 1.0
-
+    // Menu dimensions
+    property int menuWidth: 0
+    property int menuHeight: 0
     property int buttonWidth: 0
     property int buttonHeight: 0
     property double textBarHeightRatio: 0.9
-    property int menuHeight: 0
-    property int menuWidth: 0
+    property int gridSpacing: 0
+    property int borderWidth: 0
+    property double contentMarginsRatio: 0.02
+    property double backButtonWidthRatio: 0.1
+    property double backButtonHeightRatio: 0.8
 
+    // Calculated dimensions
+    property real contentWidth: Math.floor(menuWidth * (1 - backButtonWidthRatio * 2 - contentMarginsRatio * 2))
+    property real contentHeight: Math.floor(menuHeight * (1 - contentMarginsRatio * 2))
+    property real backButtonWidth: Math.floor(menuWidth * backButtonWidthRatio)
+    property real backButtonHeight: Math.floor(menuHeight * backButtonHeightRatio)
+
+    // Text properties
     property int buttonFontSize: 0
     property int moveFontSize: 0
     property int textBarFontSize: 0
     property string menuFontFamily: ""
     property string textBarFontFamily: ""
-
-    property int borderWidth: 0
-    property int gridSpacing: 0
-
-    property string opponentName: ""
-
     property color textBarTextColor: "black"
     property color menuTextColor: "white"
 
+    // Colors
     property color fightButtonColor: "#ff3333"
     property color switchButtonColor: "green"
     property color catchButtonColor: "#e67a00"
     property color runButtonColor: "#3366ff"
-
     property color borderColor: "#999999"
     property color disabledBorderColor: "#777777"
     property color selectedBorderColor: "#1976D2"
     property color disabledBackgroundColor: "#757575"
     property color placeholderTextColor: "#a0a0a0"
-    property real enabledOpacity: 1
-    property real disabledOpacity: 0.7
-
     property color textBarBackgroundColor: "white"
     property color textBarBorderColor: "black"
-
-    property real normalIconOpacity: 1.0
-    property real faintedIconOpacity: 0.7
-
     property color backButtonColor: "lightblue"
     property color forceSwitchBackButtonColor: "#b0bec5"
 
-    property color catchButtonBackground: "white"
-    property color catchButtonPressedBackground: "#f0f0f0"
-    property color catchButtonBorderColor: "black"
+    // Opacity and effects
+    property real enabledOpacity: 1
+    property real disabledOpacity: 0.7
+    property real normalIconOpacity: 1.0
+    property real faintedIconOpacity: 0.7
+    property real hoverScale: 1.04
+    property int menuTransitionDuration: 0
+    property double iconScale: 1.0
 
-
+    // Game state
+    property bool textBarShown: false
+    property bool forceSwitchMode: false
+    property int selectedIndex: 0
+    property string opponentName: ""
     property int ballSpriteWidth: 16
     property int ballSpriteHeight: 23
     property string ballSpriteSheet: "qrc:/assets/HGSS/reordered_pokeballs.png"
     property var nrOfBalls: [1000, 0, 0, 0]
     property list<string> ballNames: ["Poké Ball", "Great Ball", "Ultra Ball", "Master Ball"]
 
-    property int selectedIndex: 0
-    property bool forceSwitchMode: false
-
-    property real backButtonWidthRatio: 0.1
-    property real backButtonHeightRatio: 0.8
-    property real contentMarginsRatio: 0.02
-
-    property real contentWidth: Math.floor(menuWidth * (1 - backButtonWidthRatio * 2 - contentMarginsRatio * 2))
-    property real contentHeight: Math.floor(menuHeight * (1 - contentMarginsRatio * 2))
-    property real backButtonWidth: Math.floor(menuWidth * backButtonWidthRatio)
-    property real backButtonHeight: Math.floor(menuHeight * backButtonHeightRatio)
-
-    property real hoverScale: 1.05
-
+    // Signals
     signal actionRound(int actionIndex, string actionType)
     signal fightChosen(int fightId)
     signal runChosen(bool removeWild)
     signal switchChosen(int newPartyIdx)
-    signal clickableAreaEntered(bool enter)
 
     property alias stack: stack
 
+    // Party data
     property var party: {
         "pokedexIds": [-1, -1, -1, -1, -1, -1],
         "spriteIds": [-1, -1, -1, -1, -1, -1],
@@ -107,24 +96,21 @@ Rectangle {
         ]
     }
 
+    // Functions
     function _setPartyMember(partyIdx, pokedexId, spriteId, ballId, pokemonName, lvl, totalHealth, moves) {
         var temp = party
         temp.pokedexIds[partyIdx] = pokedexId
         temp.spriteIds[partyIdx] = spriteId
         temp.ballIds[partyIdx] = ballId
-
         temp.names[partyIdx] = pokemonName
         temp.lvls[partyIdx] = lvl
-
         temp.healthTotals[partyIdx] = totalHealth
         if(totalHealth>0) temp.healthRatios[partyIdx] = 1;
-
         temp.moves[partyIdx] = moves
         party = temp
     }
 
     function showTextBar() {
-        root.clickableAreaEntered(false)
         root.textBarShown = true
         stack.replace(textBarComponent)
     }
@@ -144,67 +130,42 @@ Rectangle {
     function forceSwitch() {
         forceSwitchMode = true
         root.textBarShown = false
-        if(root.inClickableArea) root.clickableAreaEntered(true)
         stack.replace(switchSelection)
     }
 
     function resetToRoot() {
         forceSwitchMode = false
         root.textBarShown = false
-        if(root.inClickableArea) root.clickableAreaEntered(true)
         stack.replace(rootSelection)
     }
 
-    MouseArea {
-        cursorShape: undefined
-        hoverEnabled: true
-        z: -1
-        anchors.fill: parent
-        onEntered: {
-            root.inBackground = true
-        }
-        onExited: {
-            if(!root.inClickableArea) root.inBackground = false
-        }
-    }
-
-    component NoCursorMouseArea: MouseArea{
+    // Components
+    component HoverableMouseArea: MouseArea{
         cursorShape: undefined
         hoverEnabled: true
         z: 1
         property var hoverTarget: parent
         property bool hoverEffectEnabled: true
 
-        onEntered: {
-            if(!root.inClickableArea){
-                root.inClickableArea = true
-                if(!root.textBarShown) root.clickableAreaEntered(true)
+        // Check if mouse is already over when component appears
+        Component.onCompleted: {
+            if (containsMouse && hoverEffectEnabled && hoverTarget) {
+                if (hoverTarget.hasOwnProperty("scale")) hoverTarget.scale = root.hoverScale
+                if (hoverTarget.hasOwnProperty("hovered")) hoverTarget.hovered = true
             }
+        }
 
+        onEntered: {
             if (hoverEffectEnabled && hoverTarget) {
-                if (hoverTarget.hasOwnProperty("scale")) {
-                    hoverTarget.scale = root.hoverScale
-                }
-                if (hoverTarget.hasOwnProperty("hovered")) {
-                    hoverTarget.hovered = true
-                }
+                if (hoverTarget.hasOwnProperty("scale")) hoverTarget.scale = root.hoverScale
+                if (hoverTarget.hasOwnProperty("hovered")) hoverTarget.hovered = true
             }
         }
         onExited: {
-            if(root.inClickableArea && !root.inBackground){
-                root.inClickableArea = false
-                if(!root.textBarShown) root.clickableAreaEntered(false)
-            }
             if (hoverEffectEnabled && hoverTarget) {
-                if (hoverTarget.hasOwnProperty("scale")) {
-                    hoverTarget.scale = 1.0
-                }
-                if (hoverTarget.hasOwnProperty("hovered")) {
-                    hoverTarget.hovered = false
-                }
-                if (hoverTarget.hasOwnProperty("down")) {
-                    hoverTarget.down = false
-                }
+                if (hoverTarget.hasOwnProperty("scale")) hoverTarget.scale = 1.0
+                if (hoverTarget.hasOwnProperty("hovered")) hoverTarget.hovered = false
+                if (hoverTarget.hasOwnProperty("down")) hoverTarget.down = false
             }
         }
         onPressed: {
@@ -223,131 +184,6 @@ Rectangle {
             }
         }
     }
-
-    StackView {
-        id: stack
-        initialItem: textBarComponent
-        width: root.menuWidth
-        height: root.menuHeight
-        z: 1
-
-        pushEnter: Transition {
-            PropertyAnimation {
-                property: "opacity"
-                from: 0
-                to: 1
-                duration: root.menuTransitionDuration
-            }
-        }
-
-        pushExit: Transition {
-            PropertyAnimation {
-                property: "opacity"
-                from: 1
-                to: 0
-                duration: root.menuTransitionDuration
-            }
-        }
-
-        popEnter: Transition {
-            PropertyAnimation {
-                property: "opacity"
-                from: 0
-                to: 1
-                duration: root.menuTransitionDuration
-            }
-        }
-
-        popExit: Transition {
-            PropertyAnimation {
-                property: "opacity"
-                from: 1
-                to: 0
-                duration: root.menuTransitionDuration
-            }
-        }
-
-        replaceEnter: null
-        replaceExit: null
-    }
-
-    Component {
-        id: textBarComponent
-        Rectangle {
-            id: textBar
-            width: root.menuWidth
-            height: Math.floor(root.menuHeight * root.textBarHeightRatio)
-            color: root.textBarBackgroundColor
-            border.color: root.textBarBorderColor
-            border.width: root.borderWidth
-            property string text: ""
-            radius: 5
-
-            Text {
-                id: textBarText
-                anchors.fill: parent
-                anchors.margins: Math.floor(root.menuWidth * 0.02)
-                text: textBar.text
-                font.pixelSize: root.textBarFontSize
-                font.family: root.textBarFontFamily
-                color: root.textBarTextColor
-                verticalAlignment: Text.AlignVCenter
-                wrapMode: Text.WordWrap
-                maximumLineCount: 2
-                elide: Text.ElideRight
-            }
-        }
-    }
-
-    Component {
-        id: rootSelection
-        Item {
-            width: root.menuWidth
-            height: root.menuHeight
-
-            Grid {
-                anchors.centerIn: parent
-                columns: 2
-                spacing: root.gridSpacing
-                width: root.contentWidth
-                height: root.contentHeight
-
-                GradientRoundButton {
-                    text: "Fight"
-                    buttonColor: root.fightButtonColor
-
-                    onClicked: {
-                        stack.push(fightSelection)
-                    }
-                }
-
-                GradientRoundButton {
-                    text: "Switch"
-                    buttonColor: root.switchButtonColor
-                    onClicked: {
-                        stack.push(switchSelection)
-                    }
-                }
-
-                GradientRoundButton {
-                    text: "Catch"
-                    buttonColor: root.catchButtonColor
-                    onClicked: {
-                        stack.push(catchSelection)
-                    }
-                }
-
-                GradientRoundButton {
-                    text: "Run"
-                    buttonColor: root.runButtonColor
-                    onClicked: {
-                        stack.push(runSelection)
-                    }
-                }
-            }
-        }
-    }
-
     component GradientRoundButton: Item {
         id: gradientButton
         required property color buttonColor
@@ -369,8 +205,7 @@ Rectangle {
         scale: 1.0
         Behavior on scale { NumberAnimation { duration: 100 } }
 
-        NoCursorMouseArea {
-            id: mouseArea
+        HoverableMouseArea {
             anchors.fill: parent
             enabled: gradientButton.enabled
             hoverTarget: gradientButton
@@ -380,16 +215,12 @@ Rectangle {
             anchors.fill: parent
             radius: height / 2
             color: gradientButton.enabled ? borderColor : root.disabledBorderColor
-            opacity: gradientButton.enabled ? enabledOpacity : disabledOpacity
+            opacity: gradientButton.enabled ? root.enabledOpacity : root.disabledOpacity
         }
-
-        // Inner gradient background (slightly smaller than border)
         Rectangle {
-            id: innerRect
             anchors.fill: parent
             anchors.margins: borderWidth
             radius: Math.max(0, height / 2 - borderWidth)
-
             gradient: Gradient {
                 GradientStop {
                     position: 0.0;
@@ -404,11 +235,9 @@ Rectangle {
                            : root.disabledBackgroundColor
                 }
             }
-
             Behavior on gradient { ColorAnimation { duration: 100 } }
             Behavior on opacity { NumberAnimation { duration: 100 } }
         }
-
         Text {
             id: label
             anchors.centerIn: parent
@@ -422,7 +251,87 @@ Rectangle {
             elide: Text.ElideRight
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
-            opacity: gradientButton.enabled ? 1.0 : disabledOpacity
+            opacity: gradientButton.enabled ? 1.0 : root.disabledOpacity
+        }
+    }
+
+    // StackView
+    StackView {
+        id: stack
+        initialItem: textBarComponent
+        width: root.menuWidth
+        height: root.menuHeight
+        z: 1
+
+        pushEnter: null
+        pushExit: null
+
+        popEnter: null
+        popExit: null
+
+        replaceEnter: null
+        replaceExit: null
+    }
+
+    // Components
+    Component {
+        id: textBarComponent
+        Rectangle {
+            id: textBar
+            width: root.menuWidth
+            height: Math.floor(root.menuHeight * root.textBarHeightRatio)
+            color: root.textBarBackgroundColor
+            border.color: root.textBarBorderColor
+            border.width: root.borderWidth
+            property string text: ""
+            radius: 5
+            Text {
+                anchors.fill: parent
+                anchors.margins: Math.floor(root.menuWidth * 0.02)
+                text: textBar.text
+                font.pixelSize: root.textBarFontSize
+                font.family: root.textBarFontFamily
+                color: root.textBarTextColor
+                verticalAlignment: Text.AlignVCenter
+                wrapMode: Text.WordWrap
+                maximumLineCount: 2
+                elide: Text.ElideRight
+            }
+        }
+    }
+
+    Component {
+        id: rootSelection
+        Item {
+            width: root.menuWidth
+            height: root.menuHeight
+            Grid {
+                anchors.centerIn: parent
+                columns: 2
+                spacing: root.gridSpacing
+                width: root.contentWidth
+                height: root.contentHeight
+                GradientRoundButton {
+                    text: "Fight"
+                    buttonColor: root.fightButtonColor
+                    onClicked: stack.push(fightSelection)
+                }
+                GradientRoundButton {
+                    text: "Switch"
+                    buttonColor: root.switchButtonColor
+                    onClicked: stack.push(switchSelection)
+                }
+                GradientRoundButton {
+                    text: "Catch"
+                    buttonColor: root.catchButtonColor
+                    onClicked: stack.push(catchSelection)
+                }
+                GradientRoundButton {
+                    text: "Run"
+                    buttonColor: root.runButtonColor
+                    onClicked: stack.push(runSelection)
+                }
+            }
         }
     }
 
@@ -431,7 +340,6 @@ Rectangle {
         Item {
             width: root.contentWidth
             height: root.contentHeight
-
             Grid {
                 id: fightGrid
                 anchors.fill: parent
@@ -439,34 +347,27 @@ Rectangle {
                 columns: 2
                 rows: 2
                 spacing: root.gridSpacing
-
                 property int partyIndex: 0
-
                 Repeater {
                     model: 4
-
                     Item {
                         id: moveItem
                         width: Math.floor(fightGrid.width / 2 - root.gridSpacing / 2)
                         height: Math.floor(fightGrid.height / 2 - root.gridSpacing / 2)
-
                         function getMoveData() {
                             if (party && party.moves && party.moves[root.selectedIndex]) {
                                 return party.moves[root.selectedIndex][index] || {name: "---", type: "Null"}
                             }
                             return {name: "---", type: "Null"}
                         }
-
                         property string moveName: getMoveData().name || "---"
                         property string moveType: getMoveData().type || "Null"
                         property bool moveEnabled: moveType !== "Null"
                         property color baseColor: moveEnabled ? PokeColor.typeColor(moveType) : root.disabledBackgroundColor
                         property bool hovered: false
                         property bool down: false
-
                         scale: 1.0
                         Behavior on scale { NumberAnimation { duration: 100 } }
-
                         Rectangle {
                             anchors.fill: parent
                             radius: 4
@@ -474,7 +375,6 @@ Rectangle {
                             opacity: moveEnabled ? root.enabledOpacity : root.disabledOpacity
                             Behavior on color { ColorAnimation { duration: 100 } }
                         }
-
                         Rectangle {
                             anchors.fill: parent
                             anchors.margins: root.borderWidth
@@ -486,7 +386,6 @@ Rectangle {
                             opacity: moveEnabled ? root.enabledOpacity : root.disabledOpacity
                             Behavior on gradient { ColorAnimation { duration: 100 } }
                         }
-
                         Text {
                             anchors.centerIn: parent
                             width: Math.max(0, parent.width - 8)
@@ -502,15 +401,12 @@ Rectangle {
                             lineHeight: 1.4
                             color: moveEnabled ? root.menuTextColor : root.placeholderTextColor
                         }
-
-                        NoCursorMouseArea {
+                        HoverableMouseArea {
                             anchors.fill: parent
                             enabled: moveEnabled
                             hoverTarget: moveItem
-                            hoverEffectEnabled: moveEnabled  // Disable hover effects for disabled moves
-                            onClicked: {
-                                root.actionRound(index, "Fight")
-                            }
+                            hoverEffectEnabled: moveEnabled
+                            onClicked: root.actionRound(index, "Fight")
                         }
                     }
                 }
@@ -523,22 +419,18 @@ Rectangle {
         Item {
             width: root.contentWidth
             height: root.contentHeight
-
             Grid {
                 anchors.fill: parent
                 anchors.margins: Math.floor(root.contentMarginsRatio * root.menuHeight)
                 columns: 3
                 rows: 2
                 spacing: Math.floor(root.gridSpacing / 2)
-
                 Repeater {
                     model: 6
-
                     Item {
                         id: switchItem
                         width: Math.floor((parent.width - root.gridSpacing) / 3)
                         height: Math.floor((parent.height - root.gridSpacing) / 2)
-
                         property bool hovered: false
                         property bool down: false
                         property color healthColor: root.party.pokedexIds[index] >= 0 ?
@@ -546,13 +438,14 @@ Rectangle {
                                                    root.disabledBackgroundColor
                         property bool isSelected: root.selectedIndex === index
                         property bool isEmpty: root.party.pokedexIds[index] < 0
-                        property bool isDisabled: !root.forceSwitchMode && (root.selectedIndex === index ||
-                                                   root.party.pokedexIds[index] < 0 ||
-                                                   party.healthRatios[index] <= 0)
-
+                        property bool isEnabled: !root.forceSwitchMode ?
+                                               (root.selectedIndex !== index &&
+                                                root.party.pokedexIds[index] >= 0 &&
+                                                party.healthRatios[index] > 0) :
+                                               (root.party.pokedexIds[index] >= 0 &&
+                                                party.healthRatios[index] > 0)
                         scale: 1.0
                         Behavior on scale { NumberAnimation { duration: 100 } }
-
                         Rectangle {
                             anchors.fill: parent
                             radius: 4
@@ -563,7 +456,6 @@ Rectangle {
                             border.width: root.selectedIndex === index ? root.borderWidth * 2 : 0
                             border.color: root.selectedIndex === index ? root.selectedBorderColor : "transparent"
                         }
-
                         Rectangle {
                             anchors.fill: parent
                             anchors.margins: root.borderWidth
@@ -585,20 +477,16 @@ Rectangle {
                             }
                             Behavior on gradient { ColorAnimation { duration: 100 } }
                         }
-
                         Item {
                             anchors.centerIn: parent
                             visible: root.party.pokedexIds[index] >= 0
-
                             PokemonIcon {
-                                id: iconFrame
                                 anchors.centerIn: parent
                                 frameIndex: root.party.pokedexIds[index]-1
                                 iconScale: root.iconScale
                                 opacity: party.healthRatios[index] > 0 ? root.normalIconOpacity : root.faintedIconOpacity
                             }
                         }
-
                         Text {
                             anchors.centerIn: parent
                             visible: root.party.pokedexIds[index] < 0
@@ -609,20 +497,15 @@ Rectangle {
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
                         }
-
-                        NoCursorMouseArea {
+                        HoverableMouseArea {
                             anchors.fill: parent
-                            enabled: !root.forceSwitchMode ||
-                                     (root.selectedIndex !== index &&
-                                      root.party.pokedexIds[index] >= 0 &&
-                                      party.healthRatios[index] > 0)
+                            enabled: isEnabled
                             hoverTarget: switchItem
-                            hoverEffectEnabled: !isSelected && !isEmpty && !isDisabled  // No hover for selected/empty/disabled
+                            hoverEffectEnabled: isEnabled && !isSelected && !isEmpty
                             onClicked: {
                                 if(root.selectedIndex !== index &&
                                    root.party.pokedexIds[index] >= 0 &&
                                    party.healthRatios[index] > 0){
-                                    var oldIndex = root.selectedIndex
                                     root.selectedIndex = index
                                     root.switchChosen(index)
                                 }
@@ -639,7 +522,6 @@ Rectangle {
         Item {
             width: root.contentWidth
             height: root.contentHeight
-
             Grid {
                 id: grid
                 anchors.fill: parent
@@ -647,30 +529,24 @@ Rectangle {
                 columns: 2
                 rows: 2
                 spacing: root.gridSpacing
-
                 Repeater {
                     model: 4
-
                     Item {
                         id: ballItem
                         width: Math.floor((grid.width - root.gridSpacing) / 2)
                         height: Math.floor((grid.height - root.gridSpacing) / 2)
-
                         property bool ballEnabled: root.nrOfBalls[index] > 0
                         property bool hovered: false
                         property bool down: false
                         property color typeColor: PokeColor.typeColor("Normal")
-
                         scale: 1.0
                         Behavior on scale { NumberAnimation { duration: 100 } }
-
                         Rectangle {
                             anchors.fill: parent
                             radius: 4
                             color: ballEnabled ? root.borderColor : root.disabledBorderColor
                             opacity: ballEnabled ? root.enabledOpacity : root.disabledOpacity
                         }
-
                         Rectangle {
                             anchors.fill: parent
                             anchors.margins: root.borderWidth
@@ -682,11 +558,9 @@ Rectangle {
                             }
                             Behavior on gradient { ColorAnimation { duration: 100 } }
                         }
-
                         Row {
                             anchors.centerIn: parent
                             spacing: root.gridSpacing
-
                             Item {
                                 width: root.ballSpriteWidth * root.iconScale
                                 height: root.ballSpriteHeight * root.iconScale
@@ -694,19 +568,16 @@ Rectangle {
                                     source: root.ballSpriteSheet
                                     sourceClipRect: Qt.rect(0, root.ballSpriteHeight * index,
                                                            root.ballSpriteWidth, root.ballSpriteHeight)
-
                                     anchors.verticalCenter: parent.verticalCenter
                                     anchors.verticalCenterOffset: 1 * root.iconScale
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     width: root.ballSpriteWidth * root.iconScale
                                     height: root.ballSpriteHeight * root.iconScale
                                     opacity: ballEnabled ? 1.0 : 0.5
-
                                     smooth:false
                                     antialiasing:false
                                 }
                             }
-
                             Text {
                                 anchors.verticalCenter: parent.verticalCenter
                                 text: "×" + (ballEnabled ? (root.nrOfBalls[index] > 999 ? "∞" : root.nrOfBalls[index]) : "0")
@@ -716,14 +587,11 @@ Rectangle {
                                 color: root.menuTextColor
                             }
                         }
-
-                        NoCursorMouseArea {
+                        HoverableMouseArea {
                             anchors.fill: parent
                             enabled: ballEnabled
                             hoverTarget: ballItem
-                            onClicked: {
-                                root.actionRound(index, "Catch")
-                            }
+                            onClicked: root.actionRound(index, "Catch")
                         }
                     }
                 }
@@ -736,48 +604,34 @@ Rectangle {
         Item {
             width: root.contentWidth
             height: root.contentHeight
-
             Column {
                 anchors.fill: parent
                 anchors.margins: Math.floor(root.contentMarginsRatio * root.menuHeight)
                 spacing: Math.floor(root.gridSpacing / 2)
-
                 Repeater {
                     model: [
-                        {
-                            text: "Remove '" + root.opponentName + "'",
-                            action: function() { root.runChosen(true) }
-                        },
-                        {
-                            text: "Escape battle",
-                            action: function() { root.runChosen(false) }
-                        }
+                        { text: "Remove '" + root.opponentName + "'", action: function() { root.runChosen(true) } },
+                        { text: "Escape battle", action: function() { root.runChosen(false) } }
                     ]
-
                     Item {
                         id: runOptionItem
                         height: Math.floor((parent.height - root.gridSpacing / 2) / 2)
                         width: parent.width
-
                         property bool hovered: false
                         property bool down: false
-
                         scale: 1.0
                         Behavior on scale { NumberAnimation { duration: 100 } }
-
                         Rectangle {
                             anchors.fill: parent
                             radius: 20
                             border.color: root.borderColor
                             border.width: root.borderWidth
-
                             gradient: Gradient {
                                 GradientStop { position: 0; color: down ? PokeColor.darker(root.runButtonColor) : PokeColor.lighter(root.runButtonColor) }
                                 GradientStop { position: 1; color: down ? PokeColor.darker(PokeColor.darker(root.runButtonColor)) : PokeColor.darker(root.runButtonColor) }
                             }
                             Behavior on gradient { ColorAnimation { duration: 100 } }
                         }
-
                         Text {
                             text: modelData.text
                             color: root.menuTextColor
@@ -793,8 +647,7 @@ Rectangle {
                             wrapMode: Text.Wrap
                             maximumLineCount: 2
                         }
-
-                        NoCursorMouseArea {
+                        HoverableMouseArea {
                             anchors.fill: parent
                             hoverTarget: runOptionItem
                             onClicked: modelData.action()
@@ -821,36 +674,30 @@ Rectangle {
         id: selectionTemplate
         Item {
             property alias content: contentLoader.sourceComponent
-
             width: root.menuWidth
             height: root.menuHeight
             RowLayout {
                 anchors.fill: parent
                 anchors.margins: Math.floor(root.contentMarginsRatio * root.menuHeight)
                 spacing: Math.floor(root.contentMarginsRatio * root.menuWidth)
-
                 Item {
                     Layout.preferredWidth: root.backButtonWidth
                     Layout.fillHeight: true
                 }
-
                 Loader {
                     id: contentLoader
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                 }
-
                 Item {
                     Layout.preferredWidth: root.backButtonWidth
                     Layout.fillHeight: true
-
                     Loader {
                         sourceComponent: backButton
                         anchors.centerIn: parent
                     }
                 }
             }
-
         }
     }
 
@@ -860,9 +707,7 @@ Rectangle {
             width: root.menuWidth
             height: root.menuHeight
             sourceComponent: selectionTemplate
-            onLoaded: {
-                item.content = fightContent
-            }
+            onLoaded: item.content = fightContent
         }
     }
 
@@ -872,9 +717,7 @@ Rectangle {
             width: root.menuWidth
             height: root.menuHeight
             sourceComponent: selectionTemplate
-            onLoaded: {
-                item.content = switchContent
-            }
+            onLoaded: item.content = switchContent
         }
     }
 
@@ -884,9 +727,7 @@ Rectangle {
             width: root.menuWidth
             height: root.menuHeight
             sourceComponent: selectionTemplate
-            onLoaded: {
-                item.content = catchContent
-            }
+            onLoaded: item.content = catchContent
         }
     }
 
@@ -896,9 +737,7 @@ Rectangle {
             width: root.menuWidth
             height: root.menuHeight
             sourceComponent: selectionTemplate
-            onLoaded: {
-                item.content = runContent
-            }
+            onLoaded: item.content = runContent
         }
     }
 }

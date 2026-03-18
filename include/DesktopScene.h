@@ -11,16 +11,15 @@ public:
     virtual void direction(int direction) = 0;
     int m_currentDirection;
 
+private:
+    QCursor m_grabCursor;
+    QCursor m_pointerCursor;
 
 protected:
     bool m_isDragged = false;
     int m_width = -1;
     int m_height = -1;
     QPoint m_oldMousePos;
-
-    QCursor m_handCursor;
-    QCursor m_grabCursor;
-    QCursor m_pointerCursor;
 
     virtual void mousePressEvent(QMouseEvent* event) override;
     virtual void mouseReleaseEvent(QMouseEvent* event) override;
