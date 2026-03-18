@@ -50,8 +50,6 @@ Battler* BattleMoveHandler::createBattler(const PokemonState& state) {
     battler->pokeState.stats = PokeMath::calculatePokeStats(
         state.lvl,
         poke->base_stats,
-        state.ivs,
-        state.evs,
         PokeTypes::getNatureMultipliers(state.nature)
     );
 

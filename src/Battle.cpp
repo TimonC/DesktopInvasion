@@ -57,9 +57,7 @@ Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildS
     setupParty(party);
 
     int opponentHealth = PokeMath::calculateHealth(wildState.lvl,
-        Lookup::getPoke(wildState.pokedex_id)->base_stats[0],
-        wildState.ivs[0],
-        wildState.evs[0]);
+        Lookup::getPoke(wildState.pokedex_id)->base_stats[0]);
     int playerHealth = party.healthTotals[0];
     QMetaObject::invokeMethod(m_battleScene, "setInitialTotalHealth",
         Q_ARG(QVariant, opponentHealth),

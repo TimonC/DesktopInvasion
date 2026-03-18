@@ -31,7 +31,7 @@ Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
     connect(m_spawnTimer, &QTimer::timeout, this, &Game::spawnPokemon);
     m_spawnTimer->start();
 
-    handleMenuOpen();
+    /* handleMenuOpen(); */
 }
 
 Game::~Game() {
@@ -202,7 +202,7 @@ void Game::handleBattleStart() {
         battleParty.names[slot] = pokemon.name;
         battleParty.lvls[slot] = pokemon.lvl;
         battleParty.ballIds[slot] = pokemon.pokeball_id;
-        battleParty.healthTotals[slot] = PokeMath::calculateHealth(pokemon.lvl, Lookup::getPoke(pokemon.pokedex_id)->base_stats[0], 0, 0);
+        battleParty.healthTotals[slot] = PokeMath::calculateHealth(pokemon.lvl, Lookup::getPoke(pokemon.pokedex_id)->base_stats[0]);
 
         for (int moveSlot = 0; moveSlot<4; moveSlot++){
             int moveId = pokemon.moves[moveSlot];

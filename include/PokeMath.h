@@ -98,7 +98,6 @@ namespace PokeMath{
 
 // https://bulbapedia.bulbagarden.net/wiki/Catch_rate#Capture_method_(Generation_III-IV)
     inline uint32_t computeShakeThreshold(uint32_t a) {
-        // b = floor(65536 / sqrt(sqrt(255/a)))
         if (a == 0) return 0;
         if (a >= 255) return 65536; // Guaranteed
 
@@ -141,27 +140,25 @@ namespace PokeMath{
     }
 
 // https://bulbapedia.bulbagarden.net/wiki/Stat#Generation_III_onward
-    inline int calculateStat(int lvl, int base, int iv, int ev) {
-        return 5 + (lvl * (2 * base + iv + (ev >> 2))) / 100; // ev/4 using bit shift
+    inline int calculateStat(int lvl, int base, int iv=32) {
+        return 5 + (lvl * (2 * base + iv)) / 100; // ev/4 using bit shift
     }
 
-    inline int calculateHealth(int lvl, int base, int iv, int ev){
-        return 10 + lvl + (lvl * (2 * base + iv + (ev >> 2))) / 100;
+    inline int calculateHealth(int lvl, int base, int iv=32){
+        return 10 + lvl + (lvl * (2 * base + iv)) / 100;
     }
 
     inline std::array<int, 6> calculatePokeStats(
         int lvl,
         const int baseStats[6],
-        const int ivs[6],
-        const int evs[6],
         const std::array<int, 5>& nature
         ) {
             std::array<int, 6> result;
 
-            result[0] = calculateHealth(lvl, baseStats[0], ivs[0], evs[0]);
+            result[0] = calculateHealth(lvl, baseStats[0]);
             int baseStatsWithLevel[5];
             for (int i = 0; i < 5; ++i) {
-                baseStatsWithLevel[i] = calculateStat(lvl, baseStats[i + 1], ivs[i + 1], evs[i + 1]);
+                baseStatsWithLevel[i] = calculateStat(lvl, baseStats[i + 1]);
             }
 
             // Apply nature modifiers
