@@ -396,7 +396,7 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
 
     int accModifier = caster->battleState.statModifiers[5] + target->battleState.statModifiers[6];
     accModifier = std::min(std::max(accModifier,-6),6);
-    if (_move->stat_change_target==1 && !PokeMath::checkAccuracy(_move->accuracy, accModifier, m_rng)) {
+    if (_move->stat_change_target!=0 && !PokeMath::checkAccuracy(_move->accuracy, accModifier, m_rng)) {
         result.addEffect(BattleActionResult::MISS, caster, target);
         return result;
     }
@@ -455,19 +455,21 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
         int damage = PokeMath::calculateDamage(params, m_rng);
         result.addEffect(BattleActionResult::CHANGE_HEALTH, caster, target, damage);
 
-        if(isCritical) result.addEffect(BattleActionResult::CRITICAL, caster, target);
         int combinedEffectiveness = params.type1 * params.type2;
-        if (combinedEffectiveness > 10000) {
-            result.addEffect(BattleActionResult::SUPER_EFFECTIVE, caster, target);
-        } else if (combinedEffectiveness<10000 && combinedEffectiveness > 0) {
-            result.addEffect(BattleActionResult::NOT_VERY_EFFECTIVE, caster, target);
-        } else if (combinedEffectiveness==0){
+        if (combinedEffectiveness==0){
             result.addEffect(BattleActionResult::NO_EFFECT, caster, target);
-        }
+        }else{
+            if(isCritical) result.addEffect(BattleActionResult::CRITICAL, caster, target);
+            if (combinedEffectiveness > 10000) {
+                result.addEffect(BattleActionResult::SUPER_EFFECTIVE, caster, target);
+            } else if (combinedEffectiveness<10000 && combinedEffectiveness > 0) {
+                result.addEffect(BattleActionResult::NOT_VERY_EFFECTIVE, caster, target);
+            }
+            if (_move->drain > 0) {
 
-        if (_move->drain > 0) {
-            int drainAmount = damage * _move->drain / 100;
-            result.addEffect(BattleActionResult::DRAIN, caster, target, drainAmount);
+                int drainAmount = damage * _move->drain / 100;
+                result.addEffect(BattleActionResult::DRAIN, caster, target, drainAmount);
+            }
         }
 
         if (_move->healing > 0) {
