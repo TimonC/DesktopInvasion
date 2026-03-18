@@ -23,7 +23,8 @@ Item {
     property int statusBarHeight: Math.round(frameSize*1.2)
     property int buttonWidth: Math.round(frameSize * 2.25)
     property int buttonHeight: Math.round(frameSize * 0.75)
-    property int gridSpacing: Math.round(frameSize * 0.05)
+    property int gridSpacing: Math.round(frameSize * 0.08)
+    property int switchGridSpacing: Math.round(frameSize * 0.05)
     property int borderWidth: Math.max(1, Math.round(frameSize * 0.05))
 
     property int pokeNameFontSize: Math.round(9*scale)
@@ -260,6 +261,7 @@ Item {
         buttonWidth: root.buttonWidth
         buttonHeight: root.buttonHeight
         gridSpacing: root.gridSpacing
+        switchGridSpacing: root.switchGridSpacing
         borderWidth: root.borderWidth
         menuHeight: root.menuHeight
         menuWidth: root.menuWidth

@@ -13,6 +13,7 @@ Rectangle {
     property int buttonHeight: 0
     property double textBarHeightRatio: 0.9
     property int gridSpacing: 0
+    property int switchGridSpacing: 0
     property int borderWidth: 0
     property double contentMarginsRatio: 0.02
     property double backButtonWidthRatio: 0.1
@@ -460,13 +461,13 @@ Rectangle {
                 anchors.margins: Math.floor(root.contentMarginsRatio * root.menuHeight)
                 columns: 3
                 rows: 2
-                spacing: Math.floor(root.gridSpacing / 2)
+                spacing: Math.floor(root.switchGridSpacing / 2)
                 Repeater {
                     model: 6
                     Item {
                         id: switchItem
-                        width: Math.floor((parent.width - root.gridSpacing) / 3)
-                        height: Math.floor((parent.height - root.gridSpacing) / 2)
+                        width: Math.floor((parent.width - root.switchGridSpacing) / 3)
+                        height: Math.floor((parent.height - root.switchGridSpacing) / 2)
                         property bool hovered: false
                         property bool down: false
                         property color healthColor: root.party.pokedexIds[index] >= 0 ?
