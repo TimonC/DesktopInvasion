@@ -139,7 +139,6 @@ private:
     QVariantList generateSequenceFromResult(const BattleActionResult& result);
 
     QVariantList generateActionSequence(Battler& opponent, Battler& player, bool playerFirst, int switchedIn, int shakes);
-    void logActionSequence(const QVariantList& sequence);
 
     QVariantMap createTextAction(const QString& message, int delay);
     QVariantMap createAttackAction(const QString& role, int delay);

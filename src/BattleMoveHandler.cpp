@@ -203,7 +203,6 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
         s = generateSequenceFromResult(turnResult);
         s.append(createEndAction());
 
-        logActionSequence(s);
         emit actionSequenceReady(s);
 
     } else {
@@ -222,7 +221,6 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
             s.append(createEndAction());
         }
 
-        logActionSequence(s);
         emit actionSequenceReady(s);
     }
 }
@@ -700,50 +698,6 @@ QVariantList BattleMoveHandler::generateActionSequence(Battler& opponent, Battle
     return s;
 }
 
-void BattleMoveHandler::logActionSequence(const QVariantList& s) {
-    qDebug() << "========================================";
-    qDebug() << "       ACTION SEQUENCE LOG";
-    qDebug() << "========================================";
-    qDebug() << "Total actions:" << s.size();
-
-    for (int i = 0; i < s.size(); i++) {
-        QVariantMap action = s[i].toMap();
-        QString type = action["type"].toString();
-
-        qDebug() << "[" << i << "]" << type.toUpper();
-
-        if (type == "text") {
-            qDebug() << "    Message:" << action["message"].toString();
-            qDebug() << "    Delay:  " << action["delay"].toInt() << "ms";
-        }
-        else if (type == "attack") {
-            qDebug() << "    Role:   " << action["role"].toString();
-            qDebug() << "    Delay:  " << action["delay"].toInt() << "ms";
-        }
-        else if (type == "damage") {
-            qDebug() << "    Role:   " << action["role"].toString();
-            qDebug() << "    Delay:  " << action["delay"].toInt() << "ms";
-        }
-        else if (type == "change-health") {
-            qDebug() << "    Role:   " << action["role"].toString();
-            qDebug() << "    Amount: " << action["amount"].toInt();
-            qDebug() << "    Delay:  " << action["delay"].toInt() << "ms";
-        }
-        else if (type == "attempt-catch") {
-            qDebug() << "    Shakes: " << action["shakes"].toInt();
-        }
-        else if (type == "end") {
-            qDebug() << "    (End of sequence)";
-        }
-        else if (type == "status-condition") {
-            qDebug() << "    Role:   " << action["role"].toString();
-            qDebug() << "    Label:  " << action["label"].toString();
-            qDebug() << "    Remove: " << action["remove"].toBool();
-        }
-    }
-
-    qDebug() << "";
-}
 
 QString BattleMoveHandler::ailmentToApplicationText(Ailment ailment){
     switch(ailment) {

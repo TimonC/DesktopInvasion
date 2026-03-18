@@ -303,6 +303,31 @@ Item {
         }
         var step = root.actionSequence[root.currentActionIndex]
 
+        // Log the current step
+        var type = step.type || ""
+        var role = step.role || ""
+        var delay = step.delay || 0
+        var logStr = "→ [" + (root.currentActionIndex + 1) + "/" + root.actionSequence.length + "] " + type.toUpperCase()
+        if (role) logStr += " (" + role + ")"
+        if (delay > 0) logStr += " [" + delay + "ms]"
+        console.log(logStr)
+
+        // Optional: Add brief info for specific types
+        switch(type) {
+            case "text":
+                var msg = step.message || ""
+                if (msg) console.log("   '" + msg.substring(0, 40) + (msg.length > 40 ? "..." : "") + "'")
+                break
+            case "change-health":
+                var amount = step.amount || 0
+                console.log("   " + amount + " HP")
+                break
+            case "attempt-catch":
+                var shakes = step.shakes || 0
+                console.log("   " + shakes + " shakes")
+                break
+        }
+
         root.currentActionIndex++
         switch(step.type) {
             case "text":
@@ -330,7 +355,7 @@ Item {
                 battleMenu.party.healthRatios[battleMenu.selectedIndex] = currentHealthRatio
                 if(currentHealthRatio==0){
                     root.actionSequence = [
-                        {type: "lose-battle", message: target.name + " fainted!", role: step.role, delay: 2000 },
+                        {type: "lose-battle", message: target.name + " fainted!", role: step.role, delay: 1000 },
                         {type: "battle-over", role: step.role, delay: 100 }
                     ]
                     root.currentActionIndex = 0
@@ -432,7 +457,6 @@ Item {
                 root._battleEnded("PlayerWon", true)
         }
     }
-
     function showExperienceSpreadSequence(spread, lvlups) {
         var sequence = []
         for (var i = 0; i < 6; i++) {
@@ -456,6 +480,7 @@ Item {
 
     // End the action sequence
     function endActionChain() {
+        console.log("Action chain ended!\n")
         root.actionInProgress = false
         root.actionSequence = []
         root.currentActionIndex = 0
