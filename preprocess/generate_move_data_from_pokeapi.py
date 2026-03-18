@@ -125,6 +125,8 @@ def format_type_enum(type_name):
     """Convert type name to Type enum format (e.g., 'normal' -> 'Type::Normal')"""
     if not type_name:
         return 'Type::Null'
+    if type_name == "fairy":
+        type_name = "normal"
     return f'Type::{type_name.capitalize()}'
 
 def format_ailment_enum(ailment_name):
@@ -337,8 +339,8 @@ namespace {
         {meta['ailment_chance']},
         {meta['flinch_chance']},
         {meta['stat_chance']},
-        learned_by_{move_id},  // Pointer to static array
-        {learned_count}        // Size of array
+        learned_by_{move_id},
+        {learned_count}
     }};
 
 """
