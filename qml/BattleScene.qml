@@ -221,19 +221,21 @@ Item {
                 root.runChosen()
             })
         }
-        onSwitchChosen: function(partyId){
+        onSwitchChosen: function(oldPartyId, newPartyId){
+            battleMenu.party.healthRatios[oldPartyId] = statusBarPlayer.currentHealthRatio
+
             player.visible = false
-            player.updatePokemon(battleMenu.party.gens[partyId], battleMenu.party.spriteIds[partyId]);
-            let newPlayerName = battleMenu.party.names[partyId]
+            player.updatePokemon(battleMenu.party.gens[newPartyId], battleMenu.party.spriteIds[newPartyId]);
+            let newPlayerName = battleMenu.party.names[newPartyId]
 
             battleMenu.showTextBar()
             battleMenu.updateText("Go!" + " " + newPlayerName + "!")
 
             statusBarPlayer.pokeName = newPlayerName;
-            statusBarPlayer.currentHealthRatio = battleMenu.party.healthRatios[partyId];
+            statusBarPlayer.currentHealthRatio = battleMenu.party.healthRatios[newPartyId];
             statusBarPlayer.totalHealth = 100; //TODO
 
-            pokeBallPlayer.rowId = battleMenu.party.ballIds[partyId];
+            pokeBallPlayer.rowId = battleMenu.party.ballIds[newPartyId];
             root.firstChosen = false
             root.resetPlayerBall()
             var coords = calculateBallCoords(player)

@@ -22,7 +22,7 @@ Rectangle {
     signal attackChosen(int attackId)
     signal runChosen()
     signal catchChosen(int pokeId)
-    signal switchChosen(int partyIdx)
+    signal switchChosen(int oldPartyIdx, int newPartyIdx)
 
     property alias stack: stack
 
@@ -258,8 +258,10 @@ Rectangle {
                             MouseArea {
                                 anchors.fill: parent
                                 onClicked: {
-                                    root.selectedIndex = index
-                                    root.switchChosen(index)
+                                    if(root.selectedIndex !== index){
+                                        root.switchChosen(root.selectedIndex, index)
+                                        root.selectedIndex = index
+                                    }
                                 }
                             }
                         }
