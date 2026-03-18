@@ -15,9 +15,21 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Cache MinGW
+      id: mingw-cache
+      uses: actions/cache@v4
+      with:
+        path: C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64
+        key: ${{ runner.os }}-mingw-13.2.0
+
     - name: Setup MinGW
+      if: steps.mingw-cache.outputs.cache-hit != 'true'
       run: |
         choco install mingw --version=13.2.0 --allow-downgrade -y --force
+      shell: powershell
+
+    - name: Add MinGW to PATH
+      run: |
         echo "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin" >> $env:GITHUB_PATH
         New-Item -ItemType Directory -Force -Path "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\x86_64-w64-mingw32\lib" -ErrorAction SilentlyContinue
       shell: powershell
@@ -48,10 +60,7 @@ jobs:
     - name: Package
       shell: powershell
       run: |
-        # Create output folder
         New-Item -ItemType Directory -Force -Path output/DesktopInvasion-Windows
-
-        # Copy executable (CMake puts it in build/bin/)
         $exePath = "build/bin/DesktopInvasion.exe"
         if (Test-Path $exePath) {
           Copy-Item $exePath output/DesktopInvasion-Windows/
@@ -61,14 +70,9 @@ jobs:
           Get-ChildItem -Path build -Recurse
           exit 1
         }
-
-        # windeployqt is in PATH – run it directly
         windeployqt.exe --release --qmldir qml output/DesktopInvasion-Windows/DesktopInvasion.exe
-
-        # Find and copy MinGW runtime DLLs using the compiler's knowledge
         $dlls = @("libstdc++-6.dll", "libgcc_s_seh-1.dll", "libwinpthread-1.dll")
         foreach ($dll in $dlls) {
-          # Use g++ to print the full path of the DLL
           $dllPath = & g++ -print-file-name=$dll 2>$null
           if (Test-Path $dllPath) {
             Copy-Item $dllPath output/DesktopInvasion-Windows/
@@ -77,8 +81,6 @@ jobs:
             Write-Host "Warning: $dll not found"
           }
         }
-
-        # Create zip
         Compress-Archive -Path output\DesktopInvasion-Windows -DestinationPath DesktopInvasion-Windows.zip -Force
         Write-Host "Package created: DesktopInvasion-Windows.zip"
 

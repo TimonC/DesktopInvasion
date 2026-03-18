@@ -8,9 +8,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 set(BUILD_SHARED_LIBS ON)
 
-# Find Qt6 - let CMake handle the paths automatically
-# On GitHub Actions, Qt6_DIR is set by the install-qt-action
-# On local Docker builds, CMake will find it via CMAKE_PREFIX_PATH or default paths
+# Find Qt6
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick Widgets Sql)
 
 # Add Qt resources
@@ -20,19 +18,22 @@ qt6_add_resources(RESOURCES_RCC resources.qrc)
 file(GLOB_RECURSE ALL_SRC CONFIGURE_DEPENDS src/*.cpp)
 file(GLOB_RECURSE ALL_HEADERS CONFIGURE_DEPENDS include/*.h src/*.h)
 
+# Create executable FIRST
+add_executable(DesktopInvasion ${ALL_SRC} ${ALL_HEADERS} ${RESOURCES_RCC})
+
+# THEN set properties on the existing target
+set_target_properties(DesktopInvasion PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
+
 # Windows-specific settings
 if(WIN32)
-    # Set Windows subsystem (no console window)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mwindows")
-
-    # Handle application icon
     set(ICON_FILE "${CMAKE_SOURCE_DIR}/assets/icon/icon.ico")
     if(EXISTS ${ICON_FILE})
         set(RC_FILE "${CMAKE_CURRENT_BINARY_DIR}/app.rc")
         file(WRITE ${RC_FILE} "IDI_ICON1 ICON \"${ICON_FILE}\"\n")
         list(APPEND ALL_SRC ${RC_FILE})
-
-        # Enable RC compiler (for .ico files)
         set(CMAKE_RC_COMPILER_INIT windres)
         enable_language(RC)
     else()
@@ -40,9 +41,8 @@ if(WIN32)
     endif()
 endif()
 
-# macOS-specific settings
+# macOS-specific settings (now after target exists)
 if(APPLE)
-    # Set macOS bundle properties
     set_target_properties(DesktopInvasion PROPERTIES
         MACOSX_BUNDLE TRUE
         MACOSX_BUNDLE_BUNDLE_NAME "DesktopInvasion"
@@ -51,22 +51,18 @@ if(APPLE)
         MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/macos/Info.plist"
     )
 
-    # Handle application icon for macOS
     set(ICON_FILE "${CMAKE_SOURCE_DIR}/assets/icon/icon.icns")
     if(EXISTS ${ICON_FILE})
         set_source_files_properties(${ICON_FILE} PROPERTIES
             MACOSX_PACKAGE_LOCATION "Resources"
         )
-        list(APPEND ALL_SRC ${ICON_FILE})
+        target_sources(DesktopInvision PRIVATE ${ICON_FILE})
     else()
         message(WARNING "Icon file not found: ${ICON_FILE}")
     endif()
 endif()
 
-# Create executable
-add_executable(DesktopInvasion ${ALL_SRC} ${ALL_HEADERS} ${RESOURCES_RCC})
-
-# Precompile headers for faster builds
+# Precompile headers
 target_precompile_headers(DesktopInvasion PRIVATE
     <QtCore>
     <QtGui>
@@ -89,21 +85,6 @@ target_link_libraries(DesktopInvasion PRIVATE
     Qt6::Widgets
     Qt6::Sql
 )
-
-# Set output directory
-set_target_properties(DesktopInvasion PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-)
-
-# Optional: Add version information
-if(EXISTS "${CMAKE_SOURCE_DIR}/VERSION")
-    file(READ "${CMAKE_SOURCE_DIR}/VERSION" VERSION_STRING)
-    string(STRIP "${VERSION_STRING}" VERSION_STRING)
-    set_target_properties(DesktopInvasion PROPERTIES
-        VERSION "${VERSION_STRING}"
-        OUTPUT_NAME "DesktopInvasion"
-    )
-endif()
 
 # Print build configuration
 message(STATUS "Building DesktopInvasion")
