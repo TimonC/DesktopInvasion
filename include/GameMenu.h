@@ -21,6 +21,8 @@ public:
 
     void setDefaults(Defaults &d);
 
+    QQuickItem* m_menuRoot;
+
 signals:
     void menuClosed();
     void preloadBoxRequested(int boxIndex);  // QML -> Game

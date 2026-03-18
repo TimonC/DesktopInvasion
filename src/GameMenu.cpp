@@ -14,7 +14,8 @@ GameMenu::GameMenu()
     qDebug() << "GameMenu constructor called!";
     setFlags(Qt::Dialog
            | Qt::WindowTitleHint
-           | Qt::WindowCloseButtonHint
+           | Qt::WindowMinimizeButtonHint
+           | Qt::WindowMaximizeButtonHint
            /* | Qt::FramelessWindowHint */
            );
 
@@ -26,6 +27,7 @@ GameMenu::GameMenu()
         setSource(QUrl("../qml/qmlGameMenu/Menu.qml"));
     else
         setSource(QUrl("qrc:/qml/qmlGameMenu/Menu.qml"));
+    m_menuRoot = rootObject();
 
     m_grabCursor    = QCursor(QPixmap(":/assets/XY/grab.png"));
     m_pointerCursor = QCursor(QPixmap(":/assets/XY/pointer.png"), 6, 6);
@@ -48,9 +50,6 @@ GameMenu::GameMenu()
 bool GameMenu::event(QEvent* event) {
     if (event->type() == QEvent::WindowDeactivate || event->type() == QEvent::Close) {
         hide();
-
-        QQuickItem* m_menuRoot = rootObject();
-        assert(m_menuRoot);
         Globals::scale(m_menuRoot->property("spriteSize").toFloat());
         Globals::animationSpeed(m_menuRoot->property("battleSpeed").toFloat());
         Globals::encounterLvlHigh(m_menuRoot->property("encounterLevelHigh").toInt());
