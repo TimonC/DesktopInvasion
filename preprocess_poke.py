@@ -44,15 +44,62 @@ def analyze_frame_bounds(frame):
     return int(width), int(height), int(x_min), int(y_min)
 
 
-def calculate_center_offset(max_width, max_height, actual_width, actual_height, content_x, content_y):
-    """Calculate the offset needed to center the sprite content within its max bounds."""
-    extra_width = max_width - actual_width
-    extra_height = max_height - actual_height
+def calculate_sprite_bounds(frames):
+    """Calculate the union bounds of all frames in a sprite."""
+    min_x, min_y = float('inf'), float('inf')
+    max_x, max_y = float('-inf'), float('-inf')
 
-    offset_x = (extra_width // 2) - content_x
-    offset_y = (extra_height // 2) - content_y
+    for frame in frames:
+        width, height, x_min, y_min = analyze_frame_bounds(frame)
+        if width == 0 or height == 0:  # Skip empty frames
+            continue
+
+        x_max = x_min + width
+        y_max = y_min + height
+
+        min_x = min(min_x, x_min)
+        min_y = min(min_y, y_min)
+        max_x = max(max_x, x_max)
+        max_y = max(max_y, y_max)
+
+    if min_x == float('inf'):  # All frames empty
+        return 0, 0, 0, 0
+
+    union_width = max_x - min_x
+    union_height = max_y - min_y
+
+    return union_width, union_height, min_x, min_y
+
+
+def calculate_center_offset(frame_width, frame_height, content_width, content_height, content_x, content_y):
+    """Calculate the offset needed to center the sprite content within the frame."""
+    # How much extra space we have in the frame
+    extra_width = frame_width - content_width
+    extra_height = frame_height - content_height
+
+    # Where we want the content to start (centered)
+    desired_x = extra_width // 2
+    desired_y = extra_height // 2
+
+    # Offset = where we want it - where it currently is
+    offset_x = desired_x - content_x
+    offset_y = desired_y - content_y
 
     return offset_x, offset_y
+
+
+def apply_offset_to_frame(frame, offset_x, offset_y):
+    """Apply offset to center a frame's content."""
+    if offset_x == 0 and offset_y == 0:
+        return frame
+
+    # Create a new blank frame
+    new_frame = Image.new('RGBA', frame.size)
+
+    # Paste the original frame with the offset
+    new_frame.paste(frame, (offset_x, offset_y), frame)
+
+    return new_frame
 
 
 def extract_frame_block(img, col_idx, row_idx, frame_width, frame_height):
@@ -96,37 +143,29 @@ def process_image(image_path, n_rows, n_cols, frame_width, frame_height):
 
             # Only keep non-empty frame sets
             if has_visible_content(frames):
-                # Analyze bounds for all 8 frames in this sprite
-                max_width = 0
-                max_height = 0
-                max_content_x = 0
-                max_content_y = 0
+                # Calculate union bounds for all 8 frames in this sprite
+                union_width, union_height, union_x, union_y = calculate_sprite_bounds(frames)
 
-                for frame in frames:
-                    width, height, x_min, y_min = analyze_frame_bounds(frame)
-                    max_width = max(max_width, width)
-                    max_height = max(max_height, height)
-                    # Track the content offset of the largest frame
-                    if width == max_width and height == max_height:
-                        max_content_x = x_min
-                        max_content_y = y_min
+                if union_width > 0 and union_height > 0:  # Only process non-empty sprites
+                    # Calculate centering offset based on union bounds
+                    offset_x, offset_y = calculate_center_offset(
+                        frame_width, frame_height,
+                        union_width, union_height,
+                        union_x, union_y
+                    )
 
-                # Calculate centering offset
-                offset_x, offset_y = calculate_center_offset(
-                    frame_width, frame_height,
-                    max_width, max_height,
-                    max_content_x, max_content_y
-                )
+                    # Apply offset to all frames in this sprite
+                    centered_frames = [apply_offset_to_frame(frame, offset_x, offset_y) for frame in frames]
 
-                # Store metadata for this sprite row
-                metadata["rows"].append({
-                    "max_width": max_width,
-                    "max_height": max_height,
-                    "offset_x": offset_x,
-                    "offset_y": offset_y
-                })
+                    # Store metadata for this sprite row
+                    metadata["rows"].append({
+                        "union_width": union_width,
+                        "union_height": union_height,
+                        "offset_x": offset_x,
+                        "offset_y": offset_y
+                    })
 
-                all_rows.append(frames)
+                    all_rows.append(centered_frames)
 
     # Create output image
     new_width = 8 * frame_width

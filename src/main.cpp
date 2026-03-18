@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
     const int num_wild = 3;
     std::vector<std::unique_ptr<WildPokemon>> wildPokemon;
 
-    for (int i = 0; i < num_wild; ++i) {
+    for (int i = 1; i <= num_wild; ++i) {
         const PokemonInfo* pokemonInfo = Globals::getRandomPokemon();
         if (pokemonInfo) {
             wildPokemon.push_back(std::make_unique<WildPokemon>(pokemonInfo));

@@ -32,7 +32,7 @@ namespace Globals {
         return lookup[ids[randomIndex]];
     }
 
-    const PokemonInfo* findPokemonByPokedexId(int pokedexId) {
+    const PokemonInfo* getPokemonByPokedexId(int pokedexId) {
         static QHash<int, const PokemonInfo*> lookup = [](){
             QHash<int, const PokemonInfo*> map;
             for (int i = 0; i < kPokemonCount; ++i) {

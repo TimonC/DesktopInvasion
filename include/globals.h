@@ -12,7 +12,7 @@ namespace Globals {
     const QRect& screenGeometry();
     Player& getPlayer();
     const PokemonInfo* getRandomPokemon();
-    const PokemonInfo* findPokemonByPokedexId(int pokedexId);
+    const PokemonInfo* getPokemonByPokedexId(int pokedexId);
 
     const SpriteInfo* getSpriteInfo(int spriteId, int generation);
     QSize getSpriteSize(int spriteId, int generation);
