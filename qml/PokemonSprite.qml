@@ -16,8 +16,6 @@ Item {
     // Container properties
     property int itemWidth: 0
     property int itemHeight: 0
-    property int containerOffsetX: 0
-    property int containerOffsetY: 0
     property bool clickable: true
     property bool debugLines: false
     property string name: "emptyname"

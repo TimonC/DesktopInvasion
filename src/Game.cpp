@@ -157,7 +157,7 @@ void Game::spawnPokemon() {
 
         std::uniform_int_distribution<int> dist(1, 493);
         /* int pokedexId = dist(m_rng); */
-        int pokedexId = 487;
+        int pokedexId = 493;
         const Poke* wildPoke = Globals::getPoke(pokedexId);
 
         wildState = {};
@@ -370,8 +370,8 @@ void Game::createInitialPokemon() {
     }
 
     PokemonState dusknoir;
-    dusknoir.pokedex_id = 477;
-    dusknoir.name = "Dusknoir";
+    dusknoir.pokedex_id = 487;
+    dusknoir.name = "Giratina";
     dusknoir.pokeball_id = 2;
 
     for (int i = 0; i < 6; i++) {

@@ -177,7 +177,13 @@ for poke_id in range(1, MAX_POKEMON_ID + 1):
     poke_data = json.loads(contents.decode('utf-8'))
 
     types = extract_types(poke_data.get('types', []))
-    base_stats = extract_base_stats(poke_data.get('stats', []))
+
+    if poke_id == 487: #For Giratina use origin form base stats
+        #https://bulbapedia.bulbagarden.net/wiki/Giratina_(Pok%C3%A9mon)#Origin_Forme
+        base_stats = ["150", "120", "100", "120", "100", "90"]
+    else:
+        base_stats = extract_base_stats(poke_data.get('stats', []))
+
     eligible_moves = extract_eligible_moves(poke_data.get('moves', []))
     base_experience = poke_data.get('base_experience', 0)
 

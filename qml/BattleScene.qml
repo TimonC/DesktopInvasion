@@ -74,7 +74,7 @@ Item {
                 sprite.statusBar.y = sprite.y
                 break
             case 1:
-                sprite.x = root.width - (sprite.containerOffsetX + sprite.width)
+                sprite.x = root.width - root.frameSize/2 - root.statusBarWidth/2 - sprite.width/2
                 sprite.y = root.height - (sprite.height + menuHeight)
                 sprite.statusBar.x = root.width - root.frameSize/2 - root.statusBarWidth
                 sprite.statusBar.y = 0
@@ -86,7 +86,7 @@ Item {
                 sprite.statusBar.y = sprite.y
                 break
             case 3:
-                sprite.x = sprite.containerOffsetX
+                sprite.x = root.frameSize/2 + root.statusBarWidth/2 - sprite.width/2
                 sprite.y = root.height - (sprite.height + menuHeight)
                 sprite.statusBar.x = root.frameSize/2
                 sprite.statusBar.y = 0

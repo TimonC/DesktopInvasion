@@ -132,7 +132,7 @@ QQuickItem* Battle::setupPokemon(int pokedexId, std::string name, int level, con
 QQuickItem* Battle::updateSprite(int pokedexId, const char* role){
     const asset_info* info = Globals::getSpriteInfo(pokedexId);
     bool isBig = info->spriteSheet == SpriteSheet::Big;
-    float scaleDivisor = isBig ? sqrt(2) : 1;
+    float scaleDivisor = isBig ? 1.5 : 1;
 
     QQuickItem* pokemonSprite = m_battleScene->property(role).value<QQuickItem*>();
 
@@ -149,16 +149,9 @@ QQuickItem* Battle::updateSprite(int pokedexId, const char* role){
     int width = (Globals::SCALE / scaleDivisor) * (info->width + Globals::POKE_PADDING);
     int height = (Globals::SCALE / scaleDivisor) * (info->height + Globals::POKE_PADDING);
 
-    // Calculate offsets - use the actual sprite frame size (64 for big, 32 for normal)
-    int frameSize = isBig ? 64 : 32;
-    int offsetX = (Globals::SCALE / scaleDivisor) * (frameSize - info->width) / 2;
-    int offsetY = (Globals::SCALE / scaleDivisor) * (frameSize - info->height) / 2;
 
-    // Set pokemonSprite properties
     pokemonSprite->setProperty("itemWidth", width);
     pokemonSprite->setProperty("itemHeight", height);
-    pokemonSprite->setProperty("containerOffsetX", offsetX);
-    pokemonSprite->setProperty("containerOffsetY", offsetY);
     pokemonSprite->setProperty("frameWidth", isBig ? 64 : 32);
     pokemonSprite->setProperty("frameHeight", isBig ? 64 : 32);
 
