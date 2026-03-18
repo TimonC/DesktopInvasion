@@ -8,8 +8,6 @@ Item {
     property alias currentHealthRatio: progressBar.value
     property real animationSpeed: 1000
     property int pokeNameFontSize: 0
-    width: 32*2
-    height: 22
     property alias pokeName: textBarText.text
 
     Rectangle {

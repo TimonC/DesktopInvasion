@@ -8,18 +8,22 @@ Item {
 
     // Properties
     property int frameSize: 32
+
+    property int menuWidth: frameSize * 5
+    property int menuHeight: 50
+    property int statusBarWidth: frameSize*2.5
+    property int statusBarHeight: 25
     property int buttonWidth: frameSize * 2
     property int buttonHeight: frameSize * 0.75
     property int gridSpacing: frameSize * 0.1
-    property int pokeMargin: frameSize * 0.25
-    property bool debugLines: false
-    property int menuHeight: 50
-    property int menuWidth: frameSize * 5
-    property int direction: 0
 
     property int pokeNameFontSize: frameSize * 0.4
     property int buttonFontSize: frameSize * 0.4
     property int textBarFontSize: frameSize * 0.45
+
+    property bool debugLines: false
+    property int direction: 0
+
 
     property alias opponent: opponent
     property alias player: player
@@ -71,6 +75,8 @@ Item {
     StatusBar {
         id: statusBarOpponent
         pokeNameFontSize: root.pokeNameFontSize
+        width: root.statusBarWidth
+        height: root.statusBarHeight
     }
 
     PokemonSprite {
@@ -86,6 +92,8 @@ Item {
     StatusBar {
         id: statusBarPlayer
         pokeNameFontSize: root.pokeNameFontSize
+        width: root.statusBarWidth
+        height: root.statusBarHeight
     }
 
     PokemonSprite {
@@ -190,8 +198,6 @@ Item {
 
     //Relative positioning of elements
     function positionSpriteAndStatusBar(sprite) {
-        var margin = root.pokeMargin;
-
         // Clear all anchors first
         sprite.statusBar.anchors.left = undefined
         sprite.statusBar.anchors.right = undefined
@@ -200,28 +206,28 @@ Item {
 
         switch(sprite.direction) {
             case 0:
-                sprite.x = margin + sprite.containerOffsetX;
-                sprite.y = root.height - (menuHeight + margin + sprite.containerOffsetY + sprite.height);
-                sprite.statusBar.x = 3*32 - margin
+                sprite.x = sprite.containerOffsetX;
+                sprite.y = root.height - (menuHeight + sprite.containerOffsetY + sprite.height);
+                sprite.statusBar.x = root.width - root.statusBarWidth
                 sprite.statusBar.y = sprite.y
                 break;
             case 1:
-                sprite.x = root.width - (margin + sprite.containerOffsetX + sprite.width);
-                sprite.y = root.height - (menuHeight + margin + sprite.height);
-                sprite.statusBar.x = root.width - 32*2.5 - margin
-                sprite.statusBar.y = (root.height - menuHeight - 3*32)/2
+                sprite.x = root.width - (sprite.containerOffsetX + sprite.width);
+                sprite.y = root.height - (menuHeight + sprite.height);
+                sprite.statusBar.x = root.width - root.frameSize*2.5
+                sprite.statusBar.y = (root.height - menuHeight - 3*root.frameSize)/2
                 break;
             case 2:
-                sprite.x = margin + sprite.containerOffsetX;
-                sprite.y = margin + sprite.containerOffsetY;
-                sprite.statusBar.x = 3*32 - margin
+                sprite.x = sprite.containerOffsetX;
+                sprite.y = sprite.containerOffsetY;
+                sprite.statusBar.x = root.width - root.statusBarWidth
                 sprite.statusBar.y = sprite.y
                 break;
             case 3:
-                sprite.x = margin + sprite.containerOffsetX;
-                sprite.y = root.height - (menuHeight + margin + sprite.height);
-                sprite.statusBar.x = 32/2 + margin
-                sprite.statusBar.y = (root.height - menuHeight - 3*32)/2
+                sprite.x = sprite.containerOffsetX;
+                sprite.y = root.height - (menuHeight + sprite.height);
+                sprite.statusBar.x = root.frameSize/2
+                sprite.statusBar.y = (root.height - menuHeight - 3*root.frameSize)/2
                 break;
         }
 
@@ -392,8 +398,8 @@ Item {
 
 
     function calculateBallCoords(sprite){
-            var x1 = sprite.x + (sprite.width / 2) - (32/4);
-            var x0 = x1 + 2*(sprite.direction==1 ? -32 : 32);
+            var x1 = sprite.x + (sprite.width / 2) - (root.frameSize/4);
+            var x0 = x1 + 2*(sprite.direction==1 ? -root.frameSize : root.frameSize);
             // Y positions
             var y0 = Math.max(0, sprite.y - pokeBallOpponent.frameHeight);
             var y1 = sprite.y + sprite.height - pokeBallOpponent.frameHeight;
