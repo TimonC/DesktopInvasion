@@ -36,6 +36,9 @@ int main(int argc, char *argv[]) {
     // Set organization and application name for proper data paths
     QCoreApplication::setOrganizationName("DesktopInvasion");
     QCoreApplication::setApplicationName("DesktopInvasion");
+    QIcon icon;
+    icon = QIcon(":/assets/icon/icon.png");
+    app.setWindowIcon(icon);
 
 
     // Load fonts from QRC once at app startup

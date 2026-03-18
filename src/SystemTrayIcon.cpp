@@ -6,8 +6,8 @@ SystemTrayIcon::SystemTrayIcon(QObject *parent)
     : QSystemTrayIcon(parent)
     , m_gameActive(true)
     , m_clickEnabled(true)
-    , m_activeIcon(":/assets/HGSS/PokeballIcon.png")
-    , m_inactiveIcon(":/assets/HGSS/PokeballIcon_grayscale.png")
+    , m_activeIcon(":/assets/icon/icon.png")
+    , m_inactiveIcon(":/assets/icon/icon_transparent.png")
 {
     setIcon(m_activeIcon);
     setVisible(true);

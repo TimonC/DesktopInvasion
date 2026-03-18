@@ -32,6 +32,8 @@ Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
     m_spawnTimer->setInterval(m_spawnDelay_ms);
     connect(m_spawnTimer, &QTimer::timeout, this, &Game::spawnPokemon);
 
+    writeDefaults();
+
     initMenu();
     /* m_spawnTimer->start(); */
     m_spawnTimer->stop();
@@ -128,7 +130,11 @@ QVariantMap Game::pokemonToMenuState(int slot, const PokemonState &p){
     for (const auto& e : eligible) {
         const Move* _move = Lookup::getMove(e.move_id);
         QVariantMap moveData;
+<<<<<<< HEAD
         moveData["id"]       = e.move_id;          // needed for requestMoveChange
+=======
+        moveData["id"]       = e.move_id;
+>>>>>>> refs/rewritten/moves
         std::string name = _move->name;
         if (name.length() > 10) {
             name.erase(std::remove(name.begin(), name.end(), '-'), name.end());
