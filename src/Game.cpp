@@ -73,9 +73,12 @@ void Game::setGameActive(bool active) {
     m_gameUsedToBeActive = active;
 
     processing = true;
-    if (active) {
-        spawnPokemon();
-    } else {
+
+    if (active){
+            // Singleshot to ensure we're in next event loop iteration
+        QTimer::singleShot(0, this, &Game::spawnPokemon);
+    }
+    else{
         if (m_activeBattle) {
             m_activeBattle->setSceneVisibility(false);
             updateWildPokemonPosToBattlePos();
@@ -87,6 +90,8 @@ void Game::setGameActive(bool active) {
             m_wildPokemon->deleteLater();
             m_wildPokemon = nullptr;
         }
+            //Wait for deletions to complete
+        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
     }
     processing = false;
 }

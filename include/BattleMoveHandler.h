@@ -1,12 +1,12 @@
 #ifndef BATTLEMOVEHANDLER_H
 #define BATTLEMOVEHANDLER_H
 
+#include <QObject>
 #include <move_data.h>
 
 struct Static{
-    int id;
-    Type types[2];
     int stats[6];
+    Type types[2];
     Move moves[4];
 };
 
@@ -18,15 +18,26 @@ struct State{
 struct Poke{
     Static pokeStatic;
     State pokeState;
+    void applyMove(int moveIndex);
 };
 
-class BattleMoveHandler{
+class BattleMoveHandler : public QObject{
+    Q_OBJECT
+
 public:
     BattleMoveHandler(int opponentId, int partyIds[6]);
+    void setChosenPoke(int partyIndex);
+    void startActionRound(int playerMoveIndex);
+
+signals:
+    void actionRoundOver(State& opponentState, State& chosenState);
+
 private:
     WeatherCondition weatherCondition;
     Poke opponent;
-    Poke chosen;
+    Poke& chosen;
+    Poke party[6];
+    int partyPokemonSentOut[6];
 };
 
 #endif

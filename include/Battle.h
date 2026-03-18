@@ -7,8 +7,8 @@
 #include <WildPokemon.h>
 #include <qtmetamacros.h>
 
-class Battle : public DesktopScene
-{
+class Battle : public DesktopScene{
+
     Q_OBJECT
 public:
     explicit Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent = nullptr);
