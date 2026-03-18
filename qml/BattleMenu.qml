@@ -556,12 +556,10 @@ Rectangle {
                     model: [
                         {
                             text: "Remove '" + root.opponentName + "'",
-                            color: "blue",
                             action: function() { root.runChosen(true) }
                         },
                         {
                             text: "Escape battle",
-                            color: "blue",
                             action: function() { root.runChosen(false) }
                         }
                     ]
@@ -569,11 +567,14 @@ Rectangle {
                     Rectangle {
                         height: parent.height
                         width: parent.width / 2 - parent.spacing / 2
-                        color: modelData.color
                         radius: 20
                         border.color: root.borderColor
                         border.width: root.borderWidth
 
+                        gradient: Gradient {
+                            GradientStop { position: 0; color: PokeColor.lighter("blue") }
+                            GradientStop { position: 1; color: PokeColor.darker("blue") }
+                        }
                         Text {
                             text: modelData.text
                             color: root.menuTextColor
