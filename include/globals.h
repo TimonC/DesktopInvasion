@@ -2,15 +2,17 @@
 #define GLOBALS_H
 
 #include <QRect>
-#include "Player.h"
-#include <QGuiApplication>
+#include <Player.h>
 
-extern bool DEBUG;
+struct PokemonInfo;
 
-const QRect& screenGeometry();
+namespace Globals {
+    extern bool DEBUG;
 
-Player& getPlayer();
-const PokemonInfo* getRandomPokemon();
-const PokemonInfo* findPokemonByPokedexId(int pokedexId);
+    const QRect& screenGeometry();
+    Player& getPlayer();
+    const PokemonInfo* getRandomPokemon();
+    const PokemonInfo* findPokemonByPokedexId(int pokedexId);
+}
 
 #endif

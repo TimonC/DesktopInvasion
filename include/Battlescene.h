@@ -11,30 +11,31 @@ class Battlescene : public QQuickView
 
 public:
     Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent = nullptr);
-
-    void updateTextbar(const std::string& text); // Make sure this signal exists
+    void updateTextbar(const std::string& text);
     QQuickView* initCorners();
     QQuickView *m_corners = nullptr;
+
 private slots:
     void run();
     void attack();
+
 protected:
     void mousePressEvent(QMouseEvent* event) override;
-    void mouseMoveEvent(QMouseEvent*  event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
+
 private:
     void initPosition();
+    void drag(QPoint& delta);
+
     QPoint m_cornerSize;
     bool m_dragging = false;
-    void drag(QPoint& delta);
     Pokemon* m_chosen;
     Pokemon* m_opp;
     QPoint m_origin;
-    QPoint m_oldpos;
+    QPointF m_oldpos;
+    QPointF m_smoothedPos;
     int m_direction;
     QQuickItem *m_ui = nullptr;
-
-
-    QPointF m_smoothedPos = QPointF(0, 0);
     const double SMOOTHING_FACTOR = 0.3;
 };
 

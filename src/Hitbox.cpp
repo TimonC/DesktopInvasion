@@ -14,7 +14,7 @@ Hitbox::Hitbox(QWindow *parent)
     setColor(Qt::transparent);
 
     QQuickItem* hitbox_sprite = rootObject();
-    hitbox_sprite->setProperty("debugLines", DEBUG);
+    hitbox_sprite->setProperty("debugLines", Globals::DEBUG);
 
     m_mouseArea = hitbox_sprite->property("mouseArea").value<QQuickItem*>();
     m_battleButton = hitbox_sprite->property("battleButton").value<QQuickItem*>();

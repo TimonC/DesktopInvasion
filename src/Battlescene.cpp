@@ -2,6 +2,7 @@
 #include "globals.h"
 #include <QQuickItem>
 #include <qnamespace.h>
+#include <QMouseEvent>
 
 Battlescene::Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent)
     : QQuickView(parent)
@@ -22,14 +23,13 @@ Battlescene::Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent)
     QQuickItem *ui = rootObject();
     m_ui = ui;
 
-    m_ui->setProperty("debugLines", DEBUG);
+    m_ui->setProperty("debugLines", Globals::DEBUG);
 
     QQuickItem* runButton = ui->property("runButton").value<QQuickItem*>();
-    connect(runButton,  SIGNAL(clicked()), this, SLOT(run()));
+    connect(runButton, SIGNAL(clicked()), this, SLOT(run()));
 
     QQuickItem* attackButton = ui->property("attackButton").value<QQuickItem*>();
-    connect(attackButton,  SIGNAL(clicked()), this, SLOT(attack()));
-
+    connect(attackButton, SIGNAL(clicked()), this, SLOT(attack()));
 
     initPosition();
 
@@ -40,7 +40,7 @@ Battlescene::Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent)
 
 void Battlescene::initPosition(){
     int distance = m_opp->direction()%2==0 ? 3*33 : 4*33;
-    switch(m_opp->direction()) { //Very bad no good ugly manually-tuned positioning for the Battlescene
+    switch(m_opp->direction()) {
         case 0:
             m_origin = m_opp->position() + QPoint(25, -m_ui->height()/2 + 30);
             m_chosen->setPosition(m_opp->position() + QPoint(0, -distance));
@@ -63,7 +63,6 @@ void Battlescene::initPosition(){
             break;
     }
 
-    // Set m_chosen side
     QMetaObject::invokeMethod(m_ui, "set_chosen_side", Q_ARG(QVariant, m_opp->direction()));
     QMetaObject::invokeMethod(m_ui, "swap_visibility");
     QMetaObject::invokeMethod(m_ui, "swap_visibility");
@@ -74,11 +73,9 @@ void Battlescene::initPosition(){
 void Battlescene::run(){
     setVisible(false);
     m_corners->hide();
-
     m_chosen->setVisible(false);
     m_chosen->m_inABattle = false;
-    getPlayer().m_pokemonAvailable = true;
-
+    Globals::getPlayer().m_pokemonAvailable = true;
     m_opp->startRoaming();
 }
 
@@ -92,7 +89,7 @@ void Battlescene::updateTextbar(const std::string &text){
         QString qText = QString::fromStdString(text);
         QMetaObject::invokeMethod(m_ui, "update_text_bar", Q_ARG(QVariant, qText));
     }
-};
+}
 
 QQuickView* Battlescene::initCorners(){
     int lft = std::min(m_opp->position().x(), m_chosen->position().x());
@@ -118,22 +115,19 @@ QQuickView* Battlescene::initCorners(){
     corners->setHeight(boxHeight);
 
     m_cornerSize = QPoint(boxWidth, boxHeight);
-
-    corners->rootObject()->setProperty("debugLines", DEBUG);
+    corners->rootObject()->setProperty("debugLines", Globals::DEBUG);
     corners->show();
 
     return corners;
 }
 
 void Battlescene::mousePressEvent(QMouseEvent* event) {
-  if (event->button() == Qt::LeftButton) {
-        m_oldpos = event->globalPosition().toPoint();
+    if (event->button() == Qt::LeftButton) {
+        m_oldpos = event->globalPosition();
         m_dragging = true;
-        m_smoothedPos = QPointF(event->globalPosition().toPoint());
+        m_smoothedPos = event->globalPosition();
 
-
-        // Check if click is on any button
-        QPoint localPos = mapFromGlobal(m_oldpos);
+        QPoint localPos = mapFromGlobal(m_oldpos.toPoint());
         QQuickItem* runButton = m_ui->property("runButton").value<QQuickItem*>();
         QQuickItem* attackButton = m_ui->property("attackButton").value<QQuickItem*>();
         QQuickItem* switchButton = m_ui->property("switchButton").value<QQuickItem*>();
@@ -150,22 +144,19 @@ void Battlescene::mousePressEvent(QMouseEvent* event) {
 
 void Battlescene::mouseMoveEvent(QMouseEvent* event) {
     if (m_dragging && (event->buttons() & Qt::LeftButton)) {
-        QPoint currentPos = event->globalPosition().toPoint();
-        QPointF currentPosF(currentPos);  // Convert to QPointF
+        QPointF currentPos = event->globalPosition();
+        m_smoothedPos = m_smoothedPos * (1.0 - SMOOTHING_FACTOR) + currentPos * SMOOTHING_FACTOR;
+        QPointF delta = m_smoothedPos - m_oldpos;
 
-        // Apply exponential smoothing with consistent types
-        m_smoothedPos = m_smoothedPos * (1.0 - SMOOTHING_FACTOR) + currentPosF * SMOOTHING_FACTOR;
-
-        QPoint smoothedInt = m_smoothedPos.toPoint();
-        QPoint delta = smoothedInt - m_oldpos;
-
-        drag(delta);
-        m_oldpos = smoothedInt;
+        QPoint intDelta(qRound(delta.x()), qRound(delta.y()));
+        if (intDelta.x() != 0 || intDelta.y() != 0) {
+            drag(intDelta);
+            m_oldpos = m_smoothedPos;
+        }
     }
 }
 
 void Battlescene::drag(QPoint& delta){
-    // Reject tiny/huge deltas first
     const int MIN_DELTA = 2;
     const int MAX_DELTA = 200;
     if ((qAbs(delta.x()) < MIN_DELTA && qAbs(delta.y()) < MIN_DELTA) ||
@@ -174,22 +165,21 @@ void Battlescene::drag(QPoint& delta){
     }
 
     QPoint newCornersPos = m_corners->position() + delta;
-
-    // Calculate allowed movement directly
     int allowedX = 0;
     int allowedY = 0;
 
-    if (newCornersPos.x() >= screenGeometry().x() &&
-        newCornersPos.x() + m_corners->width() <= screenGeometry().right()) {
+    const QRect& screen = Globals::screenGeometry();
+
+    if (newCornersPos.x() >= screen.x() &&
+        newCornersPos.x() + m_corners->width() <= screen.right()) {
         allowedX = delta.x();
     }
 
-    if (newCornersPos.y() >= screenGeometry().y() &&
-        newCornersPos.y() + m_corners->height() <= screenGeometry().bottom()) {
+    if (newCornersPos.y() >= screen.y() &&
+        newCornersPos.y() + m_corners->height() <= screen.bottom()) {
         allowedY = delta.y();
     }
 
-    // Single assignment
     QPoint actualDelta(allowedX, allowedY);
 
     if (actualDelta.x() != 0 || actualDelta.y() != 0) {

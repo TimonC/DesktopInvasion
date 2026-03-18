@@ -11,6 +11,8 @@ Pokemon::Pokemon(const PokemonInfo* info, QWindow *parent)
     , m_currentDirection(0)
     , m_scaleFactor(3)
 {
+    qDebug() << "Pokémon 1:" << "#" << info->pokedexId << "-" << info->name;
+
     m_row = info->spriteId;
 
     setFlags( Qt::WindowStaysOnTopHint
@@ -24,7 +26,7 @@ Pokemon::Pokemon(const PokemonInfo* info, QWindow *parent)
     m_sprite = rootObject();
     m_sprite->setProperty("scaleFactor", m_scaleFactor);
     m_sprite->setProperty("row", m_row);
-    m_sprite->setProperty("debugLines", DEBUG);
+    m_sprite->setProperty("debugLines", Globals::DEBUG);
 
     // Set random spritesheet here
     QString randomSpriteSheet = getSpriteSheet();

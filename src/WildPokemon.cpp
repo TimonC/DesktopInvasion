@@ -20,7 +20,9 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
 {
 
     m_hitbox->offset =QPoint(width()/3.2, height()/2.8);
-    movePos(QPoint(screenGeometry().width()/2, screenGeometry().height()/2));
+
+    const QRect& screen = Globals::screenGeometry();
+    movePos(QPoint(screen.width()/2, screen.height()/2));
 
     connect(m_hitbox, &Hitbox::drag, this, [this](QPoint delta){
             movePos(delta);
@@ -64,7 +66,7 @@ void WildPokemon::handleDoubleClick(){
 
     m_sprite->setProperty("jumping", true);
 
-    if(getPlayer().m_pokemonAvailable)
+    if(Globals::getPlayer().m_pokemonAvailable)
         m_hitbox->showButton();
 
     QTimer::singleShot(5000, this, [this]() {
@@ -80,9 +82,9 @@ void WildPokemon::startBattle(){
     m_hitbox->hide();
 
     const int BOUNDARY_MARGIN = 14;
-
-    int screenRight = screenGeometry().x() + screenGeometry().width();
-    int screenBottom = screenGeometry().y() + screenGeometry().height();
+    const QRect& screen = Globals::screenGeometry();
+    int screenRight = screen.x() + screen.width();
+    int screenBottom = screen.y() + screen.height();
 
     QPoint delta(0, 0);
 
@@ -110,7 +112,7 @@ void WildPokemon::startBattle(){
         movePos(delta);
     }
 
-    getPlayer().iChooseYou(this);
+    Globals::getPlayer().iChooseYou(this);
 }
 
 void WildPokemon::makeRandomDecision(){

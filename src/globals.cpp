@@ -1,47 +1,49 @@
 #include "globals.h"
 #include "Player.h"
 #include <QGuiApplication>
-#include <QWindow>
+#include <QHash>
 #include <cstdlib>
+#include <cassert>
 
-bool DEBUG = false;
+namespace Globals {
+    bool DEBUG = false;
 
-const QRect& screenGeometry() {
-    static const QRect geometry = QGuiApplication::primaryScreen()->availableGeometry();
-    return geometry;
-}
-
-Player& getPlayer() {
-    static std::unique_ptr<Player> player = std::make_unique<Player>();
-    return *player;
-}
-
-const PokemonInfo* getRandomPokemon() {
-    // Get all unique pokedex IDs
-    QSet<int> availablePokedexIds;
-    for (int i = 0; i < kPokemonCount; ++i) {
-        availablePokedexIds.insert(kPokemonList[i].pokedexId);
+    const QRect& screenGeometry() {
+        static const QRect geometry = QGuiApplication::primaryScreen()->availableGeometry();
+        return geometry;
     }
 
-    QList<int> pokedexIdList = availablePokedexIds.values();
-
-    if (pokedexIdList.isEmpty()) {
-        qFatal("No available Pokemon pokedex IDs found!");
+    Player& getPlayer() {
+        static Player player;
+        return player;
     }
 
-    // Pick random pokedex ID
-    int randomIndex = std::rand() % pokedexIdList.size();
-    int randomPokedexId = pokedexIdList[randomIndex];
+    const PokemonInfo* getRandomPokemon() {
+        static QHash<int, const PokemonInfo*> lookup = [](){
+            QHash<int, const PokemonInfo*> map;
+            for (int i = 0; i < kPokemonCount; ++i) {
+                map[kPokemonList[i].pokedexId] = &kPokemonList[i];
+            }
+            return map;
+        }();
 
-    return findPokemonByPokedexId(randomPokedexId);
-}
-
-const PokemonInfo* findPokemonByPokedexId(int pokedexId) {
-    for (int i = 0; i < kPokemonCount; ++i) {
-        if (kPokemonList[i].pokedexId == pokedexId) {
-            return &kPokemonList[i];
-        }
+        QList<int> ids = lookup.keys();
+        assert(!ids.isEmpty());
+        int randomIndex = std::rand() % ids.size();
+        return lookup[ids[randomIndex]];
     }
-    qFatal("Pokemon with pokedexId %d not found!", pokedexId);
-    return nullptr;
+
+    const PokemonInfo* findPokemonByPokedexId(int pokedexId) {
+        static QHash<int, const PokemonInfo*> lookup = [](){
+            QHash<int, const PokemonInfo*> map;
+            for (int i = 0; i < kPokemonCount; ++i) {
+                map[kPokemonList[i].pokedexId] = &kPokemonList[i];
+            }
+            return map;
+        }();
+
+        auto it = lookup.constFind(pokedexId);
+        assert(it != lookup.constEnd());
+        return it.value();
+    }
 }
