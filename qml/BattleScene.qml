@@ -151,6 +151,7 @@ Item {
         width: root.statusBarWidth
         height: root.statusBarHeight
         animationSpeed: root.animationSpeed
+        statusBarRadius: 4*root.scale
     }
     PokemonSprite {
         id: opponent
@@ -169,6 +170,7 @@ Item {
         width: root.statusBarWidth
         height: root.statusBarHeight
         animationSpeed: root.animationSpeed
+        statusBarRadius: 4*root.scale
     }
     PokemonSprite {
         id: player

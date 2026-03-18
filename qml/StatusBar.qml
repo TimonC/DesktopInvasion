@@ -18,6 +18,7 @@ Item {
     property int subTextFontSize: pokeNameFontSize*0.9
     property string fontFamily: ""
     property int statusPadding: pokeNameFontSize/2
+    property int statusBarRadius: 0
 
 
     component PopoutText: Text {
@@ -65,7 +66,7 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             width: statusLabel.implicitWidth + root.statusPadding
             height: statusLabel.implicitHeight + root.statusPadding
-            radius: 2
+            radius: root.statusBarRadius/2
             color: "transparent"
             border.width: 1
             border.color: "transparent"
@@ -100,7 +101,7 @@ Item {
         background: Rectangle {
             anchors.fill: progressBar
             color: "darkgrey"
-            radius: 4
+            radius: root.statusBarRadius
             border.width: 1
             border.color: "black"
         }
@@ -119,7 +120,7 @@ Item {
                     color: PokeColor.darker(PokeColor.healthColor(progressBar.value))
                 }
             }
-            radius: 4
+            radius: root.statusBarRadius
         }
     }
 
