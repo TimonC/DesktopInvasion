@@ -11,9 +11,9 @@ PokemonInteractable::PokemonInteractable(QWindow *parent, int row)
     , m_row(row)
     , m_decisionTimer(new QTimer(this))
     , m_moveTimer(new QTimer(this))
-    , m_moveSpeed(2 + QRandomGenerator::global()->bounded(3))
+    , m_moveSpeed(1 + QRandomGenerator::global()->bounded(2))
     , m_currentDirection(0)
-    , m_scaleFactor(4)
+    , m_scaleFactor(3)
 {
     setFlags( Qt::WindowStaysOnTopHint
             | Qt::Tool
