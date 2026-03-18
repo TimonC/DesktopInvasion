@@ -73,7 +73,6 @@ Item {
         if (pokeData) nameField.text = pokeData.name
         inNameEditMode      = false
         selectedEligibleIdx = -1
-        walkingSprite.randomizePosition()
     }
 
     component TypePill: Rectangle {
@@ -609,17 +608,21 @@ Item {
         height: arenaHeight
 
         // ── Visibility / active gating ──────────────────────────────────────
-        onActiveChanged: {
-            if (!active) {
-                decisionTimer.stop()
-                moveTimer.stop()
-                spriteImg.running = false
-            } else {
-                spriteImg.running = true
-                if (!decisionTimer.running) decisionTimer.start()
-            }
-        }
-
+onActiveChanged: {
+    if (!active) {
+        decisionTimer.stop()
+        moveTimer.stop()
+        spriteImg.running = false
+    } else {
+        spriteImg.running = true
+        // Qt.callLater ensures the arena has finished laying out
+        // before we read _maxX/_maxY for the random position.
+        Qt.callLater(function() {
+            randomizePosition()
+            if (!decisionTimer.running) decisionTimer.start()
+        })
+    }
+}
         // ── Bounds maintenance ───────────────────────────────────────────────
         onArenaWidthChanged:  { ensureInBounds() }
         onArenaHeightChanged: { ensureInBounds() }
@@ -714,7 +717,7 @@ Item {
             frameWidth:   ws.frameWidth
             frameHeight:  ws.frameHeight
             frameCount:   2
-            frameRate:    4          // matches C++ roaming frameRate
+            frameRate:    4
             interpolate:  false
             smooth:       false
             antialiasing: false
