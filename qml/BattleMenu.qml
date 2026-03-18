@@ -62,7 +62,7 @@ Rectangle {
     property real hoverScale: 1.04
     property real iconScale: 1.0
 
-    property int colorAnimationDuration: Math.max(80, Math.floor(200 / animationSpeed))
+    property int colorAnimationDuration: Math.max(80, Math.floor(200))
     property int downDuration: Math.max(50, Math.floor(140 / animationSpeed))
     property int upDuration: Math.max(30, Math.floor(100 / animationSpeed))
     property int clickDelayDuration: downDuration
