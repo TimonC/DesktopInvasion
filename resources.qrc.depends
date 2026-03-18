@@ -2,8 +2,25 @@
     <qresource prefix="/">
         <file>qml/Style/PokeColor.js</file>
 
+        <file>qml/PokemonSprite.qml</file>
+
+        <file>qml/BattleScene.qml</file>
+        <file>qml/StatusBar.qml</file>
+        <file>qml/Pokeball.qml</file>
+        <file>qml/BattleMenu.qml</file>
+        <file>qml/PokemonIcon.qml</file>
+
+        <file>qml/qmlGameMenu/Menu.qml</file>
+        <file>qml/qmlGameMenu/Party.qml</file>
+        <file>qml/qmlGameMenu/PC.qml</file>
+        <file>qml/qmlGameMenu/Player.qml</file>
+        <file>qml/qmlGameMenu/Settings.qml</file>
+
         <file>assets/fonts/PressStart2P-Regular.ttf</file>
         <file>assets/fonts/DotGothic16-Regular.ttf</file>
+
+        <file>assets/XY/grab.png</file>
+        <file>assets/XY/pointer.png</file>
 
         <file>assets/HGSS/PokeballIcon.png</file>
         <file>assets/HGSS/PokeballIcon_grayscale.png</file>
@@ -12,9 +29,6 @@
         <file>assets/HGSS/reordered_sprites_big.png</file>
         <file>assets/HGSS/reordered_icons.png</file>
         <file>assets/HGSS/reordered_pokeballs.png</file>
-
-        <file>assets/XY/grab.png</file>
-        <file>assets/XY/pointer.png</file>
     </qresource>
 </RCC>
 

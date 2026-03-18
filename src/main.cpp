@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
 
     /* Globals::debug(true); */
     float scale = 2;
-    float speed = 4;
+    float speed = 2;
     Globals::scale(scale);
     Globals::animationSpeed(speed);
 
@@ -101,6 +101,13 @@ int main(int argc, char *argv[]) {
     }
 
     qDebug() << "Database initialized successfully";
+    // Optional: Add F10 for force quit during debugging
+    QShortcut *debugQuit = new QShortcut(QKeySequence(Qt::Key_F10), &app);
+    QObject::connect(debugQuit, &QShortcut::activated, []() {
+        qDebug() << "Debug exit triggered";
+        QCoreApplication::quit();
+    });
+
 
     Game game(&engine, nullptr);
     return app.exec();

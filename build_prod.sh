@@ -106,11 +106,8 @@ EOF
 
 echo "=== Build complete ==="
 echo "Output files available in ./app/output/"
+mv ./app/output/Desktop_Invasion-x86_64.AppImage ./app/output/DesktopInvasion.AppImage
 ls -lah /app/output/
-
 echo ""
-echo "To run the AppImage from your host:"
-echo "  chmod +x ./app/output/DesktopInvasion*.AppImage"
-echo "  ./app/output/DesktopInvasion*.AppImage"
 echo ""
 echo "Database will be created at: ~/.local/share/DesktopInvasion/DesktopInvasion/pokemon.db"
