@@ -23,8 +23,7 @@ Rectangle {
 
     // Methods to control the menu from outside
     function showTextBar() {
-        stack.clear()
-        var item = stack.push(textBarComponent)
+        stack.replace(textBarComponent);
     }
 
     function updateText(text) {
@@ -32,8 +31,7 @@ Rectangle {
     }
 
     function resetToRoot() {
-        stack.clear()
-        stack.push(rootSelectionComponent)
+        stack.replace(rootSelectionComponent)
     }
 
     StackView {
@@ -41,6 +39,54 @@ Rectangle {
         initialItem: rootSelectionComponent
         anchors.fill: parent
         z: 1
+    pushEnter: Transition {
+        PropertyAnimation {
+            property: "opacity"
+            from: 0
+            to:1
+            duration: 200
+        }
+    }
+    pushExit: Transition {
+        PropertyAnimation {
+            property: "opacity"
+            from: 1
+            to:0
+            duration: 200
+        }
+    }
+    popEnter: Transition {
+        PropertyAnimation {
+            property: "opacity"
+            from: 0
+            to:1
+            duration: 200
+        }
+    }
+    popExit: Transition {
+        PropertyAnimation {
+            property: "opacity"
+            from: 1
+            to:0
+            duration: 200
+        }
+    }
+    replaceEnter: Transition {
+        PropertyAnimation {
+            property: "opacity"
+            from: 0
+            to:1
+            duration: 200
+        }
+    }
+    replaceExit: Transition {
+        PropertyAnimation {
+            property: "opacity"
+            from: 1
+            to:0
+            duration: 200
+        }
+    }
     }
 
     Component {
