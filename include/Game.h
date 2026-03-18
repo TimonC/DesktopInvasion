@@ -17,6 +17,7 @@ private:
     GameMenu* m_menu;
     WildPokemon* m_wildPokemon = nullptr;
     Battle* m_activeBattle = nullptr;
+    const int m_spawnDelay_ms = 5000;
 
 private slots:
     void spawnWildPokemon(const PokemonInfo* info);

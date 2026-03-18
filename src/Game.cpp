@@ -2,6 +2,7 @@
 #include <WildPokemon.h>
 #include <globals.h>
 #include <Player.h>
+#include <QTimer>
 
 Game::Game(QObject* parent) : QObject(parent){
     m_menu = new GameMenu();
@@ -51,5 +52,8 @@ void Game::handleBattleEnd(Battle* battle, WildPokemon* opp, bool removeWild) {
         assert(m_wildPokemon == opp && "WildPokemon mismatch in handleBattleEnd");
         m_wildPokemon->deleteLater();
         m_wildPokemon = nullptr;
+        QTimer::singleShot(m_spawnDelay_ms, this, [this]() {
+            spawnWildPokemon(Globals::getPokemonInfo());
+        });
     }
 }
