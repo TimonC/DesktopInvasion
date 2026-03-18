@@ -31,7 +31,6 @@ COPY build_and_run.sh ./build_and_run.sh
 COPY CMakeLists.txt ./CMakeLists.txt
 COPY assets ./assets
 COPY sprites ./sprites
-COPY InvasionCanvas.qml ./InvasionCanvas.qml
 COPY src ./src
 COPY resources.qrc ./resources.qrc
 

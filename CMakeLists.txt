@@ -11,16 +11,14 @@ find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick)
 
 # Compile the Qt resource file
 qt6_add_resources(RESOURCES_RCC
-    resources.qrc   # <-- your resource file
+    resources.qrc
 )
 
 # Add executable
 add_executable(DesktopInvasion
     src/PokemonInteractable.cpp
-    src/PokemonSpawner.cpp
     src/main.cpp
-    src/InvasionOverlay.cpp
-    ${RESOURCES_RCC}   # <-- include compiled resources
+    ${RESOURCES_RCC}
 )
 
 # Include headers
