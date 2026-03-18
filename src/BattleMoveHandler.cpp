@@ -56,7 +56,7 @@ std::array<int, 6> BattleMoveHandler::getExperienceSpread(){
     for(int index = 0; index < m_includedPartyIndices.size(); index++){
         int partyIndex = m_includedPartyIndices[index];
         Battler* member = m_battleParty[partyIndex];
-        if(member->battleState.currentHealth >= 0){
+        if(member->battleState.currentHealth >= 0 && member->pokeState.lvl<100){
             includedCount++;
         }
     }
@@ -65,7 +65,7 @@ std::array<int, 6> BattleMoveHandler::getExperienceSpread(){
     for(int index = 0; index < m_includedPartyIndices.size(); index++){
         int partyIndex = m_includedPartyIndices[index];
         Battler* member = m_battleParty[partyIndex];
-        if(member->battleState.currentHealth > 0){
+        if(member->battleState.currentHealth > 0 && member->pokeState.lvl<100){
             spread[partyIndex] = xp;
         }
     }

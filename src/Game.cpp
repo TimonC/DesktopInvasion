@@ -381,7 +381,7 @@ void Game::createInitialPokemon() {
     }
 
     dusknoir.nature = Nature::Hardy;
-    dusknoir.lvl = 100;
+    dusknoir.lvl = 99;
     dusknoir.moves[0] = 45;
     dusknoir.moves[1] = 86;
     dusknoir.moves[2] = 109;//425;
@@ -391,9 +391,8 @@ void Game::createInitialPokemon() {
     if (pokemonId2 > 0) {
         qDebug() << "Created dusknoir with database ID:" << pokemonId2;
         m_db.setPartyPokemon(1, pokemonId2);
-        m_partyIds[1] = pokemonId;
+        m_partyIds[1] = pokemonId2;
     }
-
 }
 void Game::updatePartyXP(std::array<int, 6> spread) {
     if (!m_activeBattle) {
@@ -412,6 +411,7 @@ void Game::updatePartyXP(std::array<int, 6> spread) {
 
     if (idsToUpdate.empty()) {
         qDebug() << "No Pokémon received XP (all spread values were 0 or negative)";
+        m_activeBattle->showXPAndEndBattle(spread, lvlUps);
         return;
     }
 
@@ -419,12 +419,9 @@ void Game::updatePartyXP(std::array<int, 6> spread) {
     std::vector<PokemonState> originalPokemon = m_db.getPokemonBatch(idsToUpdate);
     std::vector<PokemonState> updatedPokemon = originalPokemon;
 
-    // Process all updates in memory
     for (size_t idx = 0; idx < updatedPokemon.size(); idx++) {
         PokemonState& pokemon = updatedPokemon[idx];
-        PokemonState& original = originalPokemon[idx];
 
-        // Find which party slot this is
         bool found = false;
         for (int i = 0; i < 6; i++) {
             if (m_partyIds[i] == pokemon._id && spread[i] > 0) {
@@ -432,19 +429,22 @@ void Game::updatePartyXP(std::array<int, 6> spread) {
                 int oldXP = pokemon.currentXP;
                 int oldLevel = pokemon.lvl;
 
-                // Add XP
+                // Add XP to current level's XP
                 pokemon.currentXP += xpGain;
 
-                // Check for level ups
+                // Check for level ups with overflow carry
                 while (pokemon.lvl < 100) {
-                    int xpNeeded = PokeMath::xpForNextLevel(pokemon.lvl, pokemon.currentXP);
-                    if (xpNeeded > 0) break;
-                    pokemon.lvl++;
-                    lvlUps[i] = pokemon.lvl;
-                }
+                    int xpNeeded = PokeMath::xpToNextLevel(pokemon.lvl);
 
-                // Calculate XP needed for next level
-                int xpForNext = PokeMath::xpForNextLevel(pokemon.lvl, pokemon.currentXP);
+                    if (pokemon.currentXP >= xpNeeded) {
+                        // Level up!
+                        pokemon.currentXP -= xpNeeded;  // Carry over overflow XP
+                        pokemon.lvl++;
+                        lvlUps[i] = pokemon.lvl;
+                    } else {
+                        break; // No more level ups
+                    }
+                }
 
                 // Debug output for this Pokémon
                 qDebug().nospace()
@@ -452,7 +452,7 @@ void Game::updatePartyXP(std::array<int, 6> spread) {
                     << ": XP " << oldXP << "→" << pokemon.currentXP
                     << " (+" << xpGain << ")"
                     << ", Lvl " << oldLevel << "→" << pokemon.lvl
-                    << ", NextLvlXP " << xpForNext;
+                    << ", NextLvlXP " << PokeMath::xpToNextLevel(pokemon.lvl);
 
                 found = true;
                 break;

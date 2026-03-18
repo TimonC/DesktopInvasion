@@ -18,7 +18,6 @@ struct PokemonState {
 
     int lvl = 1;
     int currentXP = 0;
-    int xpForNextLevel = 0;
 
     int ivs[6];
     int evs[6];

@@ -159,20 +159,16 @@ namespace PokeMath{
         return speedTieDist(rng) == 0;
     }
 
-
-    inline int calculateExperience(int lvl, int nrParticipated, int baseXP){
-        return static_cast<int>(baseXP*lvl/7.0f * 1/nrParticipated * 1.5f);
-    }
-
-    inline int xpForNextLevel(int currentLevel, int currentXP) {
+    //https://bulbapedia.bulbagarden.net/wiki/Experience#Gain_formula
+    inline int xpToNextLevel(int currentLevel) {
         if (currentLevel >= 100) return 0;
-
-        // Fast growth rate formula: (4 * n³) / 5
-        int nextLevel = currentLevel + 1;
-        int totalXPForNextLevel = (4 * nextLevel * nextLevel * nextLevel) / 5;
-
-        return totalXPForNextLevel - currentXP;
+        int L = currentLevel;
+        return (L+1)*(L+1)*(L+1) - L*L*L;  // For Medium Fast
     }
-}
+
+    inline int calculateExperience(int defeatedLevel, int nrParticipated, int baseXP) {
+        //Wild pokemon are treated like trainer pokemon, so scale by 1.5f
+        return static_cast<int>((baseXP * defeatedLevel * 1.5f) / (7.0f * nrParticipated));
+    }}
 
 #endif
