@@ -1,3 +1,5 @@
+*.xcf
+*.json
 CMakeFiles/
 scripts/
 build/

@@ -43,6 +43,7 @@ private:
     void spawnPokemon();
     std::vector<std::pair<int, std::string>> getParty();
     void updateWildPokemonPosToBattlePos();
+    void safelyRemoveBattleScene();
 
 private slots:
     void handleMenuOpen();

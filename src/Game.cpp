@@ -43,6 +43,15 @@ Game::~Game() {
     delete m_menu;
 }
 
+void Game::safelyRemoveBattleScene(){
+    /* m_activeBattle->disconnect(); //this might not be secure with deleteLater, could potentially be the cause of freezes */
+                                  //but i do it here to avoid a bug where all all the battleended signals are triggered
+    disconnect(m_activeBattle, &Battle::battleEnded,
+            this, &Game::handleBattleEnd); //Only disconnect the battle-game connection to avoid faulty trigger w/o freezes
+    m_activeBattle->deleteLater();
+    m_activeBattle = nullptr;
+}
+
 void Game::handleMenuOpen(){
     bool usedToBeActive = m_gameUsedToBeActive;
     setGameActive(false);
@@ -50,7 +59,7 @@ void Game::handleMenuOpen(){
 
     m_menu->activate();
     m_trayIcon->enabled(false);
-};
+}
 
 void Game::handleMenuClosed(){
     m_trayIcon->enabled(true);
@@ -68,14 +77,9 @@ void Game::setGameActive(bool active) {
         spawnPokemon();
     } else {
         if (m_activeBattle) {
-            updateWildPokemonPosToBattlePos();
-            /* m_activeBattle->disconnect(); //this might not be secure with deleteLater, could potentially be the cause of freezes */
-                                          //but i do it here to avoid a bug where all all the battleended signals are triggered
-            disconnect(m_activeBattle, &Battle::battleEnded,
-                    this, &Game::handleBattleEnd); //Only disconnect the battle-game connection to avoid the bug w/o freezes
             m_activeBattle->setSceneVisibility(false);
-            m_activeBattle->deleteLater();
-            m_activeBattle = nullptr;
+            updateWildPokemonPosToBattlePos();
+            safelyRemoveBattleScene();
         }
         if (m_wildPokemon) {
             m_spawnPoint = m_wildPokemon->position();
@@ -246,6 +250,7 @@ void Game::handleBattleEnd(const char* endState) {
         return;
     }
 
+    qDebug() << endState;
     bool playerWon = (strcmp(endState, "PlayerWon") == 0);
     bool opponentCaught = (strcmp(endState, "OpponentCaught") == 0);
     bool opponentWon = strcmp(endState, "OpponentWon") == 0;
@@ -291,10 +296,7 @@ void Game::handleBattleEnd(const char* endState) {
         }
 
         // Cleanup
-        if (m_activeBattle) {
-            m_activeBattle->deleteLater();
-            m_activeBattle = nullptr;
-        }
+        if (m_activeBattle)  safelyRemoveBattleScene();
         if (m_wildPokemon) {
             m_wildPokemon->deleteLater();
             m_wildPokemon = nullptr;
@@ -314,14 +316,10 @@ void Game::handleBattleEnd(const char* endState) {
             m_wildPokemon->show();
         }
 
+        //Cleanup with delay for smooth transition from battlescene to wild pokemon
         QTimer::singleShot(100, this, [this]() {
-            if (m_activeBattle) {
-                m_activeBattle->deleteLater();
-                m_activeBattle = nullptr;
-            }
-            if (m_wildPokemon) {
-                m_wildPokemon->roaming(true);
-            }
+            if (m_activeBattle) safelyRemoveBattleScene();
+            if (m_wildPokemon) m_wildPokemon->roaming(true);
         });
     }
 }
