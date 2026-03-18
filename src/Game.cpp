@@ -130,11 +130,11 @@ QVariantMap Game::pokemonToMenuState(int slot, const PokemonState &p){
     for (const auto& e : eligible) {
         const Move* _move = Lookup::getMove(e.move_id);
         QVariantMap moveData;
-<<<<<<< HEAD
-        moveData["id"]       = e.move_id;          // needed for requestMoveChange
-=======
         moveData["id"]       = e.move_id;
+<<<<<<< HEAD
 >>>>>>> refs/rewritten/moves
+=======
+>>>>>>> 419cfdf (Resolve merge conflict)
         std::string name = _move->name;
         if (name.length() > 10) {
             name.erase(std::remove(name.begin(), name.end(), '-'), name.end());
