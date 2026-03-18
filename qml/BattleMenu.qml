@@ -597,11 +597,10 @@ Rectangle {
             }
         }
     }
-Component {
+
+    Component {
         id: backButton
         Rectangle {
-            width: root.buttonHeight
-            height: root.buttonHeight
             radius: 3
             color: root.forceSwitchMode ? root.forceSwitchBackButtonColor : root.backButtonColor
             opacity: root.forceSwitchMode ? 0.5 : 1.0
@@ -649,7 +648,7 @@ Component {
                             sourceComponent: backButton
                             anchors.centerIn: parent
                             width: root.buttonHeight
-                            height: root.buttonHeight
+                            height: root.menuHeight*0.7
                         }
                     }
 
