@@ -1,8 +1,5 @@
 #include <QGuiApplication>
 #include "WildPokemon.h"
-#include "Player.h"
-
-std::unique_ptr<Player> player = std::make_unique<Player>();
 
 int main(int argc, char *argv[]) {
     QGuiApplication app(argc, argv);

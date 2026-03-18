@@ -15,7 +15,6 @@ public:
     int m_currentDirection;
 protected:
     QQuickItem* m_sprite;
-    QRect m_screenGeometry;
 
     int m_minX = 1e5;
     int m_maxX = 0;

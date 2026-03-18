@@ -4,16 +4,16 @@
 #include "Pokemon.h"
 #include <QObject>
 
+using namespace std;
 class Player: public QObject{
     Q_OBJECT
 
 public:
-    explicit Player(QObject* parent = nullptr) : QObject(parent) {qDebug() << "Player constructor called!";};
+    explicit Player(QObject* parent = nullptr);
     Pokemon* iChooseYou(QPoint opp_spot, int direction);
 
 private:
-    std::unique_ptr<Pokemon> m_chosen;
-
+    array<optional<unique_ptr<Pokemon>>, 6> m_party;
 };
 
 #endif

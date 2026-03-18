@@ -6,6 +6,7 @@
 #include "Pokemon.h"
 #include "WildPokemon.h"
 #include "Player.h"
+#include "globals.h"
 
 WildPokemon::WildPokemon(QWindow *parent, int row)
     : Pokemon(parent, row)
@@ -31,8 +32,7 @@ WildPokemon::WildPokemon(QWindow *parent, int row)
 }
 
 void WildPokemon::startBattle(){
-    extern Player* player;
-    player->iChooseYou(QPoint(x(), y()), m_currentDirection);
+    getPlayer().iChooseYou(QPoint(x(), y()), m_currentDirection);
 
     QQuickItem* mouseArea = m_sprite->property("mouseArea").value<QQuickItem*>();
     disconnect(mouseArea, SIGNAL(clicked(QQuickMouseEvent*)), this, SLOT(onClick()));
@@ -90,14 +90,15 @@ void WildPokemon::moveStep(){
         newX += m_moveSpeed;
     }
 
-    newX = qMax(0, qMin(newX, m_screenGeometry.width() - SPRITE_SIZE));
-    newY = qMax(0, qMin(newY, m_screenGeometry.height() - SPRITE_SIZE));
+    QRect& screen = getScreenGeometry();
+    newX = qMax(0, qMin(newX, screen.width() - SPRITE_SIZE));
+    newY = qMax(0, qMin(newY, screen.height() - SPRITE_SIZE));
 
     setX(newX);
     setY(newY);
 
-    if (newX == 0 || newX == m_screenGeometry.width() - SPRITE_SIZE ||
-        newY == 0 || newY == m_screenGeometry.height() - SPRITE_SIZE) {
+    if (newX == 0 || newX == screen.width() - SPRITE_SIZE ||
+        newY == 0 || newY == screen.height() - SPRITE_SIZE) {
         makeRandomDecision();
     }
 }

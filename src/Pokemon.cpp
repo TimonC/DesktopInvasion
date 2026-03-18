@@ -1,9 +1,8 @@
-#include "Pokemon.h"
 #include <QRandomGenerator>
 #include <QGuiApplication>
-#include <QScreen>
 #include <QQuickItem>
-#include <sys/types.h>
+#include "globals.h"
+#include "Pokemon.h"
 
 Pokemon::Pokemon(QWindow *parent, int row)
     : QQuickView(parent)
@@ -34,10 +33,11 @@ Pokemon::Pokemon(QWindow *parent, int row)
     m_sprite->setProperty("spriteOffsetX", 32);
     m_sprite->setProperty("spriteOffsetY",32/2);
 
-    m_screenGeometry = QGuiApplication::primaryScreen()->geometry();
-    setX(std::rand()%m_screenGeometry.width());
-    setY(std::rand()%m_screenGeometry.height());
+    QRect& screen = getScreenGeometry();
+    setX(std::rand()%screen.width());
+    setY(std::rand()%screen.height());
 }
+
 
 void Pokemon::setDirection(int direction){
     m_currentDirection = direction%4;
