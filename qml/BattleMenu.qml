@@ -41,8 +41,9 @@ Rectangle {
     property color runButtonColor: "#3366ff"
     property color borderColor: "#999999"
     property color disabledBorderColor: "#777777"
-    property color selectedBorderColor: "#1976D2"
     property color disabledBackgroundColor: "#757575"
+    property color selectedBorderColor: "yellow"
+    property color highlightBorderColor: "#1976D2"
     property color placeholderTextColor: "#a0a0a0"
     property color textBarBackgroundColor: "white"
     property color textBarBorderColor: "black"
@@ -55,7 +56,7 @@ Rectangle {
     property real normalIconOpacity: 1.0
     property real faintedIconOpacity: 0.7
     property real hoverScale: 1.04
-    property int menuTransitionDuration: 0
+    property int menuTransitionDuration: 50
     property double iconScale: 1.0
 
     // Game state
@@ -150,20 +151,29 @@ Rectangle {
         // Check if mouse is already over when component appears
         Component.onCompleted: {
             if (containsMouse && hoverEffectEnabled && hoverTarget) {
-                if (hoverTarget.hasOwnProperty("scale")) hoverTarget.scale = root.hoverScale
+                if (hoverTarget.canScale){
+                    hoverTarget.scale = root.hoverScale
+                }else if(hovertarget.canHighlight){
+                    hoverTarget.borderColor = root.highlightBorderColor
+                }
                 if (hoverTarget.hasOwnProperty("hovered")) hoverTarget.hovered = true
             }
         }
 
         onEntered: {
             if (hoverEffectEnabled && hoverTarget) {
-                if (hoverTarget.hasOwnProperty("scale")) hoverTarget.scale = root.hoverScale
+                if (hoverTarget.canScale){
+                    hoverTarget.scale = root.hoverScale
+                }else if(hoverTarget.canHighlight){
+                    hoverTarget.borderColor = root.highlightBorderColor
+                }
                 if (hoverTarget.hasOwnProperty("hovered")) hoverTarget.hovered = true
             }
         }
         onExited: {
             if (hoverEffectEnabled && hoverTarget) {
-                if (hoverTarget.hasOwnProperty("scale")) hoverTarget.scale = 1.0
+                if (hoverTarget.canScale) hoverTarget.scale = 1.0
+                if (hoverTarget.canHighlight) hoverTarget.borderColor = root.borderColor
                 if (hoverTarget.hasOwnProperty("hovered")) hoverTarget.hovered = false
                 if (hoverTarget.hasOwnProperty("down")) hoverTarget.down = false
             }
@@ -189,6 +199,9 @@ Rectangle {
         required property color buttonColor
         required property string text
         signal clicked()
+
+        property bool canScale: true
+        property bool canHighlight: false
 
         property alias wrapMode: label.wrapMode
         property alias elide: label.elide
@@ -265,12 +278,26 @@ Rectangle {
 
         pushEnter: null
         pushExit: null
-
         popEnter: null
         popExit: null
 
-        replaceEnter: null
-        replaceExit: null
+        replaceEnter: Transition {
+            PropertyAnimation {
+                property: "opacity"
+                from: 0
+                to: 1
+                duration: root.menuTransitionDuration
+            }
+        }
+
+        replaceExit: Transition {
+            PropertyAnimation {
+                property: "opacity"
+                from: 1
+                to: 0
+                duration: root.menuTransitionDuration
+            }
+        }
     }
 
     // Components
@@ -354,26 +381,30 @@ Rectangle {
                         id: moveItem
                         width: Math.floor(fightGrid.width / 2 - root.gridSpacing / 2)
                         height: Math.floor(fightGrid.height / 2 - root.gridSpacing / 2)
+
                         function getMoveData() {
                             if (party && party.moves && party.moves[root.selectedIndex]) {
                                 return party.moves[root.selectedIndex][index] || {name: "---", type: "Null"}
                             }
                             return {name: "---", type: "Null"}
                         }
+
+                        property bool canScale: false
+                        property bool canHighlight: true
                         property string moveName: getMoveData().name || "---"
                         property string moveType: getMoveData().type || "Null"
                         property bool moveEnabled: moveType !== "Null"
                         property color baseColor: moveEnabled ? PokeColor.typeColor(moveType) : root.disabledBackgroundColor
+                        property color borderColor: root.borderColor
                         property bool hovered: false
                         property bool down: false
-                        scale: 1.0
-                        Behavior on scale { NumberAnimation { duration: 100 } }
+                        Behavior on borderColor { ColorAnimation { duration: 100 } }
+
                         Rectangle {
                             anchors.fill: parent
                             radius: 4
-                            color: moveEnabled ? (down ? PokeColor.darker(baseColor) : PokeColor.lighter(baseColor)) : root.disabledBorderColor
+                            color: moveEnabled ? (down ? PokeColor.darker(borderColor) : borderColor) : root.disabledBorderColor
                             opacity: moveEnabled ? root.enabledOpacity : root.disabledOpacity
-                            Behavior on color { ColorAnimation { duration: 100 } }
                         }
                         Rectangle {
                             anchors.fill: parent
@@ -384,7 +415,6 @@ Rectangle {
                                 GradientStop { position: 1; color: moveEnabled ? (down ? PokeColor.darker(PokeColor.darker(baseColor)) : PokeColor.darker(baseColor)) : root.disabledBackgroundColor }
                             }
                             opacity: moveEnabled ? root.enabledOpacity : root.disabledOpacity
-                            Behavior on gradient { ColorAnimation { duration: 100 } }
                         }
                         Text {
                             anchors.centerIn: parent
@@ -433,6 +463,8 @@ Rectangle {
                         height: Math.floor((parent.height - root.gridSpacing) / 2)
                         property bool hovered: false
                         property bool down: false
+                        property bool canScale: false
+                        property bool canHighlight: true
                         property color healthColor: root.party.pokedexIds[index] >= 0 ?
                                                    PokeColor.healthColor(party.healthRatios[index]) :
                                                    root.disabledBackgroundColor
@@ -444,8 +476,6 @@ Rectangle {
                                                 party.healthRatios[index] > 0) :
                                                (root.party.pokedexIds[index] >= 0 &&
                                                 party.healthRatios[index] > 0)
-                        scale: 1.0
-                        Behavior on scale { NumberAnimation { duration: 100 } }
                         Rectangle {
                             anchors.fill: parent
                             radius: 4
@@ -475,7 +505,6 @@ Rectangle {
                                         : root.disabledBackgroundColor
                                 }
                             }
-                            Behavior on gradient { ColorAnimation { duration: 100 } }
                         }
                         Item {
                             anchors.centerIn: parent
@@ -536,11 +565,11 @@ Rectangle {
                         width: Math.floor((grid.width - root.gridSpacing) / 2)
                         height: Math.floor((grid.height - root.gridSpacing) / 2)
                         property bool ballEnabled: root.nrOfBalls[index] > 0
+                        property bool canScale: false
+                        property bool canHighlight: true
                         property bool hovered: false
                         property bool down: false
                         property color typeColor: PokeColor.typeColor("Normal")
-                        scale: 1.0
-                        Behavior on scale { NumberAnimation { duration: 100 } }
                         Rectangle {
                             anchors.fill: parent
                             radius: 4
@@ -556,7 +585,6 @@ Rectangle {
                                 GradientStop { position: 0; color: ballEnabled ? (down ? PokeColor.darker(typeColor) : PokeColor.lighter(typeColor)) : root.disabledBackgroundColor }
                                 GradientStop { position: 1; color: ballEnabled ? (down ? PokeColor.darker(PokeColor.darker(typeColor)) : PokeColor.darker(typeColor)) : root.disabledBackgroundColor }
                             }
-                            Behavior on gradient { ColorAnimation { duration: 100 } }
                         }
                         Row {
                             anchors.centerIn: parent
@@ -619,8 +647,8 @@ Rectangle {
                         width: parent.width
                         property bool hovered: false
                         property bool down: false
-                        scale: 1.0
-                        Behavior on scale { NumberAnimation { duration: 100 } }
+                        property bool canScale: false
+                        property bool canHighlight: true
                         Rectangle {
                             anchors.fill: parent
                             radius: 20
@@ -630,7 +658,6 @@ Rectangle {
                                 GradientStop { position: 0; color: down ? PokeColor.darker(root.runButtonColor) : PokeColor.lighter(root.runButtonColor) }
                                 GradientStop { position: 1; color: down ? PokeColor.darker(PokeColor.darker(root.runButtonColor)) : PokeColor.darker(root.runButtonColor) }
                             }
-                            Behavior on gradient { ColorAnimation { duration: 100 } }
                         }
                         Text {
                             text: modelData.text
