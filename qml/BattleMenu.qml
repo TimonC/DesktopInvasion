@@ -33,7 +33,7 @@ Rectangle {
     property color borderColor: "#999999"
     property color disabledBorderColor: "#777777"
     property color selectedBorderColor: "#1976D2"
-    property color disabledBackgroundColor: "#d9d9d9"
+    property color disabledBackgroundColor: "#757575"
     property color placeholderTextColor: "#a0a0a0"
     property real enabledOpacity: 1
     property real disabledOpacity: 0.5
@@ -523,9 +523,9 @@ Rectangle {
             anchors.fill: parent
             GradientRoundButton {
                 anchors.centerIn: parent
-                text: "Confirm run"
+                text: "Confirm"
                 buttonColor: root.runButtonColor
-                width: root.buttonWidth * 2
+                width: root.buttonWidth * 1.5
                 height: root.buttonHeight
                 onClicked: root.runChosen()
             }
