@@ -1,6 +1,7 @@
 #include <Battlescene.h>
 #include <qquickitem.h>
 #include <qquickview.h>
+
 Battlescene::Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent)
     : QQuickView(parent){
 
@@ -36,12 +37,16 @@ Battlescene::Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent)
             chosen->direction(1);
             break;
     }
+
+    connect(this, &Battlescene::updateTextbar, textBar, [textBar](const QString &text) {
+        textBar->setProperty("text", text);
+    });
+
     m_direction = chosen->direction();
     setPosition(m_origin);
 
     show();
 };
-
-void Battlescene::updateTextbar(std::string text){
-
+QString updateTextBar(const QString &text){
+    return text;
 };

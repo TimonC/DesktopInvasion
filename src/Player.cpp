@@ -11,10 +11,11 @@ Pokemon* Player::iChooseYou(Pokemon *opp){
 
     Pokemon* chosen = m_party[0].value().get();
 
-      m_battlescene  =  std::make_unique<Battlescene>(opp, chosen);
+    m_battlescene  =  std::make_unique<Battlescene>(opp, chosen);
 
     chosen->show();
     m_battlescene.value()->show();
+    m_battlescene.value()->updateTextbar(QString("It's a battle...!"));
     qDebug() << "I choose you!";
     return chosen;
 };
