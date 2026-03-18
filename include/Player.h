@@ -1,7 +1,8 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "Pokemon.h"
+#include <Battlescene.h>
+#include <Pokemon.h>
 #include <QObject>
 
 using namespace std;
@@ -10,12 +11,13 @@ class Player: public QObject{
 
 public:
     explicit Player(QObject* parent = nullptr);
-    Pokemon* iChooseYou(QPoint opp_spot, int opp_direction);
-    bool inABattle(){return _inABattle;};
+    Pokemon* iChooseYou(Pokemon* opp);
+    bool inABattle(){return m_inABattle;};
 
 private:
-    bool _inABattle = false;
+    bool m_inABattle = false;
     array<optional<unique_ptr<Pokemon>>, 6> m_party;
+    optional<unique_ptr<Battlescene>> m_battlescene;
 };
 
 #endif

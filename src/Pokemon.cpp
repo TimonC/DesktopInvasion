@@ -14,8 +14,7 @@ Pokemon::Pokemon(QWindow *parent, int row)
             | Qt::Tool
             | Qt::WindowDoesNotAcceptFocus
             | Qt::FramelessWindowHint);
-
-    setColor(QColor(0,0,0,1));
+    setColor(Qt::transparent);
 
 
     setSource(QUrl("qrc:/sprites/PokemonSprite.qml"));
@@ -39,8 +38,11 @@ Pokemon::Pokemon(QWindow *parent, int row)
 }
 
 
-void Pokemon::setDirection(int direction){
+void Pokemon::direction(int direction){
     m_currentDirection = direction%4;
     m_sprite->setProperty("animation",m_currentDirection);
+};
+int Pokemon::direction(){
+    return m_currentDirection;
 };
 

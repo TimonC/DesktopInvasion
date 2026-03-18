@@ -9,12 +9,13 @@ class Pokemon : public QQuickView
 
 public:
     explicit Pokemon(QWindow *parent = nullptr, int row = 0);
-    void setDirection(int direction);
+    void direction(int direction);
+    int direction();
     int m_row;
     int m_scaleFactor;
-    int m_currentDirection;
 protected:
     QQuickItem* m_sprite;
+    int m_currentDirection;
 
     int m_minX = 1e5;
     int m_maxX = 0;

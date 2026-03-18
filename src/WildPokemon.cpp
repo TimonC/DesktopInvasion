@@ -32,7 +32,7 @@ WildPokemon::WildPokemon(QWindow *parent, int row)
 }
 
 void WildPokemon::startBattle(){
-    getPlayer().iChooseYou(QPoint(x(), y()), m_currentDirection);
+    getPlayer().iChooseYou(this);
 
     QQuickItem* mouseArea = m_sprite->property("mouseArea").value<QQuickItem*>();
     disconnect(mouseArea, SIGNAL(clicked(QQuickMouseEvent*)), this, SLOT(onClick()));
@@ -66,7 +66,7 @@ void WildPokemon::stopOpening(){
 
 void WildPokemon::makeRandomDecision(){
     int decision = QRandomGenerator::global()->bounded(8);
-    setDirection(decision/2);
+    direction(decision/2);
 
     bool moving = (decision % 2) == 1;
     if (moving) {
