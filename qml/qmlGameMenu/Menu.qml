@@ -47,7 +47,7 @@ Rectangle {
             for (var i = 0; i < data.length; i++)
                 map[data[i].slot] = data[i]
             partyPokes = map
-            updateDisplay([-1,0])
+            pc._display([-1,0])
         }
 
         function onBoxDataReady(boxIndex, data) {
@@ -105,11 +105,6 @@ Rectangle {
             boxPokes = newBoxes
         }
         function onDisplay(pcPos){
-            updateDisplay(pcPos)
-        }
-
-    }
-    function updateDisplay(pcPos){
             if(pcPos[0]==-1 && partyPokes[pcPos[1]]){
                 displayName = partyPokes[pcPos[1]].name
                 rightPanel.rowId = partyPokes[pcPos[1]].rowId
@@ -130,6 +125,8 @@ Rectangle {
             }else{
                 console.log("ERROR faulty display pos")
             }
+        }
+
     }
 
     RowLayout {

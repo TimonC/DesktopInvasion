@@ -52,7 +52,7 @@ Item {
     property bool  inSwapMode:         false
     property var   swapSource:         null   // null = nothing selected; else [boxIndex, slotIndex]
     property var displayedPokemonSlot: null
-    property int displayedPokemonBox: -2
+    property int displayedPokemonBox: -1
 
     signal activateSwapMode()
 
@@ -293,7 +293,7 @@ Item {
         }
 
         color: {
-            if(root.inSwapMode && displayed && root.displayedPokemonBox===pcPos[0]) return root.highlightColor
+            if(displayed && root.displayedPokemonBox===pcPos[0]) return root.highlightColor
             if(swappable){
                 if (hoverArea.containsMouse){
                     return root.highlightSwapColor
