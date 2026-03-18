@@ -279,12 +279,11 @@ Item {
             return
         }
         var step = root.actionSequence[root.currentActionIndex]
-        var type = step.type || ""
-        var role = step.role || ""
-        var delay = step.delay || 0
-        var logStr = "→ [" + (root.currentActionIndex + 1) + "/" + root.actionSequence.length + "] " + type.toUpperCase()
-        if (role) logStr += " (" + role + ")"
-        if (delay > 0) logStr += " [" + delay + "ms]"
+        var logStr="→ [" + (root.currentActionIndex + 1) + "/" + root.actionSequence.length + "] " + step.type.toUpperCase()
+        if (step.role) logStr += " (" + step.role + ")"
+        if (step.message) logStr += " [\"" + step.message + "\"]"
+        if (step.amount) logStr += " [" + step.amount + "]"
+        if (step.delay > 0) logStr += " [" + step.delay + "ms]"
         console.log(logStr)
 
         root.currentActionIndex++

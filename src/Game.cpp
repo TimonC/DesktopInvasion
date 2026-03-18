@@ -169,7 +169,7 @@ void Game::spawnPokemon() {
         PokemonState newWild;
         newWild.pokedex_id = m_wildPokemonInfo->pokedexId;
         newWild.name = m_wildPokemonInfo->name;
-        newWild.lvl = 40;
+        newWild.lvl = 5;
 
         for (int i = 0; i < 6; i++) {
             newWild.ivs[i] = 32;
@@ -380,7 +380,7 @@ void Game::createInitialPokemon() {
     }
 
     duskull.nature = Nature::Hardy;
-    duskull.lvl = 1;
+    duskull.lvl = 5;
     duskull.moves[0] = 261;
     duskull.moves[1] = 425;
     duskull.moves[2] = 181;

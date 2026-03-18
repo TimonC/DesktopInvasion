@@ -21,19 +21,18 @@ namespace PokeMath{
         int type2 = 100;
     };
 
-// https://bulbapedia.bulbagarden.net/wiki/Damage (modified, not all parameters are included in the game)
+// https://bulbapedia.bulbagarden.net/wiki/Damage (modified, not all parameters are included in DesktopInvasion)
     inline int calculateDamage(const DamageParams& p, std::mt19937& rng) {
         static std::uniform_int_distribution<int> damageRandomDist(85, 100);
 
         // Combine all percentage modifiers into a single multiplier
         // Use int64_t literals to prevent overflow
-        int64_t combinedModifier = static_cast<int64_t>(p.burn) * p.stab * p.type1 * p.type2;
-        combinedModifier = combinedModifier * p.critical * damageRandomDist(rng);
+        int64_t combinedModifier = static_cast<int64_t>(p.burn) * p.stab * p.type1 * p.type2 * p.critical * damageRandomDist(rng);
         int64_t baseDamage = (2 * p.lvl / 5 + 2) * static_cast<int64_t>(p.power) * p.attack / p.defense;
 
         // Combine all operations: /50, +2, then apply all modifiers at once
         // Use 64-bit constant to avoid overflow
-        constexpr int64_t MODIFIER_DIVISOR = 100LL * 100 * 100 * 100 * 100;
+        constexpr int64_t MODIFIER_DIVISOR = 100LL * 100 * 100 * 100 * 100 * 100;
         int64_t damage = (baseDamage / 50) + 2;
         damage = (damage * combinedModifier) / MODIFIER_DIVISOR;
 

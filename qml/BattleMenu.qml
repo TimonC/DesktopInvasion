@@ -27,9 +27,8 @@ Rectangle {
 
     property color textBarTextColor: "black"
     property color menuTextColor: "white"
-    property color attackTextColor: "white"
 
-    property color attackButtonColor: PokeColor.darker("red")
+    property color fightButtonColor: PokeColor.darker("red")
     property color switchButtonColor: PokeColor.darker("green")
     property color catchButtonColor: PokeColor.darker("orange")
     property color runButtonColor: PokeColor.darker("blue")
@@ -67,7 +66,7 @@ Rectangle {
     property bool forceSwitchMode: false
 
     signal actionRound(int actionIndex, string actionType)
-    signal attackChosen(int attackId)
+    signal fightChosen(int fightId)
     signal runChosen(bool removeWild)
     signal switchChosen(int newPartyIdx)
 
@@ -257,9 +256,9 @@ Rectangle {
 
                 GradientRoundButton {
                     text: "Fight"
-                    buttonColor: root.attackButtonColor
+                    buttonColor: root.fightButtonColor
                     onClicked: {
-                        stack.push(attackSelection)
+                        stack.push(fightSelection)
                     }
                 }
 
@@ -285,9 +284,9 @@ Rectangle {
     }
 
     Component {
-        id: attackContent
+        id: fightContent
         Grid {
-            id: attackGrid
+            id: fightGrid
             columns: 2
             rows: 2
             spacing: root.gridSpacing
@@ -311,7 +310,7 @@ Rectangle {
                         return {name: "---", type: "Null"}
                     }
 
-                    // These properties will update automatically when attackGrid.partyIndex changes
+                    // These properties will update automatically when fightGrid.partyIndex changes
                     property string moveName: getMoveData().name || "---"
                     property string moveType: getMoveData().type || "Null"
                     property bool moveEnabled: moveType !== "Null"
@@ -348,7 +347,7 @@ Rectangle {
                         maximumLineCount: 2
                         elide: Text.ElideRight
                         lineHeight: 1.4
-                        color: moveEnabled ? root.attackTextColor : root.placeholderTextColor
+                        color: moveEnabled ? root.menuTextColor : root.placeholderTextColor
                     }
 
                     MouseArea {
@@ -669,11 +668,11 @@ Rectangle {
     }
 
     Component {
-        id: attackSelection
+        id: fightSelection
         Loader {
             sourceComponent: selectionTemplate
             onLoaded: {
-                item.content = attackContent
+                item.content = fightContent
             }
         }
     }
