@@ -84,6 +84,7 @@ void Game::handleBattleEnd(bool removeWild) {
         });
     }else{
         m_activeBattle->handleDrag(false);
+        updatePosToBattlePos();
         m_wildPokemon->show();
 
 
