@@ -10,7 +10,6 @@ Item {
     property int frameSize: 32
     property int buttonWidth: frameSize * 2
     property int buttonHeight: frameSize * 0.75
-    property int buttonFontSize: frameSize * 0.4
     property int gridSpacing: frameSize * 0.1
     property int pokeMargin: frameSize * 0.25
     property bool debugLines: false
@@ -137,18 +136,16 @@ Item {
     // UI
     BattleMenu {
         id: battleMenu
+        frameSize: root.frameSize
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
         height: root.menuHeight
         width: root.menuWidth
-        frameSize: root.frameSize
         buttonWidth: root.buttonWidth
         buttonHeight: root.buttonHeight
-        buttonFontSize: root.buttonFontSize
         gridSpacing: root.gridSpacing
         menuHeight: root.menuHeight
         menuWidth: root.menuWidth
-
         onAttackChosen: function(attackId) {
             if (attackId === 0) {
                 var playerFirst = false;// Math.random() < 0.5;

@@ -10,7 +10,7 @@ Rectangle {
     property int buttonWidth: frameSize * 2
     property int buttonHeight: frameSize * 0.75
     property int buttonFontSize: frameSize * 0.4
-    property int textBarFontSize: frameSize * 0.45
+    property int textBarFontSize: frameSize * 0.42
     property int gridSpacing: frameSize * 0.1
     property int menuHeight:50
     property int menuWidth: frameSize * 5 * 0.9
@@ -104,7 +104,6 @@ Component {
         property string text: "UNINITIALIZED TEXT!!!!"
         height: root.menuHeight
         width: root.menuWidth
-        anchors.centerIn: parent.center
         radius: 5
 
         Text {
