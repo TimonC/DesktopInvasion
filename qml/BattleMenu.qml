@@ -222,7 +222,7 @@ Rectangle {
             border.width: root.borderWidth
             property string text: ""
 
-            height: root.menuHeight*0.8
+            height: root.menuHeight*0.75
             width: root.menuWidth
             radius: 5
 
