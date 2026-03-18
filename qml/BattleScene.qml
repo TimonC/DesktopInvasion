@@ -24,6 +24,7 @@ Item {
     property alias hpBarPlayer: hpBarPlayer
     property  alias opponentName: hpBarOpponent.pokeName
     property  alias playerName: hpBarPlayer.pokeName
+
     property alias textBar: textBar
     property alias buttonGrid: buttonGrid
 
@@ -33,6 +34,8 @@ Item {
     property int currentAttackIndex: 0
 
     signal runClicked()
+    signal opponentWon()
+    signal playerWon()
 
     // Debug rectangle
     Rectangle {
@@ -51,6 +54,7 @@ Item {
     PokemonSprite {
         id: opponent
         objectName: "opponent"
+        name: opponentName
         direction: root.direction
         debugLines: root.debugLines
         debugColor: "red"
@@ -64,6 +68,7 @@ Item {
     PokemonSprite {
         id: player
         objectName: "player"
+        name: playerName
         direction: (root.direction + 2) % 4
         debugLines: root.debugLines
         debugColor: "blue"
@@ -218,13 +223,15 @@ Item {
             // First turn
             { type: "text", message: firstAttackerName + " used Tackle!", delay: 300 },
             { type: "attack", attacker: firstAttacker, delay: 500 },
-            { type: "damage", defender: firstDefender, delay: 500 },
+            { type: "damage", defender: firstDefender, delay: 200 },
+            { type: "change-health", defender: firstDefender, delay: 500 },
             { type: "text", message: "It's super effective!", delay: 1200 },
 
             // Second turn
             { type: "text", message: secondAttackerName + " used Tackle!", delay: 300 },
             { type: "attack", attacker: secondAttacker, delay: 500 },
-            { type: "damage", defender: secondDefender, delay: 500 },
+            { type: "damage", defender: secondDefender, delay: 200 },
+            { type: "change-health", defender: secondDefender, delay: 500 },
             { type: "text", message: "It's super effective!", delay: 1200 },
 
             // End
@@ -268,14 +275,37 @@ Item {
                 break;
 
             case "change-health":
-                step.defender
+                let currentHealthRatio = step.defender.healthBar.incrementHealth(-51);
+
+                if(currentHealthRatio==0){
+                    root.attackSequence = [
+                        {type: "lose-battle", message: step.defender.name + "  fainted!", defender: step.defender, delay: 1000 },
+                        {type: "battle-over", defender: step.defender, delay: 100 }
+                    ]
+                    root.currentAttackIndex = 0;
+                }
+
+                sequenceTimer.interval = step.delay;
+                sequenceTimer.start();
                 break;
 
+            case "lose-battle":
+                update_text_bar(step.message);
+                sequenceTimer.interval = step.delay;
+                sequenceTimer.start();
+                break;
+            case "battle-over":
+                if(step.defender==root.opponent){
+                    root.playerWon()
+                }else{
+                    root.opponentWon()
+                }
             case "end":
                 endAttackChain();
                 break;
         }
     }
+
 
     // End the attack sequence
     function endAttackChain() {

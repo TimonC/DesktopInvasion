@@ -20,7 +20,7 @@ Item {
     property int containerOffsetY: 0
     property bool clickable: true
     property bool debugLines: false
-
+    property string name: "emptyname"
     property alias actionForward: actionForward
     property alias takeDamage: takeDamage
     width: itemWidth > 0 ? itemWidth : frameWidth * scaleFactor
