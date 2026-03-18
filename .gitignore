@@ -1,11 +1,16 @@
-*.xcf
-*.json
+assets/
+src/data_move.cpp
+src/data_poke.cpp
+
 CMakeFiles/
 scripts/
 build/
 AppDir/
 data/
-# assets/
+
+*.xcf
+*.json
+
 *.user
 *.autosave
 .qt
