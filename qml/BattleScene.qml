@@ -14,7 +14,7 @@ Item {
     property int pokeMargin: frameSize * 0.25
     property bool debugLines: false
     property int menuHeight: 50
-    property int menuWidth: frameSize * 5 * 0.9
+    property int menuWidth: frameSize * 5
     property int direction: 0
 
     property alias opponent: opponent

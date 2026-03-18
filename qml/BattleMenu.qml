@@ -10,10 +10,10 @@ Rectangle {
     property int buttonWidth: frameSize * 2
     property int buttonHeight: frameSize * 0.75
     property int buttonFontSize: frameSize * 0.4
-    property int textBarFontSize: frameSize * 0.42
+    property int textBarFontSize: frameSize * 0.45
     property int gridSpacing: frameSize * 0.1
-    property int menuHeight:50
-    property int menuWidth: frameSize * 5
+    property int menuHeight:0
+    property int menuWidth:0
 
     property int pokeSpriteId: 3
     property double spriteScale: 1
@@ -110,7 +110,7 @@ Component {
             id: textBarText
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.rightMargin: parent.width * 0.15 //Wrap at 85%
+            anchors.rightMargin: parent.width * 0.2 //Wrap at 80%
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             anchors.margins: 6
