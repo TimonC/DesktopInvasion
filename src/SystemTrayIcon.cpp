@@ -42,15 +42,18 @@ void SystemTrayIcon::onActivated(QSystemTrayIcon::ActivationReason reason){
 }
 
 
-void SystemTrayIcon::toggleGameActive(){
-    m_gameActive = !m_gameActive;
-
-    if (m_gameActive) {
+void SystemTrayIcon::setIconActivityColor(bool active){
+    if (active) {
         setIcon(QIcon(":/assets/HGSS/PokeballIcon.png"));
     } else {
         setIcon(QIcon(":/assets/HGSS/PokeballIcon_grayscale.png"));
     }
+}
 
+void SystemTrayIcon::toggleGameActive(){
+    m_gameActive = !m_gameActive;
+
+    setIconActivityColor(m_gameActive);
     m_gameActiveToggle->setChecked(m_gameActive);
 
     emit gameActive(m_gameActive);

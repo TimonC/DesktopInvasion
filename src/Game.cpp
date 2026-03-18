@@ -15,6 +15,8 @@ Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
 {
     qDebug() << "Game constructor called!";
 
+    m_gameUsedToBeActive = true;
+
     m_partyIds.fill(0);
 
     if (!m_db.initialize()) {
@@ -26,6 +28,8 @@ Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
     connect(m_trayIcon, &SystemTrayIcon::gameActive, this, &Game::setGameActive);
 
     connect(m_trayIcon, &SystemTrayIcon::menuButtonPressed, this, &Game::handleMenuOpen);
+
+    connect(m_menu, &GameMenu::menuClosed, this, &Game::handleMenuClosed);
 
     m_spawnTimer->setInterval(m_spawnDelay_ms);
     connect(m_spawnTimer, &QTimer::timeout, this, &Game::spawnPokemon);
@@ -49,9 +53,47 @@ Game::~Game() {
 }
 
 void Game::handleMenuOpen(){
-    m_menu->show();
-    m_menu->raise();
+    bool usedToBeActive = m_gameUsedToBeActive;
+    setGameActive(false);
+    m_gameUsedToBeActive = usedToBeActive;
+
+    m_menu->activate();
+    m_trayIcon->setIconActivityColor(false);
 };
+
+void Game::handleMenuClosed(){
+    if(m_gameUsedToBeActive) {
+        setGameActive(true);
+        m_trayIcon->setIconActivityColor(true);
+    }
+};
+
+void Game::setGameActive(bool active) {
+    static bool processing = false;
+    if (processing) return;
+
+    m_gameUsedToBeActive = active;
+
+    processing = true;
+    if (active) {
+        spawnPokemon();
+    } else {
+        if (m_activeBattle) {
+            updateWildPokemonPosToBattlePos();
+            m_activeBattle->disconnect();
+            m_activeBattle->deleteLater();
+            m_activeBattle = nullptr;
+        }
+        if (m_wildPokemon) {
+            m_spawnPoint = m_wildPokemon->position();
+            m_spawnDirection = m_wildPokemon->m_currentDirection;
+            m_wildPokemon->disconnect();
+            m_wildPokemon->deleteLater();
+            m_wildPokemon = nullptr;
+        }
+    }
+    processing = false;
+}
 
 void Game::initializeGame() {
     GameState state = m_db.loadGameState();
@@ -274,30 +316,6 @@ void Game::handleBattleEnd(const char* endState) {
     }
 }
 
-void Game::setGameActive(bool active) {
-    static bool processing = false;
-    if (processing) return;
-
-    processing = true;
-    if (active) {
-        spawnPokemon();
-    } else {
-        if (m_activeBattle) {
-            updateWildPokemonPosToBattlePos();
-            m_activeBattle->disconnect();
-            m_activeBattle->deleteLater();
-            m_activeBattle = nullptr;
-        }
-        if (m_wildPokemon) {
-            m_spawnPoint = m_wildPokemon->position();
-            m_spawnDirection = m_wildPokemon->m_currentDirection;
-            m_wildPokemon->disconnect();
-            m_wildPokemon->deleteLater();
-            m_wildPokemon = nullptr;
-        }
-    }
-    processing = false;
-}
 
 void Game::updateWildPokemonPosToBattlePos() {
     if (m_wildPokemon && m_activeBattle) {

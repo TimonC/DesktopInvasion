@@ -10,8 +10,8 @@ class SystemTrayIcon : public QSystemTrayIcon
 
 public:
     explicit SystemTrayIcon(QObject *parent = nullptr);
-
     void updateIconAndMenu();
+    void setIconActivityColor(bool active);
 
 signals:
     void gameActive(bool active);

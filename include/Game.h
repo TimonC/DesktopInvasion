@@ -19,6 +19,7 @@ public:
     ~Game();
 
 private:
+    bool m_gameUsedToBeActive;
     QQmlApplicationEngine* m_engine = nullptr;
     GameMenu* m_menu;
     SystemTrayIcon* m_trayIcon;
@@ -45,6 +46,7 @@ private:
 
 private slots:
     void handleMenuOpen();
+    void handleMenuClosed();
     void handleBattleStart();
     void handleBattleEnd(const char* endState);
     void setGameActive(bool active = true);

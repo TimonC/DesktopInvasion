@@ -6,7 +6,7 @@ Rectangle {
 
     Text {
         anchors.centerIn: parent
-        text: "PC"
+        text: "Player"
         font.pixelSize: 24
         color: "#ffffff"
     }
