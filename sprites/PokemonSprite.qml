@@ -22,7 +22,7 @@ Item {
 
     // Random delay timer to prevent sync
     property Timer startTimer: Timer {
-        interval: Math.random() * 250 // 0-250ms random delay
+        interval: Math.random() * 125
         running: true
         onTriggered: sprite.running = true
     }

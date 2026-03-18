@@ -5,8 +5,6 @@
 #include <QQuickItem>
 #include <qnamespace.h>
 #include <QMouseEvent>
-#include <cassert>
-#include <qquickitem.h>
 #include <QTimer>
 Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent)
     : DesktopScene(parent)
@@ -33,13 +31,21 @@ Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent
     show();
 
     QTimer::singleShot(10, [this,opp]() {
-
         opp->hide();
     });
+
+    QObject* helper = new QObject(this);
+    QObject::connect(m_battleScene, SIGNAL(runClicked()),
+                    helper, SLOT(deleteLater()));
+    QObject::connect(helper, &QObject::destroyed,
+                    [this, opp]() {
+                        opp->startRoaming();
+                        opp->show();
+                        this->close();
+                    });
+
     qDebug() << "Window shown, visible:" << isVisible();
 }
-
-
 
 QQuickItem* Battle::setupPokemon(const PokemonInfo* info, const char* role) {
     QQuickItem* container = m_battleScene->property(role).value<QQuickItem*>();

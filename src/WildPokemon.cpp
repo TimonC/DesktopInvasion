@@ -57,6 +57,7 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
 
 
 void WildPokemon::startRoaming(){
+    m_isDragged = false;
     connect(m_decisionTimer, &QTimer::timeout, this, &WildPokemon::makeRandomDecision);
     connect(m_moveTimer, &QTimer::timeout, this, &WildPokemon::moveStep);
 

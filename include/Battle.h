@@ -21,11 +21,9 @@ public:
     void direction(int direction) override;
 private slots:
     void handleDrag(bool isDragged) override;
-    /* void run(); */
-    /* void attack(); */
 
 private:
-    int m_pokeMargin = 4;
+    int m_pokeMargin = 2;
     void initPosition();
     // Store initial positions for perfect sync
     QPoint m_initialOppPos;

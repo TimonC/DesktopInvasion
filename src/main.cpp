@@ -28,13 +28,13 @@ int main(int argc, char *argv[]) {
     /* } */
 
     const int start_pokedexid = 400;
-    const int num_wild        = 0;
+    const int num_wild        = 1;
     std::vector<std::unique_ptr<WildPokemon>> wildPokemon;
 
-    const PokemonInfo* pokemonInfo1 = Globals::getPokemonByPokedexId(173);
-    wildPokemon.push_back(std::make_unique<WildPokemon>(pokemonInfo1));
-    const PokemonInfo* pokemonInfo2 = Globals::getPokemonByPokedexId(473);
-    wildPokemon.push_back(std::make_unique<WildPokemon>(pokemonInfo2));
+    /* const PokemonInfo* pokemonInfo1 = Globals::getPokemonByPokedexId(173); */
+    /* wildPokemon.push_back(std::make_unique<WildPokemon>(pokemonInfo1)); */
+    /* const PokemonInfo* pokemonInfo2 = Globals::getPokemonByPokedexId(473); */
+    /* wildPokemon.push_back(std::make_unique<WildPokemon>(pokemonInfo2)); */
 
     for (int i = start_pokedexid; i < num_wild + start_pokedexid; ++i) {
         const PokemonInfo* pokemonInfo = Globals::getRandomPokemon();

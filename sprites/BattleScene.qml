@@ -7,7 +7,9 @@ Item {
     height: (direction === 0 || direction === 2) ? frameSize * 8 : frameSize * 5
     layer.enabled: true
 
-    // Scaling properties
+    signal runClicked()
+
+   // Scaling properties
     property int frameSize: 32
     property int buttonWidth: frameSize * 2
     property int buttonHeight: frameSize * 0.75
@@ -217,7 +219,7 @@ Item {
                 width: buttonWidth
                 height: buttonHeight
                 radius: buttonHeight / 2
-                onClicked: console.log("Run clicked")
+                onClicked: root.runClicked()
             }
         }
     }
