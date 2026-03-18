@@ -13,9 +13,14 @@ struct SpriteInfo{
     int generation;
     int width;
     int height;
+    int xOffset;
+    int yOffset;
 };
 
 extern const PokemonInfo kPokemonList[];
 extern const int kPokemonCount;
+
+extern const SpriteInfo kSpriteList[];
+extern const int kSpriteCount;
 
 #endif

@@ -44,6 +44,17 @@ def analyze_frame_bounds(frame):
     return int(width), int(height), int(x_min), int(y_min)
 
 
+def calculate_center_offset(max_width, max_height, actual_width, actual_height, content_x, content_y):
+    """Calculate the offset needed to center the sprite content within its max bounds."""
+    extra_width = max_width - actual_width
+    extra_height = max_height - actual_height
+
+    offset_x = (extra_width // 2) - content_x
+    offset_y = (extra_height // 2) - content_y
+
+    return offset_x, offset_y
+
+
 def extract_frame_block(img, col_idx, row_idx, frame_width, frame_height):
     """Extract a 2x4 block of frames and reorder them."""
     x0 = col_idx * (2 * frame_width + 1)
@@ -88,16 +99,31 @@ def process_image(image_path, n_rows, n_cols, frame_width, frame_height):
                 # Analyze bounds for all 8 frames in this sprite
                 max_width = 0
                 max_height = 0
+                max_content_x = 0
+                max_content_y = 0
 
                 for frame in frames:
                     width, height, x_min, y_min = analyze_frame_bounds(frame)
                     max_width = max(max_width, width)
                     max_height = max(max_height, height)
+                    # Track the content offset of the largest frame
+                    if width == max_width and height == max_height:
+                        max_content_x = x_min
+                        max_content_y = y_min
+
+                # Calculate centering offset
+                offset_x, offset_y = calculate_center_offset(
+                    frame_width, frame_height,
+                    max_width, max_height,
+                    max_content_x, max_content_y
+                )
 
                 # Store metadata for this sprite row
                 metadata["rows"].append({
                     "max_width": max_width,
                     "max_height": max_height,
+                    "offset_x": offset_x,
+                    "offset_y": offset_y
                 })
 
                 all_rows.append(frames)

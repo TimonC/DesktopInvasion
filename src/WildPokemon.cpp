@@ -36,15 +36,10 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
     m_sprite->setProperty("row", info->spriteId);
     m_sprite->setProperty("debugLines", Globals::DEBUG);
 
-    /* if (auto mouseArea = m_sprite->property("mouseArea").value<QQuickItem*>()) */
-    /*     connect(mouseArea, SIGNAL(doubleClicked(QQuickMouseEvent*)), this, SLOT(handleDoubleClick())); */
+    QSize spriteDims = Globals::getSpriteSize(info->spriteId, info->generation);
 
-    m_decisionTimer->setInterval(1000 + QRandomGenerator::global()->bounded(2000));
-    m_moveTimer->setInterval(50); // 20fps
-
-
-    int width = Globals::SCALE*32;
-    int height = Globals::SCALE*32;
+    int width = Globals::SCALE*spriteDims.width()*1.1;
+    int height = Globals::SCALE*spriteDims.height();
 
     m_sprite->setProperty("itemWidth", width);
     m_sprite->setProperty("itemHeight", height);
@@ -52,8 +47,15 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
     setWidth(width);
     setHeight(height);
 
-    m_sprite->setProperty("spriteOffsetX",0);// width/3);
-    m_sprite->setProperty("spriteOffsetY",0);// height/3);
+    m_sprite->setProperty("spriteOffsetX", 0);
+    m_sprite->setProperty("spriteOffsetY", 0);
+
+    /* if (auto mouseArea = m_sprite->property("mouseArea").value<QQuickItem*>()) */
+    /*     connect(mouseArea, SIGNAL(doubleClicked(QQuickMouseEvent*)), this, SLOT(handleDoubleClick())); */
+
+    m_decisionTimer->setInterval(1000 + QRandomGenerator::global()->bounded(2000));
+    m_moveTimer->setInterval(50); // 20fps
+
     startRoaming();
     show();
 }

@@ -3,8 +3,7 @@
 
 #include <QRect>
 #include <Player.h>
-
-struct PokemonInfo;
+#include <pokemon_data.h>
 
 namespace Globals {
     extern bool DEBUG;
@@ -14,6 +13,9 @@ namespace Globals {
     Player& getPlayer();
     const PokemonInfo* getRandomPokemon();
     const PokemonInfo* findPokemonByPokedexId(int pokedexId);
+
+    const SpriteInfo* getSpriteInfo(int spriteId, int generation);
+    QSize getSpriteSize(int spriteId, int generation);
 }
 
 #endif

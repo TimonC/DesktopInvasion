@@ -45,4 +45,31 @@ namespace Globals {
         assert(it != lookup.constEnd());
         return it.value();
     }
+
+  const SpriteInfo* getSpriteInfo(int spriteId, int generation) {
+        // Build lookup table on first call
+        static QHash<QPair<int, int>, const SpriteInfo*> lookup = [](){
+            QHash<QPair<int, int>, const SpriteInfo*> map;
+            for (int i = 0; i < kSpriteCount; ++i) {
+                QPair<int, int> key(kSpriteList[i].spriteId, kSpriteList[i].generation);
+                map[key] = &kSpriteList[i];
+            }
+            return map;
+        }();
+
+        QPair<int, int> key(spriteId, generation);
+        auto it = lookup.constFind(key);
+        if (it != lookup.constEnd()) {
+            return it.value();
+        }
+        return nullptr;
+    }
+
+    QSize getSpriteSize(int spriteId, int generation) {
+        const SpriteInfo* info = getSpriteInfo(spriteId, generation);
+        if (info) {
+            return QSize(info->width, info->height);
+        }
+        return QSize(0, 0); // Return invalid size if not found
+    }
 }
