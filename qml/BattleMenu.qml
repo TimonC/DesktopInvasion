@@ -69,7 +69,7 @@ Rectangle {
 
     signal attackChosen(int attackId)
     signal runChosen(bool removeWild)
-    signal switchChosen(int oldPartyIdx, int newPartyIdx)
+    signal switchChosen(int newPartyIdx)
 
     property alias stack: stack
 
@@ -137,8 +137,8 @@ Rectangle {
 
         required property color buttonColor
 
-        property int wrapMode: Text.NoWrap  // Add this property
-        property int elide: Text.ElideRight // Optional: add elide property
+        property int wrapMode: Text.NoWrap
+        property int elide: Text.ElideRight
         palette.buttonText: root.menuTextColor
         palette.button: gradientButton.buttonColor
         font.pixelSize: root.buttonFontSize
@@ -410,8 +410,6 @@ Rectangle {
 
                     Item {
                         anchors.centerIn: parent
-                        width: 40
-                        height: 30
                         visible: root.party.iconIds[index] >= 0
 
                         PokemonIcon {
@@ -446,7 +444,7 @@ Rectangle {
                                party.healthRatios[index] > 0){
                                 var oldIndex = root.selectedIndex
                                 root.selectedIndex = index
-                                root.switchChosen(oldIndex, index)
+                                root.switchChosen(index)
                             }
                         }
                     }

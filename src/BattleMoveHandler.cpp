@@ -69,7 +69,6 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
     int shakes = -1;
 
     if(action[0]=='S'){
-       m_chosenPartyIndex = actionIndex;
        switchedIn = actionIndex;
     } else if(action[0]=='C'){
         shakes = processCatchAttempt(m_rng, m_battleOpponent->pokeState.stats[0], m_battleOpponent->battleState.currentHealth, 50);
@@ -411,6 +410,7 @@ QVariantList BattleMoveHandler::generateActionSequence(Battler& opponent, Battle
 }
 
 void BattleMoveHandler::logActionSequence(const QVariantList& sequence) {
+    qDebug() << "========================================";
     qDebug() << "       ACTION SEQUENCE LOG";
     qDebug() << "========================================";
     qDebug() << "Total actions:" << sequence.size();
@@ -446,7 +446,7 @@ void BattleMoveHandler::logActionSequence(const QVariantList& sequence) {
         }
     }
 
-    qDebug() << "========================================";
+    qDebug() << "";
 }
 
 

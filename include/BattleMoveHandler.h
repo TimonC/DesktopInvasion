@@ -59,6 +59,7 @@ class BattleMoveHandler : public QObject{
 public:
     BattleMoveHandler(const PokemonState& wildState, const std::array<PokemonState, 6>& partyStates);
     ~BattleMoveHandler();
+    int m_chosenPartyIndex = 0;
 
 signals:
     void actionSequenceReady(QVariantList sequence);
@@ -95,7 +96,6 @@ private:
 
     Battler* m_battleOpponent;
     std::array<Battler*, 6> m_battleParty;
-    int m_chosenPartyIndex = 0;
     int m_partyPokemonSentOut[6] = {-1,-1,-1,-1,-1,-1};
     std::mt19937 m_rng;
 

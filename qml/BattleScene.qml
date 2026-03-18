@@ -48,7 +48,7 @@ Item {
 
     signal _battleEnded(string endState, bool removeWild);
     signal signalToStartActionRound(int actionIndex, string actionState)
-    signal switchedPokemon(int generation, int spriteId)
+    signal switchedPokemon(int partyIndex, int generation, int spriteId)
 
     function setInitialTotalHealth(opponentTotalHealth, playerTotalHealth){
         opponent.statusBar.totalHealth  = opponentTotalHealth
@@ -242,8 +242,7 @@ Item {
             })
         }
 
-        onSwitchChosen: function(oldPartyId, newPartyId){
-            battleMenu.party.healthRatios[oldPartyId] = statusBarPlayer.currentHealthRatio
+        onSwitchChosen: function(newPartyId){
             statusBarPlayer.totalHealth = battleMenu.party.healthTotals[newPartyId]
 
             let newPlayerName = battleMenu.party.names[newPartyId]
@@ -251,7 +250,7 @@ Item {
             let newPlayerSpriteId = battleMenu.party.spriteIds[newPartyId]
             player.visible = false
 
-            root.switchedPokemon(newPlayerGeneration, newPlayerSpriteId)
+            root.switchedPokemon(newPartyId, newPlayerGeneration, newPlayerSpriteId)
             positionSpriteAndStatusBar(player)
 
             battleMenu.showTextBar()
@@ -296,7 +295,7 @@ Item {
         }
         var step = root.actionSequence[root.currentActionIndex]
 
-        console.log(root.currentActionIndex + " - " + step.type)
+        // console.log(root.currentActionIndex + " - " + step.type)
         root.currentActionIndex++
         switch(step.type) {
             case "text":
@@ -318,7 +317,9 @@ Item {
                 break
             case "change-health":
                 var target = (step.role === "player") ? player : opponent
-                let currentHealthRatio = target.statusBar.incrementHealth(step.amount)
+                let currentHealthRatio = target.statusBar.changeHealth(step.amount)
+                battleMenu.party.healthRatios[battleMenu.selectedIndex] = currentHealthRatio
+
                 sequenceTimer.interval = step.delay
                 if(currentHealthRatio==0){
                     root.actionSequence = [

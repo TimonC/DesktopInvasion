@@ -78,7 +78,7 @@ Item {
     }
 
 
-    function incrementHealth(healthDelta) {
+    function changeHealth(healthDelta) {
         var targetValue = (progressBar.value * totalHealth + healthDelta) / totalHealth
         healthAnimation.from = progressBar.value
         var newHealth = Math.min(Math.max(targetValue, 0), 1)
