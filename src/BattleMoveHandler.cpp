@@ -9,7 +9,7 @@
 
 BattleMoveHandler::BattleMoveHandler(const PokemonState& wildState, const std::array<PokemonState, 6>& partyStates)
     : m_rng(std::random_device{}())
-    , m_moveChoiceDist(0, 3)  // Initialize distribution
+    , m_moveChoiceDist(0, 3)
 {
     qDebug() << "BattleMoveHandler constructor called!";
     m_battleOpponent = createBattler(wildState);

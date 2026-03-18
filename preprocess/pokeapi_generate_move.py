@@ -8,12 +8,228 @@ opener.addheaders = [('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) A
 urllib.request.install_opener(opener)
 
 # List of move IDs to skip
+#todo: sonic boom, dragon rage, counter, mirror coat, metronome, selfdestruct, dream eater, DITTO, super fang, SWAGGER/DRACOMETEOR/FLATTER,
+#pain split? 220
 SKIP_MOVE_IDS = [
-    6, 12, 18, 46, 69, 90, 99, 101, 102, 160, 164, 169, 170, 191, 193, 194, 195, 199, 203, 212, 213, 262, 264, 265, 266, 267, 270, 271, 272, 274, 275, 277, 278, 287, 288, 289, 290, 293, 300, 335, 343, 353, 364, 368, 373, 374, 376, 377, 380, 381, 382, 383, 385, 390, 415, 432, 445, 447, 449
+    3,
+    4,
+    5,
+    6,
+    12,
+    13,
+    18,
+    19,
+    20,
+    24,
+    26,
+    28,
+    31,
+    32,
+    32,
+    35,
+    41,
+    42,
+    46,
+    50,
+    54,
+    63,
+    67,
+    69,
+    76,
+    80,
+    83,
+    90,
+    99,
+    100,
+    101,
+    102,
+    104,
+    107,
+    108,
+    113,
+    114,
+    115,
+    116,
+    117,
+    128,
+    129,
+    130,
+    131,
+    134,
+    136,
+    140,
+    143,
+    144,
+    146,
+    148,
+    154,
+    155,
+    156,
+    160,
+    161,
+    164,
+    165,
+    166,
+    167,
+    168,
+    169,
+    170,
+    171,
+    173,
+    174,
+    175,
+    176,
+    179,
+    180,
+    182,
+    185,
+    187,
+    191,
+    193,
+    194,
+    195,
+    197,
+    198,
+    199,
+    200,
+    201,
+    203,
+    205,
+    210,
+    212,
+    213,
+    214,
+    215,
+    216,
+    217,
+    218,
+    219,
+    220,
+    226,
+    227,
+    228,
+    229,
+    230,
+    233,
+    237,
+    240,
+    241,
+    244,
+    248,
+    250,
+    251,
+    252,
+    253,
+    254,
+    255,
+    256,
+    258,
+    259,
+    262,
+    263,
+    264,
+    265,
+    266,
+    267,
+    268,
+    269,
+    270,
+    271,
+    272,
+    273,
+    274,
+    275,
+    277,
+    278,
+    279,
+    281,
+    282,
+    283,
+    285,
+    286,
+    287,
+    288,
+    289,
+    290,
+    291,
+    292,
+    293,
+    300,
+    301,
+    307,
+    308,
+    311,
+    312,
+    316,
+    323,
+    328,
+    329,
+    331,
+    333,
+    335,
+    338,
+    340,
+    343,
+    346,
+    350,
+    353,
+    356,
+    357,
+    358,
+    360,
+    361,
+    362,
+    363,
+    364,
+    365,
+    366,
+    367,
+    368,
+    369,
+    371,
+    372,
+    373,
+    374,
+    375,
+    376,
+    377,
+    378,
+    379,
+    380,
+    381,
+    382,
+    383,
+    384,
+    385,
+    386,
+    387,
+    388,
+    389,
+    390,
+    391,
+    392,
+    393,
+    415,
+    416,
+    419,
+    432,
+    433,
+    439,
+    445,
+    446,
+    447,
+    449,
+    458,
+    459,
+    460,
+    461,
+    462,
+    463,
+    467,
 ]
 
-# Approved ailments (matching the Ailment enum)
-APPROVED_AILMENTS = ['none', 'burn', 'freeze', 'paralysis', 'poison', 'sleep', 'confusion']
+# Approved ailments (matching the Ailment enum). 'Badly poisoned' is inserted based on known move name
+APPROVED_AILMENTS = ['none','burn', 'freeze', 'paralysis', 'poison', 'sleep', 'confusion']
 
 moves = []
 pokeApiFieldsToInclude = ["id", "name", "accuracy", "priority", "power"]
@@ -64,10 +280,14 @@ def format_category_enum(damage_class_name):
     }
     return category_map.get(damage_class_name, 'MoveCategory::NonDamaging')
 
-def format_ailment_enum(ailment_name):
+def format_ailment_enum(ailment_name, move_name):
+    if should_skip_move_by_ailment(ailment_name):
+        return 'Ailment::Null'
     """Convert ailment name to Ailment enum format (e.g., 'burn' -> 'Ailment::Burn')"""
     if not ailment_name or ailment_name == 'none':
         return 'Ailment::Null'
+    if move_name=="toxic" or move_name =="poison-fang":  #exception for "badly poisoned"
+        ailment_name = "toxic"
     return f'Ailment::{ailment_name.capitalize()}'
 
 def format_move_name(name):
@@ -78,17 +298,12 @@ def format_move_name(name):
     formatted_words = [word.capitalize() for word in words]
     return ' '.join(formatted_words)
 
-def extract_gen4_english_flavor_text(flavor_text_entries):
-    """Extract the English flavor text from Generation 4 (Diamond/Pearl)"""
+def extract_platinum_english_flavor_text(flavor_text_entries):
+    """Extract the English flavor text from Generation 4)"""
     for entry in flavor_text_entries:
         language = entry.get('language', {}).get('name', '')
         version_group = entry.get('version_group', {}).get('name', '')
-        if language == 'en' and version_group == 'diamond-pearl':
-            return entry.get('flavor_text', '')
-    for entry in flavor_text_entries:
-        language = entry.get('language', {}).get('name', '')
-        version_group = entry.get('version_group', {}).get('name', '')
-        if language == 'en' and version_group in ['platinum', 'heartgold-soulsilver']:
+        if language == 'en' and version_group == 'platinum':
             return entry.get('flavor_text', '')
     return ''
 
@@ -106,8 +321,6 @@ def extract_meta_data(meta):
     if not meta:
         return None
     ailment_name = meta.get('ailment', {}).get('name', 'none')
-    if should_skip_move_by_ailment(ailment_name):
-        return None
 
     def convert_null_to_neg_one(value):
         return -1 if value is None else value
@@ -148,7 +361,7 @@ for i in range(1, 5):
         moveFilled['stat_changes'] = extract_stat_changes(move_data.get('stat_changes', []))
         moveFilled['type'] = extract_type_name(move_data.get('type'))
         moveFilled['damage_class'] = extract_damage_class_name(move_data.get('damage_class'))
-        raw_flavor_text = extract_gen4_english_flavor_text(move_data.get('flavor_text_entries', []))
+        raw_flavor_text = extract_platinum_english_flavor_text(move_data.get('flavor_text_entries', []))
         moveFilled['flavor_text'] = clean_flavor_text(raw_flavor_text)
         moveFilled['meta'] = meta_data
         moves.append(moveFilled)
@@ -182,8 +395,9 @@ namespace {
         accuracy = move['accuracy'] if move['accuracy'] is not None else -1
         power = move['power'] if move['power'] is not None else -1
         stats = "{" + ", ".join(str(s) for s in move['stat_changes']) + "}"
+
         meta = move['meta']
-        ailment_enum = format_ailment_enum(meta['ailment'])
+        ailment_enum = format_ailment_enum(meta['ailment'], move['name'])
 
         source_content += f"""    static constexpr Move move_{move_id} = {{
         {move_id},
@@ -210,19 +424,17 @@ namespace {
 
 """
 
-    source_content += "} // namespace\n\n"
+    source_content += "} \n\n"
 
     # Create the direct pointer array (kMovesByIndex)
     source_content += f"const Move* const kMovesByIndex[{max_move_id + 1}] = {{\n"
 
     move_dict = {move['id']: f"&move_{move['id']}" for move in valid_moves}
     for i in range(max_move_id + 1):
-        if i % 10 == 0:
-            source_content += f"    // IDs {i:03d}-{min(i+9, max_move_id):03d}\n"
         if i in move_dict:
-            source_content += f"    {move_dict[i]},  // {i}\n"
+            source_content += f"    {move_dict[i]}, \n"
         else:
-            source_content += f"    nullptr,  // {i}\n"
+            source_content += f"    nullptr,  \n"
 
     source_content += "};\n\n"
     source_content += f"const int kMaxMoveId = {max_move_id};\n"
