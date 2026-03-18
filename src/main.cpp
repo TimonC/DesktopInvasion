@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
 
     /* Globals::debug(true); */
     Globals::scale(3);
-    Globals::animationSpeed(4);
+    Globals::animationSpeed(0.5);
 
     // Load fonts from QRC once at app startup
     int pixelFontId = QFontDatabase::addApplicationFont(":/assets/fonts/PressStart2P-Regular.ttf");

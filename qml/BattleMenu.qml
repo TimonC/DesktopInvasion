@@ -13,6 +13,7 @@ Rectangle {
     property int frameSize: 0
     property int buttonWidth: frameSize * 2
     property int buttonHeight: frameSize * 0.75
+    property double textBarHeightRatio: 0.9
     property int menuHeight: 0
     property int menuWidth: 0
 
@@ -227,7 +228,7 @@ Rectangle {
         id: textBarComponent
         Rectangle {
             id: textBar
-            width: root.menuWidth
+            width: root.menuWidth  * root.textBarHeightRatio
             height: root.menuHeight
             color: root.textBarBackgroundColor
             border.color: root.textBarBorderColor
