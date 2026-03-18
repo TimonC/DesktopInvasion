@@ -13,8 +13,6 @@ struct SpriteInfo{
     const int generation;
     const int max_width;
     const int max_height;
-    const int xOffset;
-    const int yOffset;
 };
 
 extern const PokemonInfo kPokemonList[];
