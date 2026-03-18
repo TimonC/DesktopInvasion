@@ -17,6 +17,7 @@ Rectangle {
     property int pokeSpriteWidth: 16
     property int pokeSpriteHeight: 23
     property string spriteSheet: "qrc:/assets/HGSS/Pokeballs_transparent_reordered.png"
+    property int selectedIndex: 0 //for switch menu
 
     signal attackChosen(int attackId)
     signal runChosen()
@@ -223,7 +224,6 @@ Rectangle {
         id: switchSelection
         Item {
             id: switchRoot
-            property int selectedIndex: 0
             Row {
                 anchors.centerIn: parent
                 spacing: root.gridSpacing*2
@@ -239,23 +239,23 @@ Rectangle {
                             visible: root.party.iconIds[index] >= 0
                             color: "transparent"
                             radius: 4
-                            border.color: switchRoot.selectedIndex === index ? "#4CAF50" : "#e0e0e0"
-                            border.width: switchRoot.selectedIndex === index ? 2 : 0.5
+                            border.color: root.selectedIndex === index ? "#4CAF50" : "#e0e0e0"
+                            border.width: root.selectedIndex === index ? 2 : 0.5
                             Rectangle {
                                 anchors.fill: parent
-                                color: switchRoot.selectedIndex === index ? "#E8F5E9" : "transparent"
+                                color: root.selectedIndex === index ? "#E8F5E9" : "transparent"
                                 radius: parent.radius
                                 opacity: 0.6
                             }
                             PokemonIcon {
                                 anchors.centerIn: parent
                                 frameIndex: root.party.iconIds[index]
-                                scale: switchRoot.selectedIndex === index ? 1.05 : 1
+                                scale: root.selectedIndex === index ? 1.05 : 1
                             }
                             MouseArea {
                                 anchors.fill: parent
                                 onClicked: {
-                                    switchRoot.selectedIndex = index
+                                    root.selectedIndex = index
                                     root.switchChosen(index)
                                 }
                             }
