@@ -1,10 +1,12 @@
 // Battle.cpp
 #include "BattleMoveHandler.h"
+#include "PokeMath/calculatePokeStats.h"
 #include <Battle.h>
 #include <globals.h>
 #include <QTimer>
+#include <qobjectdefs.h>
 
-Battle::Battle(WildPokemon* opp, Party party, std::unique_ptr<BattleMoveHandler> battleMoveHandler, QWindow *parent)
+Battle::Battle(WildPokemon* opp, PokemonState wildState, Party party, std::unique_ptr<BattleMoveHandler> battleMoveHandler, QWindow *parent)
     : DesktopScene(parent)
     , m_oppReference(opp)
     , m_initialOppPos(opp->position())
@@ -49,6 +51,20 @@ Battle::Battle(WildPokemon* opp, Party party, std::unique_ptr<BattleMoveHandler>
 
     setupParty(party);
 
+    int opponentHealth = calculateHealth(wildState.lvl,
+        Globals::getPoke(opp->info->pokedexId)->base_stats[0],
+        wildState.ivs[0],
+        wildState.evs[0]);
+
+    int playerHealth = party.healthTotals[0];
+    qDebug() << opponentHealth;
+    for(int i = 0; i<6; i++){
+        qDebug() << party.healthTotals[i];
+    }
+    QMetaObject::invokeMethod(m_battleScene, "setInitialTotalHealth",
+        Q_ARG(QVariant, opponentHealth),
+        Q_ARG(QVariant, playerHealth));
+
     QTimer::singleShot(20, this, [this]() {
         show();
         m_width  = width();
@@ -86,6 +102,7 @@ void Battle::setupParty(Party party) {
             Q_ARG(QVariant, QVariant(party.ballIds[i])),
             Q_ARG(QVariant, QVariant(party.gens[i])),
             Q_ARG(QVariant, QString::fromStdString(party.names[i])),
+            Q_ARG(QVariant, QVariant(party.healthTotals[i])),
             Q_ARG(QVariant, moves));
     }
 }

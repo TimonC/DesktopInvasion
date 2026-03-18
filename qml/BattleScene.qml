@@ -42,10 +42,15 @@ Item {
     property int ballTransitionDuration: 750
     property int runEndDuration: 1000
     property bool catchAttemptActive: false
+
     signal _battleEnded(string endState);
     signal _startActionRound(int actionIndex, string actionState)
     signal switchedPokemon(int generation, int spriteId)
 
+    function setInitialTotalHealth(opponentTotalHealth, playerTotalHealth){
+        opponent.statusBar.totalHealth  = opponentTotalHealth
+        player.statusBar.totalHealth    = playerTotalHealth
+    }
     //Relative positioning of elements
     function positionSpriteAndStatusBar(sprite) {
         // Clear all anchors first
@@ -220,6 +225,8 @@ Item {
 
         onSwitchChosen: function(oldPartyId, newPartyId){
             battleMenu.party.healthRatios[oldPartyId] = statusBarPlayer.currentHealthRatio
+            statusBarPlayer.totalHealth = battleMenu.party.healthTotals[newPartyId]
+
             let newPlayerName = battleMenu.party.names[newPartyId]
             let newPlayerGeneration = battleMenu.party.gens[newPartyId]
             let newPlayerSpriteId = battleMenu.party.spriteIds[newPartyId]
@@ -242,8 +249,8 @@ Item {
         }
     }
 
-    function setPartyMember(partyId, spriteId, iconId, ballId, gen, pokemonName, moves) {
-        battleMenu._setPartyMember(partyId, spriteId, iconId, ballId, gen, pokemonName, moves);
+    function setPartyMember(partyId, spriteId, iconId, ballId, gen, pokemonName, totalHealth, moves) {
+        battleMenu._setPartyMember(partyId, spriteId, iconId, ballId, gen, pokemonName, totalHealth, moves);
     }
 
     // Action sequence

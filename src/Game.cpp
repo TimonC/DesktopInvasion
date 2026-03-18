@@ -129,6 +129,28 @@ void Game::initializeGame() {
 }
 
 void Game::createInitialPokemon() {
+    PokemonState duskull;
+    duskull.pokedex_id = 355;
+    duskull.name = "Duskull";
+
+    for (int i = 0; i < 6; i++) {
+        duskull.ivs[i] = 32;
+        duskull.evs[i] = 50;
+    }
+
+    duskull.nature = Nature::Hardy;
+    duskull.lvl = 10;
+    duskull.moves[0] = 1;
+    duskull.moves[1] = 424;
+    duskull.moves[2] = 14;
+
+    int pokemonId = m_db.createPokemon(duskull);
+    if (pokemonId > 0) {
+        qDebug() << "Created Duskull with database ID:" << pokemonId;
+        m_db.setPartyPokemon(0, pokemonId);
+        m_partyIds[0] = pokemonId;
+    }
+
     PokemonState dusclops;
     dusclops.pokedex_id = 356;
     dusclops.name = "Dusclops";
@@ -144,12 +166,13 @@ void Game::createInitialPokemon() {
     dusclops.moves[1] = 425;
     dusclops.moves[2] = 14;
 
-    int pokemonId = m_db.createPokemon(dusclops);
-    if (pokemonId > 0) {
-        qDebug() << "Created Dusclops with database ID:" << pokemonId;
-        m_db.setPartyPokemon(0, pokemonId);
-        m_partyIds[0] = pokemonId;
+    int pokemonId2 = m_db.createPokemon(dusclops);
+    if (pokemonId2 > 0) {
+        qDebug() << "Created Dusclops with database ID:" << pokemonId2;
+        m_db.setPartyPokemon(1, pokemonId2);
+        m_partyIds[1] = pokemonId;
     }
+
 }
 
 void Game::loadParty() {
@@ -243,6 +266,7 @@ Party Game::getParty() {
         party.names[i] = pokemon.name;
         party.gens[i] = info->generation;
         party.ballIds[i] = pokemon.pokeball_id;
+        party.healthTotals[i] = calculateHealth(pokemon.lvl, Globals::getPoke(info->pokedexId)->base_stats[0], pokemon.ivs[0], pokemon.evs[0]);
 
         for (int moveSlot = 0; moveSlot<4; moveSlot++){
            int moveId = pokemon.moves[moveSlot];
@@ -280,7 +304,7 @@ void Game::handleBattleStart() {
 
     //Create Battle w/ BattleMoveHandler
     const Party party = getParty();
-    m_activeBattle = new Battle(m_wildPokemon, party, std::move(battleMoveHandler));
+    m_activeBattle = new Battle(m_wildPokemon, wildState, party, std::move(battleMoveHandler));
 
     connect(m_activeBattle, &Battle::battleEnded,
             this, &Game::handleBattleEnd);

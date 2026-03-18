@@ -15,6 +15,9 @@ inline int calculateStat(int lvl, int base, int iv, int ev) {
     return (lvl * (2 * base + iv + ev / 4)) / 100;
 }
 
+inline int calculateHealth(int lvl, int base, int iv, int ev){
+    return 10 + lvl + calculateStat(lvl, base, iv, ev);
+}
 inline std::array<int, 6> calculatePokeStats(
     int lvl,
     const int baseStats[6],
@@ -25,7 +28,8 @@ inline std::array<int, 6> calculatePokeStats(
     std::array<int, 6> result;
 
     // HP calculation
-    result[0] = 10 + lvl + calculateStat(lvl, baseStats[0], ivs[0], evs[0]);
+    result[0] = calculateHealth(lvl, baseStats[0], ivs[0], evs[0]);
+
 
     // Integer math for nature
     result[1] = (nature[0] * (5 + calculateStat(lvl, baseStats[1], ivs[1], evs[1]))) / 100;

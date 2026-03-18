@@ -505,7 +505,6 @@ void BattleMoveHandler::logActionSequence(const QVariantList& sequence) {
         }
         else if (type == "damage") {
             qDebug() << "    Role:   " << action["role"].toString();
-            qDebug() << "    Damage: " << action["damage"].toInt();
             qDebug() << "    Delay:  " << action["delay"].toInt() << "ms";
         }
         else if (type == "change-health") {

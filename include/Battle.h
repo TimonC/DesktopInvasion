@@ -21,6 +21,7 @@ struct Party {
     std::array<int, 6> gens{-1, -1, -1, -1, -1, -1};
     std::array<int, 6> ballIds{-1, -1, -1, -1, -1, -1};
     std::array<std::string, 6> names{"", "", "", "", "", ""};
+    std::array<int, 6> healthTotals{-1, -1, -1, -1, -1, -1};
     std::array<std::array<BattleMove, 4>, 6> moves{};
 };
 
@@ -28,7 +29,7 @@ class Battle : public DesktopScene{
 
     Q_OBJECT
 public:
-    explicit Battle(WildPokemon* opp, Party party, std::unique_ptr<BattleMoveHandler> battleMoveHandler, QWindow *parent = nullptr);
+    explicit Battle(WildPokemon* opp, PokemonState wildState, Party party, std::unique_ptr<BattleMoveHandler> battleMoveHandler, QWindow *parent = nullptr);
     ~Battle() {
         qDebug() << "Battle destructor called!";
     }
