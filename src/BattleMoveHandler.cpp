@@ -641,7 +641,7 @@ QVariantList BattleMoveHandler::generateSequenceFromResult(const BattleActionRes
                         sequence.append(createAttackAction(sourceRole, ms_attackAnimation));
                     }
                     if (!targetRole.isEmpty()) {
-                        sequence.append(createTakeDamageAction(targetRole, ms_healthChange));
+                        sequence.append(createTakeDamageAction(targetRole, ms_takeDamage));
                         sequence.append(createChangeHealthAction(targetRole, -effect.amount, ms_healthChange));
                     }
                 }

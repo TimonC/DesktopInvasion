@@ -14,8 +14,8 @@ int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
     /* Globals::debug(true); */
-    float scale = 1;
-    float speed = 2;
+    float scale = 4;
+    float speed = 1;
     Globals::scale(scale);
     Globals::animationSpeed(speed);
 

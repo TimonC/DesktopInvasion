@@ -165,6 +165,7 @@ private:
     int ms_statusConditionText = 800;
     int ms_attackAnimation = 800;
     int ms_healthChange = 1000;
+    int ms_takeDamage = 400;
     int ms_criticalHitText = 800;
     int ms_effectivenessText = 800;
     int ms_drainEffectText = 800;
