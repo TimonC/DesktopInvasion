@@ -63,7 +63,6 @@ void WildPokemon::startRoaming(){
     connect(m_moveTimer, &QTimer::timeout, this, &WildPokemon::moveStep);
 
     m_decisionTimer->start();
-    makeRandomDecision();
 }
 
 void WildPokemon::mouseDoubleClickEvent(QMouseEvent* event){
