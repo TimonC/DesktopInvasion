@@ -7,18 +7,15 @@ xhost +local:root 2>/dev/null || true
 mkdir -p "$XDG_RUNTIME_DIR"
 chmod 0700 "$XDG_RUNTIME_DIR"
 
-# --- Build in separate directory ---
 rm -rf build/*
 mkdir -p build
 cd build
 cmake ..
 make
 
-# --- Run app ---
 ./DesktopInvasion &
 APP_PID=$!
 
-# --- Watch for changes ---
 while inotifywait -r -e modify,create,delete ../src ../assets ../sprites; do
     echo -e "\n\033[1;33m========== HMR triggered at $(date '+%Y-%m-%d %H:%M') ==========\033[0m"
 

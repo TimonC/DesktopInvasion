@@ -4,23 +4,35 @@
 #include <QScreen>
 #include <QQuickItem>
 #include <QTimer>
+#include <qquickview.h>
 
-PokemonInteractable::PokemonInteractable(QWindow *parent)
+PokemonInteractable::PokemonInteractable(QWindow *parent, int row)
     : QQuickView(parent)
+    , m_row(row)
     , m_decisionTimer(new QTimer(this))
     , m_moveTimer(new QTimer(this))
     , m_moveSpeed(2 + QRandomGenerator::global()->bounded(3))
     , m_currentDirection(0)
+    , m_scaleFactor(4)
 {
-    setFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Tool);
+    setFlags(Qt::WindowStaysOnTopHint | Qt::Tool);// | Qt::FramelessWindowHint) ;
     setColor(Qt::transparent);
-    setResizeMode(SizeViewToRootObject);
+
+    setSpriteBounds();
 
     setSource(QUrl("qrc:/sprites/PokemonSprite.qml"));
     m_wildPokemon = rootObject();
+    m_wildPokemon->setProperty("scaleFactor", m_scaleFactor);
+    m_wildPokemon->setProperty("row", m_row);
 
-    setWidth(SPRITE_SIZE);
-    setHeight(SPRITE_SIZE);
+    int width = 1.2 * m_scaleFactor*(m_maxX - m_minX);
+    int height = 1.2 * m_scaleFactor*(m_maxY - m_minY);
+    m_wildPokemon->setProperty("itemWidth", width);
+    m_wildPokemon->setProperty("itemHeight", height);
+
+    m_wildPokemon->setProperty("spriteOffsetX", 20);
+    m_wildPokemon->setProperty("spriteOffsetY",-m_minY);
+
 
     m_screenGeometry = QGuiApplication::primaryScreen()->geometry();
     setX((m_screenGeometry.width() - SPRITE_SIZE) / 2);
@@ -31,9 +43,28 @@ PokemonInteractable::PokemonInteractable(QWindow *parent)
 
     m_moveTimer->setInterval(50); // 20fps
     connect(m_moveTimer, &QTimer::timeout, this, &PokemonInteractable::moveStep);
-
     m_decisionTimer->start();
     makeRandomDecision();
+}
+
+void PokemonInteractable::setSpriteBounds() {
+    QImage spriteSheet(":/assets/HGSS/PokGen1_transparent_reordered.png");
+    int frameY = m_row * 32;
+    QImage frameDown = spriteSheet.copy(0, frameY, 32, 32);
+    QImage frameLeft = spriteSheet.copy(32, frameY, 32, 32);
+
+    for (int y = 0; y < 32; ++y) {
+        for (int x = 0; x < 32; ++x) {
+            if (qAlpha(frameDown.pixel(x, y)) > 0) {
+                m_minY = qMin(m_minY, y);
+                m_maxY = qMax(m_maxY, y);
+            }
+            if (qAlpha(frameLeft.pixel(x,y)) > 0) {
+                m_minX = qMin(m_minX, x);
+                m_maxX = qMax(m_maxX, x);
+            }
+        }
+    }
 }
 
 void PokemonInteractable::makeRandomDecision(){

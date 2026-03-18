@@ -6,7 +6,9 @@
 
 int main(int argc, char *argv[]){
     QGuiApplication app(argc, argv);
-    PokemonInteractable pokemon;
+    PokemonInteractable pok1(nullptr, 0);
+    PokemonInteractable pok2(nullptr, 1);
+    PokemonInteractable pok3(nullptr, 2);
     /* InvasionOverlay overlay; */
 
     /* PokemonSpawner spawner( */
@@ -20,6 +22,8 @@ int main(int argc, char *argv[]){
     /* overlay.show(); */
 
     /* spawner.startSpawning(); */
-    pokemon.show();
+    pok1.show();
+    pok2.show();
+    pok3.show();
     return app.exec();
 }
