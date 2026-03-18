@@ -9,14 +9,15 @@ class Player: public QObject{
     Q_OBJECT
 
 public:
-    explicit Player(QObject* parent = nullptr);
+    Player(QObject* parent = nullptr);
     void iChooseYou(WildPokemon* opp);
     bool m_pokemonAvailable = false;
+signals:
+    void startABattle(Battle* battle);
 
 private:
     void _iChooseYou(PokemonInfo* opp, PokemonInfo* chosen);
-    std:: array<std::optional<std::unique_ptr<PokemonInfo>>, 6> m_party;
-    std::vector<std::unique_ptr<Battle>> m_activeBattles;
+    std::array<const PokemonInfo*, 6> m_party;
 };
 
 #endif

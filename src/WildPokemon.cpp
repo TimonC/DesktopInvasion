@@ -105,7 +105,7 @@ void WildPokemon::startBattle(){
     }else if(intop){
         direction(2);
     }
-    Globals::getPlayer().iChooseYou(this);
+    (&Globals::getPlayer())->iChooseYou(this);
 }
 
 void WildPokemon::makeRandomDecision(){
