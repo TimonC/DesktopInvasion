@@ -45,7 +45,7 @@ private:
 
 private slots:
     void handleBattleStart();
-    void handleBattleEnd(bool removeWild);
+    void handleBattleEnd(const char* endState);
     void setGameActive(bool active = true);
 };
 

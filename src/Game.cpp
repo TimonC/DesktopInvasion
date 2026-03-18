@@ -4,6 +4,7 @@
 #include "globals.h"
 #include <QTimer>
 #include <QDebug>
+#include <cstring>  // For strcmp
 
 Game::Game(QQmlApplicationEngine* engine, QObject* parent)
     : QObject(parent)
@@ -20,8 +21,7 @@ Game::Game(QQmlApplicationEngine* engine, QObject* parent)
 
     initializeGame();
 
-    connect(m_trayIcon, &SystemTrayIcon::gameActive,
-            this, &Game::setGameActive);
+    connect(m_trayIcon, &SystemTrayIcon::gameActive, this, &Game::setGameActive);
 
     m_spawnTimer->setInterval(m_spawnDelay_ms);
     connect(m_spawnTimer, &QTimer::timeout, this, &Game::spawnPokemon);
@@ -176,40 +176,65 @@ void Game::handleBattleStart() {
             this, &Game::handleBattleEnd);
 }
 
-void Game::handleBattleEnd(bool removeWild) {
+void Game::handleBattleEnd(const char* endState) {
+    if (!endState) {
+        qWarning() << "handleBattleEnd called with null endState";
+        return;
+    }
+
     if (m_activeBattle) {
         m_activeBattle->disconnect();
     }
 
+    bool playerWon = (strcmp(endState, "PlayerWon") == 0);
+    bool opponentCaught = (strcmp(endState, "OpponentCaught") == 0);
+    bool removeWild = playerWon || opponentCaught;
+
     if (removeWild) {
-        int caughtId = m_db.catchWildPokemon();
-        if (caughtId > 0) {
-            qDebug() << "Pokemon caught! Database ID:" << caughtId;
+        // Player won the battle - add XP efficiently
+        if (playerWon && m_partyIds[0] > 0) {
+            if (m_db.addPokemonXp(m_partyIds[0], 100)) {
+                int newXp = m_db.getPokemonXp(m_partyIds[0]);
+                qDebug() << "Added 100 XP to fighting Pokemon. Total XP:" << newXp;
+            } else {
+                qWarning() << "Failed to add XP to Pokemon ID:" << m_partyIds[0];
+            }
+        }
 
-            for (int i = 0; i < 6; i++) {
-                if (m_partyIds[i] == 0) {
-                    m_db.setPartyPokemon(i, caughtId);
-                    m_partyIds[i] = caughtId;
+        // Handle catching
+        if (opponentCaught) {
+            int caughtId = m_db.catchWildPokemon();
+            if (caughtId > 0) {
+                qDebug() << "Pokemon caught! Database ID:" << caughtId;
 
-                    PokemonState caughtPokemon = m_db.getPokemon(caughtId);
-                    qDebug() << "Added" << QString::fromStdString(caughtPokemon.name) << "to party slot" << i;
-                    break;
+                // Add to first empty party slot
+                for (int i = 0; i < 6; i++) {
+                    if (m_partyIds[i] == 0) {
+                        m_db.setPartyPokemon(i, caughtId);
+                        m_partyIds[i] = caughtId;
+
+                        PokemonState caughtPokemon = m_db.getPokemon(caughtId);
+                        qDebug() << "Added" << QString::fromStdString(caughtPokemon.name)
+                                 << "to party slot" << i;
+                        break;
+                    }
                 }
             }
         }
 
+        // Cleanup
         if (m_activeBattle) {
             m_activeBattle->deleteLater();
             m_activeBattle = nullptr;
         }
-
         if (m_wildPokemon) {
             m_wildPokemon->deleteLater();
             m_wildPokemon = nullptr;
         }
-
         m_spawnTimer->start();
+
     } else {
+        // Battle ended without removing wild Pokemon
         if (m_activeBattle) {
             m_activeBattle->handleDrag(false);
         }

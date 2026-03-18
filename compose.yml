@@ -12,6 +12,7 @@ services:
       - ./src:/app/src
       - ./include:/app/include
       - ./qml:/app/qml
+      - ./data:/app/data
       - /dev/dri:/dev/dri
     stdin_open: true
     tty: true

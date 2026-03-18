@@ -2,6 +2,8 @@
 #define POKEMONDATABASE_H
 
 #include <string>
+#include <vector>
+#include <utility>
 #include "GameState.h"
 
 struct sqlite3;
@@ -11,21 +13,38 @@ class PokemonDatabase {
 public:
     static PokemonDatabase& instance();
 
-    bool initialize(const std::string& dbPath = "pokemon_game.db");
+    bool initialize(const std::string& dbPath = "/app/data/pokemon_game.db");
     void shutdown();
 
+    // Core Pokemon operations
     PokemonState getPokemon(int id);
     int createPokemon(const PokemonState& pokemon);
     bool updatePokemon(const PokemonState& pokemon);
     bool deletePokemon(int id);
 
+    // Efficient partial updates
+    bool updatePokemonField(int pokemonId, const std::string& field, int value);
+    bool incrementPokemonField(int pokemonId, const std::string& field, int amount);
+
+    // Common operations as convenience methods
+    bool addPokemonXp(int pokemonId, int xpAmount);
+    int getPokemonXp(int pokemonId);
+    bool updatePokemonName(int pokemonId, const std::string& newName);
+
+    // Batch updates
+    bool updatePokemonFields(int pokemonId, const std::vector<std::pair<std::string, int>>& updates);
+    bool incrementPokemonFields(int pokemonId, const std::vector<std::pair<std::string, int>>& increments);
+
+    // Wild Pokemon operations
     PokemonState getWildPokemon();
     void spawnWildPokemon(const PokemonState& templatePokemon);
     int catchWildPokemon();
 
+    // Game state operations
     GameState loadGameState();
     bool saveGameState(const GameState& state);
 
+    // Party management
     bool setPartyPokemon(int slot, int pokemonId);
     bool clearPartySlot(int slot);
 
@@ -40,6 +59,10 @@ private:
     void ensureWildSlotExists();
     PokemonState queryToPokemon(sqlite3_stmt* stmt);
     void bindPokemonParams(sqlite3_stmt* stmt, const PokemonState& pokemon, int startCol = 1);
+
+    // Helper methods
+    bool isValidField(const std::string& field);
+    bool executeUpdate(const std::string& sql, const std::vector<int>& params);
 
     sqlite3* m_db = nullptr;
     std::string m_dbPath;

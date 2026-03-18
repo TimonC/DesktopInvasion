@@ -23,15 +23,10 @@ public:
     QPoint m_origin;
 
 signals:
-    void battleEnded(bool removeWild);
+    void battleEnded(const char* endState);
 
 public slots:
     void handleDrag(bool isDragged) override;
-private slots:
-    void handleRunChosen();
-    void handleOpponentWon();
-    void handlePlayerWon();
-    void handlePokemonCaught();
 
 private:
     int m_pokeMargin = 2;

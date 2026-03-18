@@ -25,19 +25,19 @@ Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent
 
     // Use connectWithQML for clean signal handling
     connectWithQML(m_battleScene, SIGNAL(runChosen()), [this]() {
-        handleRunChosen();
+        battleEnded("PlayerRun");
     });
 
     connectWithQML(m_battleScene, SIGNAL(opponentWon()), [this]() {
-        handleOpponentWon();
+        battleEnded("OpponentWon");
     });
 
     connectWithQML(m_battleScene, SIGNAL(playerWon()), [this]() {
-        handlePlayerWon();
+        battleEnded("PlayerWon");
     });
 
     connectWithQML(m_battleScene, SIGNAL(pokemonCaught()), [this]() {
-        handlePokemonCaught();
+        battleEnded("OpponentCaught");
     });
 
     m_battleScene->setProperty("direction", m_currentDirection);
@@ -55,21 +55,6 @@ Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent
     });
 }
 
-void Battle::handleRunChosen() {
-    emit battleEnded(false);
-}
-
-void Battle::handleOpponentWon() {
-    emit battleEnded(false);
-}
-
-void Battle::handlePlayerWon() {
-    emit battleEnded(true);
-}
-
-void Battle::handlePokemonCaught() {
-    emit battleEnded(true);
-}
 
 QQuickItem* Battle::setupPokemon(const PokemonInfo* info, const char* role) {
     QQuickItem* pokemonSprite = m_battleScene->property(role).value<QQuickItem*>();
