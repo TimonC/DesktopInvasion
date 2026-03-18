@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import "./SpriteMovement" as SpriteMovement
 
 Item {
     id: root
@@ -21,21 +22,24 @@ Item {
     property bool clickable: true
     property bool debugLines: false
 
-    // Store original position for animations
-    property real originalX: 0
-    property real originalY: 0
+    property alias actionForward: actionForward
+    property alias takeDamage: takeDamage
 
     width: itemWidth > 0 ? itemWidth : frameWidth * scaleFactor
     height: itemHeight > 0 ? itemHeight : frameHeight * scaleFactor
     layer.enabled: true
     z: 1
 
-    // Random delay timer to prevent sync
+    //Store starting pos for animations
+    property int startingX: 0
+    property int startingY: 0
+    // Random delay timer to prevent sync between sprites
     property Timer startTimer: Timer {
         interval: Math.random() * 125
         running: true
         onTriggered: sprite.running = true
     }
+
 
     AnimatedSprite {
         id: sprite
@@ -66,6 +70,36 @@ Item {
         }
         frameY: row * frameHeight
     }
+
+    //Sprite Movements
+    SpriteMovement.ActionForward{
+        id: actionForward
+        objectName: "ActionForward"
+        pokemon: root
+    }
+
+    SequentialAnimation {
+        id: takeDamage
+        running: false
+        loops: 1
+
+        SequentialAnimation {
+            loops: 3
+            PropertyAnimation {
+                target: root
+                property: "opacity"
+                to: 0
+                duration: 50
+            }
+            PropertyAnimation {
+                target: root
+                property: "opacity"
+                to: 1
+                duration: 50
+            }
+        }
+    }
+
 
     // Debug rectangle
     Rectangle {

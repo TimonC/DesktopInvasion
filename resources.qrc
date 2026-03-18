@@ -3,6 +3,8 @@
         <file>qml/PokemonSprite.qml</file>
         <file>qml/BattleScene.qml</file>
 
+        <file>qml/SpriteMovement/ActionForward.qml</file>
+
         <file>assets/HGSS/PokGen1_transparent_reordered.png</file>
         <file>assets/HGSS/PokGen2_transparent_reordered.png</file>
         <file>assets/HGSS/PokGen3_transparent_reordered.png</file>
