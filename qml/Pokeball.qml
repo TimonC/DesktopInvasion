@@ -540,4 +540,36 @@ Item {
             script: root.throwAnimationDone()
         }
     }
+
+    function reset() {
+        // Stop all running animations
+        throwPokeball.stop()
+        shakeAnimation.stop()
+        jumpAnimation.stop()
+        outerCircleAnimation.stop()
+        innerCircleAnimation.stop()
+        frameTimer.stop()
+
+        // Reset all visual properties to initial state
+        pokeballSprite.visible = false
+        pokeballSprite.x = 0
+        pokeballSprite.y = 0
+        pokeballSprite.sourceClipRect.x = 0
+
+        outerCircle.visible = false
+        outerCircle.opacity = 0
+        outerCircle.width = 0
+        outerCircle.height = 0
+
+        innerCircle.visible = false
+        innerCircle.opacity = 0
+        innerCircle.width = 0
+        innerCircle.height = 0
+
+        // Reset any other state if needed
+        x0 = 0
+        x1 = 0
+        y0 = 0
+        y1 = 0
+    }
 }

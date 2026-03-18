@@ -86,6 +86,7 @@ Item {
         positionSpriteAndStatusBar(opponent)
         // Schedule for next event loop
         Qt.callLater(function() {
+            resetPlayerBall(true)
             battleMenu.showTextBar()
             battleMenu.updateText(playerName + ", I choose you!")
             var coords = calculateBallCoords(player)
@@ -153,23 +154,32 @@ Item {
     }
     Pokeball {
         id: pokeBallPlayer
-        scaleFactor: 2
-        // Configure circle properties
-        circleBaseRadius: Math.max(player.width/2, player.height/2)
-        circleAnimationDuration: 1000
-        delayReveal: 2 //longer animation for player reveal
-        circleX: player.x + player.width/2  // Center on player
-        circleY: player.y + player.height/2
-        onPokemonInsideBall:{
+    }
+
+    function resetPlayerBall(firstChosen) {
+        pokeBallPlayer.reset()
+
+        pokeBallPlayer.circleBaseRadius = Math.max(player.width/2, player.height/2)
+        pokeBallPlayer.circleX = player.x + player.width/2  // Center on player
+        pokeBallPlayer.circleY = player.y + player.height/2
+        pokeBallPlayer.scaleFactor = 2
+        pokeBallPlayer.circleAnimationDuration = 1000
+        pokeBallPlayer.delayReveal = 2
+
+        pokeBallPlayer.onPokemonInsideBall.connect(function() {
             pokeBallPlayer.circleExpand()
-        }
-        onBallOpened:{
-            pokeBallPlayer.visible=false
-            player.visible=true
+        })
+
+        pokeBallPlayer.onBallOpened.connect(function() {
+            pokeBallPlayer.visible = false
+            player.visible = true
             statusBarPlayer.visible = true
             battleMenu.resetToRoot()
-            if(!root.firstChosen) startActionChain("switch", playerFirst)
-        }
+
+            if(!firstChosen) {
+                startActionChain("switch", true)
+            }
+        })
     }
     // UI
     BattleMenu {
@@ -219,8 +229,7 @@ Item {
             statusBarPlayer.totalHealth = 100; //TODO
             statusBarPlayer.currentHealthRatio = 1;
 
-            root.firstChosen = false;
-
+            root.resetPlayerBall(false)
             var coords = calculateBallCoords(player)
             pokeBallPlayer.throwAt(coords[0], coords[1], coords[2], coords[3])
         }

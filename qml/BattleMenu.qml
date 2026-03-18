@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+
 Rectangle {
     id: root
     color: "transparent"
@@ -21,21 +22,16 @@ Rectangle {
     signal catchChosen(int pokeId)
     signal switchChosen(int partyIdx)
     property alias stack: stack
-    // Changed to object with arrays instead of array of objects
     property var party: {
-        "spriteIds": [-1, -1, -1, -1, -1, -1],
-        "iconIds": [-1, -1, -1, -1, -1, -1],
-        "ballIds": [-1, -1, -1, -1, -1, -1],
-        "gens": [-1, -1, -1, -1, -1, -1],
-        "names": ["", "", "", "", "", ""]
-    }
-    function _setPartyMember(partyIdx, spriteId, iconId, ballId, gen, pokemonName) {
+    "spriteIds": [-1, -1, -1, -1, -1, -1],
+    "iconIds": [-1, -1, -1, -1, -1, -1],
+    "ballIds": [-1, -1, -1, -1, -1, -1],
+    "gens": [-1, -1, -1, -1, -1, -1],
+    "names": ["", "", "", "", "", ""]
+}
+function _setPartyMember(partyIdx, spriteId, iconId, ballId, pokemonName) {
         var temp = party
-        temp.spriteIds[partyIdx] = spriteId
-        temp.iconIds[partyIdx] = iconId
-        temp.ballIds[partyIdx] = ballId
-        temp.gens[partyIdx] = gen
-        temp.names[partyIdx] = pokemonName
+        temp[partyIdx] = {spriteId: spriteId, iconId: iconId, ballId: ballId, name: pokemonName}
         party = temp
     }
     function showTextBar() {
@@ -119,6 +115,8 @@ Rectangle {
             height: root.menuHeight
             width: root.menuWidth
             radius: 5
+            Text {
+                id: textBarText
             Text {
                 id: textBarText
                 anchors.left: parent.left
@@ -305,6 +303,12 @@ Rectangle {
                     Text {
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.left: ballName.right
+                        anchors.leftMargin: 4
+                        text: "inf"
+                        font.pixelSize: root.buttonFontSize
+                        color: "darkgrey"
+                        anchors.leftMargin: 4
+                        anchors.leftMargin: 4
                         anchors.leftMargin: 4
                         text: "inf"
                         font.pixelSize: root.buttonFontSize
