@@ -382,7 +382,6 @@ void Game::createInitialPokemon() {
         m_partyIds[1] = pokemonId2;
     }
 }
-
 void Game::updatePartyXP(std::array<int, 6> spread) {
     if (!m_activeBattle) {
         qWarning() << "Cannot show XP sequence - battle already ended";
@@ -413,6 +412,9 @@ void Game::updatePartyXP(std::array<int, 6> spread) {
         for (int i = 0; i < 6; i++) {
             if (m_partyIds[i] == pokemon._id && spread[i] > 0) {
                 int xpGain = spread[i];
+                int oldXP = pokemon.currentXP;
+                int oldLevel = pokemon.lvl;
+
                 pokemon.currentXP += xpGain;
 
                 while (pokemon.lvl < 100) {
@@ -427,6 +429,12 @@ void Game::updatePartyXP(std::array<int, 6> spread) {
                     }
                 }
 
+                qDebug().nospace()
+                    << "[#" << pokemon._id << "] " << QString::fromStdString(pokemon.name)
+                    << ": XP " << oldXP << "→" << pokemon.currentXP
+                    << " (+" << xpGain << ")"
+                    << ", Lvl " << oldLevel << "→" << pokemon.lvl;
+
                 found = true;
                 break;
             }
@@ -438,7 +446,7 @@ void Game::updatePartyXP(std::array<int, 6> spread) {
     }
 
     if (m_db.batchUpdatePokemon(updatedPokemon)) {
-        qDebug() << "Successfully batch updated" << updatedPokemon.size() << "Pokémon";
+        qDebug() << "Successfully updated" << updatedPokemon.size() << "Pokémon";
     } else {
         qWarning() << "Failed to batch update Pokémon";
     }
