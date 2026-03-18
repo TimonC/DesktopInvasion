@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
     InvasionOverlay overlay;
 
     qDebug() << "Showing overlay...";
-    overlay.showFullScreen();
+    overlay.show();
 
     qDebug() << "Starting event loop...";
     return app.exec();
