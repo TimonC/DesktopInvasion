@@ -9,7 +9,7 @@ Item {
     z: 3000
     property var mouseArea: mouseArea
     property var battleButton: battleButton
-
+    property bool debugLines: false
     MouseArea {
         id: mouseArea
         anchors.fill: parent
@@ -33,7 +33,7 @@ Item {
         color: "transparent"
         border.color: "red"
         border.width: 1
-        // visible: false
+        visible: debugLines
     }
 }
 

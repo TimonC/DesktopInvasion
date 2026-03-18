@@ -3,10 +3,11 @@
 
 #include <QRect>
 #include "Player.h"
+#include <QGuiApplication>
 
 Player& getPlayer();
-
-QRect& getScreenGeometry();
-
+int screenWidth();
+int screenHeight();
+static bool DEBUG = false;
 
 #endif

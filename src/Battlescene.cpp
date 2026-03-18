@@ -22,6 +22,8 @@ Battlescene::Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent)
     QQuickItem *ui = rootObject();
     m_ui = ui;
 
+    m_ui->setProperty("debugLines", DEBUG);
+
     QQuickItem* runButton = ui->property("runButton").value<QQuickItem*>();
     connect(runButton,  SIGNAL(clicked()), this, SLOT(run()));
 
@@ -116,10 +118,10 @@ void Battlescene::mouseMoveEvent(QMouseEvent* event){
 }
 void Battlescene::drag(QPoint delta){
     QPoint pos = position();
-    if (pos.x() + delta.x() < 0 || pos.x() + delta.x() > getScreenGeometry().width() - width())
-        delta.setX(0);
-    if (pos.y() + delta.y() < 0 || pos.y() + delta.y() > getScreenGeometry().height() - height())
-        delta.setY(0);
+    /* if (pos.x() + delta.x() < 0 || pos.x() + delta.x() > getScreenGeometry().width() - width()) */
+        /* delta.setX(0); */
+    /* if (pos.y() + delta.y() < 0 || pos.y() + delta.y() > getScreenGeometry().height() - height()) */
+        /* delta.setY(0); */
 
     setPosition(pos + delta);
     m_chosen->movePos(delta, false);

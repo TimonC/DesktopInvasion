@@ -19,7 +19,7 @@ WildPokemon::WildPokemon(QWindow *parent, int row)
 {
 
     m_hitbox->offset =QPoint(width()/3.3, height()/2.8);
-    movePos(QPoint(getScreenGeometry().width()/2, getScreenGeometry().height()/2));
+    movePos(QPoint(screenWidth()/2, screenHeight()/2));
 
     connect(m_hitbox, &Hitbox::drag, this, [this](QPoint delta){
             movePos(delta);
@@ -112,8 +112,8 @@ void WildPokemon::moveStep(){
         case 3: newPos = movePos(QPoint(m_moveSpeed, 0)); break;
     }
 
-    if (newPos.x() == 0 || newPos.x() == getScreenGeometry().width() - SPRITE_SIZE ||
-        newPos.y() == 0 || newPos.y() == getScreenGeometry().height() - SPRITE_SIZE) {
-        makeRandomDecision();
-    }
+    /* if (newPos.x() == 0 || newPos.x() == getScreenGeometry().width() - SPRITE_SIZE || */
+    /*     newPos.y() == 0 || newPos.y() == getScreenGeometry().height() - SPRITE_SIZE) { */
+    /*     makeRandomDecision(); */
+    /* } */
 }

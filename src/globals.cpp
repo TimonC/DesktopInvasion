@@ -11,3 +11,13 @@ QRect& getScreenGeometry() {
     static QRect geometry = QGuiApplication::primaryScreen()->geometry();
     return geometry;
 }
+
+int screenWidth(){
+    static int width = QGuiApplication::primaryScreen()->geometry().width();
+    return width;
+}
+
+int screenHeight(){
+    static int height = QGuiApplication::primaryScreen()->geometry().height();
+    return height;
+}

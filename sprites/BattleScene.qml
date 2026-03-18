@@ -13,10 +13,9 @@ Item {
     property int buttonHeight: frameSize * 0.7
     property int buttonFontSize: frameSize * 0.4
     property int gridSpacing: frameSize * 0.1  // Small spacing between buttons
-
-    // Property to control which side the chosen/opponent buttons are on
     property int chosenSide: 1  // 0, 1, 2, or 3
 
+    property bool debugLines: false
     property alias textBar: textBar
     property alias buttonGrid: buttonGrid;
     property alias attackButton: attackButton
@@ -146,6 +145,6 @@ Item {
         color: "transparent"
         border.color: "blue"
         border.width: 1
-        // visible: false
+        visible: debugLines
     }
 }

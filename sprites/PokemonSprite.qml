@@ -20,7 +20,7 @@ Item {
     property bool jumping: false
     property bool tackle: false
     property bool attacked: false
-
+    property bool debugLines: false
     width: itemWidth
     height: itemHeight
     clip: true
@@ -169,6 +169,6 @@ Item {
         color: "transparent"
         border.color: "yellow"
         border.width: 1
-        // visible: false
+        visible: debugLines
     }
 }
