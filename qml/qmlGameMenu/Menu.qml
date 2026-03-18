@@ -59,6 +59,29 @@ Rectangle {
         }
     }
 
+    Connections {
+        target: pokeView
+        function onEditButtonClicked(pokeData) {
+            moveMenu.pokeData    = pokeData
+            moveMenu.rowId       = pokeData.rowId
+            moveMenu.spriteSheet = pokeData.isBig ? "qrc:/assets/HGSS/reordered_sprites_big.png"
+                                                  : "qrc:/assets/HGSS/reordered_sprites.png"
+            moveMenu.frameWidth  = pokeData.isBig ? 64 : 32
+            moveMenu.frameHeight = pokeData.isBig ? 64 : 32
+            moveMenu.scaleFactor = pokeData.isBig ? root.iconScaleForBig : root.iconScale
+            root.menuState       = "moveMenu"
+
+            if (pc.inSwapMode) pc.toggleSwapMode()
+            if (moveMenu.inNameEditMode) moveMenu.toggleNameEditMode()
+        }
+    }
+
+    Connections {
+        target: moveMenu
+        function onNameChanged(name) {
+            menuBridge.nameChangeRequested(pc.displayedPokemonBox, pc.displayedPokemonSlot, name)
+        }
+    }
     // ── Bridge connections ─────────────────────────────────────────────────────
     Connections {
         target: menuBridge
@@ -79,26 +102,8 @@ Rectangle {
             updated[boxIndex] = arr
             boxPokes = updated
         }
-
-        function onShowBoxRequested(boxIndex) { pc.showBox(boxIndex) }
     }
 
-    Connections {
-        target: pokeView
-        function onEditButtonClicked(pokeData) {
-            moveMenu.pokeData    = pokeData
-            moveMenu.rowId       = pokeData.rowId
-            moveMenu.spriteSheet = pokeData.isBig ? "qrc:/assets/HGSS/reordered_sprites_big.png"
-                                                  : "qrc:/assets/HGSS/reordered_sprites.png"
-            moveMenu.frameWidth  = pokeData.isBig ? 64 : 32
-            moveMenu.frameHeight = pokeData.isBig ? 64 : 32
-            moveMenu.scaleFactor = pokeData.isBig ? root.iconScaleForBig : root.iconScale
-            root.menuState       = "moveMenu"
-
-            if (pc.inSwapMode) pc.toggleSwapMode()
-            if (moveMenu.inNameEditMode) moveMenu.toggleNameEditMode()
-        }
-    }
 
     Connections {
         target: pc
@@ -241,7 +246,6 @@ Rectangle {
                 mainFont:   root.p2pFont
                 bodyFont:   root.dotGothicFont
                 visible:    root.menuState === "moveMenu"
-
                 onReturnClicked: root.menuState = "default"
             }
         }

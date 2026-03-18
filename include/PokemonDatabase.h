@@ -78,6 +78,11 @@ public:
     // --- Multi-save ---
     std::vector<GameState> listSaves();
     bool                   switchSave(int save_id);
+    // --- Field patches (cheap, repeatable) ---
+    // location: box=-1 → party slot, box>=0 → PC slot, box=-2 → wild
+    void renamePokemon (int box, int slot, const std::string& newName);
+    void setPokemonMoves(int box, int slot, const int moves[4]);
+    void setPokemonMove (int box, int slot, int moveIndex, int moveId);
 
 private:
     PokemonDatabase() = default;
@@ -106,4 +111,6 @@ private:
     PokemonState                                                m_wild;
     std::array<PokemonState, PARTY_SIZE>                        m_party;
     std::unordered_map<int, std::array<PokemonState, BOX_SIZE>> m_boxCache;
+    // in private:
+    PokemonState* cachePtr(int box, int slot);   // -2=wild, -1=party, >=0=PC
 };

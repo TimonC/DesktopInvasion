@@ -356,11 +356,10 @@ Item {
                             hoverEnabled: true
 
                             onClicked: {
-                                mouse.accepted = true;
+                                // mouse.accepted = true;
                                 if (!moveMenu.inNameEditMode) {
                                     moveMenu.toggleNameEditMode();
                                 }
-                                // If in edit mode, the TextInput will handle the click
                             }
                         }
                     }

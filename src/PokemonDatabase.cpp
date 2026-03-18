@@ -539,3 +539,88 @@ bool PokemonDatabase::switchSave(int save_id) {
     loadWildAndParty();
     return true;
 }
+// --------------------------------------------------------------------------
+// Field patches
+// --------------------------------------------------------------------------
+
+// Internal helper: run a targeted UPDATE on whichever table owns this slot.
+// box == -2 → wild_slot   (slot ignored)
+// box == -1 → party_slots (slot = party index)
+// box >= 0  → pc_slots    (box + slot)
+//
+// 'setCols' is the SET fragment, e.g. "name=?"
+// Bind your value(s) BEFORE calling; the WHERE params are appended here.
+static void patchSlot(int saveId, int box, int slot,
+                      const QString& setCols,
+                      std::function<void(QSqlQuery&)> bindValues)
+{
+    QSqlQuery q;
+    if (box == -2) {
+        q.prepare(QString("UPDATE wild_slot SET %1 WHERE save_id=?").arg(setCols));
+        bindValues(q);
+        q.addBindValue(saveId);
+    } else if (box == -1) {
+        q.prepare(QString("UPDATE party_slots SET %1 WHERE save_id=? AND slot=?").arg(setCols));
+        bindValues(q);
+        q.addBindValue(saveId);
+        q.addBindValue(slot);
+    } else {
+        q.prepare(QString("UPDATE pc_slots SET %1 WHERE save_id=? AND box=? AND slot=?").arg(setCols));
+        bindValues(q);
+        q.addBindValue(saveId);
+        q.addBindValue(box);
+        q.addBindValue(slot);
+    }
+    q.exec();
+    logQuery(q);
+}
+
+// Patch cache helper: returns a pointer to the live PokemonState, or nullptr.
+PokemonState* PokemonDatabase::cachePtr(int box, int slot) {
+    if (box == -2) return &m_wild;
+    if (box == -1) { return (slot >= 0 && slot < PARTY_SIZE) ? &m_party[slot] : nullptr; }
+    if (!isBoxLoaded(box)) loadBox(box);
+    return (slot >= 0 && slot < BOX_SIZE) ? &m_boxCache[box][slot] : nullptr;
+}
+
+void PokemonDatabase::renamePokemon(int box, int slot, const std::string& newName) {
+    PokemonState* p = cachePtr(box, slot);
+    if (!p || p->empty()) return;
+
+    p->name = newName;
+    QString qName = QString::fromStdString(newName);
+    patchSlot(m_saveId, box, slot, "name=?",
+              [&](QSqlQuery& q){ q.addBindValue(qName); });
+
+    DB_LOG("Renamed [box=" << box << " slot=" << slot << "] ->" << qName);
+}
+
+void PokemonDatabase::setPokemonMoves(int box, int slot, const int moves[4]) {
+    PokemonState* p = cachePtr(box, slot);
+    if (!p || p->empty()) return;
+
+    for (int i = 0; i < 4; ++i) p->moves[i] = moves[i];
+    patchSlot(m_saveId, box, slot, "move0=?, move1=?, move2=?, move3=?",
+              [&](QSqlQuery& q){
+                  q.addBindValue(moves[0]);
+                  q.addBindValue(moves[1]);
+                  q.addBindValue(moves[2]);
+                  q.addBindValue(moves[3]);
+              });
+
+    DB_LOG("Moves [box=" << box << " slot=" << slot << "] ->"
+           << moves[0] << moves[1] << moves[2] << moves[3]);
+}
+
+void PokemonDatabase::setPokemonMove(int box, int slot, int moveIndex, int moveId) {
+    if (moveIndex < 0 || moveIndex > 3) return;
+    PokemonState* p = cachePtr(box, slot);
+    if (!p || p->empty()) return;
+
+    p->moves[moveIndex] = moveId;
+    static const char* cols[] = {"move0=?","move1=?","move2=?","move3=?"};
+    patchSlot(m_saveId, box, slot, cols[moveIndex],
+              [&](QSqlQuery& q){ q.addBindValue(moveId); });
+
+    DB_LOG("Move[" << moveIndex << "] [box=" << box << " slot=" << slot << "] ->" << moveId);
+}
