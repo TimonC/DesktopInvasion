@@ -1,6 +1,6 @@
-#include "Battle.h"
+#include <Battle.h>
+#include <globals.h>
 #include <QTimer>
-#include "globals.h"
 
 Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent)
     : DesktopScene(parent)

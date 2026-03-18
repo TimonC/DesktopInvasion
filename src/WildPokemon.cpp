@@ -2,9 +2,9 @@
 #include <QQuickItem>
 #include <QQuickView>
 #include <QTimer>
-#include "WildPokemon.h"
-#include "globals.h"
-#include "pokemon_data.h"
+#include <WildPokemon.h>
+#include <globals.h>
+#include <pokemon_data.h>
 
 WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
     : DesktopScene(parent)

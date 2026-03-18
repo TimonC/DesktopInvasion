@@ -1,7 +1,7 @@
 #include <QGuiApplication>
-#include "WildPokemon.h"
-#include "pokemon_data.h"
-#include "globals.h"
+#include <WildPokemon.h>
+#include <pokemon_data.h>
+#include <globals.h>
 #include <QLoggingCategory>
 #include <QOpenGLContext>
 

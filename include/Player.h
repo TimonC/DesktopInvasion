@@ -2,8 +2,8 @@
 #define PLAYER_H
 
 #include <Battle.h>
-#include "WildPokemon.h"
-#include "pokemon_data.h"
+#include <WildPokemon.h>
+#include <pokemon_data.h>
 
 class Player: public QObject{
     Q_OBJECT

@@ -1,7 +1,8 @@
-#include "WildPokemon.h"
-#include "globals.h"
-#include "pokemon_data.h"
-#include "Player.h"
+#include <WildPokemon.h>
+#include <globals.h>
+#include <pokemon_data.h>
+#include <Player.h>
+
 Player::Player(QObject* parent) : QObject(parent){
     const PokemonInfo* p2 = Globals::getPokemonByPokedexId(355);
     /* const PokemonInfo* p2 = Globals::getRandomPokemon(); */
