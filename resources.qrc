@@ -5,6 +5,7 @@
         <file>qml/BattleMenu.qml</file>
         <file>qml/StatusBar.qml</file>
         <file>qml/Pokeball.qml</file>
+        <file>qml/SystemTrayIcon.qml</file>
 
         <file>assets/HGSS/PokGen1_transparent_reordered.png</file>
         <file>assets/HGSS/PokGen2_transparent_reordered.png</file>

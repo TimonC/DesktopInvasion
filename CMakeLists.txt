@@ -8,7 +8,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC OFF)   # We'll manually add resources
 
 # Require Qt6
-find_package(Qt6 REQUIRED COMPONENTS Gui Quick)
+find_package(Qt6 REQUIRED COMPONENTS Gui Quick Widgets)
 
 # Add resources
 qt6_add_resources(RESOURCES_RCC resources.qrc)
@@ -37,5 +37,6 @@ target_compile_features(DesktopInvasion PRIVATE cxx_std_17)
 target_link_libraries(DesktopInvasion PRIVATE
     Qt6::Gui
     Qt6::Quick
+    Qt6::Widgets
 )
 

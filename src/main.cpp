@@ -1,4 +1,5 @@
-#include <QGuiApplication>
+#include <QApplication>
+#include <QQmlApplicationEngine>
 #include <QLoggingCategory>
 #include <QOpenGLContext>
 #include <globals.h>
@@ -7,7 +8,9 @@
 
 int main(int argc, char *argv[]) {
 
-    QGuiApplication app(argc, argv);
+    QApplication app(argc, argv);
+    QQmlApplicationEngine engine;
+    engine.load(QUrl(QStringLiteral("qrc:/qml/SystemTrayIcon.qml")));
 
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 
