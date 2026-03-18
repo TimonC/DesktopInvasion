@@ -22,22 +22,3 @@ function typeColor(typeName) {
         default:         return "transparent"
     }
 }
-
-var DARK_FACTOR  = 0.75   // multiply RGB to get darker
-var LIGHT_FACTOR = 0.15   // add to RGB to get lighter
-
-function darkerTypeColor(typeName) {
-    var c = Qt.color(typeColor(typeName))
-    return Qt.rgba(c.r * DARK_FACTOR, c.g * DARK_FACTOR, c.b * DARK_FACTOR, 1)
-}
-
-function lighterTypeColor(typeName) {
-    var c = Qt.color(typeColor(typeName))
-    return Qt.rgba(
-        Math.min(1, c.r + LIGHT_FACTOR),
-        Math.min(1, c.g + LIGHT_FACTOR),
-        Math.min(1, c.b + LIGHT_FACTOR),
-        1
-    )
-}
-

@@ -90,6 +90,33 @@ Rectangle {
         ]
     }
 
+    function lighterColor(baseColor) {
+        var c = Qt.color(baseColor)
+        return Qt.rgba(
+            Math.min(1, c.r + 0.15),
+            Math.min(1, c.g + 0.15),
+            Math.min(1, c.b + 0.15),
+            1
+        )
+    }
+
+    function darkerColor(baseColor) {
+        var c = Qt.color(baseColor)
+        return Qt.rgba(
+            c.r * 0.75,
+            c.g * 0.75,
+            c.b * 0.75,
+            1
+        )
+    }
+
+    function healthColor(healthRatio) {
+        if (healthRatio >= 0.5) return highHealthColor
+        if (healthRatio >= 0.25) return mediumHealthColor
+        if (healthRatio > 0) return lowHealthColor
+        return faintedHealthColor
+    }
+
     function _setPartyMember(partyIdx, spriteId, iconId, ballId, gen, pokemonName, moves) {
         var temp = party
         temp.spriteIds[partyIdx] = spriteId
@@ -286,15 +313,15 @@ Rectangle {
                     property color baseColor: moveEnabled ? PokeType.typeColor(moveType) : root.disabledBackgroundColor
 
                     border.width: root.borderWidth
-                    border.color: moveEnabled ? PokeType.lighterTypeColor(moveType) : root.disabledBorderColor
+                    border.color: moveEnabled ? lighterColor(baseColor) : root.disabledBorderColor
 
                     Rectangle {
                         anchors.fill: parent
                         anchors.margins: border.width
                         radius: parent.radius
                         gradient: Gradient {
-                            GradientStop { position: 0; color: moveEnabled ? PokeType.lighterTypeColor(moveType) : root.disabledBackgroundColor }
-                            GradientStop { position: 1; color: moveEnabled ? PokeType.darkerTypeColor(moveType) : root.disabledBackgroundColor }
+                            GradientStop { position: 0; color: moveEnabled ? lighterColor(baseColor) : root.disabledBackgroundColor }
+                            GradientStop { position: 1; color: moveEnabled ? darkerColor(baseColor) : root.disabledBackgroundColor }
                         }
                         opacity: moveEnabled ? root.enabledOpacity : root.disabledOpacity
                     }
@@ -354,11 +381,10 @@ Rectangle {
                         anchors.margins: root.borderWidth
                         radius: parent.radius - 2
                         opacity: root.party.iconIds[index] >= 0 ? root.enabledOpacity : root.disabledOpacity
-                        color: root.party.iconIds[index] >= 0
-                               ? (party.healthRatios[index] >= 0.5 ? root.highHealthColor :
-                                  (party.healthRatios[index] >= 0.25 ? root.mediumHealthColor :
-                                  (party.healthRatios[index] > 0 ? root.lowHealthColor : root.faintedHealthColor)))
-                               : root.disabledBackgroundColor
+                        gradient: Gradient {
+                            GradientStop { position: 0; color: root.party.iconIds[index] >= 0 ? lighterColor(healthColor(party.healthRatios[index])) : root.disabledBackgroundColor }
+                            GradientStop { position: 1; color: root.party.iconIds[index] >= 0 ? darkerColor(healthColor(party.healthRatios[index])) : root.disabledBackgroundColor }
+                        }
                     }
 
                     Item {
@@ -442,8 +468,8 @@ Rectangle {
                             radius: parent.radius - 2
                             opacity: isEnabled ? root.enabledOpacity : root.disabledOpacity
                             gradient: Gradient {
-                                GradientStop { position: 0; color: isEnabled ? PokeType.lighterTypeColor("Normal") : root.disabledBackgroundColor }
-                                GradientStop { position: 1; color: isEnabled ? PokeType.darkerTypeColor("Normal") : root.disabledBackgroundColor }
+                                GradientStop { position: 0; color: isEnabled ? lighterColor(PokeType.typeColor("Normal")) : root.disabledBackgroundColor }
+                                GradientStop { position: 1; color: isEnabled ? darkerColor(PokeType.typeColor("Normal")) : root.disabledBackgroundColor }
                             }
                         }
 
@@ -457,7 +483,7 @@ Rectangle {
 
                                 Image {
                                     anchors.verticalCenter: parent.verticalCenter
-                                    anchors.verticalCenterOffset: 1 //slight offset to center ball sprite
+                                    anchors.verticalCenterOffset: 1
                                     anchors.horizontalCenter: parent.horizontalCenter
 
                                     source: root.ballSpriteSheet
