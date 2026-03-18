@@ -11,6 +11,7 @@ Item {
     implicitHeight: 390
 
     // --- Visual config ---
+    property string fontFamily:     "sans-serif"
     property color partyBackground: "white"
     property color pcBackground:    "green"
     property color buttonColor:     "#5294e2"
@@ -131,9 +132,9 @@ Item {
                 Layout.column:          1
                 Layout.row:             0
                 Layout.alignment:       Qt.AlignVCenter
-                Layout.preferredWidth:  root.buttonWidth
-                Layout.preferredHeight: root.buttonHeight
-                label:  "S"
+                Layout.preferredWidth:  root.buttonWidth*1.75
+                Layout.preferredHeight: root.buttonHeight*0.75
+                label:  "Switch"
                 color:  root.inSwapMode ? root.swapColor : root.buttonColor
                 onClicked: root.toggleSwapMode()
             }
@@ -233,6 +234,7 @@ Item {
             anchors.centerIn: parent
             text:           parent.label
             color:          parent.active ? "white" : "#888"
+            font.family: root.fontFamily
             font.pixelSize: 18
             font.bold:      true
         }

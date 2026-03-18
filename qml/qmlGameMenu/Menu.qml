@@ -8,13 +8,15 @@ Rectangle {
     color: backgroundColor
 
     property int    margin:              0
-    property color  backgroundColor:    "#2b2b2b"
+    property color  backgroundColor:     "#2b2b2b"
     property color  buttonColor:         "#3c3c3c"
     property color  buttonSelectedColor: "#5294e2"
     property color  textColor:           "#ffffff"
     property int    headerFontSize:      24
     property int    bodyFontSize:        18
-    property string fontFamily:          "Press Start 2P"
+    property string p2pFont:             "Press Start 2P"
+    property string dotGothicFont:       "DotGothic16"
+
     property string currentMenu:         "Party"
     property bool   showDebugOutlines:   true
     property color  debugOutlineColor:   "#FFD700"
@@ -143,7 +145,7 @@ Rectangle {
                         anchors.fill: parent
                         textColor:   root.textColor
                         fontSize:    root.bodyFontSize
-                        fontFamily:  root.fontFamily
+                        fontFamily:  root.p2pFont
                     }
                 }
 
@@ -158,6 +160,7 @@ Rectangle {
                     PC {
                         id: pc
                         anchors.fill: parent
+                        fontFamily: root.dotGothicFont
                     }
                 }
             }
@@ -178,6 +181,7 @@ Rectangle {
                 id: rightText
                 anchors.centerIn: parent
                 text: "Right Panel"
+                font.family: root.p2pFont
                 color: root.textColor
                 font.pixelSize: 16
             }
