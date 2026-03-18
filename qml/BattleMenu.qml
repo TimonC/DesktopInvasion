@@ -34,8 +34,8 @@ Rectangle {
     property color menuTextColor: "white"
 
     property color fightButtonColor: "#ff3333"
-    property color switchButtonColor: "#26a626"
-    property color catchButtonColor: "#ff7f00"
+    property color switchButtonColor: "green"
+    property color catchButtonColor: "#e67a00"
     property color runButtonColor: "#3366ff"
 
     property color borderColor: "#999999"
