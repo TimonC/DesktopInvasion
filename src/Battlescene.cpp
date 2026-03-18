@@ -9,10 +9,7 @@ Battlescene::Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent)
     , m_opp(opp)
     , m_chosen(chosen)
 {
-    setFlags(     Qt::WindowStaysOnTopHint
-                | Qt::Tool
-                | Qt::WindowDoesNotAcceptFocus
-                | Qt::FramelessWindowHint);
+    setFlags(Qt::WindowStaysOnTopHint | Qt::Tool | Qt::WindowDoesNotAcceptFocus | Qt::FramelessWindowHint);
     setColor(Qt::transparent);
 
     m_opp->setFlag(Qt::WindowTransparentForInput);
@@ -103,11 +100,7 @@ QQuickView* Battlescene::initCorners(){
         boxHeight = y() + height() - top;
     }
     QQuickView *corners = new QQuickView(nullptr);
-    corners->setFlags(     Qt::WindowStaysOnTopHint
-                | Qt::Tool
-                | Qt::WindowDoesNotAcceptFocus
-                | Qt::FramelessWindowHint
-                | Qt::WindowTransparentForInput);
+    corners->setFlags(Qt::WindowStaysOnTopHint | Qt::Tool | Qt::WindowDoesNotAcceptFocus | Qt::FramelessWindowHint | Qt::WindowTransparentForInput);
     corners->setColor(Qt::transparent);
     corners->setPosition(QPoint(lft,top));
     corners->setSource(QUrl("qrc:/sprites/Corners.qml"));
@@ -125,7 +118,12 @@ void Battlescene::mousePressEvent(QMouseEvent* event) {
     if (event->button() == Qt::LeftButton) {
         m_oldpos = event->globalPosition();
         m_dragging = true;
-        m_smoothedPos = event->globalPosition();
+
+        // Store initial positions for perfect sync
+        m_initialBattlescenePos = position();
+        m_initialCornersPos = m_corners->position();
+        m_initialOppPos = m_opp->position();
+        m_initialChosenPos = m_chosen->position();
 
         QPoint localPos = mapFromGlobal(m_oldpos.toPoint());
         QQuickItem* runButton = m_ui->property("runButton").value<QQuickItem*>();
@@ -145,48 +143,42 @@ void Battlescene::mousePressEvent(QMouseEvent* event) {
 void Battlescene::mouseMoveEvent(QMouseEvent* event) {
     if (m_dragging && (event->buttons() & Qt::LeftButton)) {
         QPointF currentPos = event->globalPosition();
-        m_smoothedPos = m_smoothedPos * (1.0 - SMOOTHING_FACTOR) + currentPos * SMOOTHING_FACTOR;
-        QPointF delta = m_smoothedPos - m_oldpos;
+        QPointF totalDelta = currentPos - m_oldpos;
 
-        QPoint intDelta(qRound(delta.x()), qRound(delta.y()));
-        if (intDelta.x() != 0 || intDelta.y() != 0) {
-            drag(intDelta);
-            m_oldpos = m_smoothedPos;
+        QPoint intTotalDelta(qRound(totalDelta.x()), qRound(totalDelta.y()));
+
+        if (intTotalDelta.x() != 0 || intTotalDelta.y() != 0) {
+            drag(intTotalDelta);
         }
     }
 }
 
-void Battlescene::drag(QPoint& delta){
-    const int MIN_DELTA = 2;
-    const int MAX_DELTA = 200;
-    if ((qAbs(delta.x()) < MIN_DELTA && qAbs(delta.y()) < MIN_DELTA) ||
-        (qAbs(delta.x()) > MAX_DELTA || qAbs(delta.y()) > MAX_DELTA)) {
-        return;
-    }
-
-    QPoint newCornersPos = m_corners->position() + delta;
-    int allowedX = 0;
-    int allowedY = 0;
-
+void Battlescene::drag(QPoint& totalDelta){
     const QRect& screen = Globals::screenGeometry();
 
-    if (newCornersPos.x() >= screen.x() &&
-        newCornersPos.x() + m_corners->width() <= screen.right()) {
-        allowedX = delta.x();
+    QPoint newCornersPos = m_initialCornersPos + totalDelta;
+
+    int allowedX = totalDelta.x();
+    int allowedY = totalDelta.y();
+
+    if (newCornersPos.x() < screen.x()) {
+        allowedX = screen.x() - m_initialCornersPos.x();
+    } else if (newCornersPos.x() + m_corners->width() > screen.right()) {
+        allowedX = screen.right() - m_corners->width() - m_initialCornersPos.x();
     }
 
-    if (newCornersPos.y() >= screen.y() &&
-        newCornersPos.y() + m_corners->height() <= screen.bottom()) {
-        allowedY = delta.y();
+    if (newCornersPos.y() < screen.y()) {
+        allowedY = screen.y() - m_initialCornersPos.y();
+    } else if (newCornersPos.y() + m_corners->height() > screen.bottom()) {
+        allowedY = screen.bottom() - m_corners->height() - m_initialCornersPos.y();
     }
 
-    QPoint actualDelta(allowedX, allowedY);
+    if (allowedX != 0 || allowedY != 0) {
+        QPoint actualDelta(allowedX, allowedY);
 
-    if (actualDelta.x() != 0 || actualDelta.y() != 0) {
-        QPoint pos = position();
-        setPosition(pos + actualDelta);
-        m_corners->setPosition(m_corners->position() + actualDelta);
-        m_chosen->movePos(actualDelta);
-        m_opp->movePos(actualDelta);
+        setPosition(m_initialBattlescenePos + actualDelta);
+        m_corners->setPosition(m_initialCornersPos + actualDelta);
+        m_opp->setPosition(m_initialOppPos + actualDelta);  // Use setPosition
+        m_chosen->setPosition(m_initialChosenPos + actualDelta);  // Use setPosition
     }
 }

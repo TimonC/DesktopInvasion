@@ -27,16 +27,20 @@ private:
     void initPosition();
     void drag(QPoint& delta);
 
+    // Store initial positions for perfect sync
+    QPoint m_initialBattlescenePos;
+    QPoint m_initialCornersPos;
+    QPoint m_initialOppPos;
+    QPoint m_initialChosenPos;
+
     QPoint m_cornerSize;
     bool m_dragging = false;
     Pokemon* m_chosen;
     Pokemon* m_opp;
     QPoint m_origin;
     QPointF m_oldpos;
-    QPointF m_smoothedPos;
     int m_direction;
     QQuickItem *m_ui = nullptr;
-    const double SMOOTHING_FACTOR = 0.3;
 };
 
 #endif

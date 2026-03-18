@@ -41,6 +41,7 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
 
 
 void WildPokemon::startRoaming(){
+    movePos(QPoint(0,0)); //reset hitbox
     connect(m_decisionTimer, &QTimer::timeout, this, &WildPokemon::makeRandomDecision);
     connect(m_moveTimer, &QTimer::timeout, this, &WildPokemon::moveStep);
 
@@ -81,7 +82,7 @@ void WildPokemon::startBattle(){
     m_hitbox->showButton(false);
     m_hitbox->hide();
 
-    const int BOUNDARY_MARGIN = 14;
+    const int BOUNDARY_MARGIN = 16;
     const QRect& screen = Globals::screenGeometry();
     int screenRight = screen.x() + screen.width();
     int screenBottom = screen.y() + screen.height();
