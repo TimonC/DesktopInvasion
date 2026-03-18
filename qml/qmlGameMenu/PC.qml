@@ -23,9 +23,9 @@ Item {
     property color  swapButtonHighlight:   "#ff9933"
     property color  labelColor: "#aaaaaa"
 
-    property real   highlightOpacity:      0.6
-    property real   highlightHoverOpacity: 0.7
-    property real   backgroundOpacity:     0.5
+    property real   highlightOpacity:      0.5
+    property real   highlightHoverOpacity: 0.6
+    property real   backgroundOpacity:     0.4
 
     property color  highlightColor:        Qt.rgba(0.29, 0.56, 0.89, highlightOpacity)
     property color  hoverHighlightColor:   Qt.rgba(0.42, 0.68, 0.96, highlightHoverOpacity)
@@ -236,7 +236,7 @@ Item {
             // Box label on top
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: "Box " + (root.currentBoxIndex + 1)
+                text: "BOX " + (root.currentBoxIndex + 1)
                 font.family: root.fontFamily
                 font.pixelSize: root.fontSizeSm
                 color: root.labelColor
