@@ -45,10 +45,11 @@ Game::~Game() {
 }
 
 void Game::safelyRemoveBattleScene(){
-    /* m_activeBattle->disconnect(); //this might not be secure with deleteLater, could potentially be the cause of freezes */
-                                  //but i do it here to avoid a bug where all all the battleended signals are triggered
-    disconnect(m_activeBattle, &Battle::battleEnded,
-            this, &Game::handleBattleEnd); //Only disconnect the battle-game connection to avoid faulty trigger w/o freezes
+    if(!m_activeBattle) return;
+
+    disconnect(m_activeBattle, nullptr, this, nullptr);
+    disconnect(this, nullptr, m_activeBattle, nullptr);
+
     m_activeBattle->deleteLater();
     m_activeBattle = nullptr;
 }
