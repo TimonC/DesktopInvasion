@@ -2,6 +2,7 @@
 #define DATA_MOVE_H
 
 #include <array>
+#include <data_gamestate.h>
 
 struct Move {
     int id;
@@ -10,7 +11,7 @@ struct Move {
     int effect_chance;
     int priority;
     int power;
-    const char* type;
+    Type type;
     std::array<int, 5> stat_changes;
     const char* flavor_text;
     const int* learned_by_pokemon;

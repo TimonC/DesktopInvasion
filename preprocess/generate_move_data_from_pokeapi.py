@@ -107,6 +107,23 @@ def extract_type_name(type_obj):
         return type_obj.get('name', '')
     return ''
 
+def format_type_enum(type_name):
+    """Convert type name to Type enum format (e.g., 'normal' -> 'Type::Normal')"""
+    if not type_name:
+        return 'Type::Null'
+    if type_name == "fairy":
+        type_name = "normal"
+    return f'Type::{type_name.capitalize()}'
+
+def format_move_name(name):
+    """Format move name: capitalize first letter and first letter after each dash, replace dashes with spaces"""
+    if not name:
+        return name
+
+    words = name.split('-')
+    formatted_words = [word.capitalize() for word in words]
+    return ' '.join(formatted_words)
+
 def extract_learned_by_pokemon_ids(learned_by_list):
     """Extract Pokemon IDs from the learned_by_pokemon list"""
     pokemon_ids = []
@@ -223,12 +240,13 @@ namespace {
             learned_count = 0
 
         # Move definition
-        name = move['name'].replace('"', '\\"')
+        raw_name = move['name']
+        formatted_name = format_move_name(raw_name).replace('"', '\\"')
 
         # Escape the flavor text properly (already cleaned)
         flavor = move['flavor_text'].replace('"', '\\"')
 
-        move_type = move['type'].replace('"', '\\"')
+        type_enum = format_type_enum(move['type'])
 
         accuracy = move['accuracy'] if move['accuracy'] is not None else -1
         effect_chance = move['effect_chance'] if move['effect_chance'] is not None else -1
@@ -238,12 +256,12 @@ namespace {
 
         source_content += f"""    static const Move move_{move_id} = {{
         {move_id},
-        "{name}",
+        "{formatted_name}",
         {accuracy},
         {effect_chance},
         {move['priority']},
         {power},
-        "{move_type}",
+        {type_enum},
         {stats},
         "{flavor}",
         learned_by_{move_id},  // Pointer to static array
