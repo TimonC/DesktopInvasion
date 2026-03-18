@@ -147,26 +147,30 @@ Item {
             case 0:
                 sprite.x = margin + sprite.containerOffsetX;
                 sprite.y = root.height - (textBoxHeight + margin + sprite.containerOffsetY + sprite.height);
+
                 sprite.statusBar.x = 3*32 - margin
                 sprite.statusBar.y = sprite.y
                 break;
             case 1:
                 sprite.x = root.width - (margin + sprite.containerOffsetX + sprite.width);
                 sprite.y = root.height - (textBoxHeight + margin + sprite.height);
+
                 sprite.statusBar.x = root.width - 32*2.5 - margin
-                sprite.statusBar.y = root.height - (textBoxHeight + 3*32 - margin)
+                sprite.statusBar.y = (root.height - textBoxHeight  - 3*32)/2
                 break;
             case 2:
                 sprite.x = margin + sprite.containerOffsetX;
                 sprite.y = margin + sprite.containerOffsetY;
+
                 sprite.statusBar.x = 3*32 - margin
                 sprite.statusBar.y = sprite.y
                 break;
             case 3:
                 sprite.x = margin + sprite.containerOffsetX;
                 sprite.y = root.height - (textBoxHeight + margin + sprite.height);
+
                 sprite.statusBar.x = 32/2 + margin
-                sprite.statusBar.y = root.height - (textBoxHeight + 3*32 - margin)
+                sprite.statusBar.y = (root.height - textBoxHeight  - 3*32)/2
                 break;
         }
         sprite.startingX = sprite.x;
