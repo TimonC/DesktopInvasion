@@ -104,13 +104,15 @@ Item {
 
         onCatchChosen: function(pokeSpriteId) {
             if (pokeSpriteId === 3) {
-                // Calculate center X of opponent sprite
-                var centerX = opponent.x + (opponent.width / 2) - (32/4 );
-                // Target Y is the opponent's Y position
-                var targetY = opponent.y + opponent.height
+                // Calculate center X of opponent sprite (this becomes x1)
+                var x1 = opponent.x + (opponent.width / 2) - (32/4);
+                var x0 = x1 + 2*(root.direction==1 ? -32 : 32);
+                // Y positions
+                var y0 = opponent.y - pokeBallSend.frameHeight/2;
+                var y1 = opponent.y + opponent.height - pokeBallSend.frameHeight;
 
                 // Start the animation
-                pokeBallSend.throwAt(centerX, targetY);
+                pokeBallSend.throwAt(x0, x1, y0, y1);
             } else {
                 console.error("Invalid pokeSprite id:", pokeSpriteId)
             }
