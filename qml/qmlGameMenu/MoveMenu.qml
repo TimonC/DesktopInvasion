@@ -243,7 +243,7 @@ Item {
                 clip:    true
 
                 PcButton {
-                    width:  parent.width/4
+                    width:  48*4
                     label:  "← RETURN"
                     onClicked: moveMenu.returnClicked()
                 }

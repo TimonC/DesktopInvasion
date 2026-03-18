@@ -211,7 +211,7 @@ Rectangle {
                 visible: root.menuState === "default"
 
                 Row {
-                    width:  parent.width - Math.round(pc.buttonWidth * 2)
+                    width:  parent.width - pc.buttonWidth * 4//this should always be same as pokeEditButton
                     height: root.labelHeight
                     Text {
                         width: parent.width; height: root.labelHeight
@@ -222,8 +222,8 @@ Rectangle {
                     }
                     PcButton {
                         id:    pokeEditButton
-                        label: "VIEW"
-                        width: Math.round(pc.buttonWidth * 2)
+                        label: "VIEW →"
+                        width: pc.buttonWidth * 4
                         onClicked: editButtonClicked(pokeViewLoader.item ? pokeViewLoader.item.pokeData : null)
                     }
                 }
