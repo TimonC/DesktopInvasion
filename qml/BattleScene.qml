@@ -64,13 +64,13 @@ Item {
         switch(sprite.direction) {
             case 0:
                 sprite.x = (root.width - root.statusBarWidth - sprite.width)/2
-                sprite.y = root.height - (menuHeight + sprite.containerOffsetY + sprite.height)
+                sprite.y = root.height - (menuHeight + sprite.containerOffsetY + sprite.height - gridSpacing*3)//compensate for downward shift of menu by gridSpacin*3
                 sprite.statusBar.x = root.width - root.statusBarWidth
                 sprite.statusBar.y = sprite.y
                 break
             case 1:
                 sprite.x = root.width - (sprite.containerOffsetX + sprite.width)
-                sprite.y = root.height - (sprite.height + menuHeight - gridSpacing*2) //compensate for downward shift of menu by gridSpacin*3
+                sprite.y = root.height - (sprite.height + menuHeight - gridSpacing*2)
                 sprite.statusBar.x = root.width - root.frameSize/2 - root.statusBarWidth
                 sprite.statusBar.y = 0
                 break
