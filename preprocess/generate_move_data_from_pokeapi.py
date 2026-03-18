@@ -144,22 +144,6 @@ def format_move_name(name):
     formatted_words = [word.capitalize() for word in words]
     return ' '.join(formatted_words)
 
-def extract_learned_by_pokemon_ids(learned_by_list):
-    """Extract Pokemon IDs from the learned_by_pokemon list"""
-    pokemon_ids = []
-    for pokemon in learned_by_list:
-        url = pokemon.get('url', '')
-        if url:
-            parts = url.rstrip('/').split('/')
-            if parts:
-                try:
-                    pokemon_id = int(parts[-1])
-                    if pokemon_id <= 493:
-                        pokemon_ids.append(pokemon_id)
-                except ValueError:
-                    pass
-    return pokemon_ids
-
 def extract_gen4_english_flavor_text(flavor_text_entries):
     """
     Extract the English flavor text from Generation 4 (Diamond/Pearl)
@@ -254,7 +238,7 @@ for i in range(1, 5):
             moveFilled[field] = move_data.get(field)
         moveFilled['stat_changes'] = extract_stat_changes(move_data.get('stat_changes', []))
         moveFilled['type'] = extract_type_name(move_data.get('type'))
-        moveFilled['learned_by_pokemon'] = extract_learned_by_pokemon_ids(move_data.get('learned_by_pokemon', []))
+        # REMOVED: extract_learned_by_pokemon_ids call
 
         # Extract and clean flavor text
         raw_flavor_text = extract_gen4_english_flavor_text(move_data.get('flavor_text_entries', []))
@@ -290,16 +274,7 @@ namespace {
     for move in valid_moves:
         move_id = move['id']
 
-        # Learned by pokemon as static array (not vector for initialization)
-        learned_by = move['learned_by_pokemon']
-        if learned_by:
-            source_content += f"    static const int learned_by_{move_id}[] = {{"
-            source_content += ", ".join(str(p) for p in learned_by)
-            source_content += "};\n"
-            learned_count = len(learned_by)
-        else:
-            source_content += f"    static const int learned_by_{move_id}[] = {{0}};\n"
-            learned_count = 0
+        # REMOVED: learned_by_pokemon array generation
 
         # Move definition
         raw_name = move['name']
@@ -338,9 +313,8 @@ namespace {
         {meta['crit_rate']},
         {meta['ailment_chance']},
         {meta['flinch_chance']},
-        {meta['stat_chance']},
-        learned_by_{move_id},
-        {learned_count}
+        {meta['stat_chance']}
+        // REMOVED: learned_by_pokemon and learned_count fields
     }};
 
 """
