@@ -15,7 +15,8 @@ GameMenu::GameMenu()
             /* | Qt::WindowDoesNotAcceptFocus */
     );
 
-    if(strcmp(std::getenv("DOCKER_ENV"), "dev") == 0){
+    const char* env =  getenv("DOCKER_ENV");
+    if(env && strcmp(env, "dev") == 0){
         setSource(QUrl("../qml/qmlGameMenu/Menu.qml"));
     }else{
         setSource(QUrl("qrc:/qml/qmlGameMenu/Menu.qml"));

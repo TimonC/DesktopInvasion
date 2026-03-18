@@ -18,7 +18,8 @@ Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildS
     direction(initialOppDirection);
 
     // Load the PokemonSprite as root
-    if(strcmp(std::getenv("DOCKER_ENV"), "dev") == 0){
+    const char* env =  getenv("DOCKER_ENV");
+    if(env &&  strcmp(env, "dev") == 0){
         setSource(QUrl("../qml/BattleScene.qml"));
     }else{
         setSource(QUrl("qrc:/qml/BattleScene.qml"));
