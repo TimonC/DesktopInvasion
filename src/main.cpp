@@ -9,8 +9,6 @@ int main(int argc, char *argv[])
 
     qDebug() << "Creating overlay...";
     InvasionOverlay overlay;
-
-    qDebug() << "Showing overlay...";
     overlay.show();
 
     qDebug() << "Starting event loop...";

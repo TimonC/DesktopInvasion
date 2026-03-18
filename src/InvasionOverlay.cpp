@@ -5,25 +5,20 @@
 #include <QQuickItem>
 #include <qnamespace.h>
 InvasionOverlay::InvasionOverlay(QWindow *parent)
-    : QQuickView(parent){
+    : QQuickView(parent)
+{
     setFlags(Qt::FramelessWindowHint |
              Qt::WindowStaysOnTopHint |
              Qt::WindowTransparentForInput |
+             Qt::Tool |
              Qt::WindowDoesNotAcceptFocus);
 
-    setColor(Qt::transparent);               // Make background fully transparent
-    setResizeMode(QQuickView::SizeViewToRootObject);
+    setColor(Qt::transparent);  // makes QQuickView background transparent
+    setResizeMode(SizeViewToRootObject);
 
-    // Full screen including taskbar
-    QRect screenGeom = QGuiApplication::primaryScreen()->geometry();
-    setGeometry(screenGeom);
-
-    // Load your QML canvas
     setSource(QUrl("InvasionCanvas.qml"));
-
-
-    // Show immediately
-    show();
+    // Fullscreen on primary screen
+    setGeometry(QGuiApplication::primaryScreen()->geometry());
 }
 
 void InvasionOverlay::addSprite(const QString& qmlFile, int x, int y){

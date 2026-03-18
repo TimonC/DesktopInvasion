@@ -6,12 +6,9 @@ Rectangle {
 
    Text {
         anchors.top: parent.top
-        anchors.right: parent.center
-        anchors.topMargin: 10
-
-
+        anchors.horizontalCenter: parent.horizontalCenter
         text: "OVERLAY IS WORKING"
-        color: "pink"
+        color: "hotpink"
         font.pixelSize: 40
     }
 }
