@@ -8,6 +8,13 @@ struct PokemonInfo {
     const char* name;
 };
 
+struct SpriteInfo{
+    int spriteId;
+    int generation;
+    int width;
+    int height;
+};
+
 extern const PokemonInfo kPokemonList[];
 extern const int kPokemonCount;
 

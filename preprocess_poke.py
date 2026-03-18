@@ -88,24 +88,16 @@ def process_image(image_path, n_rows, n_cols, frame_width, frame_height):
                 # Analyze bounds for all 8 frames in this sprite
                 max_width = 0
                 max_height = 0
-                frame_bounds = []
 
                 for frame in frames:
                     width, height, x_min, y_min = analyze_frame_bounds(frame)
                     max_width = max(max_width, width)
                     max_height = max(max_height, height)
-                    frame_bounds.append({
-                        "width": width,
-                        "height": height,
-                        "offset_x": x_min,
-                        "offset_y": y_min
-                    })
 
                 # Store metadata for this sprite row
                 metadata["rows"].append({
                     "max_width": max_width,
                     "max_height": max_height,
-                    "frame_bounds": frame_bounds
                 })
 
                 all_rows.append(frames)
