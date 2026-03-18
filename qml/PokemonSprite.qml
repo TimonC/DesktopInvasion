@@ -1,4 +1,5 @@
 import QtQuick 2.15
+
 Item {
     id: root
     property color debugColor: "yellow"
@@ -29,6 +30,7 @@ Item {
     //Store starting pos for animations
     property int startingX: 0
     property int startingY: 0
+
     // Random delay timer to prevent sync between sprites
     property Timer startTimer: Timer {
         interval: Math.random() * 125
@@ -36,23 +38,18 @@ Item {
         onTriggered: sprite.running = true
     }
 
-    // Watch for spriteSheet changes and restart the sprite
-    onSpriteSheetChanged: {
-        sprite.running = false
-        // Use Qt.callLater to ensure the source change is processed
-        Qt.callLater(function() {
-            sprite.currentFrame = Math.random() < 0.5 ? 0 : 1
-            sprite.running = true
-        })
-    }
+    // Method to change sprite source
+    function updateSpriteSource(generation, rowId) {
+        // Update sprite sheet based on generation
+        spriteSheet = "qrc:/assets/HGSS/PokGen" + generation + "_transparent_reordered.png";
+        row = rowId;
 
-    // Watch for row changes and restart the sprite
-    onRowChanged: {
-        sprite.running = false
+        // Restart the sprite animation
+        sprite.running = false;
         Qt.callLater(function() {
-            sprite.currentFrame = Math.random() < 0.5 ? 0 : 1
-            sprite.running = true
-        })
+            sprite.currentFrame = Math.random() < 0.5 ? 0 : 1;
+            sprite.running = true;
+        });
     }
 
     AnimatedSprite {
@@ -82,6 +79,7 @@ Item {
         }
         frameY: row * frameHeight
     }
+
     SequentialAnimation {
         id: takeDamage
         running: false
@@ -102,6 +100,7 @@ Item {
             }
         }
     }
+
     SequentialAnimation {
         id: actionForward
         loops: 1
@@ -136,6 +135,7 @@ Item {
             easing.type: Easing.OutQuad
         }
     }
+
     // Debug rectangle
     Rectangle {
         id: containerDebugLines

@@ -18,6 +18,7 @@ Item {
     property int textBarFontSize: frameSize * 0.45
     property bool debugLines: false
     property int direction: 0
+    property bool firstChosen: true
     // Action timing delays (delays are applied AFTER action)
     property int textDelay: 300
     property int attackDelay: 500
@@ -167,6 +168,7 @@ Item {
             player.visible=true
             statusBarPlayer.visible = true
             battleMenu.resetToRoot()
+            if(!root.firstChosen) startActionChain("switch", playerFirst)
         }
     }
     // UI
@@ -209,16 +211,18 @@ Item {
         onSwitchChosen: function(partyId){
             battleMenu.showTextBar()
             battleMenu.updateText(player.name + ", come back!")
-            player.spriteSheet = "qrc:/assets/HGSS/PokGen" + battleMenu.party.gens[partyId] + "_transparent_reordered.png";
-            player.row = battleMenu.party.spriteIds[partyId];
+            player.updateSpriteSource(battleMenu.party.gens[partyId], battleMenu.party.spriteIds[partyId]);
+            player.visible = false
+
             pokeBallPlayer.rowId = battleMenu.party.ballIds[partyId];
             statusBarPlayer.pokeName = battleMenu.party.names[partyId];
             statusBarPlayer.totalHealth = 100; //TODO
             statusBarPlayer.currentHealthRatio = 1;
+
+            root.firstChosen = false;
+
             var coords = calculateBallCoords(player)
-            player.visible = false
             pokeBallPlayer.throwAt(coords[0], coords[1], coords[2], coords[3])
-            startActionChain("switch", true)
         }
     }
     function setPartyMember(partyId, spriteId, iconId, ballId, gen, pokemonName) {
@@ -254,8 +258,14 @@ Item {
         } else if (actionType === "switch") {
             var coords = calculateBallCoords(opponent)
             root.actionSequence = [
-                { type: "text", message: "Go! "+player.name, delay: 300 },
-            ]
+                    { type: "text", message: battleMenu.getText(), delay: 300 },//hack to get a bit more delay after failed catch
+                    { type: "text", message: opponentName + " used Tackle!", delay: textDelay },
+                    { type: "attack", attacker: opponent, delay: attackDelay },
+                    { type: "damage", defender: player, delay: damageDelay },
+                    { type: "change-health", defender: player, delay: healthChangeDelay },
+                    { type: "text", message: "It's super effective!", delay: effectiveTextDelay },
+                    { type: "end" }
+                ]
         } else {
             // Attack sequence
             var firstAttacker = playerFirst ? player : opponent
