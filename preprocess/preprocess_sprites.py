@@ -315,11 +315,12 @@ def main():
     print(f"Missing: {493 - (regular_count + big_count)}")
     print("\nSample asset data (first 10 Pokémon):")
 
-    pid = 336
-    if asset_data[pid]:
-        info = asset_data[pid]
-        sheet = "Big" if info["is_big"] else "Standard"
-        print(f" Seviper ---  #{pid}: width={info['width']}, height={info['height']}, V={info['v_width']}x{info['v_height']}, H={info['h_width']}x{info['h_height']}, centers: up={info['h_center_up']}, down={info['h_center_down']}, {sheet}, row {info['row_id']}")
+    print_list = [("Wailord", 321), ("Seviper", 336)]
+    for (name, pid) in print_list:
+        if asset_data[pid]:
+            info = asset_data[pid]
+            sheet = "Big" if info["is_big"] else "Standard"
+            print(f" {name} ---  #{pid}: width={info['width']}, height={info['height']}, V={info['v_width']}x{info['v_height']}, H={info['h_width']}x{info['h_height']}, centers: up={info['h_center_up']}, down={info['h_center_down']}, {sheet}, row {info['row_id']}")
 
 if __name__ == "__main__":
     main()
