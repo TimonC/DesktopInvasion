@@ -68,6 +68,8 @@ Game::~Game() {
 
 void Game::initMenu(){
     m_menu = new GameMenu();
+    Defaults d = m_db.loadDefaults();
+    m_menu->setDefaults(d);
     connect(m_menu,     &GameMenu::menuClosed,              this, &Game::handleMenuClosed);
     connect(m_menu,     &GameMenu::preloadBoxRequested,     this, &Game::handleMenuPreloadBox);
     connect(m_menu,     &GameMenu::swapRequested,              this, &Game::handlePCSwap);

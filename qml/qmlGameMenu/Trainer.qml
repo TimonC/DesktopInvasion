@@ -29,6 +29,7 @@ Rectangle {
     readonly property int  encounterLowStep:      5
 
     property color  textColor:  "white"
+    property color  labelColor: "#aaaaaa"
     property int    fontSizeLg: 22
     property int    fontSizeMd: 18
     property int    fontSizeSm: 16
@@ -183,7 +184,7 @@ Rectangle {
                 }
                 font.family: root.p2pFont
                 font.pixelSize: root.fontSizeSm - 4
-                color: root.textColor
+                color: root.labelColor
                 width: 35
                 height: parent.height
                 horizontalAlignment: Text.AlignRight
