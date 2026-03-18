@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
 
     const int num_wild        = 1;
     const int start_pokedexid = 6;
-    Globals::DEBUG = true;
+    /* Globals::DEBUG = true; */
 
     /* if (!Globals::DEBUG) { */
         /* QLoggingCategory::setFilterRules("*.debug=false"); */
@@ -32,8 +32,8 @@ int main(int argc, char *argv[]) {
 
     std::vector<std::unique_ptr<WildPokemon>> wildPokemon;
     for (int i = start_pokedexid; i < num_wild + start_pokedexid; ++i) {
-        /* const PokemonInfo* pokemonInfo = Globals::getRandomPokemon(); */
-        const PokemonInfo* pokemonInfo = Globals::getPokemonByPokedexId(i);
+        const PokemonInfo* pokemonInfo = Globals::getRandomPokemon();
+        /* const PokemonInfo* pokemonInfo = Globals::getPokemonByPokedexId(i); */
         if (pokemonInfo) {
             wildPokemon.push_back(std::make_unique<WildPokemon>(pokemonInfo));
         }

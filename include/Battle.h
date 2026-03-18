@@ -1,17 +1,17 @@
-#ifndef BATTLESCENE_H
-#define BATTLESCENE_H
+#ifndef BATTLE_H
+#define BATTLE_H
 
 #include "DesktopScene.h"
 #include <QQuickView>
 #include <WildPokemon.h>
 #include <qtmetamacros.h>
 
-class Battlescene : public DesktopScene
+class Battle : public DesktopScene
 {
     Q_OBJECT
 
 public:
-    Battlescene(WildPokemon *opp, WildPokemon *chosen, QWindow *parent = nullptr);
+    Battle(WildPokemon *opp, WildPokemon *chosen, QWindow *parent = nullptr);
     void updateTextbar(const std::string& text);
     QQuickView* initCorners();
     QQuickView *m_corners = nullptr;

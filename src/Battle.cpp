@@ -1,11 +1,11 @@
-#include "Battlescene.h"
+#include "Battle.h"
 #include "DesktopScene.h"
 #include "globals.h"
 #include <QQuickItem>
 #include <qnamespace.h>
 #include <QMouseEvent>
 
-Battlescene::Battlescene(WildPokemon *opp, WildPokemon *chosen, QWindow *parent)
+Battle::Battle(WildPokemon *opp, WildPokemon *chosen, QWindow *parent)
     : DesktopScene(parent)
     /* , m_opp(opp) */
     /* , m_chosen(chosen) */
@@ -32,7 +32,7 @@ Battlescene::Battlescene(WildPokemon *opp, WildPokemon *chosen, QWindow *parent)
     /* initPosition(); */
     show();
 }
-void Battlescene::handleDrag(bool isDragged){};
+void Battle::handleDrag(bool isDragged){};
 /* void Battlescene::initPosition(){ */
 /*     int distance = m_opp->direction()%2==0 ? 3*33 : 4*33; */
 /*     switch(m_opp->direction()) { */
