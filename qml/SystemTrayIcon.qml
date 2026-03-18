@@ -1,10 +1,10 @@
-import Qt.labs.platform
+import Qt.labs.platform 1.1
 
 SystemTrayIcon {
     id: root
     visible: true
     icon.mask: true
-    icon.source: "qrc:/assets/HGSS/PokeballIcon.png"
+    icon.source: "qrc:/assets/HGSS/PokeballIcon.ico"
     property alias iconRoot: root.icon
     property alias hideText: hideItem.text
 
@@ -43,13 +43,13 @@ SystemTrayIcon {
         }
     }
     function swapIcon(){
-        var currentlyVisible = iconRoot.source == "qrc:/assets/HGSS/PokeballIcon.png";
+        var currentlyVisible = iconRoot.source == "qrc:/assets/HGSS/PokeballIcon.ico";
 
         if(currentlyVisible){
-            iconRoot.source = "qrc:/assets/HGSS/PokeballIcon_grayscale.png"
+            iconRoot.source = "qrc:/assets/HGSS/PokeballIcon_grayscale.ico"
             root.hideText = "Show"
         }else{
-            iconRoot.source = "qrc:/assets/HGSS/PokeballIcon.png"
+            iconRoot.source = "qrc:/assets/HGSS/PokeballIcon.ico"
             root.hideText = "Hide"
         }
 
