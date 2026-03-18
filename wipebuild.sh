@@ -7,4 +7,3 @@ rm CMakeCache.txt
 rm resources.qrc.depends
 rm Makefile
 rm -rf .qt
-rm qrc_resources.cpp
