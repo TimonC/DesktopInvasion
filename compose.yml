@@ -3,12 +3,14 @@ services:
     build: .
     container_name: invasionview
     environment:
-      - QT_QPA_PLATFORM=wayland
-      - XDG_RUNTIME_DIR=/tmp/xdg
+      - QT_QPA_PLATFORM=xcb
+      - DISPLAY=${DISPLAY}
       - LIBGL_ALWAYS_SOFTWARE=1
       - QT_QPA_EGLFS_FORCE_SOFTWARE=1
+      - XDG_RUNTIME_DIR=/tmp/xdg
     volumes:
-      - /run/user/1000/wayland-0:/tmp/xdg/wayland-0
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - /tmp/xdg:/tmp/xdg
       - ./src:/app/src
     stdin_open: true
     tty: true
