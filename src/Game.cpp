@@ -107,6 +107,20 @@ QVariantMap Game::pokemonToMenuState(int slot, const PokemonState &p){
         }
     }
 
+    QVariantList eligibleMoves;
+    for(int eligible = 0; eligible < poke->eligible_move_count; eligible++){
+        if(p.lvl >= poke->eligible_moves[eligible].level){
+            const Move* _move = Lookup::getMove(poke->eligible_moves[eligible].move_id);
+            QVariantMap moveData;
+            moveData["name"] = QString::fromStdString(_move->name);
+            moveData["type"] = QString::fromStdString(_move->name);
+            moveData["power"] = _move->power;
+            moveData["accuracy"] = _move->accuracy;
+            eligibleMoves.append(moveData);
+        }
+    }
+    entry["eligibleMoves"] = eligibleMoves;
+
     QVariantList moves;
     for(int moveSlot = 0; moveSlot < 4; moveSlot++) {
         const Move* _move = Lookup::getMove(p.moves[moveSlot]);
@@ -159,10 +173,6 @@ void Game::handlePCSwap(int placex, int posx, int placey, int posy){
     m_db.swapByPos(placex, posx, placey, posy);
 }
 
-// --------------------------------------------------------------------------
-// Menu open/close
-// --------------------------------------------------------------------------
-
 void Game::handleMenuOpen() {
     bool usedToBeActive = m_gameUsedToBeActive;
     setGameActive(false);
@@ -186,10 +196,6 @@ void Game::handleMenuClosed() {
     m_trayIcon->enabled(true);
     if (m_gameUsedToBeActive) setGameActive(true);
 }
-
-// --------------------------------------------------------------------------
-// Unchanged below
-// --------------------------------------------------------------------------
 
 void Game::safelyRemoveBattleScene() {
     if (!m_activeBattle) return;

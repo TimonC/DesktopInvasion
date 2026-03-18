@@ -75,6 +75,16 @@ Rectangle {
         function onShowBoxRequested(boxIndex) { pc.showBox(boxIndex) }
     }
 
+    Connections{
+        target: pokeView
+        function onEditButtonClicked(pokeData) {
+            console.log("--- PokeData Contents ---");
+            for (var field in pokeData) {
+                console.log(field + ": " + JSON.stringify(pokeData[field]));
+            }
+        }
+    }
+
     Connections {
         target: pc
 

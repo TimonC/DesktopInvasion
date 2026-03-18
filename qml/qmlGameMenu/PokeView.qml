@@ -49,6 +49,8 @@ Item {
     // Derived inner height (excludes top + bottom margin)
     readonly property real innerH: height - margin * 2
 
+    signal editButtonClicked(var pokeData)
+
     // ── Main content container ─────────────────────────────────────────────────
     // Centered inside whatever space Menu allocates.
     Item {
@@ -141,18 +143,21 @@ Item {
                        id: pokeEditButton
                        anchors.right:          parent.right
                        label:    "EDIT"
+                       onClicked: pokeView.editButtonClicked(pokeView.pokeData)
                    }
 
                    Text {
                         text: pokeData ? pokeData.name : ""
-                        font.family: mainFont; font.pixelSize: fontSizeLg
+                        font.family: mainFont
+                        font.pixelSize: fontSizeLg
                         color: colorText
                         width: parent.width
                         elide: Text.ElideRight
                     }
                     Text {
                         text: pokeData ? pokeData.pokeName : ""
-                        font.family: bodyFont; font.pixelSize: fontSizeMd
+                        font.family: bodyFont
+                        font.pixelSize: fontSizeMd
                         color: colorSubtext
                         width: parent.width
                         elide: Text.ElideRight
