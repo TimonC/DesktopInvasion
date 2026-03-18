@@ -21,6 +21,11 @@ Item {
     height: itemHeight
     clip: true
 
+    MouseArea{
+        id: mouseArea
+        anchors.fill: parent
+    }
+
     SequentialAnimation on y {
         id: jumpAnim
         running: jumping
@@ -37,11 +42,6 @@ Item {
             duration: 150;
             easing.type: Easing.InQuad
         }
-    }
-
-    MouseArea{
-        id: mouseArea
-        anchors.fill: parent
     }
 
     AnimatedSprite {

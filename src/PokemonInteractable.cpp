@@ -22,16 +22,12 @@ PokemonInteractable::PokemonInteractable(QWindow *parent, int row)
 
     setColor(Qt::transparent);
 
-    /* setSpriteBounds(); */
-    /* setResizeMode(SizeRootObjectToView); */
     setSource(QUrl("qrc:/sprites/PokemonSprite.qml"));
     m_wildPokemon = rootObject();
     m_wildPokemon->setProperty("scaleFactor", m_scaleFactor);
     m_wildPokemon->setProperty("row", m_row);
 
-    /* int width = 1.2 * m_scaleFactor*(m_maxX - m_minX); */
-    /* int height = 1.2 * m_scaleFactor*(m_maxY - m_minY); */
-    int width = 3.5*32;
+    int width = 4*32;
     int height = 4*32;
     m_wildPokemon->setProperty("itemWidth", width);
     m_wildPokemon->setProperty("itemHeight", height);
@@ -65,6 +61,7 @@ void PokemonInteractable::onClick(){
 
     if(m_wildPokemon){
         m_wildPokemon->setProperty("jumping", true);
+
     }
 
     m_decisionTimer->start();
@@ -110,22 +107,4 @@ void PokemonInteractable::moveStep(){
     }
 }
 
-void PokemonInteractable::setSpriteBounds() {
-    QImage spriteSheet(":/assets/HGSS/PokGen1_transparent_reordered.png");
-    int frameY = m_row * 32;
-    QImage frameDown = spriteSheet.copy(0, frameY, 32, 32);
-    QImage frameLeft = spriteSheet.copy(32, frameY, 32, 32);
 
-    for (int y = 0; y < 32; ++y) {
-        for (int x = 0; x < 32; ++x) {
-            if (qAlpha(frameDown.pixel(x, y)) > 0) {
-                m_minY = qMin(m_minY, y);
-                m_maxY = qMax(m_maxY, y);
-            }
-            if (qAlpha(frameLeft.pixel(x,y)) > 0) {
-                m_minX = qMin(m_minX, x);
-                m_maxX = qMax(m_maxX, x);
-            }
-        }
-    }
-}
