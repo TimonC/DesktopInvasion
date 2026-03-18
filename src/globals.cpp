@@ -1,11 +1,13 @@
 #include <globals.h>
 #include <QGuiApplication>
-#include <QHash>
+#include <unordered_map>
 
 namespace Globals {
     bool DEBUG = false;
     int SCALE = 3;
     int POKE_PADDING = 2;
+
+    const int MAX_POKEDEX_ID = 493;
 
     const QRect& screenGeometry() {
         static const QRect geometry = QGuiApplication::primaryScreen()->availableGeometry();
@@ -17,52 +19,46 @@ namespace Globals {
         return player;
     }
 
-    const PokemonInfo* getRandomPokemon() {
-        static QHash<int, const PokemonInfo*> lookup = [](){
-            QHash<int, const PokemonInfo*> map;
+    const PokemonInfo* getPokemonInfo(std::optional<int> pokedexId) {
+        static std::unordered_map<int, const PokemonInfo*> lookup;
+        static std::vector<const PokemonInfo*> pokemonVector;
+
+        if (lookup.empty()) {
             for (int i = 0; i < kPokemonCount; ++i) {
-                map[kPokemonList[i].pokedexId] = &kPokemonList[i];
+                lookup[kPokemonList[i].pokedexId] = &kPokemonList[i];
+                pokemonVector.push_back(&kPokemonList[i]);
             }
-            return map;
-        }();
-
-        QList<int> ids = lookup.keys();
-        assert(!ids.isEmpty());
-        int randomIndex = std::rand() % ids.size();
-        return lookup[ids[randomIndex]];
-    }
-
-    const PokemonInfo* getPokemonByPokedexId(int pokedexId) {
-        static QHash<int, const PokemonInfo*> lookup = [](){
-            QHash<int, const PokemonInfo*> map;
-            for (int i = 0; i < kPokemonCount; ++i) {
-                map[kPokemonList[i].pokedexId] = &kPokemonList[i];
-            }
-            return map;
-        }();
-
-        auto it = lookup.constFind(pokedexId);
-        assert(it != lookup.constEnd());
-        return it.value();
-    }
-
-  const SpriteInfo* getSpriteInfo(int spriteId, int generation) {
-        // Build lookup table on first call
-        static QHash<QPair<int, int>, const SpriteInfo*> lookup = [](){
-            QHash<QPair<int, int>, const SpriteInfo*> map;
-            for (int i = 0; i < kSpriteCount; ++i) {
-                QPair<int, int> key(kSpriteList[i].spriteId, kSpriteList[i].generation);
-                map[key] = &kSpriteList[i];
-            }
-            return map;
-        }();
-
-        QPair<int, int> key(spriteId, generation);
-        auto it = lookup.constFind(key);
-        if (it != lookup.constEnd()) {
-            return it.value();
         }
-        return nullptr;
+
+        if (pokedexId.has_value()) {
+            int id = pokedexId.value();
+            if (id < 1 || id > MAX_POKEDEX_ID) {
+                assert(!"Pokedex ID must be between 1 and 493");
+            }
+
+            auto it = lookup.find(id);
+            if (it == lookup.end()) {
+                assert(!"Pokemon ID not available in this version");
+            }
+            return it->second;
+        }
+
+        return pokemonVector[std::rand() % pokemonVector.size()];
+    }
+
+    const SpriteInfo* getSpriteInfo(int spriteId, int generation) {
+        static std::unordered_map<int, const SpriteInfo*> lookup;
+
+        if (lookup.empty()) {
+            for (int i = 0; i < kSpriteCount; ++i) {
+                int key = (kSpriteList[i].spriteId << 16) | kSpriteList[i].generation;
+                lookup[key] = &kSpriteList[i];
+            }
+        }
+
+        int key = (spriteId << 16) | generation;
+        auto it = lookup.find(key);
+        return it != lookup.end() ? it->second : nullptr;
     }
 
     QSize getSpriteSize(int spriteId, int generation) {

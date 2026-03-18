@@ -1,17 +1,16 @@
 #include <QGuiApplication>
-#include <WildPokemon.h>
-#include <pokemon_data.h>
-#include <globals.h>
 #include <QLoggingCategory>
 #include <QOpenGLContext>
+#include <globals.h>
+#include <Game.h>
 
 int main(int argc, char *argv[]) {
-    /* Globals::DEBUG = true; */
-    const int num_wild        = 1;
-    const int start_pokedexid = 400;
 
     QGuiApplication app(argc, argv);
+
     std::srand(static_cast<unsigned>(std::time(nullptr)));
+
+    /* Globals::DEBUG = true; */
 
     QOpenGLContext context;
     if (context.create()) {
@@ -22,23 +21,11 @@ int main(int argc, char *argv[]) {
     } else {
         qDebug() << "OpenGL FAILED - using software rendering";
     }
-    /* if (!Globals::DEBUG) { */
-        /* QLoggingCategory::setFilterRules("*.debug=false"); */
-    /* } */
 
-    std::vector<std::unique_ptr<WildPokemon>> wildPokemon;
+    /* if (!Globals::DEBUG)  loggingCategory::setFilterRules("*.debug=false"); */
 
-    /* const PokemonInfo* pokemonInfo1 = Globals::getPokemonByPokedexId(173); */
-    /* wildPokemon.push_back(std::make_unique<WildPokemon>(pokemonInfo1)); */
-    /* const PokemonInfo* pokemonInfo2 = Globals::getPokemonByPokedexId(473); */
-    /* wildPokemon.push_back(std::make_unique<WildPokemon>(pokemonInfo2)); */
+    Game game;
+    game.spawnWildPokemon(Globals::getPokemonInfo());
 
-    for (int i = start_pokedexid; i < num_wild + start_pokedexid; ++i) {
-        const PokemonInfo* pokemonInfo = Globals::getRandomPokemon();
-        /* const PokemonInfo* pokemonInfo = Globals::getPokemonByPokedexId(i); */
-        wildPokemon.push_back(std::make_unique<WildPokemon>(pokemonInfo));
-    }
-
-    qDebug() << "Created" << wildPokemon.size() << "pokemon";
     return app.exec();
 }
