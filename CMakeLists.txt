@@ -40,6 +40,29 @@ if(WIN32)
     endif()
 endif()
 
+# macOS-specific settings
+if(APPLE)
+    # Set macOS bundle properties
+    set_target_properties(DesktopInvasion PROPERTIES
+        MACOSX_BUNDLE TRUE
+        MACOSX_BUNDLE_BUNDLE_NAME "DesktopInvasion"
+        MACOSX_BUNDLE_BUNDLE_VERSION "1.0.0"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0.0"
+        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/macos/Info.plist"
+    )
+
+    # Handle application icon for macOS
+    set(ICON_FILE "${CMAKE_SOURCE_DIR}/assets/icon/icon.icns")
+    if(EXISTS ${ICON_FILE})
+        set_source_files_properties(${ICON_FILE} PROPERTIES
+            MACOSX_PACKAGE_LOCATION "Resources"
+        )
+        list(APPEND ALL_SRC ${ICON_FILE})
+    else()
+        message(WARNING "Icon file not found: ${ICON_FILE}")
+    endif()
+endif()
+
 # Create executable
 add_executable(DesktopInvasion ${ALL_SRC} ${ALL_HEADERS} ${RESOURCES_RCC})
 
@@ -73,7 +96,7 @@ set_target_properties(DesktopInvasion PROPERTIES
 )
 
 # Optional: Add version information
-if(WIN32 AND EXISTS "${CMAKE_SOURCE_DIR}/VERSION")
+if(EXISTS "${CMAKE_SOURCE_DIR}/VERSION")
     file(READ "${CMAKE_SOURCE_DIR}/VERSION" VERSION_STRING)
     string(STRIP "${VERSION_STRING}" VERSION_STRING)
     set_target_properties(DesktopInvasion PROPERTIES
@@ -87,3 +110,4 @@ message(STATUS "Building DesktopInvasion")
 message(STATUS "  Qt version: ${Qt6_VERSION}")
 message(STATUS "  Build type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "  Install prefix: ${CMAKE_INSTALL_PREFIX}")
+message(STATUS "  Platform: ${CMAKE_SYSTEM_NAME}")
