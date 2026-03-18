@@ -6,7 +6,7 @@ Item {
 
     property string fontFamily:      "sans-serif"
     property color  partyBackground: "white"
-    property color  pcBackground:    "green"
+    property color  pcBackground:    "#383838"
     property color  buttonColor:     "#5294e2"
     property color  panelBorderColor: "#a0b0c040"
     property color  panelShadowColor: "#00000055"
@@ -24,6 +24,7 @@ Item {
 
     property real   highlightOpacity:      0.3
     property real   highlightHoverOpacity: 0.5
+    property real   backgroundOpacity:     0.15
 
     property color  highlightColor:        Qt.rgba(0.29, 0.56, 0.89, highlightOpacity)
     property color  hoverHighlightColor:   Qt.rgba(0.42, 0.68, 0.96, highlightHoverOpacity)
@@ -133,9 +134,29 @@ Item {
                     Rectangle {
                         anchors.fill: parent
                         radius:       root.panelRadius
+
                         gradient: Gradient {
-                            GradientStop { position: 0.0; color: PokeColor.lighter(root.partyBackground) }
-                            GradientStop { position: 1.0; color: PokeColor.darker(root.partyBackground) }
+                            GradientStop {
+                                position: 0.0
+                                color: {
+                                    var c = Qt.color(root.partyBackground)
+                                    return Qt.rgba(c.r, c.g, c.b, root.backgroundOpacity * 1.2)
+                                }
+                            }
+                            GradientStop {
+                                position: 0.5
+                                color: {
+                                    var c = Qt.color(root.partyBackground)
+                                    return Qt.rgba(c.r, c.g, c.b, root.backgroundOpacity)
+                                }
+                            }
+                            GradientStop {
+                                position: 1.0
+                                color: {
+                                    var c = Qt.color(root.partyBackground)
+                                    return Qt.rgba(c.r * 0.8, c.g * 0.8, c.b * 0.8, root.backgroundOpacity * 1.2)
+                                }
+                            }
                         }
                     }
 
@@ -215,9 +236,29 @@ Item {
                     Rectangle {
                         anchors.fill: parent
                         radius:       root.panelRadius
+
                         gradient: Gradient {
-                            GradientStop { position: 0.0; color: PokeColor.lighter(root.pcBackground) }
-                            GradientStop { position: 1.0; color: PokeColor.darker(root.pcBackground)  }
+                            GradientStop {
+                                position: 0.0
+                                color: {
+                                    var c = Qt.color(root.pcBackground)
+                                    return Qt.rgba(c.r, c.g, c.b, root.backgroundOpacity * 1.2)
+                                }
+                            }
+                            GradientStop {
+                                position: 0.5
+                                color: {
+                                    var c = Qt.color(root.pcBackground)
+                                    return Qt.rgba(c.r, c.g, c.b, root.backgroundOpacity)
+                                }
+                            }
+                            GradientStop {
+                                position: 1.0
+                                color: {
+                                    var c = Qt.color(root.pcBackground)
+                                    return Qt.rgba(c.r * 0.8, c.g * 0.8, c.b * 0.8, root.backgroundOpacity * 1.2)
+                                }
+                            }
                         }
                     }
 
@@ -292,7 +333,6 @@ Item {
             }
         }
     }
-
 
     component PokemonSlot: Rectangle {
         id: pokemonSlot
