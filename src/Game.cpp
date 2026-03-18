@@ -45,7 +45,14 @@ Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
 Game::~Game() {
     if (m_activeBattle) safelyRemoveBattleScene();
     if (m_wildPokemon) safelyRemoveWildPokemon();
-    delete m_menu;
+    disconnect(m_spawnTimer, nullptr, this, nullptr);
+    disconnect(m_menu, nullptr, this, nullptr);
+    disconnect(m_trayIcon, nullptr, this, nullptr);
+
+    m_spawnTimer->stop();
+    m_spawnTimer->deleteLater();
+    m_trayIcon->deleteLater();
+    m_menu->deleteLater();
 }
 
 void Game::safelyRemoveBattleScene(){

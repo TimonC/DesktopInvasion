@@ -106,7 +106,7 @@ EOF
 
 echo "=== Build complete ==="
 echo "Output files available in ./app/output/"
-mv /app/output/Desktop_Invasion-x86_64.AppImage /app/output/DesktopInvasion.AppImage
+mv /app/output/Desktop_Invasion-x86_64.AppImage ./app/output/DesktopInvasion.AppImage
 ls -lah /app/output/
 echo ""
 echo ""

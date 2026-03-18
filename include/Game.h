@@ -19,6 +19,11 @@ public:
     Game(QQmlApplicationEngine* engine, QWindow* parent = nullptr);
     ~Game();
 
+public slots:
+    void requestExit() {
+        qDebug() << "Game exit requested";
+        deleteLater();
+    }
 private:
     std::mt19937 m_rng;
     Party m_cachedParty;

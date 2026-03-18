@@ -15,7 +15,6 @@
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
-
     // Set organization and application name for proper data paths
     QCoreApplication::setOrganizationName("DesktopInvasion");
     QCoreApplication::setApplicationName("DesktopInvasion");
@@ -25,6 +24,9 @@ int main(int argc, char *argv[]) {
     float speed = 2;
     Globals::scale(scale);
     Globals::animationSpeed(speed);
+
+    const bool DOOM_TIMER = true;
+    const int DOOM_S = 10;
 
     // Load fonts from QRC once at app startup
     int pixelFontId = QFontDatabase::addApplicationFont(":/assets/fonts/PressStart2P-Regular.ttf");
@@ -99,16 +101,24 @@ int main(int argc, char *argv[]) {
         qCritical() << "Failed to initialize database at:" << dbPath;
         return 1;
     }
-
     qDebug() << "Database initialized successfully";
-    // Optional: Add F10 for force quit during debugging
-    QShortcut *debugQuit = new QShortcut(QKeySequence(Qt::Key_F10), &app);
-    QObject::connect(debugQuit, &QShortcut::activated, []() {
-        qDebug() << "Debug exit triggered";
-        QCoreApplication::quit();
-    });
+
+    Game *game = new Game(&engine, nullptr);
+    // Connect game destruction to app quit
+    QObject::connect(game, &QObject::destroyed, &app, &QApplication::quit);
+
+    if (DOOM_TIMER) {
+        qDebug() << "=== VALGRIND DEBUG MODE ===";
+        qDebug() << "Game will auto-exit in" << DOOM_S << "seconds";
+
+        QTimer::singleShot(DOOM_S * 1000, game, [game]() {
+            qDebug() << "=== AUTO-EXIT TIMER FIRED ===";
+            qDebug() << DOOM_S << "seconds elapsed - exiting cleanly";
+            game->deleteLater();
+            PokemonDatabase::instance().shutdown();
+        });
+    }
 
 
-    Game game(&engine, nullptr);
     return app.exec();
 }

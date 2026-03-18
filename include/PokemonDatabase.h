@@ -26,7 +26,7 @@ struct GameState {
     int party_id[6] = {0, 0, 0, 0, 0, 0};
 };
 
-class PokemonDatabase {
+class PokemonDatabase{
 public:
     static PokemonDatabase& instance();
     bool initialize(const std::string& dbPath = "");
@@ -49,6 +49,7 @@ private:
     ~PokemonDatabase();
     PokemonDatabase(const PokemonDatabase&) = delete;
     PokemonDatabase& operator=(const PokemonDatabase&) = delete;
+
     void createTables();
     void ensureWildSlotExists();
     PokemonState queryToPokemon(const QSqlQuery& query);
