@@ -61,6 +61,7 @@ Item {
             id: statusContainer
             anchors.right: levelLabel.left
             anchors.rightMargin: root.statusPadding/2
+            anchors.topMargin: root.statusPadding/2
             anchors.verticalCenter: parent.verticalCenter
             width: statusLabel.implicitWidth + root.statusPadding
             height: root.subTextFontSize + root.statusPadding/2
@@ -78,8 +79,6 @@ Item {
             PopoutText {
                 id: statusLabel
                 anchors.centerIn: parent
-                width: parent.width - root.statusPadding/2  // Slightly smaller than container
-                height: parent.height - root.statusPadding/2
                 text: ""
                 visible: false
                 font.pixelSize: root.subTextFontSize

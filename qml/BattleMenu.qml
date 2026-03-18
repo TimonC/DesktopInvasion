@@ -5,6 +5,7 @@ import "Style/PokeColor.js" as PokeColor
 Rectangle {
     id: root
     color: "transparent"
+    property int buttonTransitionDuration: 100
     property int frameSize: 0
     property int buttonWidth: frameSize * 2
     property int buttonHeight: frameSize * 0.75
@@ -58,6 +59,7 @@ Rectangle {
     signal switchChosen(int newPartyIdx)
 
     property alias stack: stack
+    property bool stackReady: false
 
     property var party: {
         "spriteIds": [-1, -1, -1, -1, -1, -1],
@@ -93,7 +95,7 @@ Rectangle {
     }
 
     function showTextBar() {
-        if (stack.depth > 0) {
+        if (stackReady && stack.currentItem !== textBarView) {
             stack.replace(textBarView)
         }
     }
@@ -107,13 +109,17 @@ Rectangle {
     }
 
     function forceSwitch() {
-        forceSwitchMode = true
-        stack.replace(switchSelectionView)
+        if (stackReady && stack.currentItem !== switchSelectionView) {
+            forceSwitchMode = true
+            stack.replace(switchSelectionView)
+        }
     }
 
     function resetToRoot() {
-        forceSwitchMode = false
-        stack.replace(rootSelectionView)
+        if (stackReady && stack.currentItem !== rootSelectionView) {
+            forceSwitchMode = false
+            stack.replace(rootSelectionView)
+        }
     }
 
     component GradientRoundButton: RoundButton {
@@ -180,25 +186,25 @@ Rectangle {
                 GradientRoundButton {
                     text: "Fight"
                     buttonColor: root.attackButtonColor
-                    onClicked: stack.replace(attackSelectionView)
+                    onClicked: if (root.stackReady && stack.currentItem !== attackSelectionView) stack.replace(attackSelectionView)
                 }
 
                 GradientRoundButton {
                     text: "Switch"
                     buttonColor: root.switchButtonColor
-                    onClicked: stack.replace(switchSelectionView)
+                    onClicked: if (root.stackReady && stack.currentItem !== switchSelectionView) stack.replace(switchSelectionView)
                 }
 
                 GradientRoundButton {
                     text: "Catch"
                     buttonColor: root.catchButtonColor
-                    onClicked: stack.replace(catchSelectionView)
+                    onClicked: if (root.stackReady && stack.currentItem !== catchSelectionView) stack.replace(catchSelectionView)
                 }
 
                 GradientRoundButton {
                     text: "Run"
                     buttonColor: root.runButtonColor
-                    onClicked: stack.replace(runSelectionView)
+                    onClicked: if (root.stackReady && stack.currentItem !== runSelectionView) stack.replace(runSelectionView)
                 }
             }
         }
@@ -236,7 +242,7 @@ Rectangle {
 
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: stack.replace(rootSelectionView)
+                            onClicked: if (root.stackReady && stack.currentItem !== rootSelectionView) stack.replace(rootSelectionView)
                         }
                     }
                 }
@@ -359,7 +365,7 @@ Rectangle {
                         MouseArea {
                             anchors.fill: parent
                             enabled: !root.forceSwitchMode
-                            onClicked: stack.replace(rootSelectionView)
+                            onClicked: if (root.stackReady && stack.currentItem !== rootSelectionView) stack.replace(rootSelectionView)
                         }
                     }
                 }
@@ -496,7 +502,7 @@ Rectangle {
 
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: stack.replace(rootSelectionView)
+                            onClicked: if (root.stackReady && stack.currentItem !== rootSelectionView) stack.replace(rootSelectionView)
                         }
                     }
                 }
@@ -626,7 +632,7 @@ Rectangle {
 
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: stack.replace(rootSelectionView)
+                            onClicked: if (root.stackReady && stack.currentItem !== rootSelectionView) stack.replace(rootSelectionView)
                         }
                     }
                 }
@@ -685,9 +691,10 @@ Rectangle {
         anchors.fill: parent
         anchors.topMargin: root.gridSpacing * 3
         z: 1
+        initialItem: textBarView
 
         Component.onCompleted: {
-            stack.push(textBarView)
+            root.stackReady = true
         }
 
         pushEnter: Transition {
@@ -695,7 +702,7 @@ Rectangle {
                 property: "opacity"
                 from: 0
                 to: 1
-                duration: 200
+                duration: root.buttonTransitionDuration
             }
         }
 
@@ -704,7 +711,7 @@ Rectangle {
                 property: "opacity"
                 from: 1
                 to: 0
-                duration: 200
+                duration: root.buttonTransitionDuration
             }
         }
 
@@ -713,7 +720,7 @@ Rectangle {
                 property: "opacity"
                 from: 0
                 to: 1
-                duration: 200
+                duration: root.buttonTransitionDuration
             }
         }
 
@@ -722,7 +729,7 @@ Rectangle {
                 property: "opacity"
                 from: 1
                 to: 0
-                duration: 200
+                duration: root.buttonTransitionDuration
             }
         }
 

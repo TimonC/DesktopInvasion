@@ -5,14 +5,42 @@
 #include <Game.h>
 #include <tests.h>
 #include <QQmlApplicationEngine>
+#include <QFontDatabase>
+#include <QQmlContext>
+#include <QQmlApplicationEngine>
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
-    QQmlApplicationEngine engine;
-    app.setApplicationName("DesktopInvasion");
+    // Load fonts from QRC once at app startup
+    int pixelFontId = QFontDatabase::addApplicationFont(":/assets/fonts/PressStart2P-Regular.ttf");
+    int dotGothicId = QFontDatabase::addApplicationFont(":/assets/fonts/DotGothic16-Regular.ttf");
 
-    std::srand(static_cast<unsigned>(std::time(nullptr)));
+    // Get the font family names
+    QString pixelFontFamily;
+    QString dotGothicFamily;
+
+    if (pixelFontId != -1) {
+        QStringList families = QFontDatabase::applicationFontFamilies(pixelFontId);
+        if (!families.isEmpty()) {
+            pixelFontFamily = families.first();
+            qDebug() << "Loaded PressStart2P font:" << pixelFontFamily;
+        }
+    }
+
+    if (dotGothicId != -1) {
+        QStringList families = QFontDatabase::applicationFontFamilies(dotGothicId);
+        if (!families.isEmpty()) {
+            dotGothicFamily = families.first();
+            qDebug() << "Loaded DotGothic16 font:" << dotGothicFamily;
+        }
+    }
+
+    QQmlApplicationEngine engine;
+
+    // Expose font names to QML
+    engine.rootContext()->setContextProperty("pixelFontFamily", pixelFontFamily);
+    engine.rootContext()->setContextProperty("dotGothicFontFamily", dotGothicFamily);
 
     /* Globals::DEBUG = true; */
     /* if (!Globals::DEBUG)  loggingCategory::setFilterRules("*.debug=false"); */

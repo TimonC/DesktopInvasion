@@ -6,22 +6,10 @@ Item {
     width: (direction === 0 || direction === 2) ? frameSize * 7 : frameSize * 8
     height: (direction === 0 || direction === 2) ? frameSize * 8 : frameSize * 7
 
-    // Embedded font loading
-    FontLoader {
-        id: pixelFontLoader
-        source: "qrc:/assets/fonts/PressStart2P-Regular.ttf"
-    }
-
-    FontLoader {
-        id: textBarFontLoader
-        source: "qrc:/assets/fonts/DotGothic16-Regular.ttf"
-
-    }
-
     // Font properties
-    property string textBarFontFamily:  textBarFontLoader.name
-    property string menuFontFamily: pixelFontLoader.name
-    property string statusBarFontFamily: pixelFontLoader.name
+    property string textBarFontFamily:  "DotGothic16"
+    property string menuFontFamily: "Press Start 2P"
+    property string statusBarFontFamily: "Press Start 2P"
     property int frameSize: 32
     property int menuWidth: frameSize * 7
     property int menuHeight: frameSize * 2.5
@@ -31,9 +19,9 @@ Item {
     property int buttonHeight: frameSize * 0.75
     property int gridSpacing: frameSize * 0.1
     property int pokeNameFontSize:9
-    property int buttonFontSize:10
-    property int moveFontSize:9
-    property int textBarFontSize: 14
+    property int buttonFontSize:9
+    property int moveFontSize:8
+    property int textBarFontSize: 15
     property bool debugLines: false
     property int direction: 0
     property bool safePokemonSwitch: true
