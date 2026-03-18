@@ -370,33 +370,10 @@ void Game::handleBattleEnd(const char* endState, bool removeWild) {
 
 
 void Game::createInitialPokemon() {
-    PokemonState duskull;
-    duskull.pokedex_id = 355;
-    duskull.name = "Duskull";
-
-    for (int i = 0; i < 6; i++) {
-        duskull.ivs[i] = 32;
-        duskull.evs[i] = 50;
-    }
-
-    duskull.nature = Nature::Hardy;
-    duskull.lvl = 5;
-    duskull.moves[0] = 261;
-    duskull.moves[1] = 425;
-    duskull.moves[2] = 181;
-    duskull.moves[3] = 47;
-
-    int pokemonId = m_db.createPokemon(duskull);
-    if (pokemonId > 0) {
-        qDebug() << "Created Duskull with database ID:" << pokemonId;
-        m_db.setPartyPokemon(0, pokemonId);
-        m_partyIds[0] = pokemonId;
-    }
-
     PokemonState dusknoir;
     dusknoir.pokedex_id = 477;
     dusknoir.name = "Dusknoir";
-    dusknoir.pokeball_id = 1;
+    dusknoir.pokeball_id = 2;
 
     for (int i = 0; i < 6; i++) {
         dusknoir.ivs[i] = 32;
@@ -404,17 +381,17 @@ void Game::createInitialPokemon() {
     }
 
     dusknoir.nature = Nature::Hardy;
-    dusknoir.lvl = 5;
-    dusknoir.moves[0] = 45;
-    dusknoir.moves[1] = 86;
-    dusknoir.moves[2] = 109;
-    dusknoir.moves[3] = 53;
+    dusknoir.lvl = 10;
+    dusknoir.moves[0] = 14;
+    dusknoir.moves[1] = 207;
+    dusknoir.moves[2] = 28;
+    dusknoir.moves[3] = 434;
 
-    int pokemonId2 = m_db.createPokemon(dusknoir);
-    if (pokemonId2 > 0) {
-        qDebug() << "Created dusknoir with database ID:" << pokemonId2;
-        m_db.setPartyPokemon(1, pokemonId2);
-        m_partyIds[1] = pokemonId2;
+    int pokemonId = m_db.createPokemon(dusknoir);
+    if (pokemonId > 0) {
+        qDebug() << "Created dusknoir with database ID:" << pokemonId;
+        m_db.setPartyPokemon(0, pokemonId);
+        m_partyIds[0] = pokemonId;
     }
 }
 void Game::updatePartyXP(std::array<int, 6> spread) {

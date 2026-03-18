@@ -304,6 +304,16 @@ Item {
                 sequenceTimer.start()
                 break
 
+            case "status-condition":
+                if(step.role==="player"){
+                    statusBarPlayer.changeStatusCondition(step.label, step.remove)
+                }else{
+                    statusBarOpponent.changeStatusCondition(step.label, step.remove)
+                }
+                sequenceTimer.interval = 0;
+                sequenceTimer.start()
+                break
+
             case "change-health":
                 var isPlayer = step.role === "player"
                 var target = isPlayer ? player : opponent
@@ -318,8 +328,7 @@ Item {
 
                 if(currentHealthRatio<=0){
                     root.actionSequence = [
-                        {type: "lose-battle", message: target.name + " fainted!", role: step.role, delay: 1000 },
-                        {type: "battle-over", role: step.role, delay: 100 }
+                        {type: "faint", message: target.name + " fainted!", role: step.role, delay: 1000 },
                     ]
                     root.currentActionIndex = 0
                 }
@@ -327,21 +336,34 @@ Item {
                 sequenceTimer.start()
                 break
 
-            case "status-condition":
-                if(step.role==="player"){
-                    statusBarPlayer.changeStatusCondition(step.label, step.remove)
+            case "faint":
+                battleMenu.updateText(step.message)
+                root.currentActionIndex = 0
+                if(step.role === "opponent"){
+                    opponent.visible = false
+                    root.actionInProgress = false
+                    root.actionSequence = []
+                    root.requestExperienceSpread();
                 }else{
-                    statusBarOpponent.changeStatusCondition(step.label, step.remove)
+                    player.visible = false
+                    root.actionSequence = [{type: "force-switch"}]
+                    sequenceTimer.interval = step.delay
+                    sequenceTimer.start()
                 }
-                sequenceTimer.interval = 0;
-                sequenceTimer.start()
                 break
 
-            case "lose-battle":
-                battleMenu.updateText(step.message)
-                var loser = (step.role === "player") ? player : opponent
-                loser.visible = false
-                sequenceTimer.interval = step.delay
+            case "force-switch":
+                root.currentActionIndex = 0
+                if(battleMenu.party.healthRatios.some(ratio => ratio > 0)){
+                    root.actionInProgress = false
+                    root.actionSequence = []
+                    battleMenu.forceSwitch();
+                }else{
+                    root.actionSequence = [
+                        {type: "text", message: "Player is out of usable pokemon!", delay: 1000},
+                        {type: "opponent-won", delay: 100}
+                    ]
+                }
                 sequenceTimer.start()
                 break
 
@@ -349,7 +371,7 @@ Item {
                 if(step.shakes>=4){
                     step.shakes = 3;
                     var newActions = [
-                        {type: "succeed-catch", delay: 100},
+                        {type: "opponent-caught", delay: 100},
                         {type: "text", message: "Gotcha! " + opponent.name + " was caught!", delay: 2000},
                         {type: "jump", delay: 2000}
                     ]
@@ -372,7 +394,6 @@ Item {
                 pokeBallOpponent.visible = true
                 pokeBallOpponent.throwAt(coords[0], coords[1], coords[2], coords[3])
                 break;
-
             case "shake":
                  pokeBallOpponent.shake()
                  sequenceTimer.interval = step.delay
@@ -395,29 +416,18 @@ Item {
                 sequenceTimer.interval = step.delay
                 sequenceTimer.start()
                 break
-
-            case "succeed-catch":
+            case "opponent-caught":
                 root._battleEnded("OpponentCaught", true)
                 break
-            case "battle-over":
-                root.actionInProgress = false
-                root.actionSequence = []
-                root.currentActionIndex = 0
-                if(step.role === "opponent"){
-                    root.requestExperienceSpread();
-                }else{
-                    if(battleMenu.party.healthRatios.some(ratio => ratio > 0)){
-                        battleMenu.forceSwitch();
-                    }else{
-                        root._battleEnded("OpponentWon", true)
-                    }
-                }
+            case "opponent-won":
+                root._battleEnded("OpponentWon", true)
+                break
+            case "player-won":
+                root._battleEnded("PlayerWon", true)
                 break
             case "end":
                 endActionChain()
                 break
-            case "player-won":
-                root._battleEnded("PlayerWon", true)
         }
     }
     function showExperienceSpreadSequence(spread, lvlups) {

@@ -98,11 +98,14 @@ Rectangle {
         temp.iconIds[partyIdx] = iconId
         temp.ballIds[partyIdx] = ballId
         temp.gens[partyIdx] = gen
+
         temp.names[partyIdx] = pokemonName
         temp.lvls[partyIdx] = lvl
+
         temp.healthTotals[partyIdx] = totalHealth
+        if(totalHealth>0) temp.healthRatios[partyIdx] = 1;
+
         temp.moves[partyIdx] = moves
-        temp.healthRatios[partyIdx] = 1
         party = temp
     }
 
