@@ -5,6 +5,7 @@
 #include <QTimer>
 #include <QQuickItem>
 #include <QQuickView>
+#include <qrandom.h>
 PokemonInteractable::PokemonInteractable(QWindow *parent, int row)
     : QQuickView(parent)
     , m_row(row)
@@ -14,7 +15,11 @@ PokemonInteractable::PokemonInteractable(QWindow *parent, int row)
     , m_currentDirection(0)
     , m_scaleFactor(4)
 {
-    setFlags(Qt::WindowStaysOnTopHint | Qt::Tool);// | Qt::FramelessWindowHint) ;
+    setFlags( Qt::WindowStaysOnTopHint
+            | Qt::Tool
+            | Qt::WindowDoesNotAcceptFocus
+            | Qt::FramelessWindowHint);
+
     setColor(Qt::transparent);
 
     /* setSpriteBounds(); */
@@ -35,7 +40,7 @@ PokemonInteractable::PokemonInteractable(QWindow *parent, int row)
     m_wildPokemon->setProperty("spriteOffsetY",32);
 
     QQuickItem* mouseArea = m_wildPokemon->property("mouseArea").value<QQuickItem*>();
-    connect(mouseArea, SIGNAL(clicked(QQuickMouseEvent*)), this, SLOT(makeRandomDecision()));
+    connect(mouseArea, SIGNAL(clicked(QQuickMouseEvent*)), this, SLOT(onClick()));
 
     m_screenGeometry = QGuiApplication::primaryScreen()->geometry();
     setX((m_screenGeometry.width() - SPRITE_SIZE) / 2);
@@ -46,28 +51,23 @@ PokemonInteractable::PokemonInteractable(QWindow *parent, int row)
 
     m_moveTimer->setInterval(50); // 20fps
     connect(m_moveTimer, &QTimer::timeout, this, &PokemonInteractable::moveStep);
+
+
     m_decisionTimer->start();
     makeRandomDecision();
 }
 
-void PokemonInteractable::setSpriteBounds() {
-    QImage spriteSheet(":/assets/HGSS/PokGen1_transparent_reordered.png");
-    int frameY = m_row * 32;
-    QImage frameDown = spriteSheet.copy(0, frameY, 32, 32);
-    QImage frameLeft = spriteSheet.copy(32, frameY, 32, 32);
 
-    for (int y = 0; y < 32; ++y) {
-        for (int x = 0; x < 32; ++x) {
-            if (qAlpha(frameDown.pixel(x, y)) > 0) {
-                m_minY = qMin(m_minY, y);
-                m_maxY = qMax(m_maxY, y);
-            }
-            if (qAlpha(frameLeft.pixel(x,y)) > 0) {
-                m_minX = qMin(m_minX, x);
-                m_maxX = qMax(m_maxX, x);
-            }
-        }
+
+void PokemonInteractable::onClick(){
+    m_moveTimer->stop();
+    m_decisionTimer->stop();
+
+    if(m_wildPokemon){
+        m_wildPokemon->setProperty("jumping", true);
     }
+
+    m_decisionTimer->start();
 }
 
 void PokemonInteractable::makeRandomDecision(){
@@ -107,5 +107,25 @@ void PokemonInteractable::moveStep(){
     if (newX == 0 || newX == m_screenGeometry.width() - SPRITE_SIZE ||
         newY == 0 || newY == m_screenGeometry.height() - SPRITE_SIZE) {
         makeRandomDecision();
+    }
+}
+
+void PokemonInteractable::setSpriteBounds() {
+    QImage spriteSheet(":/assets/HGSS/PokGen1_transparent_reordered.png");
+    int frameY = m_row * 32;
+    QImage frameDown = spriteSheet.copy(0, frameY, 32, 32);
+    QImage frameLeft = spriteSheet.copy(32, frameY, 32, 32);
+
+    for (int y = 0; y < 32; ++y) {
+        for (int x = 0; x < 32; ++x) {
+            if (qAlpha(frameDown.pixel(x, y)) > 0) {
+                m_minY = qMin(m_minY, y);
+                m_maxY = qMax(m_maxY, y);
+            }
+            if (qAlpha(frameLeft.pixel(x,y)) > 0) {
+                m_minX = qMin(m_minX, x);
+                m_maxX = qMax(m_maxX, x);
+            }
+        }
     }
 }

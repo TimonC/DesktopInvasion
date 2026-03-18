@@ -15,10 +15,29 @@ Item {
     property int frameCount: 2
     property int frameRate: 4
     property alias mouseArea: mouseArea
+    property bool jumping: false
 
     width: itemWidth
     height: itemHeight
     clip: true
+
+    SequentialAnimation on y {
+        id: jumpAnim
+        running: jumping
+        loops: 1
+        onStopped: jumping = false
+
+        PropertyAnimation {
+            to: root.y - 5 * scaleFactor;
+            duration: 150;
+            easing.type: Easing.OutQuad
+        }
+        PropertyAnimation {
+            to: root.y;
+            duration: 150;
+            easing.type: Easing.InQuad
+        }
+    }
 
     MouseArea{
         id: mouseArea

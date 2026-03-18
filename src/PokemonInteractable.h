@@ -13,7 +13,7 @@ public:
 private slots:
     void makeRandomDecision();
     void moveStep();
-
+    void onClick();
 private:
     QTimer* m_decisionTimer;
     QTimer* m_moveTimer;
