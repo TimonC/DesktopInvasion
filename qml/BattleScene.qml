@@ -123,7 +123,7 @@ Item {
                 break;
             case 1:
                 sprite.x = root.width - (margin + sprite.containerOffsetX + sprite.width);
-                sprite.y = root.height - (textBoxHeight + margin + sprite.containerOffsetY + sprite.height);
+                sprite.y = root.height - (textBoxHeight + margin + sprite.height);
                 break;
             case 2:
                 sprite.x = margin + sprite.containerOffsetX;
@@ -131,7 +131,7 @@ Item {
                 break;
             case 3:
                 sprite.x = margin + sprite.containerOffsetX;
-                sprite.y = root.height - (textBoxHeight + margin + sprite.containerOffsetY + sprite.height);
+                sprite.y = root.height - (textBoxHeight + margin + sprite.height);
                 break;
         }
         sprite.originalX = sprite.x;
