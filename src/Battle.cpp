@@ -30,7 +30,7 @@ Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent
     initPosition();
     show();
 
-    QTimer::singleShot(10, [this,opp]() {
+    QTimer::singleShot(2, [this,opp]() {//just to make sure its all smooth
         opp->hide();
     });
 
@@ -38,7 +38,9 @@ Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent
     QObject::connect(m_battleScene, SIGNAL(runClicked()),
                     helper, SLOT(deleteLater()));
     QObject::connect(helper, &QObject::destroyed,
-                    [this, opp]() {
+                    [this, opp]() { //this assumes opp is untouched
+                        QPoint delta =  position() - m_origin;
+                        opp->setPosition(opp->position() + delta);
                         opp->startRoaming();
                         opp->show();
                         this->close();
