@@ -21,6 +21,7 @@ Pokemon::Pokemon(QWindow *parent, int row)
     m_sprite->setProperty("scaleFactor", m_scaleFactor);
     m_sprite->setProperty("row", m_row);
 
+
     int width = m_scaleFactor*32;
     int height = m_scaleFactor*32;
     m_sprite->setProperty("itemWidth", width);

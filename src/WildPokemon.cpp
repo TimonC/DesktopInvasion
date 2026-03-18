@@ -15,7 +15,8 @@ WildPokemon::WildPokemon(QWindow *parent, int row)
     , m_moveSpeed(1 + QRandomGenerator::global()->bounded(2))
 {
     QQuickItem* mouseArea = m_sprite->property("mouseArea").value<QQuickItem*>();
-    connect(mouseArea, SIGNAL(clicked(QQuickMouseEvent*)), this, SLOT(onClick()));
+    connect(mouseArea, SIGNAL(doubleClicked(QQuickMouseEvent*)), this, SLOT(onClick()));
+    connect(mouseArea, SIGNAL(pressed(QQuickMouseEvent*)), this, SLOT(systemMove()));
 
     m_decisionTimer->setInterval(1000 + QRandomGenerator::global()->bounded(2000));
     connect(m_decisionTimer, &QTimer::timeout, this, &WildPokemon::makeRandomDecision);
@@ -27,11 +28,14 @@ WildPokemon::WildPokemon(QWindow *parent, int row)
     connect( openingButtons, SIGNAL(clicked()), this, SLOT(startBattle()));
 
     QRect& screen = getScreenGeometry();
-    setX(screen.width()/2 + ((std::rand()%2)*2-1) * std::rand()%screen.width()/2);
-    setY(screen.height()/2 + ((std::rand()%2)*2-1) * std::rand()%screen.height()/2);
+    setX(screen.width()/2);//+ ((std::rand()%2)*2-1) * std::rand()%screen.width()/2);
+    setY(screen.height()/2);// + ((std::rand()%2)*2-1) * std::rand()%screen.height()/2);
     m_decisionTimer->start();
     makeRandomDecision();
 
+}
+void WildPokemon::systemMove(){
+    this->startSystemMove();
 }
 
 void WildPokemon::startBattle(){

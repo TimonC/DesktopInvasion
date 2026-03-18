@@ -25,6 +25,10 @@ Item {
     width: itemWidth
     height: itemHeight
     clip: true
+    layer.enabled: true
+    z: 1
+
+signal mouseDrag(int deltaX, int deltaY)
 
     MouseArea {
         id: mouseArea
@@ -38,7 +42,7 @@ Item {
             text: "BATTLE"
             enabled: root.openingButtons
             visible: root.openingButtons
-            z: 9999
+            z:8000
         }
 
     SequentialAnimation {
@@ -67,7 +71,7 @@ Item {
         id: sprite
         x: spriteOffsetX
         y: spriteOffsetY
-        z: 9997
+        z: 1000
         scale: scaleFactor
 
         source: spriteSheet

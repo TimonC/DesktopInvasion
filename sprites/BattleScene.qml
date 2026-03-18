@@ -5,6 +5,7 @@ Item {
     id: root
     width: (chosenSide === 0 || chosenSide === 2) ? frameSize * 5 : frameSize * 7
     height: (chosenSide === 0 || chosenSide === 2) ? frameSize * 7 : frameSize * 5
+    layer.enabled: true
 
     // Scaling properties
     property int frameSize: 32
@@ -42,7 +43,7 @@ Item {
     Rectangle {
         id: textBar
         objectName: "textBar"
-
+        z: 8000
         property string text: ""
 
         anchors.bottom: parent.bottom
@@ -64,6 +65,7 @@ Item {
             verticalAlignment: Text.AlignVCenter
             elide: Text.ElideRight
             visible: false  // Text hidden by default
+            z: 8000
         }
 
         // Button grid - centered in the text bar
@@ -76,7 +78,7 @@ Item {
             // Simple centering - no complex anchors
             x: (parent.width - width) / 2
             y: (parent.height - height) / 2
-
+            z: 8000
             // Attack button - top left
             RoundButton {
                 id: attackButton

@@ -18,10 +18,12 @@ Battlescene::Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent)
 
     QQuickItem *ui = rootObject();
     m_ui = ui;
+    /* QQuickItem* mouseArea = ui->property("mouseArea").value<QQuickItem*>(); */
+    /* connect(mouseArea, SIGNAL((QQuickMouseEvent*)), this, SLOT(onClick())); */
 
-    // Position calculation
+    opp->rootObject()->setParent(this);
+    chosen->rootObject()->setParent(this);
     int distance = opp->direction()%2==0 ? 3*32 : 4*32;
-    /* int distance = 3*32; */
     switch(opp->direction()) {
         case 0:
             m_origin = opp->position() + QPoint(0, -ui->height()/2-14);
@@ -44,6 +46,7 @@ Battlescene::Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent)
             chosen->direction(1);
             break;
     }
+    /* opp->setPosition(opp->position()-m_origin); */
 
     // Set chosen side
     QMetaObject::invokeMethod(ui, "set_chosen_side", Q_ARG(QVariant, opp->direction()));
