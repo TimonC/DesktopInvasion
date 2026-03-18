@@ -8,6 +8,7 @@
 #include <QQmlApplicationEngine>
 #include <SystemTrayIcon.h>
 #include <QTimer>
+#include <QVariantList>
 #include <random>
 
 class Game : public QObject {
@@ -42,10 +43,16 @@ private:
     void safelyRemoveBattleScene();
     void safelyRemoveWildPokemon();
 
+    // Menu <-> DB bridge helpers
+    QVariantList partyToVariantList();
+    QVariantList boxToVariantList(int boxIndex);
+    void         pushBoxToMenu(int boxIndex);
+
 private slots:
     void updatePartyXP(std::array<int,6> spread);
     void handleMenuOpen();
     void handleMenuClosed();
+    void handleMenuPreloadBox(int boxIndex);
     void handleBattleStart();
     void handleBattleEnd(const char* endState, bool removeWild);
     void setGameActive(bool active = true);

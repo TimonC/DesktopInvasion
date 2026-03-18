@@ -6,6 +6,7 @@
 #include <PokeMath.h>
 #include <QTimer>
 #include <QDebug>
+#include <QVariantMap>
 #include <cstring>
 #include <BattleMoveHandler.h>
 #include <data_poke_asset.h>
@@ -26,6 +27,7 @@ Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
     connect(m_trayIcon, &SystemTrayIcon::gameActive,        this, &Game::setGameActive);
     connect(m_trayIcon, &SystemTrayIcon::menuButtonPressed, this, &Game::handleMenuOpen);
     connect(m_menu,     &GameMenu::menuClosed,              this, &Game::handleMenuClosed);
+    connect(m_menu,     &GameMenu::preloadBoxRequested,     this, &Game::handleMenuPreloadBox);
 
     m_spawnTimer->setInterval(m_spawnDelay_ms);
     connect(m_spawnTimer, &QTimer::timeout, this, &Game::spawnPokemon);
@@ -34,9 +36,9 @@ Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
 
 Game::~Game() {
     m_spawnTimer->stop();
-    disconnect(m_trayIcon,    nullptr, this, nullptr);
-    disconnect(m_menu,        nullptr, this, nullptr);
-    disconnect(m_spawnTimer,  nullptr, this, nullptr);
+    disconnect(m_trayIcon,   nullptr, this, nullptr);
+    disconnect(m_menu,       nullptr, this, nullptr);
+    disconnect(m_spawnTimer, nullptr, this, nullptr);
 
     if (m_activeBattle) {
         disconnect(m_activeBattle, nullptr, this, nullptr);
@@ -54,6 +56,83 @@ Game::~Game() {
     delete m_menu;
 }
 
+// --------------------------------------------------------------------------
+// Menu <-> DB bridge
+// --------------------------------------------------------------------------
+
+QVariantList Game::partyToVariantList() {
+    QVariantList list;
+    const auto& party = m_db.party();
+    for (int slot = 0; slot < PARTY_SIZE; ++slot) {
+        const PokemonState& p = party[slot];
+        if (p.empty()) continue;
+        const AssetInfo* info = Lookup::getSpriteInfo(p.pokedex_id);
+        QVariantMap entry;
+        entry["slot"]   = slot;
+        entry["iconId"] = info->rowId;
+        list.append(entry);
+    }
+    return list;
+}
+
+QVariantList Game::boxToVariantList(int boxIndex) {
+    m_db.loadBox(boxIndex);
+    const auto& box = m_db.getBox(boxIndex);
+    QVariantList list;
+    for (int slot = 0; slot < BOX_SIZE; ++slot) {
+        const PokemonState& p = box[slot];
+        if (p.empty()) continue;
+        const AssetInfo* info = Lookup::getSpriteInfo(p.pokedex_id);
+        QVariantMap entry;
+        entry["slot"]   = slot;
+        entry["iconId"] = info->rowId;
+        list.append(entry);
+    }
+    return list;
+}
+
+void Game::pushBoxToMenu(int boxIndex) {
+    m_menu->loadBox(boxIndex, boxToVariantList(boxIndex));
+    qDebug() << "[Game] Pushed PC box" << boxIndex << "to menu";
+}
+
+void Game::handleMenuPreloadBox(int boxIndex) {
+    qDebug() << "[Game] Menu requested preload of box" << boxIndex;
+    pushBoxToMenu(boxIndex);
+}
+
+// --------------------------------------------------------------------------
+// Menu open/close
+// --------------------------------------------------------------------------
+
+void Game::handleMenuOpen() {
+    bool usedToBeActive = m_gameUsedToBeActive;
+    setGameActive(false);
+    m_gameUsedToBeActive = usedToBeActive;
+
+    m_menu->activate();
+
+    // Push party and bootstrap boxes
+    m_menu->loadParty(partyToVariantList());
+    pushBoxToMenu(0);
+    pushBoxToMenu(1);
+    pushBoxToMenu(98);
+    m_menu->showBox(0);
+
+    m_db.beginMenuSession();
+    m_trayIcon->enabled(false);
+}
+
+void Game::handleMenuClosed() {
+    m_db.commitMenuSession();
+    m_trayIcon->enabled(true);
+    if (m_gameUsedToBeActive) setGameActive(true);
+}
+
+// --------------------------------------------------------------------------
+// Unchanged below
+// --------------------------------------------------------------------------
+
 void Game::safelyRemoveBattleScene() {
     if (!m_activeBattle) return;
     disconnect(m_activeBattle, nullptr, this, nullptr);
@@ -68,19 +147,6 @@ void Game::safelyRemoveWildPokemon() {
     disconnect(this, nullptr, m_wildPokemon, nullptr);
     m_wildPokemon->deleteLater();
     m_wildPokemon = nullptr;
-}
-
-void Game::handleMenuOpen() {
-    bool usedToBeActive = m_gameUsedToBeActive;
-    setGameActive(false);
-    m_gameUsedToBeActive = usedToBeActive;
-    m_menu->activate();
-    m_trayIcon->enabled(false);
-}
-
-void Game::handleMenuClosed() {
-    m_trayIcon->enabled(true);
-    if (m_gameUsedToBeActive) setGameActive(true);
 }
 
 void Game::setGameActive(bool active) {
@@ -249,16 +315,16 @@ void Game::createInitialPokemon() {
         m_db.setPartySlot(slot, p);
     };
 
-    make(92,  "Gastly",    0, 202, 28,  339, 93,  0);
-    make(321, "Wailord",   0, 48,  28,  339, 260, 1);
-    make(383, "Oysterhead",2, 14,  53,  426, 434, 2);
+    make(92,  "Gastly",     0, 202, 28,  339, 93,  0);
+    make(321, "Wailord",    0, 48,  28,  339, 260, 1);
+    make(383, "Oysterhead", 2, 14,  53,  426, 434, 2);
 }
 
 void Game::updatePartyXP(std::array<int,6> spread) {
     if (!m_activeBattle) return;
 
     std::array<int,6> lvlUps = {-1,-1,-1,-1,-1,-1};
-    auto party = m_db.party(); // local mutable copy
+    auto party = m_db.party();
 
     for (int i = 0; i < PARTY_SIZE; ++i) {
         if (spread[i] <= 0 || party[i].empty()) continue;
@@ -283,7 +349,7 @@ void Game::updatePartyXP(std::array<int,6> spread) {
         qDebug().nospace()
             << QString::fromStdString(party[i].name)
             << " Lvl " << oldLvl << "->" << party[i].lvl
-            << "  XP " << oldXP  << "->" << party[i].currentXP
+            << "  XP "  << oldXP  << "->" << party[i].currentXP
             << " (+" << xpGain << ")"
             << "  next: " << PokeMath::xpToNextLevel(party[i].lvl);
 
