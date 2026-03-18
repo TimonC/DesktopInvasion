@@ -16,26 +16,25 @@ Battle::Battle(int opp_direction, QPoint opp_pos, const PokemonInfo* opp_info, c
     m_currentDirection = opp_direction;
 
     // Load the PokemonSprite as root
-    setSource(QUrl("qrc:/sprites/PokemonSprite.qml"));
-    m_opp = rootObject();
-    if (m_opp) {
+    setSource(QUrl("qrc:/sprites/BattleScene.qml"));
+    m_scene = rootObject();
+    if (m_scene) {
         qDebug() << "Root object loaded successfully";
 
-        m_opp->setProperty("spriteSheet", QString("qrc:/assets/HGSS/PokGen%1_transparent_reordered.png").arg(opp_info->generation));
-        m_opp->setProperty("scaleFactor", Globals::SCALE);
-        m_opp->setProperty("row", opp_info->spriteId);
-        m_opp->setProperty("debugLines", Globals::DEBUG);
-        m_opp->setProperty("direction",m_currentDirection);
+        m_scene->setProperty("spriteSheet", QString("qrc:/assets/HGSS/PokGen%1_transparent_reordered.png").arg(opp_info->generation));
+        m_scene->setProperty("scaleFactor", Globals::SCALE);
+        m_scene->setProperty("row", opp_info->spriteId);
+        m_scene->setProperty("debugLines", Globals::DEBUG);
+        m_scene->setProperty("direction",m_currentDirection);
 
         // Activate the battle scene
-    QObject::connect(m_opp, SIGNAL(battleSceneLoaded(QVariant)),
-                     this, SLOT(onBattleSceneLoaded(QVariant)));
+    /* QObject::connect(m_opp, SIGNAL(battleSceneLoaded(QVariant)), */
+                     /* this, SLOT(onBattleSceneLoaded(QVariant))); */
 
-    QMetaObject::invokeMethod(m_opp, "loadBattleScene", Q_ARG(QVariant, opp_direction));
+    /* QMetaObject::invokeMethod(m_opp, "loadBattleScene", Q_ARG(QVariant, opp_direction)); */
         /* QMetaObject::invokeMethod(m_opp, "loadBattleScene", Q_ARG(QVariant, m_currentDirection)); */
         /* m_opp->setProperty("chosenSide", opp_direction); */
 
-        qDebug() << "Properties set, battleActive:" << m_opp->property("battleActive");
     } else {
         qDebug() << "Failed to load root object!";
     }

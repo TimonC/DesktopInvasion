@@ -13,13 +13,13 @@ Item {
     property int buttonHeight: frameSize * 0.7
     property int buttonFontSize: frameSize * 0.4
     property int gridSpacing: frameSize * 0.1
-    property int chosenSide: 1  // 0=North, 1=East, 2=South, 3=West
+    property int chosenSide: 0  // 0=North, 1=East, 2=South, 3=West
 
     property bool debugLines: false
 
-    // Pokemon sprite configurations
-    property var wildPokemon: null  // Set from outside: {spriteSheet, row, direction, etc}
-    property var playerPokemon: null  // Set from outside: {spriteSheet, row, direction, etc}
+    // Direct PokemonSprite instances (like your WildPokemon approach)
+    property var opponentPokemon: null  // Will be set from C++
+    property var playerPokemon: null    // Will be set from C++
 
     // Aliases for external access
     property alias textBar: textBar
@@ -35,59 +35,53 @@ Item {
         anchors.fill: parent
     }
 
-    // Wild Pokemon (opponent) - positioned opposite to player
-    Loader {
-        id: wildPokemonLoader
-        active: wildPokemon !== null
-        sourceComponent: pokemonSpriteComponent
+    // Opponent Pokemon (wild) - positioned opposite to player
+    PokemonSprite {
+        id: opponentSprite
+        objectName: "opponentSprite"
 
-        property var config: wildPokemon
-        property int side: getOppositeSide(chosenSide)
+        // Bind properties from the opponentPokemon config object
+        spriteSheet: opponentPokemon ? opponentPokemon.spriteSheet || "" : ""
+        row: opponentPokemon ? opponentPokemon.row || 0 : 0
+        direction: opponentPokemon ? opponentPokemon.direction || 1 : 1  // Default facing left
+        scaleFactor: opponentPokemon ? opponentPokemon.scaleFactor || 4 : 4
 
-        Component.onCompleted: positionSprite(this, side)
+        Component.onCompleted: positionSprite(opponentSprite, getOppositeSide(chosenSide))
 
         Connections {
             target: root
             function onChosenSideChanged() {
-                wildPokemonLoader.side = getOppositeSide(chosenSide);
-                positionSprite(wildPokemonLoader, wildPokemonLoader.side);
+                positionSprite(opponentSprite, getOppositeSide(chosenSide));
+            }
+            function onOpponentPokemonChanged() {
+                // Re-position when opponent config changes
+                positionSprite(opponentSprite, getOppositeSide(chosenSide));
             }
         }
     }
 
     // Player Pokemon - positioned according to chosenSide
-    Loader {
-        id: playerPokemonLoader
-        active: playerPokemon !== null
-        sourceComponent: pokemonSpriteComponent
+    PokemonSprite {
+        id: playerSprite
+        objectName: "playerSprite"
 
-        property var config: playerPokemon
-        property int side: chosenSide
+        // Bind properties from the playerPokemon config object
+        spriteSheet: playerPokemon ? playerPokemon.spriteSheet || "" : ""
+        row: playerPokemon ? playerPokemon.row || 0 : 0
+        direction: playerPokemon ? playerPokemon.direction || 3 : 3  // Default facing right
+        scaleFactor: playerPokemon ? playerPokemon.scaleFactor || 4 : 4
 
-        Component.onCompleted: positionSprite(this, side)
+        Component.onCompleted: positionSprite(playerSprite, chosenSide)
 
         Connections {
             target: root
             function onChosenSideChanged() {
-                playerPokemonLoader.side = chosenSide;
-                positionSprite(playerPokemonLoader, chosenSide);
+                positionSprite(playerSprite, chosenSide);
             }
-        }
-    }
-
-    // Reusable Pokemon sprite component
-    Component {
-        id: pokemonSpriteComponent
-
-        PokemonSprite {
-            spriteSheet: parent.config ? parent.config.spriteSheet || "" : ""
-            row: parent.config ? parent.config.row || 0 : 0
-            direction: parent.config ? parent.config.direction || 0 : 0
-            scaleFactor: parent.config ? parent.config.scaleFactor || 4 : 4
-            frameWidth: parent.config ? parent.config.frameWidth || 32 : 32
-            frameHeight: parent.config ? parent.config.frameHeight || 32 : 32
-            frameCount: parent.config ? parent.config.frameCount || 2 : 2
-            frameRate: parent.config ? parent.config.frameRate || 4 : 4
+            function onPlayerPokemonChanged() {
+                // Re-position when player config changes
+                positionSprite(playerSprite, chosenSide);
+            }
         }
     }
 
@@ -103,37 +97,37 @@ Item {
     }
 
     // Position sprite based on side
-    function positionSprite(loader, side) {
+    function positionSprite(sprite, side) {
         // Reset all anchors first
-        loader.anchors.top = undefined;
-        loader.anchors.bottom = undefined;
-        loader.anchors.left = undefined;
-        loader.anchors.right = undefined;
-        loader.anchors.horizontalCenter = undefined;
-        loader.anchors.verticalCenter = undefined;
+        sprite.anchors.top = undefined;
+        sprite.anchors.bottom = undefined;
+        sprite.anchors.left = undefined;
+        sprite.anchors.right = undefined;
+        sprite.anchors.horizontalCenter = undefined;
+        sprite.anchors.verticalCenter = undefined;
 
         var margin = 20;
 
         switch(side) {
             case 0: // North - position at top
-                loader.anchors.top = root.top;
-                loader.anchors.horizontalCenter = root.horizontalCenter;
-                loader.anchors.topMargin = margin;
+                sprite.anchors.top = root.top;
+                sprite.anchors.horizontalCenter = root.horizontalCenter;
+                sprite.anchors.topMargin = margin;
                 break;
             case 1: // East - position at right
-                loader.anchors.right = root.right;
-                loader.anchors.verticalCenter = root.verticalCenter;
-                loader.anchors.rightMargin = margin;
+                sprite.anchors.right = root.right;
+                sprite.anchors.verticalCenter = root.verticalCenter;
+                sprite.anchors.rightMargin = margin;
                 break;
             case 2: // South - position at bottom
-                loader.anchors.bottom = root.bottom;
-                loader.anchors.horizontalCenter = root.horizontalCenter;
-                loader.anchors.bottomMargin = margin + textBar.height;
+                sprite.anchors.bottom = root.bottom;
+                sprite.anchors.horizontalCenter = root.horizontalCenter;
+                sprite.anchors.bottomMargin = margin + textBar.height;
                 break;
             case 3: // West - position at left
-                loader.anchors.left = root.left;
-                loader.anchors.verticalCenter = root.verticalCenter;
-                loader.anchors.leftMargin = margin;
+                sprite.anchors.left = root.left;
+                sprite.anchors.verticalCenter = root.verticalCenter;
+                sprite.anchors.leftMargin = margin;
                 break;
         }
     }
@@ -159,32 +153,24 @@ Item {
         }
     }
 
-    // Trigger animations on loaded sprites
-    function playWildPokemonTackle() {
-        if (wildPokemonLoader.item) {
-            wildPokemonLoader.item.tackle = true;
-        }
+    // Trigger animations directly on the sprites
+    function playOpponentTackle() {
+        opponentSprite.tackle = true;
     }
 
-    function playPlayerPokemonTackle() {
-        if (playerPokemonLoader.item) {
-            playerPokemonLoader.item.tackle = true;
-        }
+    function playPlayerTackle() {
+        playerSprite.tackle = true;
     }
 
-    function playWildPokemonAttack() {
-        if (wildPokemonLoader.item) {
-            wildPokemonLoader.item.attacked = true;
-        }
+    function playOpponentAttack() {
+        opponentSprite.attacked = true;
     }
 
-    function playPlayerPokemonAttack() {
-        if (playerPokemonLoader.item) {
-            playerPokemonLoader.item.attacked = true;
-        }
+    function playPlayerAttack() {
+        playerSprite.attacked = true;
     }
 
-    // Text bar at the bottom
+    // Text bar at the bottom (unchanged)
     Rectangle {
         id: textBar
         objectName: "textBar"
@@ -213,7 +199,7 @@ Item {
             z: 8000
         }
 
-        // Button grid
+        // Button grid (unchanged)
         Grid {
             id: buttonGrid
             columns: 2
