@@ -7,11 +7,34 @@
 
 Game::Game(QObject* parent) : QObject(parent){
     m_menu = new GameMenu();
+    // Initialize all pointers to nullptr
+    for (int i = 0; i < MAX_WILD_SPAWNS; ++i) {
+        m_wildSpawns[i] = nullptr;
+    }
+
     pushWildPokemon(Globals::getPokemonInfo());
 
     connect(&Globals::getPlayer(), &Player::startABattle,
             this, &Game::handleBattleStart);
+}
+
+Game::~Game() {
+    qDebug("Deleting game!\n");
+
+    for (auto& pair : m_wildBattlePairs) {
+        delete pair.second;  // Delete Battle*
     }
+    m_wildBattlePairs.clear();
+
+    for (int i = 0; i < m_activeSpawnCount; ++i) {
+        delete m_wildSpawns[i];
+        m_wildSpawns[i] = nullptr;
+    }
+    m_activeSpawnCount = 0;
+
+    delete m_menu;
+    m_menu = nullptr;
+}
 
 void Game::enableSpawn(bool enable){
 

@@ -4,7 +4,6 @@
 #include "pokemon_data.h"
 #include <Battle.h>
 #include <GameMenu.h>
-#include <iostream>
 #include <WildPokemon.h>
 #include <QObject>
 #include <vector>
@@ -15,10 +14,7 @@ class Game : public QObject{
 
 public:
     Game(QObject* parent = nullptr);
-    ~Game(){
-        std::cout << "Deleting game!\n";
-        delete m_menu;
-    }
+    ~Game();
 
     void enableSpawn(bool enable = true);
 
