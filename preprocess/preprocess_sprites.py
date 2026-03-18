@@ -149,7 +149,7 @@ namespace {
 
         sprite_sheet = "SpriteSheet::Big" if info["is_big"] else "SpriteSheet::Standard"
         cpp_content += f"static const AssetInfo asset_{pid} = "
-        cpp_content += f"{{{info['width']}, {info['height']}, {info['v_width']}, {info['v_height']}, {info['h_width']}, {info['h_height']}, {sprite_sheet}, {info['row_id']}}};\n"
+        cpp_content += f"{{{info['width']}, {info['height']}, {info['h_width']}, {info['h_height']}, {info['v_width']}, {info['v_height']}, {sprite_sheet}, {info['row_id']}}};\n"
         asset_entries.append(pid)
 
     cpp_content += "\n} // anonymous namespace\n\n"
@@ -247,10 +247,10 @@ def process_sprites_and_generate_assets(image_paths, big_image_path, regular_wid
                     asset_data[current_pokedex_id] = {
                         "width": max(v_width, h_width),
                         "height": max(v_height, h_height),
-                        "v_width": v_width,
-                        "v_height": v_height,
                         "h_width": h_width,
                         "h_height": h_height,
+                        "v_width": v_width,
+                        "v_height": v_height,
                         "is_big": False,
                         "row_id": row_id
                     }
@@ -292,10 +292,10 @@ def process_sprites_and_generate_assets(image_paths, big_image_path, regular_wid
             asset_data[pokedex_id] = {
                 "width": max(v_width, h_width),
                 "height": max(v_height, h_height),
-                "v_width": v_width,
-                "v_height": v_height,
                 "h_width": h_width,
                 "h_height": h_height,
+                "v_width": v_width,
+                "v_height": v_height,
                 "is_big": True,
                 "row_id": row_id
             }
