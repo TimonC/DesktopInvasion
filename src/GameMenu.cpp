@@ -55,6 +55,7 @@ bool GameMenu::event(QEvent* event) {
         Globals::animationSpeed(m_menuRoot->property("battleSpeed").toFloat());
         Globals::encounterLvlHigh(m_menuRoot->property("encounterLevelHigh").toInt());
         Globals::encounterLvlLow(m_menuRoot->property("encounterLevelLow").toInt());
+        Globals::expShare(m_menuRoot->property("expShare").toBool());
         emit menuClosed();
         return true;
     }
@@ -80,7 +81,8 @@ void GameMenu::setDefaults(Defaults &d)
                               Q_ARG(QVariant, d.scale),
                               Q_ARG(QVariant, d.speed),
                               Q_ARG(QVariant, d.lvlRangeDown),
-                              Q_ARG(QVariant, d.lvlRangeUp));
+                              Q_ARG(QVariant, d.lvlRangeUp),
+                              Q_ARG(QVariant, d.expShareOn));
 }
 
 // These are Q_INVOKABLE so QML can also call them directly if needed,

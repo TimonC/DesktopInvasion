@@ -225,6 +225,7 @@ void Game::writeDefaults(){
     d.speed = Globals::animationSpeed();
     d.lvlRangeUp = Globals::encounterLvlHigh();
     d.lvlRangeDown = Globals::encounterLvlLow();
+    d.expShareOn = Globals::expShare();
     m_db.writeDefaults(d);
 }
 

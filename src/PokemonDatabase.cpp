@@ -18,8 +18,6 @@ static void logQuery(const QSqlQuery& q) {
         DB_ERR("Query failed:" << q.lastError().text() << "| SQL:" << q.lastQuery());
 }
 
-// --------------------------------------------------------------------------
-
 PokemonDatabase& PokemonDatabase::instance() {
     static PokemonDatabase inst;
     return inst;
@@ -71,10 +69,6 @@ void PokemonDatabase::shutdown() {
     m_initialized = false;
 }
 
-// --------------------------------------------------------------------------
-// Schema
-// --------------------------------------------------------------------------
-
 void PokemonDatabase::createTables() {
     QSqlQuery q;
 
@@ -99,7 +93,6 @@ void PokemonDatabase::createTables() {
         move1         INTEGER DEFAULT 0,
         move2         INTEGER DEFAULT 0,
         move3         INTEGER DEFAULT 0,
-        has_exp_share INTEGER DEFAULT 0,
         FOREIGN KEY(save_id) REFERENCES saves(save_id)
     ))"); logQuery(q);
 
@@ -117,7 +110,6 @@ void PokemonDatabase::createTables() {
         move1         INTEGER DEFAULT 0,
         move2         INTEGER DEFAULT 0,
         move3         INTEGER DEFAULT 0,
-        has_exp_share INTEGER DEFAULT 0,
         PRIMARY KEY(save_id, slot),
         FOREIGN KEY(save_id) REFERENCES saves(save_id)
     ))"); logQuery(q);
@@ -137,7 +129,6 @@ void PokemonDatabase::createTables() {
         move1         INTEGER DEFAULT 0,
         move2         INTEGER DEFAULT 0,
         move3         INTEGER DEFAULT 0,
-        has_exp_share INTEGER DEFAULT 0,
         PRIMARY KEY(save_id, box, slot),
         FOREIGN KEY(save_id) REFERENCES saves(save_id)
     ))"); logQuery(q);
@@ -148,6 +139,7 @@ void PokemonDatabase::createTables() {
         speed         INTEGER DEFAULT 1,
         lvl_range_up   INTEGER DEFAULT 5,
         lvl_range_down INTEGER DEFAULT 5,
+        exp_share_on   INTEGER DEFAULT 0,
         FOREIGN KEY(save_id) REFERENCES saves(save_id)
     ))"); logQuery(q);
 
@@ -177,10 +169,6 @@ void PokemonDatabase::initFixedSlots() {
     DB_LOG("Fixed slots ready for save_id=" << m_saveId);
 }
 
-// --------------------------------------------------------------------------
-// Row <-> PokemonState
-// --------------------------------------------------------------------------
-
 PokemonState PokemonDatabase::rowToPokemon(const QSqlQuery& q) {
     PokemonState p;
     p.pokedex_id  = q.value("pokedex_id").toInt();
@@ -194,7 +182,6 @@ PokemonState PokemonDatabase::rowToPokemon(const QSqlQuery& q) {
     p.moves[1]    = q.value("move1").toInt();
     p.moves[2]    = q.value("move2").toInt();
     p.moves[3]    = q.value("move3").toInt();
-    p.hasExpShare = q.value("has_exp_share").toBool();
     return p;
 }
 
@@ -210,12 +197,7 @@ void PokemonDatabase::writePokemonToRow(QSqlQuery& q, const PokemonState& p) {
     q.addBindValue(p.moves[1]);
     q.addBindValue(p.moves[2]);
     q.addBindValue(p.moves[3]);
-    q.addBindValue(p.hasExpShare ? 1 : 0);
 }
-
-// --------------------------------------------------------------------------
-// Load caches
-// --------------------------------------------------------------------------
 
 void PokemonDatabase::loadWildAndParty() {
     QSqlQuery q;
@@ -240,16 +222,12 @@ void PokemonDatabase::loadWildAndParty() {
     } else { logQuery(q); }
 }
 
-// --------------------------------------------------------------------------
-// DB write helpers
-// --------------------------------------------------------------------------
-
 void PokemonDatabase::dbWriteWild(const PokemonState& p) {
     QSqlQuery q;
     q.prepare(R"(UPDATE wild_slot SET
         pokedex_id=?, variant_id=?, pokeball_id=?, name=?,
         lvl=?, current_xp=?, nature=?,
-        move0=?, move1=?, move2=?, move3=?, has_exp_share=?
+        move0=?, move1=?, move2=?, move3=?
         WHERE save_id=?)");
     writePokemonToRow(q, p);
     q.addBindValue(m_saveId);
@@ -262,7 +240,7 @@ void PokemonDatabase::dbWritePartySlot(int slot, const PokemonState& p) {
     q.prepare(R"(UPDATE party_slots SET
         pokedex_id=?, variant_id=?, pokeball_id=?, name=?,
         lvl=?, current_xp=?, nature=?,
-        move0=?, move1=?, move2=?, move3=?, has_exp_share=?
+        move0=?, move1=?, move2=?, move3=?
         WHERE save_id=? AND slot=?)");
     writePokemonToRow(q, p);
     q.addBindValue(m_saveId);
@@ -276,8 +254,8 @@ void PokemonDatabase::dbWritePCSlot(int box, int slot, const PokemonState& p) {
     QSqlQuery q;
     q.prepare(R"(INSERT OR REPLACE INTO pc_slots
         (save_id, box, slot, pokedex_id, variant_id, pokeball_id, name,
-         lvl, current_xp, nature, move0, move1, move2, move3, has_exp_share)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?))");
+         lvl, current_xp, nature, move0, move1, move2, move3)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?))");
     q.addBindValue(m_saveId);
     q.addBindValue(box);
     q.addBindValue(slot);
@@ -296,10 +274,6 @@ void PokemonDatabase::dbDeletePCSlot(int box, int slot) {
     DB_LOG("PC[" << box << "][" << slot << "] -> cleared");
 }
 
-// --------------------------------------------------------------------------
-// Wild
-// --------------------------------------------------------------------------
-
 void PokemonDatabase::setWild(const PokemonState& p) {
     m_wild = p;
     dbWriteWild(p);
@@ -309,10 +283,6 @@ void PokemonDatabase::clearWild() {
     m_wild = PokemonState{};
     dbWriteWild(m_wild);
 }
-
-// --------------------------------------------------------------------------
-// Party
-// --------------------------------------------------------------------------
 
 void PokemonDatabase::setPartySlot(int slot, const PokemonState& p) {
     assert(slot >= 0 && slot < PARTY_SIZE);
@@ -331,10 +301,6 @@ int PokemonDatabase::partySize() const {
     for (const auto& p : m_party) if (!p.empty()) ++n;
     return n;
 }
-
-// --------------------------------------------------------------------------
-// PC
-// --------------------------------------------------------------------------
 
 void PokemonDatabase::loadBox(int box) {
     if (m_boxCache.count(box)) return;
@@ -377,10 +343,6 @@ void PokemonDatabase::swapPCSlots(int boxA, int slotA, int boxB, int slotB) {
     DB_LOG("PC swapped [" << boxA << "][" << slotA << "] <-> [" << boxB << "][" << slotB << "]");
 }
 
-// --------------------------------------------------------------------------
-// Catch
-// --------------------------------------------------------------------------
-
 std::pair<int, int> PokemonDatabase::firstFreePC() {
     for (int box = 0; box < MAX_BOXES; ++box) {
         loadBox(box);
@@ -416,10 +378,6 @@ std::pair<int, int> PokemonDatabase::catchWildPokemon(int pokeball_id) {
     return {box, slot};
 }
 
-// --------------------------------------------------------------------------
-// Game state
-// --------------------------------------------------------------------------
-
 GameState PokemonDatabase::loadGameState() {
     GameState state;
     state.save_id = m_saveId;
@@ -451,11 +409,6 @@ bool PokemonDatabase::saveGameState(const GameState& state) {
     DB_LOG("GameState saved (save_id=" << state.save_id << ")");
     return !q.lastError().isValid();
 }
-
-// --------------------------------------------------------------------------
-// Menu session — one open transaction, writes happen immediately to cache+DB,
-// commit flushes, rollback reverts both DB and cache.
-// --------------------------------------------------------------------------
 
 void PokemonDatabase::beginMenuSession() {
     assert(!m_inMenuSession);
@@ -498,36 +451,29 @@ void PokemonDatabase::commitMenuSession() {
 void PokemonDatabase::rollbackMenuSession() {
     assert(m_inMenuSession);
     QSqlDatabase::database().rollback();
-    // Reload affected caches from DB to stay consistent
     m_boxCache.clear();
     loadWildAndParty();
     m_inMenuSession = false;
     DB_LOG("Menu session rolled back");
 }
 
-// --------------------------------------------------------------------------
-// Exp share
-// --------------------------------------------------------------------------
-
-bool PokemonDatabase::toggleExpShare(int partySlot) {
-    assert(partySlot >= 0 && partySlot < PARTY_SIZE);
-    m_party[partySlot].hasExpShare = !m_party[partySlot].hasExpShare;
-    dbWritePartySlot(partySlot, m_party[partySlot]);
-    DB_LOG("ExpShare slot" << partySlot << "->" << m_party[partySlot].hasExpShare);
-    return m_party[partySlot].hasExpShare;
+bool PokemonDatabase::toggleExpShare() {
+    Defaults d = loadDefaults();
+    d.expShareOn = !d.expShareOn;
+    writeDefaults(d);
+    DB_LOG("ExpShare toggled ->" << d.expShareOn);
+    return d.expShareOn;
 }
 
-std::vector<int> PokemonDatabase::partyExpShareSlots() {
-    std::vector<int> result;
-    for (int i = 0; i < PARTY_SIZE; ++i)
-        if (!m_party[i].empty() && m_party[i].hasExpShare)
-            result.push_back(i);
-    return result;
+bool PokemonDatabase::isExpShareOn() const {
+    QSqlQuery q;
+    q.prepare("SELECT exp_share_on FROM defaults WHERE save_id=?");
+    q.addBindValue(m_saveId);
+    if (q.exec() && q.next()) {
+        return q.value("exp_share_on").toBool();
+    }
+    return false;
 }
-
-// --------------------------------------------------------------------------
-// Multi-save
-// --------------------------------------------------------------------------
 
 std::vector<GameState> PokemonDatabase::listSaves() {
     std::vector<GameState> saves;
@@ -553,17 +499,7 @@ bool PokemonDatabase::switchSave(int save_id) {
     loadWildAndParty();
     return true;
 }
-// --------------------------------------------------------------------------
-// Field patches
-// --------------------------------------------------------------------------
 
-// Internal helper: run a targeted UPDATE on whichever table owns this slot.
-// box == -2 → wild_slot   (slot ignored)
-// box == -1 → party_slots (slot = party index)
-// box >= 0  → pc_slots    (box + slot)
-//
-// 'setCols' is the SET fragment, e.g. "name=?"
-// Bind your value(s) BEFORE calling; the WHERE params are appended here.
 static void patchSlot(int saveId, int box, int slot,
                       const QString& setCols,
                       std::function<void(QSqlQuery&)> bindValues)
@@ -589,7 +525,6 @@ static void patchSlot(int saveId, int box, int slot,
     logQuery(q);
 }
 
-// Patch cache helper: returns a pointer to the live PokemonState, or nullptr.
 PokemonState* PokemonDatabase::cachePtr(int box, int slot) {
     if (box == -2) return &m_wild;
     if (box == -1) { return (slot >= 0 && slot < PARTY_SIZE) ? &m_party[slot] : nullptr; }
@@ -639,20 +574,17 @@ void PokemonDatabase::setPokemonMove(int box, int slot, int moveIndex, int moveI
     DB_LOG("Move[" << moveIndex << "] [box=" << box << " slot=" << slot << "] ->" << moveId);
 }
 
-// --------------------------------------------------------------------------
-// Defaults
-// --------------------------------------------------------------------------
-
 Defaults PokemonDatabase::loadDefaults() {
     Defaults d;
     QSqlQuery q;
-    q.prepare("SELECT scale, speed, lvl_range_up, lvl_range_down FROM defaults WHERE save_id=?");
+    q.prepare("SELECT scale, speed, lvl_range_up, lvl_range_down, exp_share_on FROM defaults WHERE save_id=?");
     q.addBindValue(m_saveId);
     if (q.exec() && q.next()) {
         d.scale = q.value("scale").toInt();
         d.speed = q.value("speed").toInt();
         d.lvlRangeUp = q.value("lvl_range_up").toInt();
         d.lvlRangeDown = q.value("lvl_range_down").toInt();
+        d.expShareOn = q.value("exp_share_on").toBool();
     }
     return d;
 }
@@ -660,12 +592,13 @@ Defaults PokemonDatabase::loadDefaults() {
 void PokemonDatabase::writeDefaults(const Defaults& d) {
     QSqlQuery q;
     q.prepare(R"(UPDATE defaults SET
-        scale=?, speed=?, lvl_range_up=?, lvl_range_down=?
+        scale=?, speed=?, lvl_range_up=?, lvl_range_down=?, exp_share_on=?
         WHERE save_id=?)");
     q.addBindValue(d.scale);
     q.addBindValue(d.speed);
     q.addBindValue(d.lvlRangeUp);
     q.addBindValue(d.lvlRangeDown);
+    q.addBindValue(d.expShareOn ? 1 : 0);
     q.addBindValue(m_saveId);
     q.exec(); logQuery(q);
     DB_LOG("Defaults written for save_id=" << m_saveId);

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef POKEMONDATABASE_H
+#define POKEMONDATABASE_H
 
 #include <PokeTypes.h>
 #include <string>
@@ -20,7 +21,6 @@ struct PokemonState {
     int         currentXP   = 0;
     Nature      nature      = Nature::Hardy;
     int         moves[4]    = {0, 0, 0, 0};
-    bool        hasExpShare = false;
 
     bool empty() const { return pokedex_id == 0; }
 };
@@ -38,6 +38,7 @@ struct Defaults {
     int speed = 1;
     int lvlRangeUp = 5;
     int lvlRangeDown = 5;
+    bool expShareOn = false;
 };
 
 class PokemonDatabase {
@@ -47,51 +48,41 @@ public:
     bool initialize(const std::string& dbPath = "", int save_id = 1);
     void shutdown();
 
-    // --- Wild ---
     const PokemonState& wild() const { return m_wild; }
     void setWild(const PokemonState& p);
     void clearWild();
 
-    // --- Party ---
     const std::array<PokemonState, PARTY_SIZE>& party() const { return m_party; }
     void setPartySlot(int slot, const PokemonState& p);
     int  partySize()          const;
     int  firstFreePartySlot() const;
 
-    // --- PC ---
     void                                      loadBox(int box);
     bool                                      isBoxLoaded(int box) const;
     const std::array<PokemonState, BOX_SIZE>& getBox(int box)      const;
     void                                      setPCSlot(int box, int slot, const PokemonState& p);
     void                                      swapPCSlots(int boxA, int slotA, int boxB, int slotB);
 
-    // --- Catch ---
     std::pair<int, int> catchWildPokemon(int pokeball_id);
 
-    // --- Game state ---
     GameState loadGameState();
     bool      saveGameState(const GameState& state);
 
-    // --- Menu session (single DB transaction for all swaps) ---
     void beginMenuSession();
     void swapByPos(int boxX, int slotX, int boxY, int slotY);
     void commitMenuSession();
     void rollbackMenuSession();
 
-    // --- Exp share ---
-    bool             toggleExpShare(int partySlot);
-    std::vector<int> partyExpShareSlots();
+    bool toggleExpShare();
+    bool isExpShareOn() const;
 
-    // --- Multi-save ---
     std::vector<GameState> listSaves();
     bool                   switchSave(int save_id);
-    // --- Field patches (cheap, repeatable) ---
-    // location: box=-1 → party slot, box>=0 → PC slot, box=-2 → wild
+
     void renamePokemon (int box, int slot, const std::string& newName);
     void setPokemonMoves(int box, int slot, const int moves[4]);
     void setPokemonMove (int box, int slot, int moveIndex, int moveId);
 
-    // --- Defaults ---
     Defaults loadDefaults();
     void writeDefaults(const Defaults& d);
 
@@ -122,6 +113,8 @@ private:
     PokemonState                                                m_wild;
     std::array<PokemonState, PARTY_SIZE>                        m_party;
     std::unordered_map<int, std::array<PokemonState, BOX_SIZE>> m_boxCache;
-    // in private:
-    PokemonState* cachePtr(int box, int slot);   // -2=wild, -1=party, >=0=PC
+
+    PokemonState* cachePtr(int box, int slot);
 };
+
+#endif

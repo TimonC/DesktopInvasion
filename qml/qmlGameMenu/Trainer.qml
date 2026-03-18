@@ -10,6 +10,7 @@ Rectangle {
     property real battleSpeedDefault:        1.0
     property int  encounterLevelHighDefault: 5
     property int  encounterLevelLowDefault:  5
+    property bool expShareDefault:           false
 
     readonly property real spriteSizeMin:         1.0
     readonly property real spriteSizeMax:         4.0
@@ -42,6 +43,7 @@ Rectangle {
     property real battleSpeed:        battleSpeedDefault
     property int  encounterLevelHigh: encounterLevelHighDefault
     property int  encounterLevelLow:  encounterLevelLowDefault
+    property bool expShare:           expShareDefault
 
     component DiscreteSlider : Item {
         id: discreteSlider
@@ -192,6 +194,100 @@ Rectangle {
         }
     }
 
+    component CheckBoxItem : Item {
+        id: checkBoxItem
+        required property string label
+        required property bool initialValue
+
+        property alias checked: mouseArea.checked
+
+        width: parent.width
+        height: 30
+
+        Row {
+            width: parent.width
+            height: parent.height
+            spacing: 8
+
+            Text {
+                text: checkBoxItem.label
+                font.family: root.dotGothicFont
+                font.pixelSize: root.fontSizeSm - 2
+                color: root.textColor
+                width: 110
+                height: parent.height
+                verticalAlignment: Text.AlignVCenter
+                elide: Text.ElideRight
+                font.bold: true
+                opacity: 0.9
+            }
+
+            Item {
+                width: parent.width - 110 - valueLabel.width - parent.spacing - 8
+                height: parent.height
+
+                Rectangle {
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 24
+                    height: 24
+                    radius: 4
+                    color: "transparent"
+                    border.color: "#3a5f8a"
+                    border.width: 2
+
+                    Rectangle {
+                        anchors.centerIn: parent
+                        width: 18
+                        height: 18
+                        radius: 1
+                        color: mouseArea.checked ? "#7aa9e6" : "transparent"
+                    }
+                }
+
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.left: parent.left
+                    anchors.leftMargin: 32
+                    text: mouseArea.checked ? "ON" : "OFF"
+                    font.family: root.p2pFont
+                    font.pixelSize: root.fontSizeSm - 4
+                    color: root.textColor
+                    style: Text.Raised
+                    styleColor: "#000000"
+                }
+
+                MouseArea {
+                    id: mouseArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: undefined
+
+                    property bool checked: checkBoxItem.initialValue
+
+                    onClicked: checked = !checked
+
+                    onCheckedChanged: {
+                        if (checkBoxItem.label === "Exp. share") root.expShare = checked
+                    }
+                }
+            }
+
+            Text {
+                id: valueLabel
+                text: ""
+                font.family: root.p2pFont
+                font.pixelSize: root.fontSizeSm - 4
+                color: root.textColor
+                width: 35
+                height: parent.height
+                horizontalAlignment: Text.AlignRight
+                verticalAlignment: Text.AlignVCenter
+                style: Text.Raised
+                styleColor: "#000000"
+            }
+        }
+    }
+
     Row {
         anchors.fill: parent
         anchors.leftMargin: 4
@@ -272,6 +368,13 @@ Rectangle {
                 initialValue: root.encounterLevelLowDefault
                 width: parent.width
                 isNegative: true
+            }
+
+            CheckBoxItem {
+                id: expShareCheckbox
+                label: "Exp. share"
+                initialValue: root.expShareDefault
+                width: parent.width
             }
         }
     }

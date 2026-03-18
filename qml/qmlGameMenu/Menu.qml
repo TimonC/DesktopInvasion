@@ -53,12 +53,14 @@ Rectangle {
     property alias battleSpeed:        trainer.battleSpeed
     property alias encounterLevelHigh: trainer.encounterLevelHigh
     property alias encounterLevelLow:  trainer.encounterLevelLow
+    property alias expShare:           trainer.expShare
 
-    function updateDefaults(spriteSize, battleSpeed, lvlRangeDown, lvlRangeUp){
+    function updateDefaults(spriteSize, battleSpeed, lvlRangeDown, lvlRangeUp, expShare){
        trainer.spriteSizeDefault = spriteSize
        trainer.battleSpeedDefault = battleSpeed
        trainer.encounterLevelLowDefault = lvlRangeDown
        trainer.encounterLevelHighDefault = lvlRangeUp
+       trainer.expShareDefault = expShare
     }
 
     MouseArea {

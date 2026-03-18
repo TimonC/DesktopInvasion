@@ -20,6 +20,9 @@ namespace Globals {
     int encounterLvlHigh();
     void encounterLvlHigh(float value);
 
+    bool expShare();
+    void expShare(bool value);;
+
     const QRect& screenGeometry();
 
 }
