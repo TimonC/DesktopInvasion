@@ -13,7 +13,6 @@ public:
     explicit Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent = nullptr);
     ~Battle() {
         qDebug() << "Battle destructor called!";
-        disconnect();
     }
 
     void updateTextbar(const std::string& text);

@@ -37,15 +37,8 @@ Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
 }
 
 Game::~Game() {
-    if (m_activeBattle) {
-        m_activeBattle->deleteLater();
-    }
-    if (m_wildPokemon) {
-        m_wildPokemon->deleteLater();
-    }
-    if (m_trayIcon) {
-        m_trayIcon->deleteLater();
-    }
+    if (m_activeBattle) delete m_activeBattle;
+    if (m_wildPokemon) delete m_wildPokemon;
     delete m_menu;
 }
 
