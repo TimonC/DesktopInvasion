@@ -15,7 +15,7 @@ Item {
     property int gridSpacing: frameSize * 0.1
 
     property int pokeNameFontSize: 12
-    property int buttonFontSize: 12
+    property int buttonFontSize: 11
     property int moveFontSize: 10
     property int textBarFontSize: 14
 
@@ -70,7 +70,7 @@ Item {
                 break
             case 1:
                 sprite.x = root.width - (sprite.containerOffsetX + sprite.width)
-                sprite.y = root.height - (sprite.height + menuHeight)
+                sprite.y = root.height - (sprite.height + menuHeight*1.05) //slightly higher than menu w/ arbitrary 1.05
                 sprite.statusBar.x = root.width - root.frameSize/2 - root.statusBarWidth
                 sprite.statusBar.y = 0
                 break
@@ -82,7 +82,7 @@ Item {
                 break
             case 3:
                 sprite.x = sprite.containerOffsetX
-                sprite.y = root.height - (sprite.height + menuHeight)
+                sprite.y = root.height - (sprite.height + menuHeight*1.05)
                 sprite.statusBar.x = root.frameSize/2
                 sprite.statusBar.y = 0
                 break

@@ -139,38 +139,6 @@ Rectangle {
         height: root.buttonHeight
     }
 
-    Component {
-        id: textBarComponent
-        Rectangle {
-            id: textBar
-            color: root.textBarBackgroundColor
-            border.color: root.textBarBorderColor
-            border.width: root.borderWidth
-            property string text: ""
-            height: root.menuHeight
-            width: root.menuWidth
-            radius: 5
-
-            Text {
-                id: textBarText
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.rightMargin: parent.width * 0.2
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
-                anchors.margins: 6
-                text: textBar.text
-                font.pixelSize: root.textBarFontSize
-                font.family: root.textBarFontFamily
-                color: root.textBarTextColor
-                verticalAlignment: Text.AlignVCenter
-                wrapMode: Text.WordWrap
-                maximumLineCount: 2
-                elide: Text.ElideRight
-            }
-        }
-    }
-
     StackView {
         id: stack
         initialItem: textBarComponent
@@ -231,6 +199,40 @@ Rectangle {
             }
         }
     }
+
+    Component {
+        id: textBarComponent
+        Rectangle {
+            id: textBar
+            color: root.textBarBackgroundColor
+            border.color: root.textBarBorderColor
+            border.width: root.borderWidth
+            property string text: ""
+
+            height: root.menuHeight*0.90
+            width: root.menuWidth
+            radius: 5
+
+            Text {
+                id: textBarText
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.rightMargin: parent.width * 0.2
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                anchors.margins: 6
+                text: textBar.text
+                font.pixelSize: root.textBarFontSize
+                font.family: root.textBarFontFamily
+                color: root.textBarTextColor
+                verticalAlignment: Text.AlignVCenter
+                wrapMode: Text.WordWrap
+                maximumLineCount: 2
+                elide: Text.ElideRight
+            }
+        }
+    }
+
 
     Component {
         id: rootSelection
@@ -339,7 +341,7 @@ Rectangle {
             rows: 2
             spacing: root.gridSpacing
 
-            property real cellWidth: (parent.width - spacing*2) / 3
+            property real cellWidth: (parent.width - spacing) / 3.5
             property real cellHeight: (parent.height - spacing) / 2
 
             Repeater {
