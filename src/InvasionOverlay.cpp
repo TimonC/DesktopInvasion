@@ -6,8 +6,7 @@
 #include <QDebug>
 
 InvasionOverlay::InvasionOverlay(QWindow *parent)
-    : QQuickView(parent)
-{
+    : QQuickView(parent){
     setFlags(Qt::FramelessWindowHint |
              Qt::WindowStaysOnTopHint |
              Qt::WindowTransparentForInput |
