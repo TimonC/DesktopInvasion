@@ -180,7 +180,7 @@ void Game::spawnPokemon() {
         PokemonState newWild;
         newWild.pokedex_id = m_wildPokemonInfo->pokedexId;
         newWild.name = m_wildPokemonInfo->name;
-        newWild.lvl = 10;
+        newWild.lvl = 100;
 
         for (int i = 0; i < 6; i++) {
             newWild.ivs[i] = 32;
