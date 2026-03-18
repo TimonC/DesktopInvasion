@@ -91,6 +91,39 @@ void BattleMoveHandler::resetDeltaState(BattleStateDelta& delta) {
     delta = BattleStateDelta();
 }
 
+void BattleMoveHandler::incrementConditionCounters() {
+    Battler* player = m_battleParty[m_chosenIndex];
+
+    if(player->battleState.confused == Ailment::Confusion) {
+        player->battleState.confusedCounter++;
+    }
+    if(m_battleOpponent->battleState.confused == Ailment::Confusion) {
+        m_battleOpponent->battleState.confusedCounter++;
+    }
+    if(player->battleState.statusCondition != Ailment::Null) {
+        player->battleState.conditionCounter++;
+    }
+    if(m_battleOpponent->battleState.statusCondition != Ailment::Null) {
+        m_battleOpponent->battleState.conditionCounter++;
+    }
+}
+
+QVariantList BattleMoveHandler::processEndOfTurnEffects() {
+    QVariantList endSequence;
+
+    BattleActionResult playerEndResult = applyEndOfTurnEffects(m_battleParty[m_chosenIndex]);
+    applyBattleResult(playerEndResult);
+    QVariantList playerEndSequence = generateSequenceFromResult(playerEndResult);
+    endSequence.append(playerEndSequence);
+
+    BattleActionResult opponentEndResult = applyEndOfTurnEffects(m_battleOpponent);
+    applyBattleResult(opponentEndResult);
+    QVariantList opponentEndSequence = generateSequenceFromResult(opponentEndResult);
+    endSequence.append(opponentEndSequence);
+
+    return endSequence;
+}
+
 void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
     std::string actionStr = _action.toStdString();
     const char* action = actionStr.data();
@@ -179,45 +212,32 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
             }
         }
 
-        if(player->battleState.confused == Ailment::Confusion) {
-            player->battleState.confusedCounter++;
-        }
-        if(m_battleOpponent->battleState.confused == Ailment::Confusion) {
-            m_battleOpponent->battleState.confusedCounter++;
-        }
-        if(player->battleState.statusCondition != Ailment::Null) {
-            player->battleState.conditionCounter++;
-        }
-        if(m_battleOpponent->battleState.statusCondition != Ailment::Null) {
-            m_battleOpponent->battleState.conditionCounter++;
-        }
+        incrementConditionCounters();
 
-        BattleActionResult playerEndResult = applyEndOfTurnEffects(player);
-        applyBattleResult(playerEndResult);
-        turnResult.effects.insert(turnResult.effects.end(), playerEndResult.effects.begin(), playerEndResult.effects.end());
-
-        BattleActionResult opponentEndResult = applyEndOfTurnEffects(m_battleOpponent);
-        applyBattleResult(opponentEndResult);
-        turnResult.effects.insert(turnResult.effects.end(), opponentEndResult.effects.begin(), opponentEndResult.effects.end());
-
+        QVariantList endSequence = processEndOfTurnEffects();
         s = generateSequenceFromResult(turnResult);
+        s.append(endSequence);
         s.append(createEndAction());
 
         emit actionSequenceReady(s);
 
     } else {
-        // For Switch or Catch actions, player action happens first
         player->delta.flinched = false;
         m_battleOpponent->delta.flinched = false;
 
         BattleActionResult opponentResult = applyMove(opponentMove, m_battleOpponent, player);
         applyBattleResult(opponentResult);
 
+        incrementConditionCounters();
+
+        QVariantList endSequence = processEndOfTurnEffects();
+
         if(action[0]=='C' && shakes == 4){
             s.append(createEndAction());
         } else {
             QVariantList attackSequence = generateSequenceFromResult(opponentResult);
             s = s + attackSequence;
+            s.append(endSequence);
             s.append(createEndAction());
         }
 
@@ -319,7 +339,7 @@ BattleActionResult BattleMoveHandler::applyEndOfTurnEffects(Battler* battler) {
 
     if (battler->battleState.statusCondition == Ailment::Burn) {
         int burnDamage = PokeMath::calculateBurnDamage(battler->pokeState.stats[0]);
-        result.addEffect(BattleActionResult::DAMAGE, battler, battler, burnDamage);
+        result.addEffect(BattleActionResult::CHANGE_HEALTH, nullptr, battler, burnDamage);
         result.addEffect(BattleActionResult::TEXT, battler, nullptr, 0, Ailment::Null, -1, 0,
                         battler->pokeState.name + " is hurt by its burn!");
     }
@@ -330,7 +350,7 @@ BattleActionResult BattleMoveHandler::applyEndOfTurnEffects(Battler* battler) {
             counter = battler->battleState.conditionCounter;
         }
         int poisonDamage = PokeMath::calculatePoisonDamage(battler->pokeState.stats[0], counter);
-        result.addEffect(BattleActionResult::DAMAGE, battler, battler, poisonDamage);
+        result.addEffect(BattleActionResult::CHANGE_HEALTH, nullptr, battler, poisonDamage);
         std::string ailment = battler->battleState.statusCondition == Ailment::Toxic ? "bad poison" : "poison";
         result.addEffect(BattleActionResult::TEXT, battler, nullptr, 0, Ailment::Null, -1, 0,
                         battler->pokeState.name + " is hurt by its " + ailment + "!");
@@ -415,7 +435,7 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
         }
 
         int damage = PokeMath::calculateDamage(params, m_rng);
-        result.addEffect(BattleActionResult::DAMAGE, caster, target, damage);
+        result.addEffect(BattleActionResult::CHANGE_HEALTH, caster, target, damage);
 
         int combinedEffectiveness = params.type1 * params.type2;
         if (combinedEffectiveness > 10000) {
@@ -524,7 +544,7 @@ BattleActionResult BattleMoveHandler::applySecondaryEffects(const Move* _move, B
 void BattleMoveHandler::applyBattleResult(const BattleActionResult& result) {
     for (const auto& effect : result.effects) {
         switch(effect.type) {
-            case BattleActionResult::DAMAGE:
+            case BattleActionResult::CHANGE_HEALTH:
                 if (effect.target && effect.amount > 0) {
                     effect.target->battleState.currentHealth =
                         std::max(0, effect.target->battleState.currentHealth - effect.amount);
@@ -590,9 +610,9 @@ QVariantList BattleMoveHandler::generateSequenceFromResult(const BattleActionRes
                 sequence.append(createTextAction(QString::fromStdString(effect.text), ms_moveUsedText));
                 break;
 
-            case BattleActionResult::DAMAGE:
+            case BattleActionResult::CHANGE_HEALTH:
                 if (effect.amount > 0) {
-                    if (!sourceRole.isEmpty()) {
+                    if (effect.source != nullptr && !sourceRole.isEmpty()) {
                         sequence.append(createAttackAction(sourceRole, ms_attackAnimation));
                     }
                     if (!targetRole.isEmpty()) {
@@ -693,6 +713,7 @@ QVariantList BattleMoveHandler::generateSequenceFromResult(const BattleActionRes
 
     return sequence;
 }
+
 QVariantList BattleMoveHandler::generateActionSequence(Battler& opponent, Battler& player, bool playerFirst, int switchedIn, int shakes){
     QVariantList s;
     return s;

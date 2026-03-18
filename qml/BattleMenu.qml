@@ -738,7 +738,7 @@ Rectangle {
                 property: "opacity"
                 from: 0
                 to: 1
-                duration: root.buttonTransitionDuration
+                duration: 10
             }
         }
 
@@ -747,7 +747,7 @@ Rectangle {
                 property: "opacity"
                 from: 1
                 to: 0
-                duration: root.buttonTransitionDuration
+                duration: 10
             }
         }
 

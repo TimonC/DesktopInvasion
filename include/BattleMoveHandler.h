@@ -68,7 +68,7 @@ struct Battler{
 
 struct BattleActionResult {
     enum EffectType {
-        DAMAGE,
+        CHANGE_HEALTH,
         STATUS_APPLIED,
         STATUS_REMOVED,
         STAT_CHANGED,
@@ -134,6 +134,8 @@ private:
     BattleActionResult canBattlerMove(Battler* caster);
     void checkRemoveAilment(Battler& battler, BattleActionResult& result);
     void resetDeltaState(BattleStateDelta& delta);
+    void incrementConditionCounters();
+    QVariantList processEndOfTurnEffects();
 
     void applyBattleResult(const BattleActionResult& result);
     QVariantList generateSequenceFromResult(const BattleActionResult& result);
@@ -158,18 +160,18 @@ private:
     int m_partyPokemonSentOut[6] = {-1,-1,-1,-1,-1,-1};
     std::mt19937 m_rng;
 
-    static const int ms_moveUsedText = 500;
-    static const int ms_ailmentText = 500;
-    static const int ms_statusConditionText = 500;
-    static const int ms_attackAnimation = 500;
+    static const int ms_moveUsedText = 800;
+    static const int ms_ailmentText = 800;
+    static const int ms_statusConditionText = 800;
+    static const int ms_attackAnimation = 800;
     static const int ms_healthChange = 1000;
-    static const int ms_criticalHitText = 500;
-    static const int ms_effectivenessText = 500;
-    static const int ms_drainEffectText = 500;
+    static const int ms_criticalHitText = 800;
+    static const int ms_effectivenessText = 800;
+    static const int ms_drainEffectText = 800;
     static const int ms_catchStart = 1000;
-    static const int ms_ballUsed = 500;
+    static const int ms_ballUsed = 800;
     static const int ms_failCatch = 1000;
-    static const int ms_successCatch = 500;
+    static const int ms_successCatch = 800;
 };
 
 #endif

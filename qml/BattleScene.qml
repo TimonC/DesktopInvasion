@@ -283,20 +283,6 @@ Item {
         if (role) logStr += " (" + role + ")"
         if (delay > 0) logStr += " [" + delay + "ms]"
         console.log(logStr)
-        switch(type) {
-            case "text":
-                var msg = step.message || ""
-                if (msg) console.log("   '" + msg.substring(0, 40) + (msg.length > 40 ? "..." : "") + "'")
-                break
-            case "change-health":
-                var amount = step.amount || 0
-                console.log("   " + amount + " HP")
-                break
-            case "attempt-catch":
-                var shakes = step.shakes || 0
-                console.log("   " + shakes + " shakes")
-                break
-        }
 
         root.currentActionIndex++
         switch(step.type) {
