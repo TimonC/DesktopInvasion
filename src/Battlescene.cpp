@@ -1,184 +1,184 @@
-#include "Battlescene.h"
-#include "globals.h"
-#include <QQuickItem>
-#include <qnamespace.h>
-#include <QMouseEvent>
+/* #include "Battlescene.h" */
+/* #include "globals.h" */
+/* #include <QQuickItem> */
+/* #include <qnamespace.h> */
+/* #include <QMouseEvent> */
 
-Battlescene::Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent)
-    : QQuickView(parent)
-    , m_opp(opp)
-    , m_chosen(chosen)
-{
-    setFlags(Qt::WindowStaysOnTopHint | Qt::Tool | Qt::WindowDoesNotAcceptFocus | Qt::FramelessWindowHint);
-    setColor(Qt::transparent);
+/* Battlescene::Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent) */
+/*     : QQuickView(parent) */
+/*     , m_opp(opp) */
+/*     , m_chosen(chosen) */
+/* { */
+/*     setFlags(Qt::WindowStaysOnTopHint | Qt::Tool | Qt::WindowDoesNotAcceptFocus | Qt::FramelessWindowHint); */
+/*     setColor(Qt::transparent); */
 
-    m_opp->setFlag(Qt::WindowTransparentForInput);
-    m_chosen->setFlag(Qt::WindowTransparentForInput);
+/*     m_opp->setFlag(Qt::WindowTransparentForInput); */
+/*     m_chosen->setFlag(Qt::WindowTransparentForInput); */
 
-    setSource(QUrl("qrc:/sprites/BattleScene.qml"));
+/*     setSource(QUrl("qrc:/sprites/BattleScene.qml")); */
 
-    QQuickItem *ui = rootObject();
-    m_ui = ui;
+/*     QQuickItem *ui = rootObject(); */
+/*     m_ui = ui; */
 
-    m_ui->setProperty("debugLines", Globals::DEBUG);
+/*     m_ui->setProperty("debugLines", Globals::DEBUG); */
 
-    QQuickItem* runButton = ui->property("runButton").value<QQuickItem*>();
-    connect(runButton, SIGNAL(clicked()), this, SLOT(run()));
+/*     QQuickItem* runButton = ui->property("runButton").value<QQuickItem*>(); */
+/*     connect(runButton, SIGNAL(clicked()), this, SLOT(run())); */
 
-    QQuickItem* attackButton = ui->property("attackButton").value<QQuickItem*>();
-    connect(attackButton, SIGNAL(clicked()), this, SLOT(attack()));
+/*     QQuickItem* attackButton = ui->property("attackButton").value<QQuickItem*>(); */
+/*     connect(attackButton, SIGNAL(clicked()), this, SLOT(attack())); */
 
-    initPosition();
+/*     initPosition(); */
 
-    m_corners = initCorners();
-    m_corners->show();
-    show();
-}
+/*     m_corners = initCorners(); */
+/*     m_corners->show(); */
+/*     show(); */
+/* } */
 
-void Battlescene::initPosition(){
-    int distance = m_opp->direction()%2==0 ? 3*33 : 4*33;
-    switch(m_opp->direction()) {
-        case 0:
-            m_origin = m_opp->position() + QPoint(25, -m_ui->height()/2 + 30);
-            m_chosen->setPosition(m_opp->position() + QPoint(0, -distance));
-            m_chosen->direction(2);
-            break;
-        case 1:
-            m_origin = m_opp->position() + QPoint(-m_ui->width()/2+8, 16);
-            m_chosen->setPosition(m_opp->position() + QPoint(-distance, 0));
-            m_chosen->direction(3);
-            break;
-        case 2:
-            m_origin = m_opp->position() + QPoint(+25, 50);
-            m_chosen->setPosition(m_opp->position() + QPoint(0, distance));
-            m_chosen->direction(0);
-            break;
-        case 3:
-            m_origin = m_opp->position() + QPoint(28, 16);
-            m_chosen->setPosition(m_opp->position() + QPoint(distance, 0));
-            m_chosen->direction(1);
-            break;
-    }
+/* void Battlescene::initPosition(){ */
+/*     int distance = m_opp->direction()%2==0 ? 3*33 : 4*33; */
+/*     switch(m_opp->direction()) { */
+/*         case 0: */
+/*             m_origin = m_opp->position() + QPoint(25, -m_ui->height()/2 + 30); */
+/*             m_chosen->setPosition(m_opp->position() + QPoint(0, -distance)); */
+/*             m_chosen->direction(2); */
+/*             break; */
+/*         case 1: */
+/*             m_origin = m_opp->position() + QPoint(-m_ui->width()/2+8, 16); */
+/*             m_chosen->setPosition(m_opp->position() + QPoint(-distance, 0)); */
+/*             m_chosen->direction(3); */
+/*             break; */
+/*         case 2: */
+/*             m_origin = m_opp->position() + QPoint(+25, 50); */
+/*             m_chosen->setPosition(m_opp->position() + QPoint(0, distance)); */
+/*             m_chosen->direction(0); */
+/*             break; */
+/*         case 3: */
+/*             m_origin = m_opp->position() + QPoint(28, 16); */
+/*             m_chosen->setPosition(m_opp->position() + QPoint(distance, 0)); */
+/*             m_chosen->direction(1); */
+/*             break; */
+/*     } */
 
-    QMetaObject::invokeMethod(m_ui, "set_chosen_side", Q_ARG(QVariant, m_opp->direction()));
-    QMetaObject::invokeMethod(m_ui, "swap_visibility");
-    QMetaObject::invokeMethod(m_ui, "swap_visibility");
-    m_direction = m_chosen->direction();
-    setPosition(m_origin);
-}
+/*     QMetaObject::invokeMethod(m_ui, "set_chosen_side", Q_ARG(QVariant, m_opp->direction())); */
+/*     QMetaObject::invokeMethod(m_ui, "swap_visibility"); */
+/*     QMetaObject::invokeMethod(m_ui, "swap_visibility"); */
+/*     m_direction = m_chosen->direction(); */
+/*     setPosition(m_origin); */
+/* } */
 
-void Battlescene::run(){
-    setVisible(false);
-    m_corners->hide();
-    m_chosen->setVisible(false);
-    m_chosen->m_inABattle = false;
-    Globals::getPlayer().m_pokemonAvailable = true;
-    m_opp->startRoaming();
-}
+/* void Battlescene::run(){ */
+/*     setVisible(false); */
+/*     m_corners->hide(); */
+/*     m_chosen->setVisible(false); */
+/*     m_chosen->m_inABattle = false; */
+/*     Globals::getPlayer().m_pokemonAvailable = true; */
+/*     m_opp->startRoaming(); */
+/* } */
 
-void Battlescene::attack(){
-    m_chosen->useMove();
-    m_opp->attacked();
-}
+/* void Battlescene::attack(){ */
+/*     m_chosen->useMove(); */
+/*     m_opp->attacked(); */
+/* } */
 
-void Battlescene::updateTextbar(const std::string &text){
-    if (m_ui) {
-        QString qText = QString::fromStdString(text);
-        QMetaObject::invokeMethod(m_ui, "update_text_bar", Q_ARG(QVariant, qText));
-    }
-}
+/* void Battlescene::updateTextbar(const std::string &text){ */
+/*     if (m_ui) { */
+/*         QString qText = QString::fromStdString(text); */
+/*         QMetaObject::invokeMethod(m_ui, "update_text_bar", Q_ARG(QVariant, qText)); */
+/*     } */
+/* } */
 
-QQuickView* Battlescene::initCorners(){
-    int lft = std::min(m_opp->position().x(), m_chosen->position().x());
-    int top = std::min(m_opp->position().y(), m_chosen->position().y());
-    int boxHeight; int boxWidth;
-    if(m_direction % 2 == 0){
-        boxWidth  = x() + m_ui->width()  - lft;
-        boxHeight = y() + m_ui->height() -  std::min(m_opp->position().y() , m_chosen->position().y());
-    }else{
-        boxWidth  = std::max(m_opp->position().x() + m_opp->width(), m_chosen->position().x() + m_chosen->width()) - lft;
-        boxHeight = y() + height() - top;
-    }
-    QQuickView *corners = new QQuickView(nullptr);
-    corners->setFlags(Qt::WindowStaysOnTopHint | Qt::Tool | Qt::WindowDoesNotAcceptFocus | Qt::FramelessWindowHint | Qt::WindowTransparentForInput);
-    corners->setColor(Qt::transparent);
-    corners->setPosition(QPoint(lft,top));
-    corners->setSource(QUrl("qrc:/sprites/Corners.qml"));
-    corners->setWidth(boxWidth);
-    corners->setHeight(boxHeight);
+/* QQuickView* Battlescene::initCorners(){ */
+/*     int lft = std::min(m_opp->position().x(), m_chosen->position().x()); */
+/*     int top = std::min(m_opp->position().y(), m_chosen->position().y()); */
+/*     int boxHeight; int boxWidth; */
+/*     if(m_direction % 2 == 0){ */
+/*         boxWidth  = x() + m_ui->width()  - lft; */
+/*         boxHeight = y() + m_ui->height() -  std::min(m_opp->position().y() , m_chosen->position().y()); */
+/*     }else{ */
+/*         boxWidth  = std::max(m_opp->position().x() + m_opp->width(), m_chosen->position().x() + m_chosen->width()) - lft; */
+/*         boxHeight = y() + height() - top; */
+/*     } */
+/*     QQuickView *corners = new QQuickView(nullptr); */
+/*     corners->setFlags(Qt::WindowStaysOnTopHint | Qt::Tool | Qt::WindowDoesNotAcceptFocus | Qt::FramelessWindowHint | Qt::WindowTransparentForInput); */
+/*     corners->setColor(Qt::transparent); */
+/*     corners->setPosition(QPoint(lft,top)); */
+/*     corners->setSource(QUrl("qrc:/sprites/Corners.qml")); */
+/*     corners->setWidth(boxWidth); */
+/*     corners->setHeight(boxHeight); */
 
-    m_cornerSize = QPoint(boxWidth, boxHeight);
-    corners->rootObject()->setProperty("debugLines", Globals::DEBUG);
-    corners->show();
+/*     m_cornerSize = QPoint(boxWidth, boxHeight); */
+/*     corners->rootObject()->setProperty("debugLines", Globals::DEBUG); */
+/*     corners->show(); */
 
-    return corners;
-}
+/*     return corners; */
+/* } */
 
-void Battlescene::mousePressEvent(QMouseEvent* event) {
-    if (event->button() == Qt::LeftButton) {
-        m_oldpos = event->globalPosition();
-        m_dragging = true;
+/* void Battlescene::mousePressEvent(QMouseEvent* event) { */
+/*     if (event->button() == Qt::LeftButton) { */
+/*         m_oldpos = event->globalPosition(); */
+/*         m_dragging = true; */
 
-        // Store initial positions for perfect sync
-        m_initialBattlescenePos = position();
-        m_initialCornersPos = m_corners->position();
-        m_initialOppPos = m_opp->position();
-        m_initialChosenPos = m_chosen->position();
+/*         // Store initial positions for perfect sync */
+/*         m_initialBattlescenePos = position(); */
+/*         m_initialCornersPos = m_corners->position(); */
+/*         m_initialOppPos = m_opp->position(); */
+/*         m_initialChosenPos = m_chosen->position(); */
 
-        QPoint localPos = mapFromGlobal(m_oldpos.toPoint());
-        QQuickItem* runButton = m_ui->property("runButton").value<QQuickItem*>();
-        QQuickItem* attackButton = m_ui->property("attackButton").value<QQuickItem*>();
-        QQuickItem* switchButton = m_ui->property("switchButton").value<QQuickItem*>();
-        QQuickItem* catchButton = m_ui->property("catchButton").value<QQuickItem*>();
+/*         QPoint localPos = mapFromGlobal(m_oldpos.toPoint()); */
+/*         QQuickItem* runButton = m_ui->property("runButton").value<QQuickItem*>(); */
+/*         QQuickItem* attackButton = m_ui->property("attackButton").value<QQuickItem*>(); */
+/*         QQuickItem* switchButton = m_ui->property("switchButton").value<QQuickItem*>(); */
+/*         QQuickItem* catchButton = m_ui->property("catchButton").value<QQuickItem*>(); */
 
-        if ((runButton && runButton->contains(runButton->mapFromScene(localPos))) ||
-            (attackButton && attackButton->contains(attackButton->mapFromScene(localPos))) ||
-            (switchButton && switchButton->contains(switchButton->mapFromScene(localPos))) ||
-            (catchButton && catchButton->contains(catchButton->mapFromScene(localPos)))) {
-            m_dragging = false;
-        }
-    }
-}
+/*         if ((runButton && runButton->contains(runButton->mapFromScene(localPos))) || */
+/*             (attackButton && attackButton->contains(attackButton->mapFromScene(localPos))) || */
+/*             (switchButton && switchButton->contains(switchButton->mapFromScene(localPos))) || */
+/*             (catchButton && catchButton->contains(catchButton->mapFromScene(localPos)))) { */
+/*             m_dragging = false; */
+/*         } */
+/*     } */
+/* } */
 
-void Battlescene::mouseMoveEvent(QMouseEvent* event) {
-    if (m_dragging && (event->buttons() & Qt::LeftButton)) {
-        QPointF currentPos = event->globalPosition();
-        QPointF totalDelta = currentPos - m_oldpos;
+/* void Battlescene::mouseMoveEvent(QMouseEvent* event) { */
+/*     if (m_dragging && (event->buttons() & Qt::LeftButton)) { */
+/*         QPointF currentPos = event->globalPosition(); */
+/*         QPointF totalDelta = currentPos - m_oldpos; */
 
-        QPoint intTotalDelta(qRound(totalDelta.x()), qRound(totalDelta.y()));
+/*         QPoint intTotalDelta(qRound(totalDelta.x()), qRound(totalDelta.y())); */
 
-        if (intTotalDelta.x() != 0 || intTotalDelta.y() != 0) {
-            drag(intTotalDelta);
-        }
-    }
-}
+/*         if (intTotalDelta.x() != 0 || intTotalDelta.y() != 0) { */
+/*             drag(intTotalDelta); */
+/*         } */
+/*     } */
+/* } */
 
-void Battlescene::drag(QPoint& totalDelta){
-    const QRect& screen = Globals::screenGeometry();
+/* void Battlescene::drag(QPoint& totalDelta){ */
+/*     const QRect& screen = Globals::screenGeometry(); */
 
-    QPoint newCornersPos = m_initialCornersPos + totalDelta;
+/*     QPoint newCornersPos = m_initialCornersPos + totalDelta; */
 
-    int allowedX = totalDelta.x();
-    int allowedY = totalDelta.y();
+/*     int allowedX = totalDelta.x(); */
+/*     int allowedY = totalDelta.y(); */
 
-    if (newCornersPos.x() < screen.x()) {
-        allowedX = screen.x() - m_initialCornersPos.x();
-    } else if (newCornersPos.x() + m_corners->width() > screen.right()) {
-        allowedX = screen.right() - m_corners->width() - m_initialCornersPos.x();
-    }
+/*     if (newCornersPos.x() < screen.x()) { */
+/*         allowedX = screen.x() - m_initialCornersPos.x(); */
+/*     } else if (newCornersPos.x() + m_corners->width() > screen.right()) { */
+/*         allowedX = screen.right() - m_corners->width() - m_initialCornersPos.x(); */
+/*     } */
 
-    if (newCornersPos.y() < screen.y()) {
-        allowedY = screen.y() - m_initialCornersPos.y();
-    } else if (newCornersPos.y() + m_corners->height() > screen.bottom()) {
-        allowedY = screen.bottom() - m_corners->height() - m_initialCornersPos.y();
-    }
+/*     if (newCornersPos.y() < screen.y()) { */
+/*         allowedY = screen.y() - m_initialCornersPos.y(); */
+/*     } else if (newCornersPos.y() + m_corners->height() > screen.bottom()) { */
+/*         allowedY = screen.bottom() - m_corners->height() - m_initialCornersPos.y(); */
+/*     } */
 
-    if (allowedX != 0 || allowedY != 0) {
-        QPoint actualDelta(allowedX, allowedY);
+/*     if (allowedX != 0 || allowedY != 0) { */
+/*         QPoint actualDelta(allowedX, allowedY); */
 
-        setPosition(m_initialBattlescenePos + actualDelta);
-        m_corners->setPosition(m_initialCornersPos + actualDelta);
-        m_opp->setPosition(m_initialOppPos + actualDelta);  // Use setPosition
-        m_chosen->setPosition(m_initialChosenPos + actualDelta);  // Use setPosition
-    }
-}
+/*         setPosition(m_initialBattlescenePos + actualDelta); */
+/*         m_corners->setPosition(m_initialCornersPos + actualDelta); */
+/*         m_opp->setPosition(m_initialOppPos + actualDelta);  // Use setPosition */
+/*         m_chosen->setPosition(m_initialChosenPos + actualDelta);  // Use setPosition */
+/*     } */
+/* } */

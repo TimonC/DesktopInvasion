@@ -21,11 +21,32 @@ Item {
     property bool tackle: false
     property bool attacked: false
     property bool debugLines: false
+
+    property alias mouseArea: mouseArea
+    property alias battlebutton: battleButton
     width: itemWidth
     height: itemHeight
     clip: true
     layer.enabled: true
     z: 1
+
+    MouseArea {
+        id: mouseArea
+        anchors.fill: parent
+        enabled: true
+        hoverEnabled: true
+        onDoubleClicked: root.jumping = true
+    }
+
+    RoundButton {
+        id: battleButton
+        text: "BATTLE"
+        anchors.top: parent.top
+        visible: false
+        enabled: false
+        z: 10000
+        onClicked: console.log("Battle clicked!")
+    }
 
 
     AnimatedSprite {

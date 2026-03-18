@@ -8,6 +8,7 @@ struct PokemonInfo;
 
 namespace Globals {
     extern bool DEBUG;
+    extern int SCALE;
 
     const QRect& screenGeometry();
     Player& getPlayer();

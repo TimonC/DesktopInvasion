@@ -1,53 +1,52 @@
-#include "Battlescene.h"
+/* #include "Battlescene.h" */
 #include "globals.h"
 #include <Player.h>
-#include <memory>
 
 Player::Player(QObject* parent) : QObject(parent){
-    qDebug() << "Player constructor called!";
+    /* qDebug() << "Player constructor called!"; */
     const PokemonInfo* p1 = Globals::getRandomPokemon();
     const PokemonInfo* p2 = Globals::getRandomPokemon();
-    m_party[0] = std::make_unique<Pokemon>(p1);
-    m_party[1] = std::make_unique<Pokemon>(p2);
+    /* m_party[0] = std::make_unique<Pokemon>(p1); */
+    /* m_party[1] = std::make_unique<Pokemon>(p2); */
     m_pokemonAvailable = true;
 };
-void Player::_iChooseYou(Pokemon* opp, Pokemon* chosen){
-    chosen->m_inABattle = true;
-    auto battle = std::make_unique<Battlescene>(opp, chosen);
-    battle->updateTextbar("It's a battle...!");
+/* void Player::_iChooseYou(Pokemon* opp, Pokemon* chosen){ */
+/*     chosen->m_inABattle = true; */
+/*     auto battle = std::make_unique<Battlescene>(opp, chosen); */
+/*     battle->updateTextbar("It's a battle...!"); */
 
-    opp->raise();
-    chosen->show();
-    battle->show();
-    battle->raise();
-    m_activeBattles.push_back(std::move(battle));
+/*     opp->raise(); */
+/*     chosen->show(); */
+/*     battle->show(); */
+/*     battle->raise(); */
+/*     m_activeBattles.push_back(std::move(battle)); */
 
-    qDebug() << "I choose you," << chosen->m_pokeinfo->name << "!";
-}
+/*     qDebug() << "I choose you," << chosen->m_pokeinfo->name << "!"; */
+/* } */
 
-Pokemon* Player::iChooseYou(Pokemon *opp){
-    Pokemon* chosen = nullptr;
-    m_pokemonAvailable = false;
+/* Pokemon* Player::iChooseYou(Pokemon *opp){ */
+/*     Pokemon* chosen = nullptr; */
+/*     m_pokemonAvailable = false; */
 
-    auto it = m_party.begin();
-    while(it!=m_party.end()){
-        if(!it->has_value() || it->value()->m_inABattle){
-            it++;
-            continue;
-        }
+/*     auto it = m_party.begin(); */
+/*     while(it!=m_party.end()){ */
+/*         if(!it->has_value() || it->value()->m_inABattle){ */
+/*             it++; */
+/*             continue; */
+/*         } */
 
-        if(!chosen){
-            chosen = it->value().get();
-            _iChooseYou(opp, chosen);
-        }else{
-            m_pokemonAvailable = true;
-        }
+/*         if(!chosen){ */
+/*             chosen = it->value().get(); */
+/*             _iChooseYou(opp, chosen); */
+/*         }else{ */
+/*             m_pokemonAvailable = true; */
+/*         } */
 
-        it++;
-    }
+/*         it++; */
+/*     } */
 
-    if(chosen) return chosen;
-    assert(false && "No available Pokemon in party");
-    return nullptr;
-};
+/*     if(chosen) return chosen; */
+/*     assert(false && "No available Pokemon in party"); */
+/*     return nullptr; */
+/* }; */
 

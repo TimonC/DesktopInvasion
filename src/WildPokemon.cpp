@@ -3,49 +3,77 @@
 #include <QQuickItem>
 #include <QQuickView>
 #include <QRandomGenerator>
+#include <qevent.h>
 #include <qnamespace.h>
-#include "Hitbox.h"
-#include "Pokemon.h"
 #include "WildPokemon.h"
-#include "Player.h"
 #include "globals.h"
 #include "pokemon_data.h"
 
 WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
-    : Pokemon(info, parent)
-    , m_hitbox(new Hitbox(nullptr))
+    : QQuickView(parent)
+    , info(info)
+    , m_currentDirection(0)
     , m_decisionTimer(new QTimer(this))
     , m_moveTimer(new QTimer(this))
     , m_moveSpeed(1 + QRandomGenerator::global()->bounded(2))
 {
 
-    m_hitbox->offset =QPoint(width()/3.2, height()/2.8);
 
     const QRect& screen = Globals::screenGeometry();
-    movePos(QPoint(screen.width()/2, screen.height()/2));
+    setPosition(QPoint(screen.width()/2, screen.height()/2));
 
-    connect(m_hitbox, &Hitbox::drag, this, [this](QPoint delta){
-            movePos(delta);
-            });
-    connect(m_hitbox, &Hitbox::isDragged, this, &WildPokemon::handleDrag);
-    connect(m_hitbox->m_mouseArea, SIGNAL(doubleClicked(QQuickMouseEvent*)), this, SLOT(handleDoubleClick()));
-    connect(m_hitbox->m_battleButton, SIGNAL(clicked()), this, SLOT(startBattle()));
+    setFlags( Qt::WindowStaysOnTopHint
+            | Qt::Tool
+            | Qt::WindowDoesNotAcceptFocus
+            /* | Qt::WindowTransparentForInput); */
+            | Qt::FramelessWindowHint);
+    setColor(Qt::transparent);
+
+    setSource(QUrl("qrc:/sprites/PokemonSprite.qml"));
+    m_sprite = rootObject();
+    m_sprite->setProperty("spriteSheet", QString("qrc:/assets/HGSS/PokGen%1_transparent_reordered.png").arg(info->generation));
+    m_sprite->setProperty("scaleFactor", Globals::SCALE);
+    m_sprite->setProperty("row", info->spriteId);
+    m_sprite->setProperty("debugLines", Globals::DEBUG);
+
+    /* if (auto mouseArea = m_sprite->property("mouseArea").value<QQuickItem*>()) */
+    /*     connect(mouseArea, SIGNAL(doubleClicked(QQuickMouseEvent*)), this, SLOT(handleDoubleClick())); */
 
     m_decisionTimer->setInterval(1000 + QRandomGenerator::global()->bounded(2000));
     m_moveTimer->setInterval(50); // 20fps
 
+
+    int width = Globals::SCALE*50;
+    int height = Globals::SCALE*50;
+
+    m_sprite->setProperty("itemWidth", width);
+    m_sprite->setProperty("itemHeight", height);
+
+    setWidth(width);
+    setHeight(height);
+
+    m_sprite->setProperty("spriteOffsetX", width/2.5);
+    m_sprite->setProperty("spriteOffsetY", height/2.8);
     startRoaming();
     show();
 }
 
+void WildPokemon::mousePressEvent(QMouseEvent* event){
+    handleDrag(true);
+    m_oldPos = event->position();
+    if(event->button()== Qt::LeftButton) startSystemMove();
+    /* QQuickView::mousePressEvent(event); */
+}
 
+void WildPokemon::mouseReleaseEvent(QMouseEvent* event){
+    handleDrag(false);
+    /* QQuickView::mouseReleaseEvent(event); */
+}
 
 void WildPokemon::startRoaming(){
-    movePos(QPoint(0,0)); //reset hitbox
     connect(m_decisionTimer, &QTimer::timeout, this, &WildPokemon::makeRandomDecision);
     connect(m_moveTimer, &QTimer::timeout, this, &WildPokemon::moveStep);
 
-    m_hitbox->show();
     m_decisionTimer->start();
     makeRandomDecision();
 }
@@ -61,26 +89,17 @@ void WildPokemon::handleDrag(bool isDragged){
     }
 }
 
-void WildPokemon::handleDoubleClick(){
-    m_moveTimer->stop();
-    m_decisionTimer->stop();
+void WildPokemon::direction(int direction){
+    m_currentDirection = direction%4;
+    m_sprite->setProperty("direction",m_currentDirection);
+};
 
-    m_sprite->setProperty("jumping", true);
-
-    if(Globals::getPlayer().m_pokemonAvailable)
-        m_hitbox->showButton();
-
-    QTimer::singleShot(5000, this, [this]() {
-        m_decisionTimer->start();
-        m_hitbox->showButton(false);
-    });
-}
-
+int WildPokemon::direction(){
+    return m_currentDirection;
+};
 void WildPokemon::startBattle(){
     m_moveTimer->disconnect();
     m_decisionTimer->disconnect();
-    m_hitbox->showButton(false);
-    m_hitbox->hide();
 
     const int BOUNDARY_MARGIN = 16;
     const QRect& screen = Globals::screenGeometry();
@@ -110,10 +129,10 @@ void WildPokemon::startBattle(){
     }
 
     if (!delta.isNull()) {
-        movePos(delta);
+        setPosition(position() + delta);
     }
 
-    Globals::getPlayer().iChooseYou(this);
+    /* Globals::getPlayer().iChooseYou(this); */
 }
 
 void WildPokemon::makeRandomDecision(){
@@ -128,19 +147,14 @@ void WildPokemon::makeRandomDecision(){
     }
 }
 
-QPoint WildPokemon::movePos(QPoint delta) {
-    QPoint newPos = Pokemon::movePos(delta);
-    m_hitbox->setPosition(QPoint(newPos.x(), newPos.y()) + m_hitbox->offset);
-    return newPos;
-}
 
 void WildPokemon::moveStep(){
-    QPoint newPos;
-
+    QPoint delta;
     switch (m_currentDirection) {
-        case 0: newPos = movePos(QPoint(0, -m_moveSpeed)); break;
-        case 1: newPos = movePos(QPoint(-m_moveSpeed, 0)); break;
-        case 2: newPos = movePos(QPoint(0, m_moveSpeed)); break;
-        case 3: newPos = movePos(QPoint(m_moveSpeed, 0)); break;
+        case 0: delta = QPoint(0, -m_moveSpeed); break;
+        case 1: delta = QPoint(-m_moveSpeed, 0); break;
+        case 2: delta = QPoint(0, m_moveSpeed); break;
+        case 3: delta = QPoint(m_moveSpeed, 0); break;
     }
+    setPosition(position() + delta);
 }

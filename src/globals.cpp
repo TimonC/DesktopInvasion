@@ -2,12 +2,11 @@
 #include "Player.h"
 #include <QGuiApplication>
 #include <QHash>
-#include <cstdlib>
-#include <cassert>
-
+#include <QScreen>
+#include <pokemon_data.h>
 namespace Globals {
     bool DEBUG = false;
-
+    int SCALE = 3;
     const QRect& screenGeometry() {
         static const QRect geometry = QGuiApplication::primaryScreen()->availableGeometry();
         return geometry;
