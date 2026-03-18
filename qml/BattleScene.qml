@@ -20,6 +20,8 @@ Item {
 
     property alias opponent: opponent
     property alias player: player
+    property alias hpBarOpponent: hpBarOpponent
+    property alias hpBarPlayer: hpBarPlayer
     property alias textBar: textBar
     property alias buttonGrid: buttonGrid
 
@@ -31,12 +33,21 @@ Item {
     signal runClicked()
 
     // Sprites
+    HealthBar{
+        id: hpBarOpponent
+    }
+
     PokemonSprite {
         id: opponent
         objectName: "opponent"
         direction: root.direction
         debugLines: root.debugLines
         debugColor: "red"
+        property alias healthBar: root.hpBarOpponent
+    }
+
+   HealthBar{
+       id: hpBarPlayer
     }
 
     PokemonSprite {
@@ -45,9 +56,10 @@ Item {
         direction: (root.direction + 2) % 4
         debugLines: root.debugLines
         debugColor: "blue"
+        property alias healthBar: root.hpBarPlayer
     }
 
-    // UI
+   // UI
     Rectangle {
         id: textBar
         color: "transparent"
@@ -103,38 +115,48 @@ Item {
                 width: buttonWidth
                 height: buttonHeight
                 onClicked: root.runClicked()
-            }
-        }
-    }
+            } } }
+
 
     // Position sprites on the battle field
-    function positionSprite(sprite) {
+    function positionSpriteAndHealthbar(sprite) {
         var margin = root.pokeMargin;
         switch(sprite.direction) {
             case 0:
                 sprite.x = margin + sprite.containerOffsetX;
                 sprite.y = root.height - (textBoxHeight + margin + sprite.containerOffsetY + sprite.height);
+                sprite.healthBar.x = 3*32
+                sprite.healthBar.y =  sprite.y
                 break;
             case 1:
                 sprite.x = root.width - (margin + sprite.containerOffsetX + sprite.width);
                 sprite.y = root.height - (textBoxHeight + margin + sprite.height);
+                sprite.healthBar.x = sprite.x
+                sprite.healthBar.y = root.height - (textBoxHeight + 3*32 - margin)
                 break;
             case 2:
                 sprite.x = margin + sprite.containerOffsetX;
                 sprite.y = margin + sprite.containerOffsetY;
+                sprite.healthBar.x = 3*32
+                sprite.healthBar.y =  sprite.y
                 break;
             case 3:
                 sprite.x = margin + sprite.containerOffsetX;
                 sprite.y = root.height - (textBoxHeight + margin + sprite.height);
+                sprite.healthBar.x = sprite.x
+                sprite.healthBar.y = root.height - (textBoxHeight + 3*32 - margin)
                 break;
         }
         sprite.startingX = sprite.x;
         sprite.startingY = sprite.y;
+
+        sprite.healthBar.visible = true;
     }
 
+
     Component.onCompleted: {
-        positionSprite(player);
-        positionSprite(opponent);
+        positionSpriteAndHealthbar(player);
+        positionSpriteAndHealthbar(opponent);
     }
 
     function update_text_bar(newText) {

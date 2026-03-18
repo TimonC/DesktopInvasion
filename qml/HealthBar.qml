@@ -3,15 +3,17 @@ import QtQuick.Controls 2.15
 
 Item {
     id: root
-
+    property int scaleFactor: 3
     property real totalHealth: 100
     property real animationSpeed: 1000
 
     ProgressBar {
         id: progressBar
-        value: 1.0
+        value: 10
         from: 0
-        to: 1
+        to: 10
+        width: 24*scaleFactor
+        height: 4*scaleFactor
     }
 
     function incrementHealth(healthDelta) {

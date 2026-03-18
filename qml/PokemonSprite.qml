@@ -23,7 +23,6 @@ Item {
 
     property alias actionForward: actionForward
     property alias takeDamage: takeDamage
-
     width: itemWidth > 0 ? itemWidth : frameWidth * scaleFactor
     height: itemHeight > 0 ? itemHeight : frameHeight * scaleFactor
     layer.enabled: true
