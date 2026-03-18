@@ -11,14 +11,6 @@ GameMenu::GameMenu(QWindow *parent)
     setFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     setSource(QUrl("qrc:/qml/Menu.qml"));
     setTitle("DesktopInvasion");
-    setModality(Qt::ApplicationModal);
-
-    QRect screenGeometry = Globals::screenGeometry();
-    setPosition(QPoint(
-        (screenGeometry.width() - width()) / 2,
-        (screenGeometry.height() - height()) / 2
-    ));
-
     hide();
 }
 

@@ -6,11 +6,9 @@ SystemTrayIcon::SystemTrayIcon(QObject *parent)
     , m_gameActive(true)
     , m_clickEnabled(true)
 {
-    // Set initial icon
     setIcon(QIcon(":/assets/HGSS/PokeballIcon.png"));
     setVisible(true);
 
-    // Connect signal
     connect(this, &QSystemTrayIcon::activated,
             this, &SystemTrayIcon::onActivated);
 }
