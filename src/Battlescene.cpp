@@ -127,6 +127,8 @@ void Battlescene::mousePressEvent(QMouseEvent* event) {
   if (event->button() == Qt::LeftButton) {
         m_oldpos = event->globalPosition().toPoint();
         m_dragging = true;
+        m_smoothedPos = QPointF(event->globalPosition().toPoint());
+
 
         // Check if click is on any button
         QPoint localPos = mapFromGlobal(m_oldpos);
@@ -144,12 +146,19 @@ void Battlescene::mousePressEvent(QMouseEvent* event) {
     }
 }
 
-void Battlescene::mouseMoveEvent(QMouseEvent* event){
-    if (m_dragging && (event->buttons() & Qt::LeftButton)){
+void Battlescene::mouseMoveEvent(QMouseEvent* event) {
+    if (m_dragging && (event->buttons() & Qt::LeftButton)) {
         QPoint currentPos = event->globalPosition().toPoint();
-        QPoint delta = currentPos - m_oldpos;
+        QPointF currentPosF(currentPos);  // Convert to QPointF
+
+        // Apply exponential smoothing with consistent types
+        m_smoothedPos = m_smoothedPos * (1.0 - SMOOTHING_FACTOR) + currentPosF * SMOOTHING_FACTOR;
+
+        QPoint smoothedInt = m_smoothedPos.toPoint();
+        QPoint delta = smoothedInt - m_oldpos;
+
         drag(delta);
-        m_oldpos = currentPos;
+        m_oldpos = smoothedInt;
     }
 }
 

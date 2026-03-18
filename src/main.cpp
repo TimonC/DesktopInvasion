@@ -16,13 +16,13 @@ int main(int argc, char *argv[]) {
     const PokemonInfo* p3 = getRandomPokemon();
 
     std::unique_ptr<WildPokemon> pok1 = std::make_unique<WildPokemon>(p1);
-    std::unique_ptr<WildPokemon> pok2 = std::make_unique<WildPokemon>(p2);
-    std::unique_ptr<WildPokemon> pok3 = std::make_unique<WildPokemon>(p3);
+    /* std::unique_ptr<WildPokemon> pok2 = std::make_unique<WildPokemon>(p2); */
+    /* std::unique_ptr<WildPokemon> pok3 = std::make_unique<WildPokemon>(p3); */
 
 
     if (p1) qDebug() << "Pokémon 1:" << "#" << p1->pokedexId << "-" << p1->name;
-    if (p2) qDebug() << "Pokémon 2:" << "#" << p2->pokedexId << "-" << p2->name;
-    if (p3) qDebug() << "Pokémon 3:" << "#" << p3->pokedexId << "-" << p3->name;
+    /* if (p2) qDebug() << "Pokémon 2:" << "#" << p2->pokedexId << "-" << p2->name; */
+    /* if (p3) qDebug() << "Pokémon 3:" << "#" << p3->pokedexId << "-" << p3->name; */
 
     return app.exec();
 }

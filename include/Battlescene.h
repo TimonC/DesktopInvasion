@@ -31,6 +31,10 @@ private:
     QPoint m_oldpos;
     int m_direction;
     QQuickItem *m_ui = nullptr;
+
+
+    QPointF m_smoothedPos = QPointF(0, 0);
+    const double SMOOTHING_FACTOR = 0.3;
 };
 
 #endif
