@@ -8,5 +8,6 @@
 Player& getPlayer();
 QRect screenSize();
 static bool DEBUG = false;
-const PokemonInfo* findPokemonBySpriteId(int spriteId);
+const PokemonInfo* getRandomPokemon();
+const PokemonInfo* findPokemonByPokedexId(int pokedexId);
 #endif

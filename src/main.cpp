@@ -12,14 +12,10 @@ int main(int argc, char *argv[]) {
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 
     // Pick 3 random spriteIds
-    int spriteId1 = std::rand() % kPokemonCount;
-    int spriteId2 = std::rand() % kPokemonCount;
-    int spriteId3 = std::rand() % kPokemonCount;
 
-    // Debug using findPokemonBySpriteId to get the full entry
-    const PokemonInfo* p1 = findPokemonBySpriteId(spriteId1);
-    const PokemonInfo* p2 = findPokemonBySpriteId(spriteId2);
-    const PokemonInfo* p3 = findPokemonBySpriteId(spriteId3);
+    const PokemonInfo* p1 = getRandomPokemon();
+    const PokemonInfo* p2 = getRandomPokemon();
+    const PokemonInfo* p3 = getRandomPokemon();
 
     // Create WildPokemon objects using the spriteId directly
     std::unique_ptr<WildPokemon> pok1 = std::make_unique<WildPokemon>(p1);
