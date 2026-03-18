@@ -4,7 +4,7 @@ Item {
     id: root
     // Top-level configuration
     property int rowId: 0
-    property real scaleFactor: 2
+    property real scale: 1
     property int frameWidth: 16
     property int frameHeight: 23
     property int throwDuration: 600     // Duration of frames 0-7 to halfway
@@ -66,7 +66,7 @@ Item {
     // Single image with manual frame control
     Image {
         id: pokeballSprite
-        scale: root.scaleFactor
+        scale: root.scale
         visible: false
         z: 100
         source: "qrc:/assets/HGSS/reordered_pokeballs.png"

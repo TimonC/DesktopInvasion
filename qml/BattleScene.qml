@@ -153,7 +153,7 @@ Item {
     }
     Pokeball {
         id: pokeBallOpponent
-        scaleFactor: 2/3*root.scale
+        scale: root.scale
         circleBaseWidth: opponent.width
         circleBaseHeight: opponent.height
         circleX: opponent.x + opponent.width/2
@@ -171,6 +171,7 @@ Item {
     }
     Pokeball {
         id: pokeBallPlayer
+        scale: root.scale
     }
     function resetPlayerBall() {
         pokeBallPlayer.reset(root.currentPlayerBallIndex)
@@ -179,8 +180,7 @@ Item {
         pokeBallPlayer.circleBaseHeight = player.height
         pokeBallPlayer.circleX = player.x + player.width/2
         pokeBallPlayer.circleY = player.y + player.height/2
-        pokeBallPlayer.scaleFactor = 2
-        pokeBallPlayer.circleAnimationDuration = 1000
+        pokeBallPlayer.scale = root.scale
         pokeBallPlayer.delayReveal = 2
 
         if (root.pokemonInsideBallConnection) {
