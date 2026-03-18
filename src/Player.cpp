@@ -2,7 +2,6 @@
 #include "globals.h"
 #include "pokemon_data.h"
 #include "Player.h"
-
 Player::Player(QObject* parent) : QObject(parent){
     const PokemonInfo* p2 = Globals::getPokemonByPokedexId(173);
     /* const PokemonInfo* p2 = Globals::getRandomPokemon(); */
@@ -22,7 +21,7 @@ void Player::iChooseYou(WildPokemon *opp){
     const PokemonInfo* opp_info = opp->info;
 
     // Store in the member vector, not local variable
-    m_activeBattles.push_back(std::make_unique<Battle>(opp->m_currentDirection, opp->position(), opp_info, chosen_info));
-    opp->hide();
+    m_activeBattles.push_back(std::make_unique<Battle>(opp, chosen_info));
+
     /* m_pokemonAvailable = false; */
 };

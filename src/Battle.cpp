@@ -6,15 +6,16 @@
 #include <qnamespace.h>
 #include <QMouseEvent>
 #include <cassert>
-
-Battle::Battle(int opp_direction, QPoint opp_pos, const PokemonInfo* opp_info, const PokemonInfo* chosen_info, QWindow *parent)
+#include <qquickitem.h>
+#include <QTimer>
+Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent)
     : DesktopScene(parent)
-    , m_initialOppPos(opp_pos)
-    , m_opp_info(opp_info)
+    , m_initialOppPos(opp->position())
+    , m_opp_info(opp->info)
     , m_chosen_info(chosen_info)
 {
     qDebug() << "Battle constructor called!";
-    m_currentDirection = opp_direction;
+    m_currentDirection = opp->m_currentDirection;
     // Load the PokemonSprite as root
     setSource(QUrl("qrc:/sprites/BattleScene.qml"));
     m_battleScene = rootObject();
@@ -23,27 +24,25 @@ Battle::Battle(int opp_direction, QPoint opp_pos, const PokemonInfo* opp_info, c
     m_battleScene->setProperty("direction",m_currentDirection);
     m_battleScene->setProperty("pokeMargin", m_pokeMargin);
     m_battleScene->setProperty("debugLines", Globals::DEBUG);
-    setupPokemon(m_opp_info, "opponent"); //these are the only valid strings
-    setupPokemon(m_chosen_info, "player");//no enums here, only hopes and dreams
+    m_opp = setupPokemon(m_opp_info, "opponent"); //these are the only valid strings
+    m_chosen = setupPokemon(m_chosen_info, "player");//no enums here, only hopes and dreams
 
 
 
     initPosition();
     show();
+
+    QTimer::singleShot(10, [this,opp]() {
+
+        opp->hide();
+    });
     qDebug() << "Window shown, visible:" << isVisible();
 }
 
-void Battle::onBattleSceneLoaded(QVariant battleSceneItem) {
-    /* QQuickItem* scene = battleSceneItem.value<QQuickItem*>(); */
-    /* if (scene) { */
-    /*     resize(scene->width(), scene->height()); */
-    /*     qDebug() << "Battle scene loaded, resized to:" << scene->width() << "x" << scene->height(); */
-    /* } */
-}
 
 
-void Battle::setupPokemon(const PokemonInfo* info, const char* role) {
-    QObject* container = m_battleScene->property(role).value<QObject*>();
+QQuickItem* Battle::setupPokemon(const PokemonInfo* info, const char* role) {
+    QQuickItem* container = m_battleScene->property(role).value<QQuickItem*>();
 
     Q_ASSERT_X(container, "Battle::setupPokemon", "Container: '%1' is null".arg(role));
 
@@ -66,6 +65,8 @@ void Battle::setupPokemon(const PokemonInfo* info, const char* role) {
     container->setProperty("containerOffsetY", offsetY);
 
     QMetaObject::invokeMethod(m_battleScene, "positionSprite", Q_ARG(QVariant, QVariant::fromValue(container)));
+
+    return container;
 }
 
 

@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
         qDebug() << "OpenGL FAILED - using software rendering";
     }
 
-    Globals::DEBUG = true;
+    /* Globals::DEBUG = true; */
     /* if (!Globals::DEBUG) { */
         /* QLoggingCategory::setFilterRules("*.debug=false"); */
     /* } */

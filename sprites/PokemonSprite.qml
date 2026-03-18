@@ -20,16 +20,25 @@ Item {
     width: frameWidth * scaleFactor
     height: frameHeight * scaleFactor
 
+    // Random delay timer to prevent sync
+    property Timer startTimer: Timer {
+        interval: Math.random() * 125 // 0-125ms random delay
+        running: true
+        onTriggered: sprite.running = true
+    }
+
     AnimatedSprite {
         id: sprite
         anchors.centerIn: parent
         scale: scaleFactor
 
+        running: false // Don't start immediately - wait for timer
         source: root.spriteSheet
         frameWidth: root.frameWidth
         frameHeight: root.frameHeight
         frameCount: root.frameCount
         frameRate: root.frameRate
+        currentFrame: Math.floor(Math.random() * frameCount)
         interpolate: false
         smooth: false
         antialiasing: false
