@@ -15,7 +15,7 @@ Rectangle {
     property int menuWidth: frameSize * 5
 
     property int pokeSpriteId: 3
-    property double spriteScale: 1.5
+    property double spriteScale: 1
     property int pokeSpriteWidth: 16
     property int pokeSpriteHeight: 23
     property string spriteSheet: "qrc:/assets/HGSS/Pokeballs_transparent_reordered.png"
@@ -195,26 +195,36 @@ Rectangle {
         }
     }
 
-    Component {
-        id: catchSelection
-        Item {
-            Rectangle {
-                anchors.centerIn: parent
-                width: root.buttonWidth * 1.5
-                height: root.buttonHeight * 1.2
-                color: "white"
+
+Component {
+    id: catchSelection
+
+    Item {
+        RoundButton {
+            id: pokeballButton
+            anchors.centerIn: parent
+            width: root.buttonWidth * 1.3
+            height: root.buttonHeight * 0.9
+            radius: height/2
+
+            background: Rectangle {
+                radius: parent.radius
+                color: pokeballButton.pressed ? "#f0f0f0" : "white"
                 border.color: "black"
                 border.width: 2
-                radius: 3
+            }
+
+            contentItem: Item {
                 Image {
                     id: pokeImage
                     anchors.verticalCenter: parent.verticalCenter
+                    anchors.verticalCenterOffset: 0.58
                     anchors.left: parent.left
-                    anchors.leftMargin: 8
                     source: root.spriteSheet
                     width: root.pokeSpriteWidth * root.spriteScale
                     height: root.pokeSpriteHeight * root.spriteScale
-                    sourceClipRect: Qt.rect(0, root.pokeSpriteHeight * root.pokeSpriteId, root.pokeSpriteWidth, root.pokeSpriteHeight)
+                    sourceClipRect: Qt.rect(0, root.pokeSpriteHeight * root.pokeSpriteId,
+                                           root.pokeSpriteWidth, root.pokeSpriteHeight)
                     smooth: false
                     antialiasing: false
                 }
@@ -226,19 +236,18 @@ Rectangle {
                     text: "Pokeball"
                     font.pixelSize: root.buttonFontSize
                 }
-
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: root.catchChosen(3)
-                }
             }
-                Loader {
-                    anchors.right: parent.right
-                    anchors.verticalCenter: parent.verticalCenter
-                    sourceComponent: backButton
-                }
+
+            onClicked: root.catchChosen(3)
+        }
+
+        Loader {
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            sourceComponent: backButton
         }
     }
+}
 
     Component{
         id: runSelection
@@ -261,25 +270,25 @@ Rectangle {
             }
         }
     }
-Component {
-    id: backButton
-    Rectangle {
-        width: root.buttonHeight
-        height: root.buttonHeight
-        color: "lightblue"
-        radius: 3
-        Text {
-            anchors.centerIn: parent
-            text: "←"
-            color: "white"
-            font.pixelSize: root.buttonFontSize
-        }
-        MouseArea {
-            anchors.fill: parent
-            onClicked: stack.pop()
+    Component {
+        id: backButton
+        Rectangle {
+            width: root.buttonHeight
+            height: root.buttonHeight
+            color: "lightblue"
+            radius: 3
+            Text {
+                anchors.centerIn: parent
+                text: "←"
+                color: "white"
+                font.pixelSize: root.buttonFontSize
+            }
+            MouseArea {
+                anchors.fill: parent
+                onClicked: stack.pop()
+            }
         }
     }
-}
 }
 
 
