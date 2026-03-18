@@ -42,6 +42,19 @@ Item {
 
     // --- Signals ---
     signal preloadBoxRequested(int boxIndex)
+    property color highlightColor: Qt.rgba(0, 0.6, 1, 0.3)
+    property bool inSwapMode: false
+    property color swapColor: "orange"
+    property color highlightSwapColor: Qt.rgba(0.6, 0.6, 0, 0.3)
+    function toggleSwapMode(){
+        if(inSwapMode){
+            inSwapMode=false;
+            swapButton.color=root.buttonColor;
+        }else{
+            inSwapMode=true;
+            swapButton.color=root.swapColor;
+        }
+    }
 
     // ---------------------------------------------------------------
     // Root grid: two rows (party / pc), proportional heights
@@ -102,14 +115,15 @@ Item {
                 }
             }
 
-            // "S" button – inert for now
             PcButton {
+                id: swapButton
                 Layout.column:          1
                 Layout.row:             0
                 Layout.alignment:       Qt.AlignVCenter
                 Layout.preferredWidth:  root.buttonWidth
                 Layout.preferredHeight: root.buttonHeight
                 label: "S"
+                onClicked: root.toggleSwapMode();
             }
         }
 
@@ -192,8 +206,6 @@ Item {
     // Components
     // ---------------------------------------------------------------
 
-    // Base button – shared visuals for every button in this screen.
-    // Wire onClicked for interactive buttons; leave unwired for inert ones.
     component PcButton: Rectangle {
         width:  root.buttonWidth
         height: root.buttonHeight
@@ -228,7 +240,7 @@ Item {
         height: root.slotHeight
         property bool iconVisible: false
         property int  frameIndex:  0
-        color: (hoverArea.containsMouse && iconVisible) ? Qt.rgba(0, 0.6, 1, 0.3) : "transparent"
+        color: (hoverArea.containsMouse && iconVisible) ? (root.inSwapMode ? root.highlightSwapColor : root.highlightColor) : "transparent"
 
         Image {
             anchors.fill: parent
