@@ -17,14 +17,12 @@ int main(int argc, char *argv[]) {
     const char* valgrindMode = std::getenv("VALGRIND_MODE");
     bool isDev = strcmp(std::getenv("DOCKER_ENV"), "dev")== 0;
 
-
     bool isValgrindMode = (valgrindMode && strcmp(valgrindMode, "1") == 0);
     const bool DOOM_TIMER = isDev && isValgrindMode;
-    const int DOOM_S = 20;
+    const int DOOM_S = 60;
 
     if (isDev) {
         qDebug() << "=== RUNNING IN DEV MODE ===";
-
         if (isValgrindMode) {
             qDebug() << "=== VALGRIND DEBUG MODE ENABLED ===";
             qDebug() << "Will auto-exit after" << DOOM_S << "seconds";

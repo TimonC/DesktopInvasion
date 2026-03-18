@@ -59,7 +59,7 @@ WildPokemon::WildPokemon(int pokedexId, QPoint spawnPoint, int spawnDirection,  
     }
 
     m_decisionTimer->setInterval(2000 + std::rand()%2000);
-    m_moveTimer->setInterval(50); // 20fps
+    m_moveTimer->setInterval(50);
 
     roaming(true);
     show();
