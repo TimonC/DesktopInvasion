@@ -68,9 +68,9 @@ Item {
         switch(sprite.direction) {
             case 0:
                 sprite.x = (root.width - root.statusBarWidth - sprite.width)/2
-                sprite.y = root.height - root.menuHeight - sprite.height - root.frameSize/4
+                sprite.y = root.height - root.menuHeight - root.frameSize*2.75
                 sprite.statusBar.x = root.width - root.statusBarWidth
-                sprite.statusBar.y = root.height - root.menuHeight - root.statusBarHeight-root.frameSize*2
+                sprite.statusBar.y = sprite.y
                 break
             case 1:
                 sprite.x = root.width - root.frameSize/2 - root.statusBarWidth/2 - sprite.width/2
@@ -108,8 +108,8 @@ Item {
             var coords = calculateBallCoords(player)
             player.visible = false
 
-            // var adjustedY1 = coords[3] + pokeBallPlayer.height * 0.5
-            pokeBallPlayer.throwAt(coords[0], coords[1], coords[2], coords[3])
+            var adjustedY1 = coords[3] + pokeBallPlayer.height * 0.5
+            pokeBallPlayer.throwAt(coords[0], coords[1], coords[2], adjustedY1)
         })
     }
 
@@ -153,7 +153,6 @@ Item {
         debugColor: "blue"
         property alias statusBar: root.statusBarPlayer
     }
-
     Pokeball {
         id: pokeBallOpponent
         scaleFactor: root.scale
@@ -182,11 +181,13 @@ Item {
         pokeBallPlayer.reset(root.currentPlayerBallIndex)
         pokeBallPlayer.visible = true
 
+        var pokeballCenterY = player.y + player.height/2 - pokeBallPlayer.height/2
+
         pokeBallPlayer.circleBaseWidth = player.width
         pokeBallPlayer.circleBaseHeight = player.height
 
         pokeBallPlayer.circleX = player.x + player.width/2
-        pokeBallPlayer.circleY = player.y + player.height/2
+        pokeBallPlayer.circleY = pokeballCenterY
 
         pokeBallPlayer.delayReveal = 2
 
@@ -214,6 +215,7 @@ Item {
         pokeBallPlayer.onPokemonInsideBall.connect(root.pokemonInsideBallConnection)
         pokeBallPlayer.onBallOpened.connect(root.ballOpenedConnection)
     }
+
     BattleMenu {
         id: battleMenu
         iconScale: root.scale
@@ -476,13 +478,10 @@ Item {
 
         var x1 = sprite.x + (sprite.width / 2) - (pokeballWidth / 2)
 
-        var x0 = x1 + (sprite.direction == 1 ? -sprite.width : sprite.width)
+        var x0 = x1 + (sprite.direction == 1 ? -root.frameSize * 2 : root.frameSize * 2)
 
-        var y1 = sprite.y + sprite.height - pokeballHeight/2
-        var y0 = sprite.y - pokeballHeight
-
-        y0 = Math.max(0, y0)
-
+        var y0 = Math.max(0, sprite.y - pokeBallOpponent.frameHeight)
+        var y1 = sprite.y + 2000
         return [x0, x1, y0, y1]
     }
 

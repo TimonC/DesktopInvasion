@@ -16,7 +16,7 @@ Item {
     property int dropDuration: Math.round(400 / speed)
     property int bounceUpDuration: Math.round(150 / speed)
     property int bounceDownDuration: Math.round(150 / speed)
-    property int bounceHeight: 10
+    property int bounceHeight: 10 * scaleFactor
 
     property real circleShrinkScale: 0.6
     property int circleAnimationDuration: Math.round(750 / speed)
@@ -241,7 +241,7 @@ Item {
         PropertyAction { target: pokeballSprite; property: "visible"; value: true }
         PropertyAction { target: pokeballSprite; property: "sourceClipRect.x"; value: 0 }
         PropertyAction { target: pokeballSprite; property: "x"; value: root.x0 }
-        PropertyAction { target: pokeballSprite; property: "y"; value: root.y0 + 32 }
+        PropertyAction { target: pokeballSprite; property: "y"; value: root.y0 + 32 * root.scaleFactor }
 
         ScriptAction { script: { frameTimer.frameIndex = 0; frameTimer.start() } }
 
@@ -273,7 +273,7 @@ Item {
             PropertyAnimation {
                 target: pokeballSprite
                 property: "y"
-                to: root.y0 + 32
+                to: root.y0 + 32 * root.scaleFactor
                 duration: root.throwDuration / 2
                 easing.type: Easing.InQuad
             }
