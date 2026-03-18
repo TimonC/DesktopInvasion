@@ -1,7 +1,7 @@
 CMakeFiles/
 scripts/
 build/
-assets/
+# assets/
 *.user
 *.autosave
 .qt
