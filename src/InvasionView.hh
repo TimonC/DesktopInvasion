@@ -7,9 +7,8 @@
 class InvasionView : public QGraphicsView
 {
     Q_OBJECT
-
     public:
-        InvasionView;
+        InvasionView();
     private:
         QGraphicsScene *scene;
 };
