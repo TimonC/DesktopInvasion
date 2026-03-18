@@ -90,11 +90,20 @@ Item {
 
         onAttackChosen: function(attackId) {
             if (attackId === 0) {
-                root.onAttackChosen()
+                var playerFirst = Math.random() < 0.5;
+                startAttackChain(playerFirst);
             } else {
                 console.error("Invalid attack id:", attackId)
             }
         }
+        onCatchChosen: function(pokeSpriteId) {
+            if (pokeSpriteId === 3) {
+                console.error("valid pokeSprite id:", pokeSpriteId)
+            } else {
+                console.error("Invalid pokeSprite id:", pokeSpriteId)
+            }
+        }
+
         onRunChosen: root.runChosen()
     }
 
@@ -163,11 +172,7 @@ Item {
         sequenceTimer.start();
     }
 
-    // Attack button handler
-    function onAttackChosen() {
-        var playerFirst = Math.random() < 0.5;
-        startAttackChain(playerFirst);
-    }
+
 
     // Build and start the attack sequence
     function startAttackChain(playerFirst) {

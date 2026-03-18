@@ -3,6 +3,7 @@ import QtQuick.Controls 2.15
 
 Rectangle {
     id: root
+
     color: "transparent"
 
     property int frameSize: 32
@@ -13,10 +14,15 @@ Rectangle {
     property int menuHeight: 50
     property int menuWidth: frameSize * 5
 
+    property int pokeSpriteId: 3
+    property double spriteScale: 1.5
+    property int pokeSpriteWidth: 16
+    property int pokeSpriteHeight: 23
     property string spriteSheet: "qrc:/assets/HGSS/Pokeballs_transparent_reordered.png"
 
     signal attackChosen(int attackId)
     signal runChosen()
+    signal catchChosen(int pokeId)
 
     property alias stack: stack
 
@@ -185,46 +191,43 @@ Rectangle {
         }
     }
 
-    Component {
-        id: catchSelection
-        Item {
+Component {
+    id: catchSelection
+    Rectangle {
+        anchors.centerIn: parent
+        width: root.buttonWidth * 1.5
+        height: root.buttonHeight * 1.2
+        color: "white"
+        border.color: "black"
+        border.width: 2
+        radius: 3
+        Image {
+            id: pokeImage
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.left: parent.left
+            anchors.leftMargin: 8
+            source: root.spriteSheet
+            width: root.pokeSpriteWidth * root.spriteScale
+            height: root.pokeSpriteHeight * root.spriteScale
+            sourceClipRect: Qt.rect(0, root.pokeSpriteHeight * root.pokeSpriteId, root.pokeSpriteWidth, root.pokeSpriteHeight)
+            smooth: false
+            antialiasing: false
+        }
+
+        Text {
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.left: pokeImage.right
+            anchors.leftMargin: 4
+            text: "Pokeball"
+            font.pixelSize: root.buttonFontSize
+        }
+
+        MouseArea {
             anchors.fill: parent
-            Rectangle {
-                anchors.centerIn: parent
-                width: root.buttonWidth
-                height: root.buttonHeight
-                color: "white"
-                border.color: "black"
-                border.width: 2
-                radius: 3
-
-                Row {
-                    anchors.centerIn: parent
-                    spacing: 4
-
-                    Image {
-                        source: root.spriteSheet
-                        width: 16
-                        height: 23
-                        sourceClipRect: Qt.rect(0, 23 * 3, 16, 23)
-                    }
-
-                    Text {
-                        text: "Pokeball"
-                        font.pixelSize: root.buttonFontSize
-                        anchors.verticalCenter: parent.verticalCenter
-                    }
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        // Handle pokeball selection
-                    }
-                }
-            }
+            onClicked: root.catchChosen(3)
         }
     }
+}
 
     Component{
         id: runSelection
