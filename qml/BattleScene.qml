@@ -39,6 +39,8 @@ Item {
     signal playerWon()
     signal pokemonCaught()
 
+
+
     Component.onCompleted: {
         positionSpriteAndStatusBar(player);
         positionSpriteAndStatusBar(opponent);
@@ -170,7 +172,13 @@ Item {
             }
         }
 
-        onRunChosen: root.runChosen()
+        onRunChosen: function(){
+            battleMenu.showTextBar()
+            battleMenu.updateText("Got away safely!")
+            root.oneShotTimer(2000, function(){
+                root.runChosen()
+            })
+        }
     }
 
     //Relative positioning of elements
@@ -350,36 +358,21 @@ Item {
             pokeBallOpponent.release()
             battleMenu.updateText("Aargh! Almost had it!")
 
-            // Hide after delay
-            Qt.callLater(function() {
-                var hideTimer = Qt.createQmlObject('import QtQuick 2.15; Timer {}', root)
-                hideTimer.interval = root.ballTransitionDuration
-                hideTimer.triggered.connect(function() {
-                    opponent.visible=true
-                    pokeBallOpponent.visible = false
-
-                    battleMenu.resetToRoot()
-                    hideTimer.destroy()
-                })
-                hideTimer.start()
+            root.oneShotTimer(root.ballTransitionDuration, function() {
+                opponent.visible = true
+                pokeBallOpponent.visible = false
+                battleMenu.resetToRoot()
             })
+
         } else {
             root.catchShakeCount++
 
             if (root.catchShakeCount >= 3) {
-                // Third attempt - jump instead of shake
                 pokeBallOpponent.jump()
-                // Pokemon caught!
                 battleMenu.updateText("Gotcha! " + opponentName + " was caught!")
 
-                Qt.callLater(function() {
-                    var hideTimer = Qt.createQmlObject('import QtQuick 2.15; Timer {}', root)
-                    hideTimer.interval = 2000
-                    hideTimer.triggered.connect(function() {
-                        root.pokemonCaught();
-                        hideTimer.destroy()
-                    })
-                    hideTimer.start()
+                root.oneShotTimer(2000, function() {
+                    root.pokemonCaught()
                 })
             } else {
                 // Shake and try again
@@ -398,5 +391,17 @@ Item {
             var y0 = Math.max(0, sprite.y - pokeBallOpponent.frameHeight);
             var y1 = sprite.y + sprite.height - pokeBallOpponent.frameHeight;
             return [x0, x1, y0, y1]
+    }
+
+    function oneShotTimer(duration, onFinish){
+            Qt.callLater(function() {
+                var hideTimer = Qt.createQmlObject('import QtQuick 2.15; Timer {}', root)
+                hideTimer.interval = root.ballTransitionDuration
+                hideTimer.triggered.connect(function() {
+                    onFinish()
+                    hideTimer.destroy()
+                })
+                hideTimer.start()
+            })
     }
 }
