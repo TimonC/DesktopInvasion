@@ -5,7 +5,7 @@
 namespace Globals {
     namespace {
         bool s_debug = false;
-        float s_scale = 1.0f;
+        float s_scale = 2.0f;
         float s_speed = 1.0f;
         int s_encounter_level_low = 5;
         int s_encounter_level_high = 5;
