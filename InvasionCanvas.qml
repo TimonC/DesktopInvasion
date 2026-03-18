@@ -7,13 +7,13 @@ Rectangle {
     color: "transparent"
 
     // Title text
-    Text {
-        anchors.top: parent.top
-        anchors.horizontalCenter: parent.horizontalCenter
-        text: "OVERLAY IS WORKING"
-        color: "hotpink"
-        font.pixelSize: 40
-    }
+    // Text {
+    //     anchors.top: parent.top
+    //     anchors.horizontalCenter: parent.horizontalCenter
+    //     text: "OVERLAY IS WORKING"
+    //     color: "hotpink"
+    //     font.pixelSize: 10
+    // }
 
     // Container for dynamically added sprites
     Item {

@@ -10,14 +10,16 @@ AnimatedSprite {
     property string currentDirection: "down"
     property bool isMoving: false
 
-    source: spriteSheet  // Use the passed sheet
+    source: spriteSheet
     frameWidth: 32
     frameHeight: 32
     frameCount: 2
     frameRate: 4
     paused: false
     interpolate: false
-
+    smooth: false
+    antialiasing: false
+    scale: 4
     frameX: {
         switch(currentDirection) {
             case "up": return 0;
@@ -75,7 +77,7 @@ AnimatedSprite {
             case "right": x += moveDelta; break;
         }
         if (x < -100 || x > parent.width + 100 || y < -100 || y > parent.height + 100) {
-            destroy();
+          updateMovement();
         }
     }
 
