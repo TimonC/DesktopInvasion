@@ -29,7 +29,7 @@ struct GameState {
 class PokemonDatabase {
 public:
     static PokemonDatabase& instance();
-    bool initialize(const std::string& dbPath = "/app/data/pokemon_game.db");
+    bool initialize(const std::string& dbPath = "");
     void shutdown();
     PokemonState getPokemon(int id);
     std::vector<PokemonState> getPokemonBatch(const std::vector<int>& ids);

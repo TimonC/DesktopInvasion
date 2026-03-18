@@ -1,21 +1,34 @@
 #!/bin/bash
 set -e
 
+echo "=== Building Release ==="
 mkdir -p build_release
 cd build_release
 cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..
 ninja
 
-# Create AppDir
-mkdir -p /app/output/AppDir/usr/bin
-mkdir -p /app/output/AppDir/usr/share/applications
-mkdir -p /app/output/AppDir/usr/share/icons/hicolor/16x16/apps
+echo "=== Creating AppDir ==="
+# Create AppDir in /app/build
+mkdir -p /app/build/AppDir/usr/bin
+mkdir -p /app/build/AppDir/usr/share/applications
+mkdir -p /app/build/AppDir/usr/share/icons/hicolor/16x16/apps
+mkdir -p /app/build/AppDir/usr/share/icons/hicolor/256x256/apps
 
-cp DesktopInvasion /app/output/AppDir/usr/bin/
-cp -r ../assets /app/output/AppDir/usr/bin/
-cp -r ../qml /app/output/AppDir/usr/bin/
+# Copy executable
+cp DesktopInvasion /app/build/AppDir/usr/bin/
 
-cat > /app/output/AppDir/usr/share/applications/DesktopInvasion.desktop <<EOF
+# Copy assets and qml
+cp -r ../assets /app/build/AppDir/usr/bin/
+cp -r ../qml /app/build/AppDir/usr/bin/
+
+echo "Assets copied:"
+ls -la /app/build/AppDir/usr/bin/assets/
+echo ""
+echo "QML copied:"
+ls -la /app/build/AppDir/usr/bin/qml/
+
+# Create desktop entry
+cat > /app/build/AppDir/usr/share/applications/DesktopInvasion.desktop <<EOF
 [Desktop Entry]
 Type=Application
 Name=Desktop Invasion
@@ -26,23 +39,25 @@ Categories=Game;
 Terminal=false
 EOF
 
+# Copy icon
 if [ -f "../assets/HGSS/PokeballIcon.png" ]; then
-    cp ../assets/HGSS/PokeballIcon.png /app/output/AppDir/usr/share/icons/hicolor/16x16/apps/desktop-invasion.png
+    cp ../assets/HGSS/PokeballIcon.png /app/build/AppDir/usr/share/icons/hicolor/16x16/apps/desktop-invasion.png
+    cp ../assets/HGSS/PokeballIcon.png /app/build/AppDir/usr/share/icons/hicolor/256x256/apps/desktop-invasion.png
 fi
 
-cd /app/output
+cd /app/build
 
-# Clean previous AppDir libs
-rm -rf AppDir/usr/lib/* 2>/dev/null || true
-
-# Explicitly copy the SQLite plugin we need
+echo "=== Setting up SQLite plugin ==="
+# Create plugin directory
 mkdir -p AppDir/usr/plugins/sqldrivers/
+
+# Copy SQLite plugin ONLY
 cp /opt/Qt/6.8.0/gcc_64/plugins/sqldrivers/libqsqlite.so AppDir/usr/plugins/sqldrivers/
 
 # Remove any problematic plugins that might cause issues
 rm -f /opt/Qt/6.8.0/gcc_64/plugins/sqldrivers/libqsqlmimer.so 2>/dev/null || true
 
-# Run linuxdeploy with explicit Qt installation path
+echo "=== Running linuxdeploy ==="
 export QMAKE=/opt/Qt/6.8.0/gcc_64/bin/qmake
 export QML_SOURCES_PATHS=/app/qml
 
@@ -55,6 +70,47 @@ export QML_SOURCES_PATHS=/app/qml
     --output appimage
 
 echo "=== AppImage created ==="
-ls -la *.AppImage
+ls -lh *.AppImage
+
 echo ""
-echo "Users can run: chmod +x DesktopInvasion*.AppImage && ./DesktopInvasion*.AppImage"
+echo "=== Copying outputs to volume ==="
+# Ensure output directory exists
+mkdir -p /app/output
+
+# Copy AppImage to output volume
+cp *.AppImage /app/output/
+
+# Also copy the AppDir in case you want to inspect it
+echo "Copying AppDir for inspection..."
+cp -r AppDir /app/output/
+
+# Create a build info file
+cat > /app/output/BUILD_INFO.txt <<EOF
+Build Date: $(date)
+Build Type: Release
+AppImage: $(ls *.AppImage)
+Database Location (Runtime):
+  - Development: ./pokemon.db (in build directory)
+  - AppImage: ~/.local/share/DesktopInvasion/DesktopInvasion/pokemon.db
+
+To run:
+  chmod +x /app/output/*.AppImage
+  ./app/output/*.AppImage
+
+Database will be automatically created at:
+  ~/.local/share/DesktopInvasion/DesktopInvasion/pokemon.db
+
+To view save data location:
+  ls -la ~/.local/share/DesktopInvasion/DesktopInvasion/
+EOF
+
+echo "=== Build complete ==="
+echo "Output files available in ./app/output/"
+ls -lah /app/output/
+
+echo ""
+echo "To run the AppImage from your host:"
+echo "  chmod +x ./app/output/DesktopInvasion*.AppImage"
+echo "  ./app/output/DesktopInvasion*.AppImage"
+echo ""
+echo "Database will be created at: ~/.local/share/DesktopInvasion/DesktopInvasion/pokemon.db"

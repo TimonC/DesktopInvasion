@@ -4,6 +4,9 @@ src/data_poke.cpp
 src/data_poke_asset.cpp
 src/data_poke_flavor.cpp
 
+build_output/**
+app/*
+
 CMakeFiles/
 CMakeFiles
 cmake_install.cmake

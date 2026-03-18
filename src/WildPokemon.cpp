@@ -29,9 +29,9 @@ WildPokemon::WildPokemon(int pokedexId, QPoint spawnPoint, int spawnDirection,  
     /* setSource(QUrl("../qml/PokemonSprite.qml")); */
     m_sprite = rootObject();
     m_sprite->setProperty("spriteSheet",
-            isBig
-            ? QString("qrc:/assets/HGSS/reordered_sprites_big.png")
-            : QString("qrc:/assets/HGSS/reordered_sprites.png"));
+        isBig
+        ? QString("qrc:/assets/HGSS/reordered_sprites_big.png")
+        : QString("qrc:/assets/HGSS/reordered_sprites.png"));
 
     float scaleDivisor = isBig ? 1.4/3.0f : 1.0f/3.0f;
     m_sprite->setProperty("scaleFactor", Globals::scale()/scaleDivisor) ;

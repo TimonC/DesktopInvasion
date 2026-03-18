@@ -17,21 +17,64 @@ PokemonDatabase::~PokemonDatabase() {
 }
 
 bool PokemonDatabase::initialize(const std::string& dbPath) {
-    if (m_initialized) return true;
+    if (m_initialized) {
+        // Already initialized - just verify path matches if provided
+        if (!dbPath.empty() && dbPath != m_dbPath) {
+            qWarning() << "Database already initialized with different path!";
+            qWarning() << "Current:" << QString::fromStdString(m_dbPath);
+            qWarning() << "Requested:" << QString::fromStdString(dbPath);
+        }
+        return true;
+    }
 
-    m_dbPath = dbPath;
+    // If no path provided, use a default writable location
+    if (dbPath.empty()) {
+        QString defaultDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+        QDir dir(defaultDir);
+        if (!dir.exists()) {
+            dir.mkpath(".");
+        }
+        m_dbPath = (defaultDir + "/pokemon.db").toStdString();
+        qDebug() << "No database path provided, using default:" << QString::fromStdString(m_dbPath);
+    } else {
+        m_dbPath = dbPath;
+    }
 
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName(QString::fromStdString(dbPath));
+    // Verify parent directory exists
+    QString qDbPath = QString::fromStdString(m_dbPath);
+    QFileInfo fileInfo(qDbPath);
+    QDir parentDir = fileInfo.dir();
 
-    if (!db.open()) {
-        std::cerr << "Database error: " << db.lastError().text().toStdString() << std::endl;
+    if (!parentDir.exists()) {
+        qWarning() << "Database directory does not exist:" << parentDir.path();
+        if (!parentDir.mkpath(".")) {
+            qCritical() << "Failed to create database directory:" << parentDir.path();
+            return false;
+        }
+        qDebug() << "Created database directory:" << parentDir.path();
+    }
+
+    // Check if we have write permissions
+    if (!QFileInfo(parentDir.path()).isWritable()) {
+        qCritical() << "Database directory is not writable:" << parentDir.path();
         return false;
     }
 
-    QSqlQuery query;
-    query.exec("PRAGMA foreign_keys = ON");
+    // Initialize Qt SQL database
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    db.setDatabaseName(qDbPath);
+
+    if (!db.open()) {
+        qCritical() << "Failed to open database:" << db.lastError().text();
+        return false;
+    }
+
+    qDebug() << "Database opened successfully at:" << qDbPath;
+
+    // Create tables if they don't exist
     createTables();
+
+    // Ensure wild slot exists
     ensureWildSlotExists();
 
     m_initialized = true;

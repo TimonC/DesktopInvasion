@@ -1,24 +1,30 @@
 #include <QApplication>
 #include <QLoggingCategory>
 #include <QOpenGLContext>
+#include <QStandardPaths>
+#include <QDir>
+#include <QCoreApplication>
 #include <globals.h>
 #include <Game.h>
+#include <PokemonDatabase.h>
 #include <qnamespace.h>
 #include <tests.h>
 #include <QQmlApplicationEngine>
 #include <QFontDatabase>
 #include <QQmlContext>
-#include <QQmlApplicationEngine>
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
+
+    // Set organization and application name for proper data paths
+    QCoreApplication::setOrganizationName("DesktopInvasion");
+    QCoreApplication::setApplicationName("DesktopInvasion");
 
     /* Globals::debug(true); */
     float scale = 2;
     float speed = 4;
     Globals::scale(scale);
     Globals::animationSpeed(speed);
-
 
     // Load fonts from QRC once at app startup
     int pixelFontId = QFontDatabase::addApplicationFont(":/assets/fonts/PressStart2P-Regular.ttf");
@@ -45,7 +51,6 @@ int main(int argc, char *argv[]) {
     }
 
     QQmlApplicationEngine engine;
-
     // Expose font names to QML
     engine.rootContext()->setContextProperty("pixelFontFamily", pixelFontFamily);
     engine.rootContext()->setContextProperty("dotGothicFontFamily", dotGothicFamily);
@@ -62,11 +67,41 @@ int main(int argc, char *argv[]) {
         qDebug() << "OpenGL FAILED - using software rendering";
     }
 
-
     runAllTests();
 
+    QString dbDir;
+    QString appDirPath = qEnvironmentVariable("APPDIR");
+
+    if (!appDirPath.isEmpty()) {
+        dbDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+        qDebug() << "Running from AppImage, using data directory:" << dbDir;
+    } else {
+        // Running from build directory - use local path for development
+        dbDir = QCoreApplication::applicationDirPath();
+        qDebug() << "Running from build directory, using local path:" << dbDir;
+    }
+
+    // Ensure directory exists
+    QDir dir(dbDir);
+    if (!dir.exists()) {
+        if (!dir.mkpath(".")) {
+            qCritical() << "Failed to create database directory:" << dbDir;
+            return 1;
+        }
+        qDebug() << "Created database directory:" << dbDir;
+    }
+
+    QString dbPath = dbDir + "/pokemon.db";
+    qDebug() << "Initializing database at:" << dbPath;
+
+    // Initialize the database with the proper path
+    if (!PokemonDatabase::instance().initialize(dbPath.toStdString())) {
+        qCritical() << "Failed to initialize database at:" << dbPath;
+        return 1;
+    }
+
+    qDebug() << "Database initialized successfully";
+
     Game game(&engine, nullptr);
-
-
     return app.exec();
 }

@@ -10,6 +10,7 @@
 #include <BattleMoveHandler.h>
 #include <data_poke_asset.h>
 #include <lookup.h>
+#include <qglobal.h>
 
 Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
     : QObject(parent)
@@ -25,9 +26,7 @@ Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
 
     m_partyIds.fill(0);
 
-    if (!m_db.initialize()) {
-        qWarning() << "Failed to initialize database!";
-    }
+
 
     initializeGame();
 

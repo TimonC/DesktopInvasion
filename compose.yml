@@ -23,7 +23,7 @@ services:
     container_name: desktopinvasion-prod
     entrypoint: ["./build_prod.sh"]
     volumes:
-      - ./build_output:/app/output
+      - ./app/output:/app/output
 
 volumes:
   game_state:
