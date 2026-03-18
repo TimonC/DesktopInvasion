@@ -64,6 +64,35 @@ Battlescene::Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent)
     setPosition(m_origin);
 
     show();
+
+    m_corners = initCorners();
+    m_corners->show();
+}
+
+QQuickView* Battlescene::initCorners(){
+    int lft; int top; int boxHeight; int boxWidth;
+    if(m_direction % 2 == 0){
+        lft = std::min(m_opp->position().x(), m_chosen->position().x());
+        top = std::min(m_opp->position().y(), m_chosen->position().y());
+        boxHeight = std::max(m_opp->position().y() + m_opp->height(), m_chosen->position().y() + m_chosen->height()) - top;
+        boxWidth =  x() + width() - lft;
+    }else{
+        lft = std::min(m_opp->position().x(), m_chosen->position().x());
+        top = std::min(m_opp->position().y(), m_chosen->position().y());
+        boxHeight = y() + height() - top;
+        boxWidth = std::max(m_opp->position().x() + m_opp->width(), m_chosen->position().x() + m_chosen->width()) - lft;
+    }
+    QQuickView *corners = new QQuickView(nullptr);
+    corners->setFlags(     Qt::WindowStaysOnTopHint
+                | Qt::Tool
+                | Qt::WindowDoesNotAcceptFocus);
+                /* | Qt::FramelessWindowHint); */
+    corners->setColor(Qt::transparent);
+    corners->setPosition(QPoint(lft,top));
+    corners->setWidth(boxWidth);
+    corners->setHeight(boxHeight);
+
+    return corners;
 }
 
 void Battlescene::run(){
@@ -116,13 +145,9 @@ void Battlescene::mouseMoveEvent(QMouseEvent* event){
         m_oldpos = currentPos;
     }
 }
+
 void Battlescene::drag(QPoint delta){
     QPoint pos = position();
-    /* if (pos.x() + delta.x() < 0 || pos.x() + delta.x() > getScreenGeometry().width() - width()) */
-        /* delta.setX(0); */
-    /* if (pos.y() + delta.y() < 0 || pos.y() + delta.y() > getScreenGeometry().height() - height()) */
-        /* delta.setY(0); */
-
     setPosition(pos + delta);
     m_chosen->movePos(delta, false);
     m_opp->movePos(delta, false);

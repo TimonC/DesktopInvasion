@@ -19,7 +19,7 @@ WildPokemon::WildPokemon(QWindow *parent, int row)
 {
 
     m_hitbox->offset =QPoint(width()/3.3, height()/2.8);
-    movePos(QPoint(screenWidth()/2, screenHeight()/2));
+    movePos(screenSize()/2);
 
     connect(m_hitbox, &Hitbox::drag, this, [this](QPoint delta){
             movePos(delta);

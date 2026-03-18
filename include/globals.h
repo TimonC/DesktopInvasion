@@ -6,8 +6,7 @@
 #include <QGuiApplication>
 
 Player& getPlayer();
-int screenWidth();
-int screenHeight();
-static bool DEBUG = false;
+QPoint screenSize();
+static bool DEBUG = true;
 
 #endif

@@ -1,23 +1,16 @@
 #include "globals.h"
 #include "Player.h"
 #include <QGuiApplication>
+#include <qwindow.h>
 
 Player& getPlayer() {
     static std::unique_ptr<Player> player = std::make_unique<Player>();
     return *player;
 }
 
-QRect& getScreenGeometry() {
-    static QRect geometry = QGuiApplication::primaryScreen()->geometry();
-    return geometry;
+
+QPoint screenSize(){
+    static QPoint screenSize = QPoint(QGuiApplication::primaryScreen()->geometry().width(), QGuiApplication::primaryScreen()->geometry().height());
+    return screenSize;
 }
 
-int screenWidth(){
-    static int width = QGuiApplication::primaryScreen()->geometry().width();
-    return width;
-}
-
-int screenHeight(){
-    static int height = QGuiApplication::primaryScreen()->geometry().height();
-    return height;
-}

@@ -15,9 +15,8 @@ void Player::_iChooseYou(Pokemon* opp, Pokemon* chosen){
     battle->updateTextbar("It's a battle...!");
 
 
-    battle->show();
     chosen->show();
-
+    battle->show();
 
     m_activeBattles.push_back(std::move(battle));
 

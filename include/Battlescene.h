@@ -13,6 +13,8 @@ public:
     Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent = nullptr);
 
     void updateTextbar(const std::string& text); // Make sure this signal exists
+    QQuickView* initCorners();
+    QQuickView *m_corners = nullptr;
 private slots:
     void run();
     void attack();
