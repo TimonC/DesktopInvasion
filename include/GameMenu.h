@@ -3,6 +3,7 @@
 #include <QQuickView>
 #include <QCursor>
 #include <QVariantList>
+#include <PokemonDatabase.h>
 
 class GameMenu : public QQuickView {
     Q_OBJECT
@@ -17,6 +18,8 @@ public:
     void loadParty(const QVariantList& data);
     void loadBox(int boxIndex, const QVariantList& data);
     void showBox(int boxIndex);
+
+    void setDefaults(Defaults &d);
 
 signals:
     void menuClosed();

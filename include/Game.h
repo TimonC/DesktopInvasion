@@ -24,7 +24,9 @@ public slots:
         deleteLater();
     }
 
+
 private:
+    void writeDefaults();
     void initMenu();
     std::mt19937             m_rng;
     bool                     m_gameUsedToBeActive;

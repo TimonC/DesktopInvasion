@@ -6,10 +6,10 @@ Rectangle {
     id: root
     color: "transparent"
 
-    readonly property real spriteSizeDefault:         2.0
-    readonly property real battleSpeedDefault:        1.0
-    readonly property int  encounterLevelHighDefault: 5
-    readonly property int  encounterLevelLowDefault:  5
+    property real spriteSizeDefault:         2.0
+    property real battleSpeedDefault:        1.0
+    property int  encounterLevelHighDefault: 5
+    property int  encounterLevelLowDefault:  5
 
     readonly property real spriteSizeMin:         1.0
     readonly property real spriteSizeMax:         4.0

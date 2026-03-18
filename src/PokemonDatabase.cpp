@@ -142,6 +142,15 @@ void PokemonDatabase::createTables() {
         FOREIGN KEY(save_id) REFERENCES saves(save_id)
     ))"); logQuery(q);
 
+    q.exec(R"(CREATE TABLE IF NOT EXISTS defaults (
+        save_id       INTEGER PRIMARY KEY,
+        scale         INTEGER DEFAULT 1,
+        speed         INTEGER DEFAULT 1,
+        lvl_range_up   INTEGER DEFAULT 5,
+        lvl_range_down INTEGER DEFAULT 5,
+        FOREIGN KEY(save_id) REFERENCES saves(save_id)
+    ))"); logQuery(q);
+
     q.exec("CREATE INDEX IF NOT EXISTS idx_pc_box ON pc_slots(save_id, box)");
     logQuery(q);
 }
@@ -161,6 +170,10 @@ void PokemonDatabase::initFixedSlots() {
         q.addBindValue(i);
         q.exec(); logQuery(q);
     }
+
+    q.prepare("INSERT OR IGNORE INTO defaults(save_id) VALUES(?)");
+    q.addBindValue(m_saveId); q.exec(); logQuery(q);
+
     DB_LOG("Fixed slots ready for save_id=" << m_saveId);
 }
 
@@ -624,4 +637,36 @@ void PokemonDatabase::setPokemonMove(int box, int slot, int moveIndex, int moveI
               [&](QSqlQuery& q){ q.addBindValue(moveId); });
 
     DB_LOG("Move[" << moveIndex << "] [box=" << box << " slot=" << slot << "] ->" << moveId);
+}
+
+// --------------------------------------------------------------------------
+// Defaults
+// --------------------------------------------------------------------------
+
+Defaults PokemonDatabase::loadDefaults() {
+    Defaults d;
+    QSqlQuery q;
+    q.prepare("SELECT scale, speed, lvl_range_up, lvl_range_down FROM defaults WHERE save_id=?");
+    q.addBindValue(m_saveId);
+    if (q.exec() && q.next()) {
+        d.scale = q.value("scale").toInt();
+        d.speed = q.value("speed").toInt();
+        d.lvlRangeUp = q.value("lvl_range_up").toInt();
+        d.lvlRangeDown = q.value("lvl_range_down").toInt();
+    }
+    return d;
+}
+
+void PokemonDatabase::writeDefaults(const Defaults& d) {
+    QSqlQuery q;
+    q.prepare(R"(UPDATE defaults SET
+        scale=?, speed=?, lvl_range_up=?, lvl_range_down=?
+        WHERE save_id=?)");
+    q.addBindValue(d.scale);
+    q.addBindValue(d.speed);
+    q.addBindValue(d.lvlRangeUp);
+    q.addBindValue(d.lvlRangeDown);
+    q.addBindValue(m_saveId);
+    q.exec(); logQuery(q);
+    DB_LOG("Defaults written for save_id=" << m_saveId);
 }

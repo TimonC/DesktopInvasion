@@ -73,6 +73,17 @@ void GameMenu::activate() {
     setVisible(true);
 }
 
+void GameMenu::setDefaults(Defaults &d)
+{
+    QQuickItem* m_menuRoot = rootObject();
+
+    QMetaObject::invokeMethod(m_menuRoot, "updateDefaults",
+                              Q_ARG(QVariant, d.scale),
+                              Q_ARG(QVariant, d.speed),
+                              Q_ARG(QVariant, d.lvlRangeDown),
+                              Q_ARG(QVariant, d.lvlRangeUp));
+}
+
 // These are Q_INVOKABLE so QML can also call them directly if needed,
 // but primarily Game calls them and they emit signals that QML listens to.
 

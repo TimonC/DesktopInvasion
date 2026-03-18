@@ -196,6 +196,9 @@ void Game::handleMenuOpen() {
     setGameActive(false);
     m_gameUsedToBeActive = usedToBeActive;
 
+    Defaults d = m_db.loadDefaults();
+    m_menu->setDefaults(d);
+
     m_menu->activate();
 
     // Push party and bootstrap boxes
@@ -210,9 +213,19 @@ void Game::handleMenuOpen() {
 }
 
 void Game::handleMenuClosed() {
+    writeDefaults();
     m_db.commitMenuSession();
     m_trayIcon->enabled(true);
     if (m_gameUsedToBeActive) setGameActive(true);
+}
+
+void Game::writeDefaults(){
+    Defaults d;
+    d.scale = Globals::scale(),
+    d.speed = Globals::animationSpeed(),
+    d.lvlRangeDown = Globals::encounterLvlLow(),
+    d.lvlRangeUp = Globals::encounterLvlLow(),
+    m_db.writeDefaults(d);
 }
 
 void Game::safelyRemoveBattleScene() {

@@ -33,6 +33,13 @@ struct GameState {
     int         unlocked_boxes   = 10;
 };
 
+struct Defaults {
+    int scale = 1;
+    int speed = 1;
+    int lvlRangeUp = 5;
+    int lvlRangeDown = 5;
+};
+
 class PokemonDatabase {
 public:
     static PokemonDatabase& instance();
@@ -83,6 +90,10 @@ public:
     void renamePokemon (int box, int slot, const std::string& newName);
     void setPokemonMoves(int box, int slot, const int moves[4]);
     void setPokemonMove (int box, int slot, int moveIndex, int moveId);
+
+    // --- Defaults ---
+    Defaults loadDefaults();
+    void writeDefaults(const Defaults& d);
 
 private:
     PokemonDatabase() = default;

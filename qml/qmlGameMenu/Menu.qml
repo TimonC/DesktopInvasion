@@ -54,6 +54,13 @@ Rectangle {
     property alias encounterLevelHigh: trainer.encounterLevelHigh
     property alias encounterLevelLow:  trainer.encounterLevelLow
 
+    function updateDefaults(spriteSize, battleSpeed, lvlRangeDown, lvlRangeUp){
+       trainer.spriteSizeDefault = spriteSize
+       trainer.battleSpeedDefault = battleSpeed
+       trainer.encounterLevelLowDefault = lvlRangeDown
+       trainer.encounterLevelHighDefault = lvlRangeUp
+    }
+
     MouseArea {
         anchors.fill: parent
         cursorShape:  undefined
