@@ -87,6 +87,9 @@ Item {
             catchAttemptTimer.interval = root.catchShakeInterval/2 //half duration on the first shake
             catchAttemptTimer.start()
         }
+        onPokemonInsideBall:{
+            opponent.visible = false
+        }
     }
 
     // Catch attempt timer
@@ -104,6 +107,7 @@ Item {
         if (failure) {
             // Release the pokemon
             pokeBallSend.release()
+            opponent.visible = true
             // Hide after delay
             Qt.callLater(function() {
                 var hideTimer = Qt.createQmlObject('import QtQuick 2.15; Timer {}', root)

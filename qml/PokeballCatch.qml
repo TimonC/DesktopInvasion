@@ -15,6 +15,7 @@ Item {
 
     // Signal emitted when throw animation completes
     signal throwAnimationDone()
+    signal pokemonInsideBall()
     width: frameWidth
     height: frameHeight
     z: 9999
@@ -201,6 +202,9 @@ Item {
             target: pokeballSprite
             property: "sourceClipRect.x"
             value: root.frameWidth * 9
+        }
+        ScriptAction{
+            script: root.pokemonInsideBall()
         }
         PauseAnimation {
             duration: root.catchDuration
