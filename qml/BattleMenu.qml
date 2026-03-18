@@ -18,6 +18,7 @@ Rectangle {
     property int pokeSpriteHeight: 23
     property string spriteSheet: "qrc:/assets/HGSS/Pokeballs_transparent_reordered.png"
     property int selectedIndex: 0 //for switch menu
+    property bool forceSwitchMode: false
 
     signal attackChosen(int attackId)
     signal runChosen()
@@ -59,7 +60,13 @@ Rectangle {
         }
     }
 
+    function forceSwitch() {
+        forceSwitchMode = true
+        stack.replace(switchSelection)
+    }
+
     function resetToRoot() {
+        forceSwitchMode = false
         stack.replace(rootSelection)
     }
     StackView {
@@ -249,7 +256,7 @@ Rectangle {
                                 color: root.selectedIndex === index ? "#E8F5E9" :
                                    (party.healthRatios[index] >= 0.5 ? "#4CAF50" :
                                    (party.healthRatios[index] >= 0.25 ? "#FF9800" :
-                                   (party.healthRatios[index] > 0 ? "#F44336" : "#1565C0")))
+                                   (party.healthRatios[index] > 0 ? "#F44336" : "#C62828")))
                                 radius: parent.radius
                                 opacity: 0.6
                             }
@@ -261,7 +268,7 @@ Rectangle {
                             MouseArea {
                                 anchors.fill: parent
                                 onClicked: {
-                                    if(root.selectedIndex !== index){
+                                    if(root.selectedIndex !== index && party.healthRatios[index] > 0){
                                         root.switchChosen(root.selectedIndex, index)
                                         root.selectedIndex = index
                                     }
@@ -357,16 +364,22 @@ Rectangle {
         Rectangle {
             width: root.buttonHeight
             height: root.buttonHeight
-            color: "lightblue"
             radius: 3
+
+            // Visual feedback
+            color: root.forceSwitchMode ? "#b0bec5" : "lightblue"
+            opacity: root.forceSwitchMode ? 0.5 : 1.0
+
             Text {
                 anchors.centerIn: parent
                 text: "←"
                 color: "white"
                 font.pixelSize: root.buttonFontSize
             }
+
             MouseArea {
                 anchors.fill: parent
+                enabled: !root.forceSwitchMode
                 onClicked: stack.pop()
             }
         }

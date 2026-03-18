@@ -18,7 +18,7 @@ Item {
     property int textBarFontSize: frameSize * 0.45
     property bool debugLines: false
     property int direction: 0
-    property bool firstChosen: true
+    property bool safePokemonSwitch: true
     // Action timing delays (delays are applied AFTER action)
     property int textDelay: 300
     property int attackDelay: 500
@@ -176,7 +176,7 @@ Item {
             player.visible = true
             statusBarPlayer.visible = true
 
-            if(root.firstChosen){
+            if(root.safePokemonSwitch){
                 battleMenu.resetToRoot()
             }else{
                 startActionChain("switch", true)
@@ -240,7 +240,7 @@ Item {
             statusBarPlayer.totalHealth = 100; //TODO
 
             pokeBallPlayer.rowId = battleMenu.party.ballIds[newPartyId];
-            root.firstChosen = false
+            root.safePokemonSwitch = battleMenu.forceSwitchMode
             root.resetPlayerBall()
             var coords = calculateBallCoords(player)
             pokeBallPlayer.throwAt(coords[0], coords[1], coords[2], coords[3])
@@ -370,7 +370,14 @@ Item {
                 if(step.defender==root.opponent){
                     root.playerWon()
                 }else{
-                    root.opponentWon()
+                    root.actionInProgress = false
+                    root.actionSequence = []
+                    root.currentActionIndex = 0
+                    if(battleMenu.party.healthRatios.some(ratio => ratio > 0)){
+                        battleMenu.forceSwitch();
+                    }else{
+                        root.opponentWon()
+                    }
                 }
                 break
             case "end":
