@@ -94,9 +94,9 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
             }
             m_battleOpponent->delta.flinched = false;
         }
-
         applyEndOfTurnEffects(m_battleParty[m_chosenPartyIndex]);
         applyEndOfTurnEffects(m_battleOpponent);
+
     } else {
         assert(playerFirst && "Player should always go first if it isn't fighting");
         applyMove(opponentMove, m_battleOpponent, m_battleParty[m_chosenPartyIndex]);
@@ -181,14 +181,14 @@ void BattleMoveHandler::applyMove(const Move* _move, Battler* caster, Battler* t
         }
     }
 
-    std::uniform_int_distribution<int> critDist(1, 16/(1+_move->crit_rate));
-    bool crit = critDist(m_rng) == 1;
-    caster->delta.critical = crit;
-
     if(_move->category != MoveCategory::NonDamaging){
         DamageParams params;
         params.lvl = caster->pokeState.lvl;
         params.power = _move->power;
+
+        std::uniform_int_distribution<int> critDist(1, 16/(1+_move->crit_rate));
+        bool crit = critDist(m_rng) == 1;
+        caster->delta.critical = crit;
 
         int attackStatIndex = 1;
         if(_move->category == MoveCategory::SpecialAtk){
@@ -270,13 +270,18 @@ void BattleMoveHandler::applyMove(const Move* _move, Battler* caster, Battler* t
 }
 
 void BattleMoveHandler::applySecondaryEffects(const Move* _move, Battler* target) {
-    if (_move->ailment_chance > 0 && _move->ailment != Ailment::Null) {
-        std::uniform_int_distribution<int> ailmentDist(1, 100);
-        if (ailmentDist(m_rng) <= _move->ailment_chance) {
-            if (target->battleState.statusCondition == Ailment::Null) {
-                target->delta.addStatusCondition = _move->ailment;
-                target->battleState.statusCondition = _move->ailment;
-            }
+    bool ailmentApplied = true;
+    bool statApplied = true;
+    if(_move->category!=MoveCategory::NonDamaging){
+        std::uniform_int_distribution<int> effectDist(1, 100);
+        ailmentApplied = effectDist(m_rng) <= _move->ailment_chance;
+        statApplied = effectDist(m_rng) <= _move->stat_chance;
+    }
+
+    if (ailmentApplied && _move->ailment != Ailment::Null) {
+        if (target->battleState.statusCondition == Ailment::Null) {
+            target->delta.addStatusCondition = _move->ailment;
+            target->battleState.statusCondition = _move->ailment;
         }
     }
 
@@ -287,15 +292,12 @@ void BattleMoveHandler::applySecondaryEffects(const Move* _move, Battler* target
         }
     }
 
-    if (_move->stat_chance > 0) {
-        std::uniform_int_distribution<int> statDist(1, 100);
-        if (statDist(m_rng) <= _move->stat_chance) {
-            for (int i = 0; i < 5; ++i) {
-                if (_move->stat_changes[i] != 0) {
-                    target->delta.deltaStatModifiers[i] = _move->stat_changes[i];
-                    target->battleState.statModifiers[i] = std::max(-6, std::min(6,
-                        target->battleState.statModifiers[i] + _move->stat_changes[i]));
-                }
+    if (statApplied) {
+        for (int i = 0; i < 5; ++i) {
+            if (_move->stat_changes[i] != 0) {
+                target->delta.deltaStatModifiers[i] = _move->stat_changes[i];
+                target->battleState.statModifiers[i] = std::max(-6, std::min(6,
+                    target->battleState.statModifiers[i] + _move->stat_changes[i]));
             }
         }
     }
@@ -323,11 +325,7 @@ void BattleMoveHandler::generateMoveSequence(QVariantList& sequence, Battler& at
     const Move* _move = attacker.pokeState.moves[attacker.battleState.lastMoveIndex];
     QString moveName = QString::fromStdString(_move->name);
 
-    if(attacker.delta.confusedDamage > 0) {
-        sequence.append(createTextAction(attackerName + " hurt itself in its confusion!", ms_ailmentText));
-        sequence.append(createDamageAction(attackerRole, ms_damageAnimation));
-        sequence.append(createHealthChangeAction(attackerRole, -attacker.delta.confusedDamage, ms_healthChange));
-    } else if(attacker.delta.flinched) {
+    if(attacker.delta.flinched) {
         sequence.append(createTextAction(attackerName + " flinched!", ms_statusConditionText));
     } else if(attacker.delta.sleep) {
         sequence.append(createTextAction(attackerName + " is fast asleep!", ms_statusConditionText));
@@ -335,6 +333,10 @@ void BattleMoveHandler::generateMoveSequence(QVariantList& sequence, Battler& at
         sequence.append(createTextAction(attackerName + " is frozen solid!", ms_statusConditionText));
     } else if(attacker.delta.paralyzed) {
         sequence.append(createTextAction(attackerName + " is paralyzed! It can't move!", ms_statusConditionText));
+    } else if(attacker.delta.confusedDamage > 0) {
+        sequence.append(createTextAction(attackerName + " hurt itself in its confusion!", ms_ailmentText));
+        sequence.append(createDamageAction(attackerRole, ms_damageAnimation));
+        sequence.append(createHealthChangeAction(attackerRole, -attacker.delta.confusedDamage, ms_healthChange));
     } else if(attacker.delta.miss) {
         sequence.append(createTextAction(attackerName + " used " + moveName + "!", ms_moveUsedText));
         sequence.append(createTextAction(attackerName + "'s attack missed!", ms_statusConditionText));
@@ -359,6 +361,8 @@ void BattleMoveHandler::generateMoveSequence(QVariantList& sequence, Battler& at
     }else if(attacker.delta.noEffect){
             sequence.append(createTextAction(attackerName + " used " + moveName + "!", ms_moveUsedText));
             sequence.append(createTextAction("It doesn't affect " + defenderName + "...", ms_effectivenessText));
+    }else{
+            sequence.append(createTextAction(attackerName + " used " + moveName + "!", ms_moveUsedText));
     }
 
     addPostMoveEffects(sequence, defender, defenderName, !isAttackerPlayer);
