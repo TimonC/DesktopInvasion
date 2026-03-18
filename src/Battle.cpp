@@ -61,7 +61,7 @@ Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildS
         Q_ARG(QVariant, opponentHealth),
         Q_ARG(QVariant, playerHealth));
 
-    QTimer::singleShot(2, this, [this]() {
+    QTimer::singleShot(20, this, [this]() {
         show();
         m_width  = width();
         m_height = height();

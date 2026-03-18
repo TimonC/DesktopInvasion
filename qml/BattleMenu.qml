@@ -58,7 +58,6 @@ Rectangle {
     property real normalIconOpacity: 0.9
     property real selectedIconOpacity: 1.0
     property real faintedIconOpacity: 0.7
-    property real hoverScale: 1.04
     property real iconScale: 1.0
 
     property int colorAnimationDuration: Math.max(80, 200)
