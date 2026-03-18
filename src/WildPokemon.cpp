@@ -43,7 +43,7 @@ setFlags(Qt::WindowStaysOnTopHint
 
     const SpriteInfo* spriteInfo = Globals::getSpriteInfo(info->spriteId, info->generation);
 
-    int padding =0;// 6;
+    int padding = 2;
     int width = Globals::SCALE* (spriteInfo->width + padding);
     int height = Globals::SCALE * (spriteInfo->height + padding);
 
@@ -53,6 +53,8 @@ setFlags(Qt::WindowStaysOnTopHint
     setWidth(width);
     setHeight(height);
 
+    m_sprite->setProperty("offsetX" , padding/2);
+    m_sprite->setProperty("offsetY", padding/2);
     /* if (auto mouseArea = m_sprite->property("mouseArea").value<QQuickItem*>()) */
     /*     connect(mouseArea, SIGNAL(doubleClicked(QQuickMouseEvent*)), this, SLOT(handleDoubleClick())); */
 

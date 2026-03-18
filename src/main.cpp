@@ -12,10 +12,14 @@ int main(int argc, char *argv[]) {
     QGuiApplication app(argc, argv);
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 
-    /* Globals::DEBUG = true; */
+    const int num_wild        = 1;
+    const int start_pokedexid = 6;
+    Globals::DEBUG = true;
+
     /* if (!Globals::DEBUG) { */
         /* QLoggingCategory::setFilterRules("*.debug=false"); */
     /* } */
+
     QOpenGLContext context;
     if (context.create()) {
         qDebug() << "OpenGL IS WORKING! Version:"
@@ -25,12 +29,11 @@ int main(int argc, char *argv[]) {
     } else {
         qDebug() << "OpenGL FAILED - using software rendering";
     }
-    const int num_wild = 1;
-    std::vector<std::unique_ptr<WildPokemon>> wildPokemon;
 
-    for (int i = 1; i <= num_wild; ++i) {
+    std::vector<std::unique_ptr<WildPokemon>> wildPokemon;
+    for (int i = start_pokedexid; i < num_wild + start_pokedexid; ++i) {
         /* const PokemonInfo* pokemonInfo = Globals::getRandomPokemon(); */
-        const PokemonInfo* pokemonInfo = Globals::getPokemonByPokedexId(1);
+        const PokemonInfo* pokemonInfo = Globals::getPokemonByPokedexId(i);
         if (pokemonInfo) {
             wildPokemon.push_back(std::make_unique<WildPokemon>(pokemonInfo));
         }
