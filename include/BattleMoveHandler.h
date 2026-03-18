@@ -127,8 +127,8 @@ private:
     std::unordered_set<int> m_includedPartyIndices;
 
     Battler* createBattler(const PokemonState& state);
-    BattleActionResult applyMove(const Move* _move, Battler* caster, Battler* target);
-    BattleActionResult applySecondaryEffects(const Move* _move, Battler* caster, Battler* target, bool damageLanded);
+    BattleActionResult applyMove(const Move* _move, Battler* caster, Battler* target, bool otherHasHadTurn = false);
+    BattleActionResult applySecondaryEffects(const Move* _move, Battler* caster, Battler* target, bool damageLanded, bool otherHasHadTurn);
     BattleActionResult applyEndOfTurnEffects(Battler* battler);
     BattleActionResult canBattlerMove(Battler* caster);
     void checkRemoveAilment(Battler& battler, BattleActionResult& result);

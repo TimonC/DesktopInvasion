@@ -200,27 +200,25 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
         turnResult.effects.reserve(20);
 
         if(playerFirst){
-            player->delta.flinched = false;
             BattleActionResult playerResult = applyMove(playerMove, player, m_battleOpponent);
             applyBattleResult(playerResult);
             turnResult.effects.reserve(turnResult.effects.size() + playerResult.effects.size());
             turnResult.effects.insert(turnResult.effects.end(), playerResult.effects.begin(), playerResult.effects.end());
 
             if(m_battleOpponent->battleState.currentHealth > 0 && !m_battleOpponent->delta.flinched) {
-                BattleActionResult opponentResult = applyMove(opponentMove, m_battleOpponent, player);
+                BattleActionResult opponentResult = applyMove(opponentMove, m_battleOpponent, player, true);
                 applyBattleResult(opponentResult);
                 turnResult.effects.reserve(turnResult.effects.size() + opponentResult.effects.size());
                 turnResult.effects.insert(turnResult.effects.end(), opponentResult.effects.begin(), opponentResult.effects.end());
             }
         } else {
-            m_battleOpponent->delta.flinched = false;
             BattleActionResult opponentResult = applyMove(opponentMove, m_battleOpponent, player);
             applyBattleResult(opponentResult);
             turnResult.effects.reserve(turnResult.effects.size() + opponentResult.effects.size());
             turnResult.effects.insert(turnResult.effects.end(), opponentResult.effects.begin(), opponentResult.effects.end());
 
             if(player->battleState.currentHealth > 0 && !player->delta.flinched) {
-                BattleActionResult playerResult = applyMove(playerMove, player, m_battleOpponent);
+                BattleActionResult playerResult = applyMove(playerMove, player, m_battleOpponent, true);
                 applyBattleResult(playerResult);
                 turnResult.effects.reserve(turnResult.effects.size() + playerResult.effects.size());
                 turnResult.effects.insert(turnResult.effects.end(), playerResult.effects.begin(), playerResult.effects.end());
@@ -380,7 +378,7 @@ BattleActionResult BattleMoveHandler::applyEndOfTurnEffects(Battler* battler) {
     return result;
 }
 
-BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* caster, Battler* target) {
+BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* caster, Battler* target, bool otherHasHadTurn) {
     BattleActionResult result;
     checkRemoveAilment(*caster, result);
 
@@ -401,6 +399,7 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
         return result;
     }
 
+    bool damageLanded = true;
     if(_move->category != MoveCategory::NonDamaging){
         PokeMath::DamageParams params;
         params.lvl = caster->pokeState.lvl;
@@ -476,20 +475,15 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
             result.addEffect(BattleActionResult::HEAL, caster, caster, healAmount);
         }
 
-        BattleActionResult secondaryResult = applySecondaryEffects(_move, caster, target, damage > 0);
-        result.effects.reserve(result.effects.size() + secondaryResult.effects.size());
-        result.effects.insert(result.effects.end(), secondaryResult.effects.begin(), secondaryResult.effects.end());
-
-    } else {
-        BattleActionResult secondaryResult = applySecondaryEffects(_move, caster, target, true);
-        result.effects.reserve(result.effects.size() + secondaryResult.effects.size());
-        result.effects.insert(result.effects.end(), secondaryResult.effects.begin(), secondaryResult.effects.end());
+        damageLanded  = damage > 0;
     }
-
+        BattleActionResult secondaryResult = applySecondaryEffects(_move, caster, target, true, otherHasHadTurn);
+        result.effects.reserve(result.effects.size() + secondaryResult.effects.size());
+        result.effects.insert(result.effects.end(), secondaryResult.effects.begin(), secondaryResult.effects.end());
     return result;
 }
 
-BattleActionResult BattleMoveHandler::applySecondaryEffects(const Move* _move, Battler* caster, Battler* target, bool damageLanded) {
+BattleActionResult BattleMoveHandler::applySecondaryEffects(const Move* _move, Battler* caster, Battler* target, bool damageLanded, bool otherHasHadTurn) {
     BattleActionResult result;
 
     bool ailmentApplied = true;
@@ -528,7 +522,7 @@ BattleActionResult BattleMoveHandler::applySecondaryEffects(const Move* _move, B
         }
     }
 
-    if (damageLanded && _move->flinch_chance > 0) {
+    if (damageLanded && _move->flinch_chance > 0 && !otherHasHadTurn) {
         if (PokeMath::checkSecondaryEffect(_move->flinch_chance, m_rng)) {
             result.addEffect(BattleActionResult::FLINCH, nullptr, target);
             target->delta.flinched = true;
