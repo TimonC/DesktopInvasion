@@ -2,7 +2,6 @@
 
 LATEST_LOG=$(ls -t valgrind_logs/valgrind_*.log 2>/dev/null | head -1)
 
-# If none found, try default name
 FILE="${1:-${LATEST_LOG:-valgrind.log}}"
 OUTPUT="filtered_log.txt"
 

@@ -8,6 +8,7 @@ build_output/**
 app/*
 
 valgrind_logs
+filtered_log.txt
 
 CMakeFiles/
 CMakeFiles

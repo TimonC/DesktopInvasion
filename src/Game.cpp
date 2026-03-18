@@ -27,7 +27,6 @@ Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
 
     m_partyIds.fill(0);
 
-
     initializeGame();
 
     connect(m_trayIcon, &SystemTrayIcon::gameActive, this, &Game::setGameActive);
@@ -43,18 +42,28 @@ Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
 }
 
 Game::~Game() {
-    if (m_activeBattle) safelyRemoveBattleScene();
-    if (m_wildPokemon) safelyRemoveWildPokemon();
-    disconnect(m_spawnTimer, nullptr, this, nullptr);
-    disconnect(m_menu, nullptr, this, nullptr);
-    disconnect(m_trayIcon, nullptr, this, nullptr);
-
     m_spawnTimer->stop();
-    m_spawnTimer->deleteLater();
-    m_trayIcon->deleteLater();
-    m_menu->deleteLater();
+    disconnect(m_trayIcon, nullptr, this, nullptr);
+    disconnect(m_menu, nullptr, this, nullptr);
+    disconnect(m_spawnTimer, nullptr, this, nullptr);
 
-    m_db.shutdown();
+    if (m_activeBattle) {
+        disconnect(m_activeBattle, nullptr, this, nullptr);
+        disconnect(this, nullptr, m_activeBattle, nullptr);
+
+        delete m_activeBattle;
+        m_activeBattle = nullptr;
+    }
+
+    if (m_wildPokemon) {
+        disconnect(m_wildPokemon, nullptr, this, nullptr);
+        disconnect(this, nullptr, m_wildPokemon, nullptr);
+
+        delete m_wildPokemon;
+        m_wildPokemon = nullptr;
+    }
+
+    delete m_menu;
 }
 
 void Game::safelyRemoveBattleScene(){
@@ -71,6 +80,7 @@ void Game::safelyRemoveWildPokemon(){
     assert(m_wildPokemon && "There should be no existing WildPokemon instance when this is called.");
 
     disconnect(m_wildPokemon, nullptr, this, nullptr);
+    disconnect(this, nullptr, m_wildPokemon, nullptr);
     m_wildPokemon->deleteLater();
     m_wildPokemon = nullptr;
 };
@@ -98,7 +108,7 @@ void Game::setGameActive(bool active) {
     processing = true;
 
         // Singleshot to ensure we're in next event loop iteration
-    /* QTimer::singleShot(0, this, nullptr); */
+    QTimer::singleShot(0, this, nullptr);
     if (active){
         spawnPokemon();
     }

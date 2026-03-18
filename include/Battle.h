@@ -31,10 +31,7 @@ class Battle : public DesktopScene{
 
 public:
     explicit Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildState, Party party, std::unique_ptr<BattleMoveHandler> battleMoveHandler, QWindow *parent = nullptr);
-    ~Battle() {
-        qDebug() << "Battle destructor called!";
-    }
-
+    ~Battle();
     void updateTextbar(const std::string& text);
     QQuickView* initCorners();
     QQuickView *m_corners = nullptr;

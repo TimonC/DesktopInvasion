@@ -1,5 +1,6 @@
 #include "SystemTrayIcon.h"
 #include <QApplication>
+#include <qdir.h>
 
 SystemTrayIcon::SystemTrayIcon(QObject *parent)
     : QSystemTrayIcon(parent)
@@ -12,6 +13,10 @@ SystemTrayIcon::SystemTrayIcon(QObject *parent)
     setVisible(true);
     connect(this, &QSystemTrayIcon::activated,
             this, &SystemTrayIcon::onActivated);
+}
+
+SystemTrayIcon::~SystemTrayIcon(){
+    qDebug() << "SystemTrayIcon destructor called";
 }
 
 void SystemTrayIcon::setIconActivityColor(bool active){

@@ -68,6 +68,29 @@ Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildS
     });
 }
 
+Battle::~Battle(){
+    qDebug() << "Battle destructor called!";
+
+
+    setSource(QUrl());
+
+    if (m_corners) {
+        m_corners->setSource(QUrl());  // Clear its QML source
+        m_corners->close();
+        delete m_corners;
+        m_corners = nullptr;
+    }
+
+    m_battleScene = nullptr;
+    m_opp = nullptr;
+    m_chosen = nullptr;
+    m_ui = nullptr;
+
+    m_chosen_info = nullptr;
+    m_opp_info = nullptr;
+
+};
+
 void Battle::handleGettingExperience(){
     std::array<int,6> spread = m_battleMoveHandler->getExperienceSpread();
     emit _updatePartyXP(spread);

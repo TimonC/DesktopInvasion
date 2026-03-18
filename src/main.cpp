@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
 
     bool isValgrindMode = (valgrindMode && strcmp(valgrindMode, "1") == 0);
     const bool DOOM_TIMER = isDev && isValgrindMode;
-    const int DOOM_S = 30;
+    const int DOOM_S = 180;
 
     if (isDev) {
         qDebug() << "=== RUNNING IN DEV MODE ===";
@@ -117,20 +117,21 @@ int main(int argc, char *argv[]) {
     }
     qDebug() << "Database initialized successfully";
 
-    Game *game = new Game(&engine, nullptr);
-    QObject::connect(game, &QObject::destroyed, &app, &QApplication::quit);
+    std::unique_ptr<Game> game = std::make_unique<Game>(&engine, nullptr);
 
     if (DOOM_TIMER) {
         qDebug() << "=== VALGRIND DEBUG MODE ===";
         qDebug() << "Game will auto-exit in" << DOOM_S << "seconds";
 
-        QTimer::singleShot(DOOM_S * 1000, game, [game]() {
+        QTimer::singleShot(DOOM_S * 1000, [&app]() {
             qDebug() << "=== AUTO-EXIT TIMER FIRED ===";
             qDebug() << DOOM_S << "seconds elapsed - exiting cleanly";
-            game->deleteLater();
-            PokemonDatabase::instance().shutdown();
+            app.quit();
         });
     }
 
+    QObject::connect(&app, &QApplication::aboutToQuit, []() {
+        PokemonDatabase::instance().shutdown();
+    });
     return app.exec();
 }

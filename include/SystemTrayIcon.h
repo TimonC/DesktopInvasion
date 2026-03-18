@@ -10,6 +10,8 @@ class SystemTrayIcon : public QSystemTrayIcon
 
 public:
     explicit SystemTrayIcon(QObject *parent = nullptr);
+    ~SystemTrayIcon();
+
     void setIconActivityColor(bool active);
     void enabled(bool enabled);
 
@@ -22,9 +24,10 @@ private slots:
     void toggleGameActive();
 
 private:
-
     bool m_gameActive;
     bool m_clickEnabled;
+    QIcon m_activeIcon;
+    QIcon m_inactiveIcon;
 };
 
-#endif // SYSTEMTRAYICON_H
+#endif

@@ -61,14 +61,16 @@ WildPokemon::WildPokemon(int pokedexId, QPoint spawnPoint, int spawnDirection,  
     roaming(true);
     show();
 
-    QTimer::singleShot(20, this, [this]() {
-        m_width  = this->width();
-        m_height = this->height();
-    });
+    m_width  = this->width();
+    m_height = this->height();
 }
 
 WildPokemon::~WildPokemon(){
     qDebug() << "WildPokemon destructor called!";
+    disconnect(m_decisionTimer, nullptr, this, nullptr);
+    disconnect(m_moveTimer, nullptr, this, nullptr);
+    setSource(QUrl());
+    m_sprite = nullptr;
 };
 
 void WildPokemon::roaming(bool active){
