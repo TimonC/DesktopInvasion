@@ -3,8 +3,17 @@ import QtQuick.Controls 2.15
 
 Item {
     id: root
-    width: 32 * 9
-    height: 32 * 5
+    width: (chosenSide === 0 || chosenSide === 2) ? frameSize * 6 : frameSize * 8
+    height: (chosenSide === 0 || chosenSide === 2) ? frameSize * 6.5 : frameSize * 4
+
+    // Scaling properties
+    property int frameSize: 32
+    property int buttonWidth: frameSize * 1.5
+    property int buttonHeight: frameSize * 0.75
+    property int buttonFontSize: frameSize * 0.25
+    property int buttonSpacing: frameSize * 0.125
+    property int stackSpacing: frameSize  // New property for spacing between column stacks
+    property int textBarMargin: frameSize * 0.25  // Tiny margin above text bar
 
     // Property to control which side the chosen/opponent buttons are on
     property int chosenSide: 1  // 0, 1, 2, or 3
@@ -24,14 +33,6 @@ Item {
         textBar.text = newText;
     }
 
-    // Empty space above
-    Item {
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-        height: 32 * 4
-    }
-
     // Text bar at the bottom
     Rectangle {
         id: textBar
@@ -40,9 +41,9 @@ Item {
         property string text: ""
 
         anchors.bottom: parent.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
-        width: 32 * 5
-        height: 32
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: frameSize
 
         color: "white"
         border.color: "gray"
@@ -62,43 +63,45 @@ Item {
     // Chosen side buttons (Switch/Run)
     Column {
         id: chosenButtons
-        spacing: 4
+        spacing: buttonSpacing
 
-        // Horizontal positioning - right side for vertical cases
+        // Horizontal positioning - fully to the sides
         x: {
             switch(chosenSide) {
-                case 0: return parent.width - width - 32  // Right side
-                case 1: return 32
-                case 2: return parent.width - width - 32  // Right side
-                case 3: return parent.width - width - 32
-                default: return 32
+                case 0: return parent.width - width  // Right side - no margin
+                case 1: return 0  // Left side - no margin
+                case 2: return parent.width - width  // Right side - no margin
+                case 3: return parent.width - width  // Right side - no margin
+                default: return 0
             }
         }
 
         // Vertical positioning
         y: {
             switch(chosenSide) {
-                case 0: return parent.height * 0.25 - height / 2  // Top (~1/4)
-                case 1: return textBar.y - 64  // Original position
-                case 2: return parent.height * 0.75 - height / 2  // Bottom (~3/4)
-                case 3: return textBar.y - 64  // Original position
-                default: return textBar.y - 64
+                case 0: return textBar.y - textBarMargin - height - stackSpacing - opponentButtons.height  // Above opponent buttons
+                case 1: return textBar.y - frameSize * 2  // Above text bar for horizontal
+                case 2: return textBar.y - textBarMargin - height  // Just above text bar margin
+                case 3: return textBar.y - frameSize * 2  // Above text bar for horizontal
+                default: return textBar.y - frameSize * 2
             }
         }
 
         RoundButton {
             text: "Switch"
-            width: 80
-            height: 24
-            radius: 12
+            font.pixelSize: buttonFontSize
+            width: buttonWidth
+            height: buttonHeight
+            radius: buttonHeight / 2
             onClicked: console.log("Switch clicked")
         }
 
         RoundButton {
             text: "Run"
-            width: 80
-            height: 24
-            radius: 12
+            font.pixelSize: buttonFontSize
+            width: buttonWidth
+            height: buttonHeight
+            radius: buttonHeight / 2
             onClicked: console.log("Run clicked")
         }
     }
@@ -106,43 +109,45 @@ Item {
     // Opponent side buttons (Attack/Catch)
     Column {
         id: opponentButtons
-        spacing: 4
+        spacing: buttonSpacing
 
-        // Horizontal positioning - right side for vertical cases
+        // Horizontal positioning - fully to the sides
         x: {
             switch(chosenSide) {
-                case 0: return parent.width - width - 32  // Right side
-                case 1: return parent.width - width - 32
-                case 2: return parent.width - width - 32  // Right side
-                case 3: return 32
-                default: return parent.width - width - 32
+                case 0: return parent.width - width  // Right side - no margin
+                case 1: return parent.width - width  // Right side - no margin
+                case 2: return parent.width - width  // Right side - no margin
+                case 3: return 0  // Left side - no margin
+                default: return parent.width - width
             }
         }
 
         // Vertical positioning
         y: {
             switch(chosenSide) {
-                case 0: return parent.height * 0.75 - height / 2  // Bottom (~3/4)
-                case 1: return textBar.y - 64  // Same height as chosen buttons
-                case 2: return parent.height * 0.25 - height / 2  // Top (~1/4)
-                case 3: return textBar.y - 64  // Same height as chosen buttons
-                default: return textBar.y - 64
+                case 0: return textBar.y - textBarMargin - height  // Just above text bar margin
+                case 1: return textBar.y - frameSize * 2  // Above text bar for horizontal
+                case 2: return frameSize  // Top padding for vertical down
+                case 3: return textBar.y - frameSize * 2  // Above text bar for horizontal
+                default: return textBar.y - frameSize * 2
             }
         }
 
         RoundButton {
             text: "Attack"
-            width: 80
-            height: 24
-            radius: 12
+            font.pixelSize: buttonFontSize
+            width: buttonWidth
+            height: buttonHeight
+            radius: buttonHeight / 2
             onClicked: console.log("Attack clicked")
         }
 
         RoundButton {
             text: "Catch"
-            width: 80
-            height: 24
-            radius: 12
+            font.pixelSize: buttonFontSize
+            width: buttonWidth
+            height: buttonHeight
+            radius: buttonHeight / 2
             onClicked: console.log("Catch clicked")
         }
     }
