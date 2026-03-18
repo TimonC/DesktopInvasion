@@ -8,11 +8,10 @@ Rectangle {
     color: "transparent"
 
     property bool inClickableArea: false
+    property bool textBarShown: false;
+
     property int menuTransitionDuration: 100
     property double iconScale: 1.0
-
-    property var handCursor;
-    property var pointerCursor;
 
     property int buttonWidth: 0
     property int buttonHeight: 0
@@ -122,6 +121,8 @@ Rectangle {
     }
 
     function showTextBar() {
+        root.clickableAreaEntered(false)
+        root.textBarShown = true
         stack.replace(textBarComponent)
     }
 
@@ -139,11 +140,15 @@ Rectangle {
 
     function forceSwitch() {
         forceSwitchMode = true
+        root.textBarShown = false
+        if(root.inClickableArea) root.clickableAreaEntered(true)
         stack.replace(switchSelection)
     }
 
     function resetToRoot() {
         forceSwitchMode = false
+        root.textBarShown = false
+        if(root.inClickableArea) root.clickableAreaEntered(true)
         stack.replace(rootSelection)
     }
 
@@ -152,6 +157,7 @@ Rectangle {
         hoverEnabled: true
         z: 3
     }
+
     NoCursorMouseArea{
         id: menuMouseArea
         anchors.fill: parent
@@ -165,17 +171,19 @@ Rectangle {
         onEntered:{
            if(!root.inClickableArea){
                root.inClickableArea = true
-               root.clickableAreaEntered(true)
+               if(!root.textBarShown) root.clickableAreaEntered(true)
             }
         }
         onExited:{
            if(root.inClickableArea) {
                root.inClickableArea = false
-               root.clickableAreaEntered(false)
+               if(!root.textBarShown) root.clickableAreaEntered(false)
             }
             z: 3
         }
     }
+
+    property bool clickedEffect: false
     component GradientRoundButton: Item {
         id: gradientButton
         required property color buttonColor

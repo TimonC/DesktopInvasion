@@ -10,6 +10,7 @@ Item {
     property int animationSpeed: 1
 
     property alias inClickableArea: battleMenu.inClickableArea
+    property alias textBarShown: battleMenu.textBarShown
 
     width: (direction === 0 || direction === 2) ? Math.round(frameSize * 6) : Math.round(frameSize * 8)
     height: (direction === 0 || direction === 2) ? Math.round(frameSize * 8) : Math.round(frameSize * 6)
@@ -247,8 +248,6 @@ Item {
 
     BattleMenu {
         id: battleMenu
-        handCursor: root.handCursor
-        pointerCursor: root.pointerCursor
         iconScale: root.scale
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter

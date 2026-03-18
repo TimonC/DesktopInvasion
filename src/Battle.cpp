@@ -205,7 +205,7 @@ void Battle::initPosition() {
 void Battle::direction(int direction) { m_currentDirection = direction; }
 void Battle::handleDrag(bool isDragged) {
     m_isDragged = isDragged;
-    if(m_battleScene->property("inClickableArea").toBool()){
+    if(m_battleScene->property("inClickableArea").toBool() && !(m_battleScene->property("textBarShown").toBool())){
         setCursor(m_pointerCursor);
     };
 }
