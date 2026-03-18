@@ -23,6 +23,8 @@ Item {
     property int    spacing:    6
     property int    maxSprite:  64 * 4
 
+    property int typeWidth: 64
+
     property color  dividerColor: "#3d3d3d"
 
     // Section height ratios
@@ -67,6 +69,7 @@ Item {
             Column {
                 anchors.centerIn: parent
                 spacing:          pokeView.spacing
+                width: halfW
 
                 Text {
                     text: pokeData ? pokeData.name : ""
@@ -98,11 +101,13 @@ Item {
                     Repeater {
                         model: pokeData ? [pokeData.type1, pokeData.type2].filter(t => t && t !== "None") : []
                         Rectangle {
-                            width: lbl.implicitWidth + 12; height: fontSizeMd + 6; radius: 4
-                            color: PokeColor.typeColor(modelData) ?? "#888"
+                            width: typeWidth
+                            height: fontSizeMd + 6
+                            radius: 4
+                            color: PokeColor.typeColor(modelData)
                             Text {
                                 id: lbl; anchors.centerIn: parent
-                                text: modelData
+                                text: PokeColor.typeColor(modelData)=="transparent" ? "" : modelData
                                 font.family: bodyFont; font.pixelSize: fontSizeSm
                                 color: "#ffffff"
                             }
@@ -193,7 +198,9 @@ Item {
                         Row {
                             spacing: 8
                             Rectangle {
-                                width: 64; height: fontSizeMd + 4; radius: 3
+                                width: typeWidth
+                                height: fontSizeMd + 4
+                                radius: 3
                                 color: PokeColor.typeColor(modelData.type) ?? "#888"
                                 anchors.verticalCenter: parent.verticalCenter
                                 Text {
@@ -203,7 +210,7 @@ Item {
                                     color: "#ffffff"
                                 }
                             }Text {
-                                width: 64*1.8
+                                width: typeWidth*1.8
                                 text: modelData.name
                                 font.family: bodyFont; font.pixelSize: fontSizeMd
                                 color: root.textColor

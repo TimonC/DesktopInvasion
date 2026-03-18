@@ -44,7 +44,7 @@ Item {
     signal swapRequested(var posx, var posy)
 
     // ── Swap state ─────────────────────────────────────────────────────────────
-    property color highlightColor:       Qt.rgba(0, 0.6, 1, 0.3)
+    property color highlightColor:       Qt.rgba(0, 0.6, 1, 0.5)
     property color swapColor:            "orange"
     property bool  inSwapMode:           false
     property var   swapSource:           null
