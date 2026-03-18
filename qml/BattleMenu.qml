@@ -13,7 +13,7 @@ Rectangle {
     property int frameSize: 0
     property int buttonWidth: frameSize * 2
     property int buttonHeight: frameSize * 0.75
-    property double textBarHeightRatio: 0.95
+    property double textBarHeightRatio: 1
     property int menuHeight: 0
     property int menuWidth: 0
 
