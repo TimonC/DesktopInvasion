@@ -41,6 +41,9 @@ Battler* BattleMoveHandler::createBattler(const PokemonState& state) {
         state.evs,
         PokeTypes::getNatureMultipliers(state.nature)
     );
+
+
+    battler->battleState.currentHealth = battler->pokeState.stats[0];
     return battler;
 }
 
