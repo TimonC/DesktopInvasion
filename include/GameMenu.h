@@ -18,6 +18,7 @@ public:
 signals:
     void menuClosed();
     void preloadBoxRequested(int boxIndex);  // QML -> Game
+    void swapRequested(int xplace, int xpos, int yplace, int ypos);
 
     // Game -> QML (QML listens via Connections { target: menuBridge })
     void partyDataReady(QVariantList data);

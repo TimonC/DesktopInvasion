@@ -28,6 +28,7 @@ Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
     connect(m_trayIcon, &SystemTrayIcon::menuButtonPressed, this, &Game::handleMenuOpen);
     connect(m_menu,     &GameMenu::menuClosed,              this, &Game::handleMenuClosed);
     connect(m_menu,     &GameMenu::preloadBoxRequested,     this, &Game::handleMenuPreloadBox);
+    connect(m_menu,     &GameMenu::swapRequested,              this, &Game::handlePCSwap);
 
     m_spawnTimer->setInterval(m_spawnDelay_ms);
     connect(m_spawnTimer, &QTimer::timeout, this, &Game::spawnPokemon);
@@ -122,6 +123,11 @@ void Game::pushBoxToMenu(int boxIndex) {
 void Game::handleMenuPreloadBox(int boxIndex) {
     qDebug() << "[Game] Menu requested preload of box" << boxIndex;
     pushBoxToMenu(boxIndex);
+}
+
+void Game::handlePCSwap(int placex, int posx, int placey, int posy){
+    qDebug() << "[Game] PC positions swapped:" << "[" << placex << "," << posx << "] <---> ["  << placey << "," << posy << "]";
+    m_db.swapByPos(placex, posx, placey, posy);
 }
 
 // --------------------------------------------------------------------------

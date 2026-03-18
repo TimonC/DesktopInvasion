@@ -41,6 +41,7 @@ Item {
     }
 
     signal preloadBoxRequested(int boxIndex)
+    signal swapRequested(var posx, var posy)
 
     // --- Swap state ---
     property color highlightColor:     Qt.rgba(0, 0.6, 1, 0.3)
@@ -272,19 +273,18 @@ Item {
             cursorShape:  undefined
             onClicked: {
                 if (!pokemonSlot.iconVisible) return
-
                 if (!root.inSwapMode) {
                     console.log("display!", pokemonSlot.pcPos)
                     return
                 }
 
-                // Swap mode: first click picks source, second click executes swap
                 if (root.swapSource === null) {
                     root.swapSource = pokemonSlot.pcPos
                     console.log("swap source selected:", root.swapSource)
                 } else {
                     root._executeSwap(root.swapSource, pokemonSlot.pcPos)
-                    root.toggleSwapMode()   // clears inSwapMode + swapSource
+                    root.swapRequested(root.swapSource, pokemonSlot.pcPos)
+                    root.toggleSwapMode()
                 }
             }
         }

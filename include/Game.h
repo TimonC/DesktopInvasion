@@ -55,6 +55,7 @@ private slots:
     void handleMenuOpen();
     void handleMenuClosed();
     void handleMenuPreloadBox(int boxIndex);
+    void handlePCSwap(int xplace, int xpos, int yplace, int ypos);
     void handleBattleStart();
     void handleBattleEnd(const char* endState, bool removeWild);
     void setGameActive(bool active = true);

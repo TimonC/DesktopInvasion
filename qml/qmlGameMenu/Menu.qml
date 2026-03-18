@@ -32,6 +32,7 @@ Rectangle {
     // C++ (Game) -> QML: push party and box data into PC
     Connections {
         target: menuBridge
+
         function onPartyDataReady(data) {
             console.log("[Menu] party arrived, count:", data.length)
             pc.loadParty(data)
@@ -50,6 +51,8 @@ Rectangle {
     Connections {
         target: pc
         function onPreloadBoxRequested(boxIndex) { menuBridge.preloadBoxRequested(boxIndex) }
+        function onSwapRequested(posx, posy) { menuBridge.swapRequested(posx[0], posx[1], posy[0], posy[1]) }
+
     }
 
     RowLayout {
