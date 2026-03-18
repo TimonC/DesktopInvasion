@@ -254,9 +254,47 @@ Item {
                         z:            1
                     }
 
+                    Item {
+                        id: labelStrip
+                        anchors.top:   parent.top
+                        anchors.left:  parent.left
+                        anchors.right: parent.right
+                        height:        root.labelHeight + root.panelPadding
+                        z:             2
+
+                        Rectangle {
+                            anchors.fill: parent
+                            radius: root.panelRadius
+                            color: {
+                                var c = Qt.color(root.pcBackground)
+                                return Qt.rgba(c.r, c.g, c.b, root.backgroundOpacity * 1.5)
+                            }
+                        }
+
+                        Text {
+                            anchors.centerIn: parent
+                            text:           "Box " + (root.currentBoxIndex + 1)
+                            color:          "white"
+                            font.family:    root.fontFamily
+                            font.pixelSize: root.fontSizeLg
+                            font.bold:      true
+                        }
+
+                        Rectangle {
+                            anchors.bottom: parent.bottom
+                            anchors.left:   parent.left
+                            anchors.right:  parent.right
+                            height: 1
+                            color: root.panelBorderColor
+                        }
+                    }
+
                     Rectangle {
-                        anchors.fill: parent
-                        radius:       root.panelRadius
+                        anchors.top:    labelStrip.bottom
+                        anchors.left:   parent.left
+                        anchors.right:  parent.right
+                        anchors.bottom: parent.bottom
+                        radius: 0
 
                         gradient: Gradient {
                             GradientStop {
@@ -302,61 +340,28 @@ Item {
                                 }
                             }
                         }
-                    }
 
-                    Item {
-                        id: labelStrip
-                        anchors.top:   parent.top
-                        anchors.topMargin: root.panelPadding
-                        anchors.left:  parent.left
-                        anchors.right: parent.right
-                        height:        root.labelHeight
-                        z:             2
+                        Item {
+                            anchors.fill: parent
+                            anchors.margins: root.panelPadding
 
-                        Text {
-                            anchors.centerIn: parent
-                            text:           "Box " + (root.currentBoxIndex + 1)
-                            color:          "white"
-                            font.family:    root.fontFamily
-                            font.pixelSize: root.fontSizeLg
-                            font.bold:      true
-                        }
+                            Grid {
+                                anchors.centerIn: parent
+                                rows:             root.pcRows
+                                columns:          root.pcColumns
+                                rowSpacing:       0
+                                columnSpacing:    0
 
-                        Rectangle {
-                            anchors.bottom: parent.bottom
-                            anchors.left:   parent.left
-                            anchors.right:  parent.right
-                            height: 1
-                            color: root.panelBorderColor
-                        }
-                    }
-
-                    Item {
-                        anchors.top:    labelStrip.bottom
-                        anchors.topMargin: root.panelPadding
-                        anchors.left:   parent.left
-                        anchors.leftMargin: root.panelPadding
-                        anchors.right:  parent.right
-                        anchors.rightMargin: root.panelPadding
-                        anchors.bottom: parent.bottom
-                        anchors.bottomMargin: root.panelPadding
-
-                        Grid {
-                            anchors.centerIn: parent
-                            rows:             root.pcRows
-                            columns:          root.pcColumns
-                            rowSpacing:       0
-                            columnSpacing:    0
-
-                            Repeater {
-                                id: pcRepeater
-                                model: root.pcRows * root.pcColumns
-                                PokemonSlot {
-                                    property var currentBox: root.boxes[root.currentBoxIndex]
-                                    iconVisible: currentBox !== undefined && currentBox[index] !== undefined
-                                    frameIndex:  (currentBox !== undefined && currentBox[index] !== undefined)
-                                                 ? currentBox[index] : 0
-                                    pcPos: [root.currentBoxIndex, index]
+                                Repeater {
+                                    id: pcRepeater
+                                    model: root.pcRows * root.pcColumns
+                                    PokemonSlot {
+                                        property var currentBox: root.boxes[root.currentBoxIndex]
+                                        iconVisible: currentBox !== undefined && currentBox[index] !== undefined
+                                        frameIndex:  (currentBox !== undefined && currentBox[index] !== undefined)
+                                                     ? currentBox[index] : 0
+                                        pcPos: [root.currentBoxIndex, index]
+                                    }
                                 }
                             }
                         }
