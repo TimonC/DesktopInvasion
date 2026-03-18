@@ -21,7 +21,7 @@ protected:
     virtual void mouseReleaseEvent(QMouseEvent* event) override;
     virtual void mouseMoveEvent(QMouseEvent* event) override;
 
-private slots:
+public slots:
     virtual void handleDrag(bool isDragged) = 0;
 };
 

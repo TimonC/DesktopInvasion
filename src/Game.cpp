@@ -74,19 +74,18 @@ void Game::handleBattleEnd(Battle* battle, WildPokemon* opp, bool removeWild) {
             spawnWildPokemon(Globals::getPokemonInfo());
         });
     }else{
-        opp->m_sprite->setProperty("visible", false);
+        battle->handleDrag(false);
+
+        QPoint newOppPos = opp->position() + (battle->position() - battle->m_origin);
+        opp->setPosition(newOppPos);
         opp->show();
-        opp->startRoaming();
+
 
         //Short delay to ensure smooth visual transition
-        QTimer::singleShot(50, this, [this, battle, opp]() {
-            QPoint newOppPos = opp->position() + battle->position() - battle->m_origin;
-
+        QTimer::singleShot(100, this, [this, battle, opp]() {
             battle->deleteLater();
             m_activeBattle = nullptr;
-
-            opp->setPosition(newOppPos);
-            opp->m_sprite->setProperty("visible", true);
+            opp->startRoaming();
         });
     }
 }

@@ -3,6 +3,7 @@
 
 #include <DesktopScene.h>
 #include <pokemon_data.h>
+#include <qtmetamacros.h>
 
 class WildPokemon : public DesktopScene{
 
@@ -15,9 +16,11 @@ public:
     void direction(int direction) override;
     const PokemonInfo* info;
     QQuickItem* m_sprite;
-private slots:
+
+public slots:
     void handleDrag(bool isDragged) override;
 
+private slots:
     void makeRandomDecision();
     void moveStep();
     void startBattle();

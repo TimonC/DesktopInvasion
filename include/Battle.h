@@ -22,8 +22,9 @@ public:
 signals:
     void battleEnded(Battle* battle, WildPokemon* opp, bool removeWild);
 
-private slots:
+public slots:
     void handleDrag(bool isDragged) override;
+private slots:
     void handleRunChosen();
     void handleOpponentWon();
     void handlePlayerWon();
