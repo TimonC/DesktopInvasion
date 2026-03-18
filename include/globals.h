@@ -1,7 +1,7 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#include <data_poke.h>
+#include <data_poke_asset.h>
 #include <data_move.h>
 
 class QRect;

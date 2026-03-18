@@ -239,7 +239,7 @@ void Game::handleBattleStart() {
         return;
     }
 
-    Poke partyBattleState[6];
+    Battler partyBattleState[6];
     for(int i = 0; i<6; i++){
         partyBattleState[i] = initBattleState(m_partyIds[i]);
     };
@@ -252,7 +252,7 @@ void Game::handleBattleStart() {
     qDebug() << "Starting battle...";
 }
 
-Poke Game::initBattleState(int uid){
+Battler Game::initBattleState(int uid){
     PokemonState dataState = m_db.getPokemon(uid);
     return
     {

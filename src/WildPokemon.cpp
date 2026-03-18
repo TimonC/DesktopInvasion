@@ -4,7 +4,7 @@
 #include <QTimer>
 #include <WildPokemon.h>
 #include <globals.h>
-#include <data_poke.h>
+#include <data_poke_asset.h>
 
 WildPokemon::WildPokemon(const PokemonInfo* info, QPoint spawnPoint, int spawnDirection,  QWindow *parent)
     : DesktopScene(parent)

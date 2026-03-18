@@ -42,7 +42,7 @@ struct State{
     StatusCondition conditions[10];
 };
 
-struct Poke{
+struct Battler{
     Static pokeStatic;
     State pokeState;
 };
@@ -51,16 +51,16 @@ class BattleMoveHandler : public QObject{
     Q_OBJECT
 
 public:
-    BattleMoveHandler(Poke opponent, Poke party[6]);
+    BattleMoveHandler(Battler opponent, Battler party[6]);
     void startActionRound(int playerMoveIndex);
 
 signals:
     void actionRoundOver(State& opponentState, State& chosenState);
 
 private:
-    void applyMove(const Move* moveToApply, Poke& caster, Poke& target);
-    Poke m_opponent;
-    Poke m_party[6];
+    void applyMove(const Move* moveToApply, Battler& caster, Battler& target);
+    Battler m_opponent;
+    Battler m_party[6];
     int m_chosenPartyIndex = 0;
     int m_partyPokemonSentOut[6] = {-1,-1,-1,-1,-1,-1};
 

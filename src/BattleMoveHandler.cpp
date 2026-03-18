@@ -2,7 +2,7 @@
 #include <BattleMoveHandler.h>
 #include <globals.h>
 
-BattleMoveHandler::BattleMoveHandler(Poke opponent, Poke party[6])
+BattleMoveHandler::BattleMoveHandler(Battler opponent, Battler party[6])
     : m_opponent(opponent)
 {
     std::copy(party, party + 6, m_party),
@@ -14,7 +14,7 @@ void BattleMoveHandler::startActionRound(int playerMoveIndex){
    const Move* opponentMove = Globals::getMove(m_opponent.pokeStatic.moves[std::rand()%4]);
 
    int playerFirst = rand()>0.5;
-   Poke& player = m_party[m_chosenPartyIndex];
+   Battler& player = m_party[m_chosenPartyIndex];
 
    if(playerFirst){
        applyMove(playerMove, player, m_opponent);
@@ -25,7 +25,7 @@ void BattleMoveHandler::startActionRound(int playerMoveIndex){
     }
 };
 
-void BattleMoveHandler::applyMove(const Move* _move, Poke& caster, Poke& target){
+void BattleMoveHandler::applyMove(const Move* _move, Battler& caster, Battler& target){
     int statCategoryId=-1;
     int atk = caster.pokeStatic.stats[statCategoryId];
     int def = target.pokeStatic.stats[statCategoryId + 2];

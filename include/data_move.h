@@ -28,9 +28,6 @@ struct Move {
     int ailment_chance;
     int flinch_chance;
     int stat_chance;
-
-    const int* learned_by_pokemon;
-    int learned_count;
 };
 
 // The Python script generates these in data_move.cpp

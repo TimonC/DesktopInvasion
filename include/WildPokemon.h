@@ -2,7 +2,7 @@
 #define WILDPOKEMON_H
 
 #include <DesktopScene.h>
-#include <data_poke.h>
+#include <data_poke_asset.h>
 #include <qtmetamacros.h>
 
 class WildPokemon : public DesktopScene{

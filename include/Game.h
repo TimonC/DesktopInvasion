@@ -1,7 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "data_poke.h"
+#include "data_poke_asset.h"
 #include "PokemonDatabase.h"
 #include <Battle.h>
 #include <GameMenu.h>
@@ -46,7 +46,7 @@ private:
     void updateWildPokemonPosToBattlePos();
     void safelyRemoveBattleScene();
 
-    Poke initBattleState(int uid);
+    Battler initBattleState(int uid);
 
 private slots:
     void handleMenuOpen();
