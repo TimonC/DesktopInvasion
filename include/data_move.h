@@ -4,16 +4,31 @@
 #include <array>
 #include <data_gamestate.h>
 
+enum class Ailment{
+    Burn, Freeze, Paralysis, Poison, Sleep, Confusion, Null
+};
 struct Move {
     int id;
     const char* name;
-    int accuracy;
-    int effect_chance;
-    int priority;
-    int power;
-    Type type;
-    std::array<int, 5> stat_changes;
     const char* flavor_text;
+    Type type;
+    int power;
+    int accuracy;
+    int priority;
+
+    std::array<int, 5> stat_changes;
+    Ailment ailment;
+    int min_hits;
+    int max_hits;
+    int min_turns;
+    int max_turns;
+    int drain;
+    int healing;
+    int crit_rate;
+    int ailment_chance;
+    int flinch_chance;
+    int stat_chance;
+
     const int* learned_by_pokemon;
     int learned_count;
 };

@@ -65,12 +65,22 @@ SKIP_MOVE_IDS = [
     449
 ]
 
+# Approved ailments (matching the Ailment enum)
+APPROVED_AILMENTS = [
+    'none',
+    'burn',
+    'freeze',
+    'paralysis',
+    'poison',
+    'sleep',
+    'confusion'
+]
+
 moves = []
 pokeApiFieldsToInclude = [
     "id",
     "name",
     "accuracy",
-    "effect_chance",
     "priority",
     "power",
 ]
@@ -78,6 +88,10 @@ pokeApiFieldsToInclude = [
 def should_skip_move(move_id):
     """Check if a move should be skipped"""
     return move_id in SKIP_MOVE_IDS or move_id >= 10000
+
+def should_skip_move_by_ailment(ailment_name):
+    """Check if a move should be skipped based on its ailment"""
+    return ailment_name not in APPROVED_AILMENTS
 
 def extract_stat_changes(stat_changes_list):
     """
@@ -111,9 +125,13 @@ def format_type_enum(type_name):
     """Convert type name to Type enum format (e.g., 'normal' -> 'Type::Normal')"""
     if not type_name:
         return 'Type::Null'
-    if type_name == "fairy":
-        type_name = "normal"
     return f'Type::{type_name.capitalize()}'
+
+def format_ailment_enum(ailment_name):
+    """Convert ailment name to Ailment enum format (e.g., 'burn' -> 'Ailment::Burn')"""
+    if not ailment_name or ailment_name == 'none':
+        return 'Ailment::Null'
+    return f'Ailment::{ailment_name.capitalize()}'
 
 def format_move_name(name):
     """Format move name: capitalize first letter and first letter after each dash, replace dashes with spaces"""
@@ -176,8 +194,41 @@ def clean_flavor_text(text):
 
     return text
 
-# Fetch all moves from generations 1-3
-for i in range(1, 4):
+def extract_meta_data(meta):
+    """Extract meta data fields from the move's meta object"""
+    if not meta:
+        return None
+
+    ailment_name = meta.get('ailment', {}).get('name', 'none')
+
+    # Check if this move should be skipped based on ailment
+    if should_skip_move_by_ailment(ailment_name):
+        return None
+
+    def convert_null_to_neg_one(value):
+        """Convert None to -1, keep 0 as 0"""
+        if value is None:
+            return -1
+        return value
+
+    meta_data = {
+        'ailment': ailment_name,
+        'min_hits': convert_null_to_neg_one(meta.get('min_hits')),
+        'max_hits': convert_null_to_neg_one(meta.get('max_hits')),
+        'min_turns': convert_null_to_neg_one(meta.get('min_turns')),
+        'max_turns': convert_null_to_neg_one(meta.get('max_turns')),
+        'drain': meta.get('drain', 0),
+        'healing': meta.get('healing', 0),
+        'crit_rate': meta.get('crit_rate', 0),
+        'ailment_chance': meta.get('ailment_chance', 0),
+        'flinch_chance': meta.get('flinch_chance', 0),
+        'stat_chance': meta.get('stat_chance', 0)
+    }
+
+    return meta_data
+
+# Fetch all moves from generations 1-4
+for i in range(1, 5):
     response = urllib.request.urlopen(f"https://pokeapi.co/api/v2/generation/{i}/")
     contents = response.read()
     data = json.loads(contents.decode('utf-8'))
@@ -190,6 +241,12 @@ for i in range(1, 4):
         if should_skip_move(move_id):
             continue
 
+        # Extract meta data and check if move should be skipped
+        meta_data = extract_meta_data(move_data.get('meta'))
+        if meta_data is None:
+            print(f"Skipped move (unapproved ailment): {move_id} - {move_data.get('name')}")
+            continue
+
         moveFilled = {}
         for field in pokeApiFieldsToInclude:
             moveFilled[field] = move_data.get(field)
@@ -200,6 +257,9 @@ for i in range(1, 4):
         # Extract and clean flavor text
         raw_flavor_text = extract_gen4_english_flavor_text(move_data.get('flavor_text_entries', []))
         moveFilled['flavor_text'] = clean_flavor_text(raw_flavor_text)
+
+        # Add meta data to move
+        moveFilled['meta'] = meta_data
 
         moves.append(moveFilled)
         print(f"Added move: {moveFilled['id']} - {moveFilled['name']}")
@@ -249,21 +309,34 @@ namespace {
         type_enum = format_type_enum(move['type'])
 
         accuracy = move['accuracy'] if move['accuracy'] is not None else -1
-        effect_chance = move['effect_chance'] if move['effect_chance'] is not None else -1
         power = move['power'] if move['power'] is not None else -1
 
         stats = "{" + ", ".join(str(s) for s in move['stat_changes']) + "}"
 
+        # Extract meta fields
+        meta = move['meta']
+        ailment_enum = format_ailment_enum(meta['ailment'])
+
         source_content += f"""    static const Move move_{move_id} = {{
         {move_id},
         "{formatted_name}",
-        {accuracy},
-        {effect_chance},
-        {move['priority']},
-        {power},
-        {type_enum},
-        {stats},
         "{flavor}",
+        {type_enum},
+        {power},
+        {accuracy},
+        {move['priority']},
+        {stats},
+        {ailment_enum},
+        {meta['min_hits']},
+        {meta['max_hits']},
+        {meta['min_turns']},
+        {meta['max_turns']},
+        {meta['drain']},
+        {meta['healing']},
+        {meta['crit_rate']},
+        {meta['ailment_chance']},
+        {meta['flinch_chance']},
+        {meta['stat_chance']},
         learned_by_{move_id},  // Pointer to static array
         {learned_count}        // Size of array
     }};
@@ -311,12 +384,6 @@ if source_content:
     print(f"Total moves: {valid_move_count}")
     print(f"Max move ID: {max(m['id'] for m in moves if not should_skip_move(m['id']))}")
     print(f"Array size: {max(m['id'] for m in moves if not should_skip_move(m['id'])) + 1}")
-    print(f"Skipped move IDs: {SKIP_MOVE_IDS}")
-
-    # Calculate memory usage
-    array_size = max(m['id'] for m in moves if not should_skip_move(m['id'])) + 1
-    pointer_array_memory = array_size * 8  # 8 bytes per pointer on 64-bit
-    print(f"Pointer array memory: {pointer_array_memory / 1024:.2f} KB")
 
 else:
     print("Error: No valid moves to generate")
