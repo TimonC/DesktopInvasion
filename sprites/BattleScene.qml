@@ -17,9 +17,13 @@ Item {
 
     property bool debugLines: false
 
-    // Direct PokemonSprite instances (like your WildPokemon approach)
-    property var opponentPokemon: null  // Will be set from C++
-    property var playerPokemon: null    // Will be set from C++
+    // Top-level Pokemon properties (for easy C++ access)
+    property int direction: 0
+    property string opponentSpriteSheet: ""
+    property int opponentRow: 0
+    property string playerSpriteSheet: ""
+    property int playerRow: 0
+    property real scaleFactor: 4.0  // Shared scale for both Pokemon
 
     // Aliases for external access
     property alias textBar: textBar
@@ -28,33 +32,23 @@ Item {
     property alias switchButton: switchButton
     property alias catchButton: catchButton
     property alias runButton: runButton
-    property alias mouseArea: mouseArea
-
-    MouseArea {
-        id: mouseArea
-        anchors.fill: parent
-    }
 
     // Opponent Pokemon (wild) - positioned opposite to player
     PokemonSprite {
         id: opponentSprite
         objectName: "opponentSprite"
 
-        // Bind properties from the opponentPokemon config object
-        spriteSheet: opponentPokemon ? opponentPokemon.spriteSheet || "" : ""
-        row: opponentPokemon ? opponentPokemon.row || 0 : 0
-        direction: opponentPokemon ? opponentPokemon.direction || 1 : 1  // Default facing left
-        scaleFactor: opponentPokemon ? opponentPokemon.scaleFactor || 4 : 4
+        // Bind to top-level properties
+        spriteSheet: root.opponentSpriteSheet
+        row: root.opponentRow
+        direction: root.direction
+        scaleFactor: root.scaleFactor
 
         Component.onCompleted: positionSprite(opponentSprite, getOppositeSide(chosenSide))
 
         Connections {
             target: root
             function onChosenSideChanged() {
-                positionSprite(opponentSprite, getOppositeSide(chosenSide));
-            }
-            function onOpponentPokemonChanged() {
-                // Re-position when opponent config changes
                 positionSprite(opponentSprite, getOppositeSide(chosenSide));
             }
         }
@@ -65,21 +59,17 @@ Item {
         id: playerSprite
         objectName: "playerSprite"
 
-        // Bind properties from the playerPokemon config object
-        spriteSheet: playerPokemon ? playerPokemon.spriteSheet || "" : ""
-        row: playerPokemon ? playerPokemon.row || 0 : 0
-        direction: playerPokemon ? playerPokemon.direction || 3 : 3  // Default facing right
-        scaleFactor: playerPokemon ? playerPokemon.scaleFactor || 4 : 4
+        // Bind to top-level properties
+        spriteSheet: root.playerSpriteSheet
+        row: root.playerRow
+        direction: (root.direction + 2) % 4
+        scaleFactor: root.scaleFactor
 
         Component.onCompleted: positionSprite(playerSprite, chosenSide)
 
         Connections {
             target: root
             function onChosenSideChanged() {
-                positionSprite(playerSprite, chosenSide);
-            }
-            function onPlayerPokemonChanged() {
-                // Re-position when player config changes
                 positionSprite(playerSprite, chosenSide);
             }
         }
@@ -170,7 +160,7 @@ Item {
         playerSprite.attacked = true;
     }
 
-    // Text bar at the bottom (unchanged)
+    // Text bar at the bottom
     Rectangle {
         id: textBar
         objectName: "textBar"
@@ -199,7 +189,7 @@ Item {
             z: 8000
         }
 
-        // Button grid (unchanged)
+        // Button grid
         Grid {
             id: buttonGrid
             columns: 2
