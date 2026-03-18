@@ -13,10 +13,11 @@ public:
     Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent = nullptr);
 
     void updateTextbar(const std::string& text); // Make sure this signal exists
-
+private slots:
+    void run();
 private:
-    Pokemon* m_opp;
     Pokemon* m_chosen;
+    Pokemon* m_opp;
     QPoint m_origin;
     int m_direction;
     QQuickItem *m_ui = nullptr;

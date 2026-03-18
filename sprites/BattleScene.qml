@@ -17,7 +17,10 @@ Item {
     // Property to control which side the chosen/opponent buttons are on
     property int chosenSide: 1  // 0, 1, 2, or 3
 
-
+    property alias attachButton: attackButton
+    property alias switchButton: switchButton
+    property alias catchButton: catchButton
+    property alias runButton: runButton
     property alias mouseArea: mouseArea
     MouseArea {
         id: mouseArea

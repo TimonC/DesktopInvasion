@@ -13,7 +13,7 @@ public:
     int m_row;
     int m_scaleFactor;
     bool m_inABattle = false;
-
+    virtual void startRoaming(){};
 protected:
     QQuickItem* m_sprite;
     int m_currentDirection;

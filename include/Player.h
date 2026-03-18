@@ -12,13 +12,12 @@ class Player: public QObject{
 public:
     explicit Player(QObject* parent = nullptr);
     Pokemon* iChooseYou(Pokemon* opp);
-    bool pokemonAvailable(){return m_pokemonAvailable;};
+    bool m_pokemonAvailable = false;
 
 private:
     void _iChooseYou(Pokemon* opp, Pokemon* chosen);
-    bool m_pokemonAvailable = false;
     array<optional<unique_ptr<Pokemon>>, 6> m_party;
-    std::unordered_map<Pokemon*, std::unique_ptr<Battlescene>> m_activeBattles;
+    std::vector<std::unique_ptr<Battlescene>> m_activeBattles;
 };
 
 #endif

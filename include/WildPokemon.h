@@ -9,6 +9,7 @@ class WildPokemon : public Pokemon{
 public:
     explicit WildPokemon(QWindow *parent = nullptr, int row = 0);
 
+    virtual void startRoaming();
 private slots:
     void makeRandomDecision();
     void moveStep();

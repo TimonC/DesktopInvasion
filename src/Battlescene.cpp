@@ -1,4 +1,5 @@
 #include "Battlescene.h"
+#include "globals.h"
 #include <QQuickItem>
 #include <qnamespace.h>
 
@@ -20,6 +21,10 @@ Battlescene::Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent)
 
     QQuickItem *ui = rootObject();
     m_ui = ui;
+
+    QQuickItem* runButton = ui->property("runButton").value<QQuickItem*>();
+    connect(runButton,  SIGNAL(clicked()), this, SLOT(run()));
+
     QQuickItem* mouseArea = ui->property("mouseArea").value<QQuickItem*>();
 
     int distance = m_opp->direction()%2==0 ? 3*32 : 4*32;
@@ -55,6 +60,15 @@ Battlescene::Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent)
     setPosition(m_origin);
 
     show();
+}
+
+void Battlescene::run(){
+    setVisible(false);
+    m_chosen->setVisible(false);
+
+    getPlayer().m_pokemonAvailable = true;
+    m_opp->startRoaming();
+    m_chosen->m_inABattle = false;
 }
 
 void Battlescene::updateTextbar(const std::string &text){

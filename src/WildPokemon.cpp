@@ -20,10 +20,8 @@ WildPokemon::WildPokemon(QWindow *parent, int row)
     connect(mouseArea, SIGNAL(pressed(QQuickMouseEvent*)), this, SLOT(systemMove()));
 
     m_decisionTimer->setInterval(1000 + QRandomGenerator::global()->bounded(2000));
-    connect(m_decisionTimer, &QTimer::timeout, this, &WildPokemon::makeRandomDecision);
 
     m_moveTimer->setInterval(50); // 20fps
-    connect(m_moveTimer, &QTimer::timeout, this, &WildPokemon::moveStep);
 
     QQuickItem* openingButtons = m_sprite->property("battleButton").value<QQuickItem*>();
     connect( openingButtons, SIGNAL(clicked()), this, SLOT(startBattle()));
@@ -31,24 +29,33 @@ WildPokemon::WildPokemon(QWindow *parent, int row)
     QRect& screen = getScreenGeometry();
     setX(screen.width()/2);//+ ((std::rand()%2)*2-1) * std::rand()%screen.width()/2);
     setY(screen.height()/2);// + ((std::rand()%2)*2-1) * std::rand()%screen.height()/2);
+
+    startRoaming();
+
+}
+
+void WildPokemon::systemMove(){
+    startSystemMove();
+}
+
+void WildPokemon::startRoaming(){
+    Qt::WindowFlags flags = this->flags();
+    flags &= ~Qt::WindowTransparentForInput;
+    this->setFlags(flags);
+
+    connect(m_decisionTimer, &QTimer::timeout, this, &WildPokemon::makeRandomDecision);
+    connect(m_moveTimer, &QTimer::timeout, this, &WildPokemon::moveStep);
+
     m_decisionTimer->start();
     makeRandomDecision();
+}
 
-}
-void WildPokemon::systemMove(){
-    this->startSystemMove();
-}
+
 
 void WildPokemon::startBattle(){
-    getPlayer().iChooseYou(this);
-
-
-    QQuickItem* mouseArea = m_sprite->property("mouseArea").value<QQuickItem*>();
-    disconnect(mouseArea, SIGNAL(clicked(QQuickMouseEvent*)), this, SLOT(onSelect()));
-
-    mouseArea->setProperty("enabled", false);
-    mouseArea->setProperty("visible", false);
     m_sprite->setProperty("openingButtons", false);
+
+    getPlayer().iChooseYou(this);
 
     m_moveTimer->disconnect();
     m_decisionTimer->disconnect();
@@ -64,7 +71,7 @@ void WildPokemon::onSelect(){
 }
 
 void WildPokemon::startOpening(int durationMs){
-    if(getPlayer().pokemonAvailable()){
+    if(getPlayer().m_pokemonAvailable){
         m_sprite->setProperty("openingButtons", true);
     }else{
         qDebug() << "No party Pokemon available for battle.";

@@ -1,3 +1,4 @@
+#include "Battlescene.h"
 #include <Player.h>
 #include <memory>
 
@@ -8,18 +9,19 @@ Player::Player(QObject* parent) : QObject(parent){
     /* m_party[2] = std::make_unique<Pokemon>(nullptr, random()%100); */
     m_pokemonAvailable = true;
 };
-
 void Player::_iChooseYou(Pokemon* opp, Pokemon* chosen){
-        chosen->m_inABattle = true;
+    chosen->m_inABattle = true;
 
-        m_activeBattles[chosen] =  std::make_unique<Battlescene>(opp, chosen);
-        m_activeBattles[chosen]->updateTextbar("It's a battle...!");
+    auto battle = std::make_unique<Battlescene>(opp, chosen);
+    battle->updateTextbar("It's a battle...!");
+    battle->show();
+    chosen->show();
 
-        chosen->show();
-        m_activeBattles[chosen]->show();
 
-        qDebug() << "I choose you!";
-};
+    m_activeBattles.push_back(std::move(battle));
+
+    qDebug() << "I choose you!";
+}
 
 Pokemon* Player::iChooseYou(Pokemon *opp){
     Pokemon* chosen = nullptr;
