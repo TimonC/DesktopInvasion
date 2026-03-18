@@ -18,20 +18,31 @@ services:
       - game_state:/app/data
       - /dev/dri:/dev/dri
       - ./valgrind_logs:/app/logs
-
     stdin_open: true
     tty: true
     entrypoint: ["./build_dev.sh"]
 
-  prod:
+  build-linux:
     build: .
-    container_name: desktopinvasion-prod
-    stop_grace_period: 3s
-    entrypoint: ["./build_prod.sh"]
+    container_name: desktopinvasion-build-linux
+    entrypoint: ["./build_linux.sh"]
     environment:
       - DOCKER_ENV=prod
       - VALGRIND_MODE=0
     volumes:
       - ./app/output:/app/output
+
+  build-windows:
+    build:
+      context: .
+      dockerfile: Dockerfile-win
+    container_name: desktopinvasion-build-windows
+    entrypoint: ["./build_windows.sh"]
+    environment:
+      - DOCKER_ENV=prod
+      - VALGRIND_MODE=0
+    volumes:
+      - ./app/output:/app/output
+
 volumes:
   game_state:

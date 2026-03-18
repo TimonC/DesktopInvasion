@@ -56,4 +56,4 @@ COPY src ./src
 COPY build_dev.sh ./build_dev.sh
 COPY build_prod.sh ./build_prod.sh
 
-RUN chmod +x ./build_dev.sh ./build_prod.sh
+RUN chmod +x ./build_dev.sh ./build_linux.sh

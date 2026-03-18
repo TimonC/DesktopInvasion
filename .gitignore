@@ -7,6 +7,10 @@ src/data_poke_flavor.cpp
 tags
 
 build_output/**
+build_linux/
+build_windows/
+build_macos/
+
 app/*
 
 valgrind_logs
