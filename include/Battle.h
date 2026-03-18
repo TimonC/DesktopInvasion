@@ -60,9 +60,7 @@ public slots:
 private slots:
     void handleBattleEnded(QString endState);
     QQuickItem* updateSprite(int pokedexId, int generation, const char* role = "player");
-    void handleSwitchedPokemon(int generation, int spriteId) {
-        updateSprite(spriteId, generation, "player");
-    }
+    void handleSwitchedPokemon(int generation, int spriteId);
     void executeActionSequence(QVariantList sequence);
 
 private:

@@ -36,6 +36,9 @@ Battle::Battle(WildPokemon* opp, Party party, std::unique_ptr<BattleMoveHandler>
     connect(m_battleScene, SIGNAL(_battleEnded(QString)),
             this, SLOT(handleBattleEnded(QString)));
 
+    connect(m_battleScene, SIGNAL(switchedPokemon(int, int)),
+        this, SLOT(handleSwitchedPokemon(int, int)));
+
 
     m_battleScene->setProperty("direction", m_currentDirection);
     m_battleScene->setProperty("pokeMargin", m_pokeMargin);
@@ -52,7 +55,9 @@ Battle::Battle(WildPokemon* opp, Party party, std::unique_ptr<BattleMoveHandler>
         m_height = height();
     });
 }
-
+void Battle::handleSwitchedPokemon(int generation, int spriteId){
+    updateSprite(spriteId, generation, "player");
+}
 void Battle::executeActionSequence(QVariantList sequence) {
     QMetaObject::invokeMethod(m_battleScene, "showTextBar");
     QMetaObject::invokeMethod(m_battleScene, "executeActionSequence", Q_ARG(QVariant, QVariant(sequence)));

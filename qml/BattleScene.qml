@@ -44,6 +44,7 @@ Item {
     property bool catchAttemptActive: false
     signal _battleEnded(string endState);
     signal _startActionRound(int actionIndex, string actionState)
+    signal switchedPokemon(int generation, int spriteId)
 
     //Relative positioning of elements
     function positionSpriteAndStatusBar(sprite) {
@@ -224,12 +225,15 @@ Item {
             let newPlayerSpriteId = battleMenu.party.spriteIds[newPartyId]
             player.visible = false
 
+            root.switchedPokemon(newPlayerGeneration, newPlayerSpriteId)
             positionSpriteAndStatusBar(player)
             battleMenu.showTextBar()
             battleMenu.updateText("Go!" + " " + newPlayerName + "!")
+
             statusBarPlayer.pokeName = newPlayerName;
             statusBarPlayer.currentHealthRatio = battleMenu.party.healthRatios[newPartyId];
             statusBarPlayer.totalHealth = 100;
+
             root.currentPlayerBallIndex = battleMenu.party.ballIds[newPartyId]
             root.safePokemonSwitch = battleMenu.forceSwitchMode
             root.resetPlayerBall()
@@ -341,6 +345,8 @@ Item {
                  break
             case "jump":
                  pokeBallOpponent.jump()
+                 sequenceTimer.interval = step.delay
+                 sequenceTimer.start()
                  break
             case "fail-catch":
                  pokeBallOpponent.release()
