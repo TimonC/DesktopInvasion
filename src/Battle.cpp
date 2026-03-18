@@ -132,7 +132,7 @@ QQuickItem* Battle::setupPokemon(int pokedexId, std::string name, int level, con
 QQuickItem* Battle::updateSprite(int pokedexId, const char* role){
     const asset_info* info = Globals::getSpriteInfo(pokedexId);
     bool isBig = info->spriteSheet == SpriteSheet::Big;
-    float scaleDivisor = isBig ? 1.5 : 1;
+    float scaleDivisor = isBig ? 1.4 : 1;
 
     QQuickItem* pokemonSprite = m_battleScene->property(role).value<QQuickItem*>();
 

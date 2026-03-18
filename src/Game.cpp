@@ -369,8 +369,9 @@ void Game::createInitialPokemon() {
     }
 
     PokemonState dusknoir;
-    dusknoir.pokedex_id = 487;
-    dusknoir.name = "Giratina";
+
+    dusknoir.pokedex_id = 383;
+    dusknoir.name = "Oysterhead";
     dusknoir.pokeball_id = 2;
 
     for (int i = 0; i < 6; i++) {
