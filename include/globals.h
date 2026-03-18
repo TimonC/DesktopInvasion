@@ -11,7 +11,11 @@ namespace Globals {
     float scale();
     void scale(float value);
 
+    float animationSpeed();
+    void animationSpeed(float value);
+
     const QRect& screenGeometry();
+
 }
 
 #endif
