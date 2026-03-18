@@ -10,7 +10,7 @@ ninja
 mkdir -p /app/build/AppDir/usr/bin
 mkdir -p /app/build/AppDir/usr/share/applications
 mkdir -p /app/build/AppDir/usr/share/icons/hicolor/512x512/apps
-cp DesktopInvasion /app/build/AppDir/usr/bin/
+cp bin/DesktopInvasion /app/build/AppDir/usr/bin/
 cp -r ../assets /app/build/AppDir/usr/bin/
 cp -r ../qml /app/build/AppDir/usr/bin/
 cat > /app/build/AppDir/usr/share/applications/DesktopInvasion.desktop <<EOF
@@ -42,3 +42,4 @@ export QML_SOURCES_PATHS=/app/qml
 mkdir -p /app/output
 cp *.AppImage /app/output/
 mv /app/output/Desktop_Invasion-x86_64.AppImage /app/output/DesktopInvasion.AppImage 2>/dev/null || true
+
