@@ -137,7 +137,7 @@ Item {
                 Column {
                     anchors.centerIn: parent
                     width:   parent.width * 0.9
-                    spacing: pokeView.sectionGap
+                    spacing: pokeView.sectionGap/2
 
                    PcButton {
                        id: pokeEditButton

@@ -10,10 +10,14 @@ Rectangle {
     readonly property color dividerColor: "#3a3a3a"
 
     // ── Section dimensions (single source of truth) ────────────────────────────
-    readonly property int trainerH:    200
+    readonly property int trainerH:    160
     readonly property int pcH:         640
     readonly property int pcW:         640
     readonly property int rightPanelW: 640
+
+    // ── Label heights ──────────────────────────────────────────────────────────
+    readonly property int labelHeight: 24
+    readonly property int contentSpacing: 8
 
     // ── Icon scales ────────────────────────────────────────────────────────────
     property int iconScale:           8
@@ -24,14 +28,15 @@ Rectangle {
     // Horizontal: pad | pcW | pad  dividerW  pad | rightPanelW | pad
     width:  pad + pcW + pad + dividerW + pad + rightPanelW + pad
 
-    // Vertical: pad | trainerH | pad  dividerW  pad | pcH | pad
-    height: pad + trainerH + pad + dividerW + pad + pcH + pad
+    // Vertical: pad | labelHeight | contentSpacing | trainerH | pad  dividerW  pad | labelHeight | contentSpacing | pcH | pad
+    height: pad + labelHeight + contentSpacing + trainerH + pad + dividerW + pad + labelHeight + contentSpacing + pcH + pad
 
     // ── Theme ──────────────────────────────────────────────────────────────────
     property color  backgroundColor:     "#2b2b2b"
     property color  buttonColor:         "#3c3c3c"
     property color  buttonSelectedColor: "#5294e2"
     property color  textColor:           "#ffffff"
+    property color  subheaderColor:      "#aaaaaa"  // Matching MoveMenu's colorSubtext
     property int    fontSizeLg: 22
     property int    fontSizeMd: 18
     property int    fontSizeSm: 16
@@ -159,6 +164,20 @@ Rectangle {
             // Visibility: only in default state
             visible: root.menuState === "default"
 
+            // ── LABEL 1 – Trainer ─────────────────────────────────────────────
+            Text {
+                width: parent.width
+                height: root.labelHeight
+                text: "TRAINER"
+                font.family: root.p2pFont
+                font.pixelSize: root.fontSizeSm
+                color: root.subheaderColor
+                horizontalAlignment: Text.AlignLeft
+                verticalAlignment: Text.AlignVCenter
+            }
+
+            Item { width: parent.width; height: root.contentSpacing }
+
             // ── SECTION 1 – Trainer ───────────────────────────────────────────
             Item {
                 width:  parent.width
@@ -182,6 +201,20 @@ Rectangle {
             }
 
             Item { width: parent.width; height: root.pad }
+
+            // ── LABEL 2 – PC ──────────────────────────────────────────────────
+            Text {
+                width: parent.width
+                height: root.labelHeight
+                text: "PC"
+                font.family: root.p2pFont
+                font.pixelSize: root.fontSizeSm
+                color: root.subheaderColor
+                horizontalAlignment: Text.AlignLeft
+                verticalAlignment: Text.AlignVCenter
+            }
+
+            Item { width: parent.width; height: root.contentSpacing }
 
             // ── SECTION 2 – PC ────────────────────────────────────────────────
             Item {
@@ -222,18 +255,37 @@ Rectangle {
                        : root.pcW + root.pad * 2 + root.dividerW + root.rightPanelW
             height: parent.height
 
-            // ── DEFAULT: PokeView ──────────────────────────────────────────────
-            PokeView {
-                id:               pokeView
-                anchors.centerIn: parent
-                width:            parent.width
-                height:           parent.height
-                fontSizeLg:       root.fontSizeLg
-                fontSizeMd:       root.fontSizeMd
-                fontSizeSm:       root.fontSizeSm
-                mainFont:         root.p2pFont
-                bodyFont:         root.dotGothicFont
-                visible:          root.menuState === "default"
+            // ── LABEL 3 – Summary (only visible in default state) ─────────────
+            Column {
+                width: parent.width
+                height: parent.height
+                visible: root.menuState === "default"
+                spacing: 0
+
+                Text {
+                    width: parent.width
+                    height: root.labelHeight
+                    text: "SUMMARY"
+                    font.family: root.p2pFont
+                    font.pixelSize: root.fontSizeSm
+                    color: root.subheaderColor
+                    horizontalAlignment: Text.AlignLeft
+                    verticalAlignment: Text.AlignVCenter
+                }
+
+                Item { width: parent.width; height: root.contentSpacing }
+
+                // ── DEFAULT: PokeView ────────────────────────────────────────
+                PokeView {
+                    id:               pokeView
+                    width:            parent.width
+                    height:           parent.height - root.labelHeight - root.contentSpacing
+                    fontSizeLg:       root.fontSizeLg
+                    fontSizeMd:       root.fontSizeMd
+                    fontSizeSm:       root.fontSizeSm
+                    mainFont:         root.p2pFont
+                    bodyFont:         root.dotGothicFont
+                }
             }
 
             // ── MOVE MENU state ────────────────────────────────────────────────
