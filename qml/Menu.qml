@@ -36,7 +36,7 @@ Rectangle {
                 spacing: 0
 
                 Repeater {
-                    model: ["Party", "PC", "Player", "Settings"]
+                    model: ["Player", "Party", "PC", "Settings"]
 
                     Rectangle {
                         Layout.fillWidth: true

@@ -36,14 +36,9 @@ void SystemTrayIcon::setupMenu(){
 void SystemTrayIcon::onActivated(QSystemTrayIcon::ActivationReason reason){
     if (reason == QSystemTrayIcon::Trigger || reason == QSystemTrayIcon::Context) {
         QPoint pos = QCursor::pos();
+        QPoint hotspot = QCursor().hotSpot();
+        pos.setX(pos.x() - hotspot.x());
 
-        QPixmap cursorPixmap = QCursor().pixmap();
-        if (!cursorPixmap.isNull()) {
-            QPoint hotspot = QCursor().hotSpot();
-            pos.setX(pos.x() - hotspot.x() - 16);
-        } else {
-            pos.setX(pos.x() - 16);
-        }
         m_menu->popup(pos);
     }
 }

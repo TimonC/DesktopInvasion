@@ -58,14 +58,10 @@ void Game::handleMenuOpen(){
     m_gameUsedToBeActive = usedToBeActive;
 
     m_menu->activate();
-    m_trayIcon->setIconActivityColor(false);
 };
 
 void Game::handleMenuClosed(){
-    if(m_gameUsedToBeActive) {
-        setGameActive(true);
-        m_trayIcon->setIconActivityColor(true);
-    }
+    if(m_gameUsedToBeActive) setGameActive(true);
 };
 
 void Game::setGameActive(bool active) {
