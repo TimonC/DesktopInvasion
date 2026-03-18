@@ -68,12 +68,12 @@ Rectangle {
     property bool forceSwitchMode: false
 
     // Layout proportions
-    property real backButtonWidthRatio: 0.1
-    property real backButtonHeightRatio: 0.8
+    property real backButtonWidthRatio: 0.08
+    property real backButtonHeightRatio: 0.9
     property real contentMarginsRatio: 0.02
 
     // Dynamic calculated properties
-    property real contentWidth: menuWidth * (1 - backButtonWidthRatio * 2 - contentMarginsRatio * 4)
+    property real contentWidth: menuWidth * (1 - backButtonWidthRatio * 2 - contentMarginsRatio * 2)
     property real contentHeight: menuHeight * (1 - contentMarginsRatio * 2)
     property real backButtonWidth: menuWidth * backButtonWidthRatio
     property real backButtonHeight: menuHeight * backButtonHeightRatio
@@ -652,22 +652,22 @@ Rectangle {
                 anchors.margins: root.contentMarginsRatio * root.menuHeight
                 spacing: root.contentMarginsRatio * root.menuWidth
 
-                // Left spacer (10% width)
+                // Left spacer
                 Item {
-                    Layout.preferredWidth: root.backButtonWidthRatio * root.menuWidth
+                    Layout.preferredWidth: root.backButtonWidth
                     Layout.fillHeight: true
                 }
 
-                // Content area (80% width)
+                // Content area
                 Loader {
                     id: contentLoader
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                 }
 
-                // Back button area (10% width)
+                // Back button area
                 Item {
-                    Layout.preferredWidth: root.backButtonWidthRatio * root.menuWidth
+                    Layout.preferredWidth: root.backButtonWidth
                     Layout.fillHeight: true
 
                     Loader {

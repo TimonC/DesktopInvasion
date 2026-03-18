@@ -10,14 +10,14 @@ Item {
     property int animationSpeed: 1
 
 
-    width: (direction === 0 || direction === 2) ? frameSize * 6.5 : frameSize * 8
-    height: (direction === 0 || direction === 2) ? frameSize * 8 : frameSize * 6.5
+    width: (direction === 0 || direction === 2) ? frameSize * 6 : frameSize * 8
+    height: (direction === 0 || direction === 2) ? frameSize * 8 : frameSize * 6
 
     property string textBarFontFamily:  "DotGothic16"
     property string menuFontFamily: "Press Start 2P"
     property string statusBarFontFamily: "Press Start 2P"
 
-    property int menuWidth: frameSize * 6.5
+    property int menuWidth: frameSize * 6
     property int menuHeight: frameSize * 2
     property int statusBarWidth: frameSize*2.5
     property int statusBarHeight: frameSize*1.2
