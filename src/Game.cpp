@@ -221,10 +221,10 @@ void Game::handleMenuClosed() {
 
 void Game::writeDefaults(){
     Defaults d;
-    d.scale = Globals::scale(),
-    d.speed = Globals::animationSpeed(),
-    d.lvlRangeDown = Globals::encounterLvlLow(),
-    d.lvlRangeUp = Globals::encounterLvlLow(),
+    d.scale = Globals::scale();
+    d.speed = Globals::animationSpeed();
+    d.lvlRangeUp = Globals::encounterLvlHigh();
+    d.lvlRangeDown = Globals::encounterLvlLow();
     m_db.writeDefaults(d);
 }
 

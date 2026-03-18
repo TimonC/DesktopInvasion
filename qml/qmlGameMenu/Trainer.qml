@@ -159,6 +159,13 @@ Rectangle {
                             updateValueFromMouse(mouse)
                         }
                     }
+
+                    onValueChanged: {
+                        if (discreteSlider.label === "Sprite size")         root.spriteSize = value
+                        else if (discreteSlider.label === "Battle speed")   root.battleSpeed = value
+                        else if (discreteSlider.label === "Encounter lvl +") root.encounterLevelHigh = value
+                        else if (discreteSlider.label === "Encounter lvl -") root.encounterLevelLow = value
+                    }
                 }
             }
 
@@ -182,13 +189,6 @@ Rectangle {
                 style: Text.Raised
                 styleColor: "#000000"
             }
-        }
-
-        onValueChanged: {
-            if (discreteSlider.label === "Sprite size")         root.spriteSize = value
-            else if (discreteSlider.label === "Battle speed")   root.battleSpeed = value
-            else if (discreteSlider.label === "Encounter level +") root.encounterLevelHigh = value
-            else if (discreteSlider.label === "Encounter level -") root.encounterLevelLow = value
         }
     }
 

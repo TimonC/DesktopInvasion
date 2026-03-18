@@ -55,7 +55,6 @@ bool GameMenu::event(QEvent* event) {
         Globals::animationSpeed(m_menuRoot->property("battleSpeed").toFloat());
         Globals::encounterLvlHigh(m_menuRoot->property("encounterLevelHigh").toInt());
         Globals::encounterLvlLow(m_menuRoot->property("encounterLevelLow").toInt());
-
         emit menuClosed();
         return true;
     }
