@@ -8,9 +8,9 @@ Item {
 
     // Scaling properties
     property int frameSize: 32
-    property int buttonWidth: frameSize * 1.25
-    property int buttonHeight: frameSize * 0.75
-    property int buttonFontSize: frameSize * 0.25
+    property int buttonWidth: frameSize * 2
+    property int buttonHeight: frameSize * 0.7
+    property int buttonFontSize: frameSize * 0.4
     property int gridSpacing: frameSize * 0.1  // Small spacing between buttons
 
     // Property to control which side the chosen/opponent buttons are on
@@ -20,11 +20,6 @@ Item {
         chosenSide = side
     }
 
-    // Invokable function to show/hide all buttons
-    function set_buttons_visible(visible) {
-        buttonGrid.visible = visible;
-    }
-
     // Invokable function to update text bar
     function update_text_bar(newText) {
         textBar.text = newText;
@@ -32,9 +27,15 @@ Item {
 
     // New method to swap visibility between buttons and text
     function swap_visibility() {
-        var buttonsVisible = buttonGrid.visible;
-        set_buttons_visible(!buttonsVisible);
-        textBarText.visible = buttonsVisible;
+        var showButtons = !buttonGrid.visible;  // What we want to show after swap
+        buttonGrid.visible = showButtons;
+        textBarText.visible = !showButtons;
+
+        if (showButtons) {
+            textBar.color = "transparent";
+        } else {
+            textBar.color = "lightgrey";
+        }
     }
 
     // Text bar at the bottom
@@ -47,10 +48,10 @@ Item {
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
-        height: frameSize * 1.7
+        height: frameSize * 1.6
 
-        color: "white"
-        border.color: "gray"
+        color: "transparent"
+        border.color: "transparent"
         border.width: 1
         radius: 4
 
@@ -85,7 +86,7 @@ Item {
                 width: buttonWidth
                 height: buttonHeight
                 radius: buttonHeight / 2
-                onClicked: console.log("Attack clicked")
+                onClicked: {swap_visibility();console.log("Attack clicked")}
             }
 
             // Switch button - top right

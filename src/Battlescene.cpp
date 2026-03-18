@@ -7,8 +7,8 @@ Battlescene::Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent)
 {
     setFlags(     Qt::WindowStaysOnTopHint
                 | Qt::Tool
-                | Qt::WindowDoesNotAcceptFocus);
-                /* | Qt::FramelessWindowHint); */
+                | Qt::WindowDoesNotAcceptFocus
+                | Qt::FramelessWindowHint);
     setColor(Qt::transparent);
 
     opp->setFlag(Qt::WindowTransparentForInput);
@@ -20,8 +20,8 @@ Battlescene::Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent)
     m_ui = ui;
 
     // Position calculation
-    /* int distance = opp->direction()%2==0 ? 3*32 : 4*32; */
-    int distance = 3*32;
+    int distance = opp->direction()%2==0 ? 3*32 : 4*32;
+    /* int distance = 3*32; */
     switch(opp->direction()) {
         case 0:
             m_origin = opp->position() + QPoint(0, -ui->height()/2-14);
@@ -47,8 +47,8 @@ Battlescene::Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent)
 
     // Set chosen side
     QMetaObject::invokeMethod(ui, "set_chosen_side", Q_ARG(QVariant, opp->direction()));
-    QMetaObject::invokeMethod(ui, "set_buttons_visible", Q_ARG(QVariant, true));
-
+    QMetaObject::invokeMethod(ui, "swap_visibility");
+    QMetaObject::invokeMethod(ui, "swap_visibility");
     m_direction = chosen->direction();
     setPosition(m_origin);
 
