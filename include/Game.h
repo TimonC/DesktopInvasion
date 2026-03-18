@@ -46,7 +46,7 @@ private:
     void updateWildPokemonPosToBattlePos();
     void safelyRemoveBattleScene();
 
-    Battler initBattleState(int uid);
+    Battler initBattleState(PokemonState state);
 
 private slots:
     void handleMenuOpen();

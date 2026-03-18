@@ -14,8 +14,8 @@ inline constexpr int calculateStat(int lvl, int base, int iv, int ev) noexcept {
 inline std::array<int, 6> calculatePokeStats(
     int lvl,
     const int baseStats[6],
-    const std::array<int, 6>& ivs,
-    const std::array<int, 6>& evs,
+    const int ivs[6],
+    const int evs[6],
     const std::array<float, 5>& nature
 ) noexcept {
     std::array<int, 6> result;

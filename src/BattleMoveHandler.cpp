@@ -9,9 +9,6 @@ BattleMoveHandler::BattleMoveHandler(Battler opponent, Battler party[6])
 };
 
 void BattleMoveHandler::startActionRound(int playerMoveIndex){
-   const Move* playerMove = Globals::getMove(m_party[m_chosenPartyIndex].pokeStatic.moves[playerMoveIndex]);
-   const Move* opponentMove = Globals::getMove(m_opponent.pokeStatic.moves[std::rand()%4]);
-
    int playerFirst = rand()>0.5;
    Battler& player = m_party[m_chosenPartyIndex];
 
@@ -20,8 +17,8 @@ void BattleMoveHandler::startActionRound(int playerMoveIndex){
 
 void BattleMoveHandler::applyMove(const Move* _move, Battler& caster, Battler& target){
     int statCategoryId=-1;
-    int atk = caster.pokeStatic.stats[statCategoryId];
-    int def = target.pokeStatic.stats[statCategoryId + 2];
+    /* int atk = caster.pokeStatic.stats[statCategoryId]; */
+    /* int def = target.pokeStatic.stats[statCategoryId + 2]; */
 
     int rLevel = 1;
     int rPower = 1;
@@ -39,8 +36,7 @@ int BattleMoveHandler::calculateDamage(){
     /* int rScreen = 1; */
     int rTargets = 1;
 
-    /* int rWeather = 1; */
-    /* int rFF = 1; */
+    /* int rWeather = 1; */ /* int rFF = 1; */
 
     int rStockpile = 1;
     int rCritical = 1;

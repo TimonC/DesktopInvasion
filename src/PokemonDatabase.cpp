@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <unordered_set>
+#include <unordered_map>
 
 PokemonDatabase& PokemonDatabase::instance() {
     static PokemonDatabase instance;
@@ -98,6 +99,68 @@ PokemonState PokemonDatabase::getPokemon(int id) {
 
     sqlite3_finalize(stmt);
     return result;
+}
+
+
+std::vector<PokemonState> PokemonDatabase::getPokemonBatch(const std::vector<int>& ids) {
+    std::vector<PokemonState> results;
+    if (!m_db || ids.empty()) return results;
+
+    // Pre-allocate results with empty PokemonStates
+    results.resize(ids.size());
+
+    // Collect valid IDs and their original indices
+    std::vector<std::pair<int, size_t>> validIdsWithIndex; // {id, original_index}
+    for (size_t i = 0; i < ids.size(); i++) {
+        if (ids[i] >= 0) {
+            validIdsWithIndex.push_back({ids[i], i});
+        }
+    }
+
+    if (validIdsWithIndex.empty()) return results;
+
+    const size_t BATCH_SIZE = 56; //party + box
+
+    for (size_t offset = 0; offset < validIdsWithIndex.size(); offset += BATCH_SIZE) {
+        size_t count = std::min(BATCH_SIZE, validIdsWithIndex.size() - offset);
+
+        // Build query with placeholders
+        std::string sql = "SELECT * FROM pokemon WHERE _id IN (";
+        for (size_t i = 0; i < count; i++) {
+            sql += "?";
+            if (i < count - 1) sql += ",";
+        }
+        sql += ")";
+
+        sqlite3_stmt* stmt = nullptr;
+        if (sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+            continue;
+        }
+
+        // Bind this chunk's IDs
+        for (size_t i = 0; i < count; i++) {
+            sqlite3_bind_int(stmt, i + 1, validIdsWithIndex[offset + i].first);
+        }
+
+        // Create hash map for O(1) lookups of fetched Pokemon
+        std::unordered_map<int, PokemonState> fetchedMap;
+        while (sqlite3_step(stmt) == SQLITE_ROW) {
+            PokemonState poke = queryToPokemon(stmt);
+            fetchedMap[poke._id] = poke;
+        }
+
+        // Map back to original indices using O(1) lookups
+        for (size_t i = offset; i < offset + count; i++) {
+            auto it = fetchedMap.find(validIdsWithIndex[i].first);
+            if (it != fetchedMap.end()) {
+                results[validIdsWithIndex[i].second] = it->second;
+            }
+        }
+
+        sqlite3_finalize(stmt);
+    }
+
+    return results;
 }
 
 PokemonState PokemonDatabase::queryToPokemon(sqlite3_stmt* stmt) {

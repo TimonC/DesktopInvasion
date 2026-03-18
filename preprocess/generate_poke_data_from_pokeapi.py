@@ -202,24 +202,24 @@ namespace {
 
         eligible_moves = pokemon['eligible_moves']
         if eligible_moves:
-            source_content += f"    static const EligibleMove eligible_moves_{poke_id}[] = {{\n"
+            source_content += f"    static constexpr EligibleMove eligible_moves_{poke_id}[] = {{\n"
             for move in eligible_moves:
                 source_content += f"        {{{move['move_id']}, {move['level']}}},\n"
             source_content += "    };\n"
             eligible_move_count = len(eligible_moves)
         else:
-            source_content += f"    static const EligibleMove eligible_moves_{poke_id}[] = {{}};\n"
+            source_content += f"    static constexpr EligibleMove eligible_moves_{poke_id}[] = {{}};\n"
             eligible_move_count = 0
 
         eligible_evolves = pokemon['eligible_evolves']
         if eligible_evolves:
-            source_content += f"    static const EligibleEvolve eligible_evolves_{poke_id}[] = {{\n"
+            source_content += f"    static constexpr EligibleEvolve eligible_evolves_{poke_id}[] = {{\n"
             for evolve in eligible_evolves:
                 source_content += f"        {{{evolve['pokedex_id']}, {evolve['level']}}},\n"
             source_content += "    };\n"
             eligible_evolve_count = len(eligible_evolves)
         else:
-            source_content += f"    static const EligibleEvolve eligible_evolves_{poke_id}[] = {{}};\n"
+            source_content += f"    static constexpr EligibleEvolve eligible_evolves_{poke_id}[] = {{}};\n"
             eligible_evolve_count = 0
 
         type1 = format_type_enum(pokemon['types'][0])
@@ -228,7 +228,7 @@ namespace {
         stats = pokemon['base_stats']
         stats_str = "{" + f"{stats[0]}, {stats[1]}, {stats[2]}, {stats[3]}, {stats[4]}, {stats[5]}" + "}"
 
-        source_content += f"""    static const Poke poke_{poke_id} = {{
+        source_content += f"""    static constexpr Poke poke_{poke_id} = {{
         {poke_id},
         "{formatted_name}",
         {{{type1}, {type2}}},

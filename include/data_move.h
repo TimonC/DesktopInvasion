@@ -14,28 +14,26 @@ enum class MoveCategory{
 };
 
 struct Move {
-    int id;
+    const int id;
     const char* name;
     const char* flavor_text;
-    Type type;
-    int power;
-    int accuracy;
-    int priority;
-
-    MoveCategory category;
-
-    std::array<int, 5> stat_changes;
-    Ailment ailment;
-    int min_hits;
-    int max_hits;
-    int min_turns;
-    int max_turns;
-    int drain;
-    int healing;
-    int crit_rate;
-    int ailment_chance;
-    int flinch_chance;
-    int stat_chance;
+    const Type type;
+    const int power;
+    const int accuracy;
+    const int priority;
+    const MoveCategory category;
+    const std::array<int, 5> stat_changes;
+    const Ailment ailment;
+    const int min_hits;
+    const int max_hits;
+    const int min_turns;
+    const int max_turns;
+    const int drain;
+    const int healing;
+    const int crit_rate;
+    const int ailment_chance;
+    const int flinch_chance;
+    const int stat_chance;
 };
 
 // The Python script generates these in data_move.cpp

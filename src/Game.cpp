@@ -1,12 +1,15 @@
 #include "BattleMoveHandler.h"
+#include "PokemonTypes.h"
 #include "SystemTrayIcon.h"
 #include "Game.h"
 #include "WildPokemon.h"
+#include "gamestate.h"
 #include "globals.h"
 #include <QTimer>
 #include <QDebug>
 #include <cstring>
 #include <form_mapper.h>
+#include <utils/calculatePokeStats.h>
 
 Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
     : QObject(parent)
@@ -129,7 +132,6 @@ void Game::createInitialPokemon() {
     PokemonState dusclops;
     dusclops.pokedex_id = 356;
     dusclops.name = "Dusclops";
-    dusclops.pokeball_id = 1;
 
     for (int i = 0; i < 6; i++) {
         dusclops.ivs[i] = 32;
@@ -138,7 +140,6 @@ void Game::createInitialPokemon() {
 
     dusclops.nature = Nature::Hardy;
     dusclops.lvl = 10;
-    dusclops.currentXP = 0;
     dusclops.moves[0] = 1;
     dusclops.moves[1] = 425;
 
@@ -188,22 +189,25 @@ void Game::spawnPokemon() {
         m_wildPokemonInfo = Globals::getPokemonInfo(wildState.pokedex_id);
         qDebug() << "Spawning existing wild Pokemon:" << QString::fromStdString(wildState.name);
     } else {
-        m_wildPokemonInfo = Globals::getPokemonInfo(0);
+
+        m_wildPokemonInfo = Globals::getPokemonInfo(); //random
 
         PokemonState newWild;
         newWild.pokedex_id = m_wildPokemonInfo->pokedexId;
         newWild.name = m_wildPokemonInfo->name;
-        newWild.pokeball_id = 0;
+
+        newWild.lvl = 5;
 
         for (int i = 0; i < 6; i++) {
             newWild.ivs[i] = 32;
-            newWild.evs[i] = 50;
+            newWild.evs[i] = 0;
         }
-
         newWild.nature = Nature::Hardy;
-        newWild.lvl = 5;
-        newWild.currentXP = 0;
-        newWild.moves[0] = 1;
+
+        newWild.moves[0] = std::rand()%200;
+        newWild.moves[1] = std::rand()%200;
+        newWild.moves[2] = std::rand()%200;
+        newWild.moves[3] = std::rand()%200;
 
         m_db.spawnWildPokemon(newWild);
         qDebug() << "Created new wild Pokemon:" << QString::fromStdString(newWild.name);
@@ -256,32 +260,55 @@ void Game::handleBattleStart() {
         return;
     }
 
-    Battler partyBattleState[6];
-    for(int i = 0; i<6; i++){
-        partyBattleState[i] = initBattleState(m_partyIds[i]);
-    };
+    // Gather all IDs (wild + party)
+    std::vector<int> idsToFetch = {0}; // Wild Pokemon ID at index 0
+    for(int i = 0; i < 6; i++){
+        idsToFetch.push_back(m_partyIds[i]);
+    }
 
-    auto battleMoveHandler = std::make_unique<BattleMoveHandler>(initBattleState(0),partyBattleState);
+    std::vector<PokemonState> pokemonStates = m_db.getPokemonBatch(idsToFetch);
+
+    // Wild is at index 0, party is at indices 1-6
+    Battler wildBattler = initBattleState(pokemonStates[0]);
+    Battler partyBattleState[6] = {};
+    for(int i = 0; i < 6; i++){
+        partyBattleState[i] = initBattleState(pokemonStates[i + 1]);
+    }
+
+    auto battleMoveHandler = std::make_unique<BattleMoveHandler>(wildBattler, std::move(partyBattleState));
     m_activeBattle = new Battle(m_wildPokemon, getParty(), std::move(battleMoveHandler));
+
     connect(m_activeBattle, &Battle::battleEnded,
             this, &Game::handleBattleEnd);
 
     qDebug() << "Starting battle...";
 }
 
-Battler Game::initBattleState(int uid){
-    PokemonState dataState = m_db.getPokemon(uid);
+Battler Game::initBattleState(PokemonState state){
+    const Poke* poke = Globals::getPoke(state.pokedex_id);
     return
     {
         {
-            uid,
-            {100,100,100,100,100,100},
-            {Type::Normal, Type::Null},
-            { 1, -1, -1, -1},
+            state._id,
+
+            calculatePokeStats(
+                    state.lvl,
+                    poke->base_stats,
+                    state.ivs,
+                    state.evs,
+                    getNatureMultipliers(state.nature)
+            ),
+
+            {&poke->types[0], &poke->types[1]},
+
+            {
+                Globals::getMove(state.moves[0]),
+                Globals::getMove(state.moves[1]),
+                Globals::getMove(state.moves[2]),
+                Globals::getMove(state.moves[3])
+            }
         },
-        {
-            100,
-            {}}
+        {}
     };
 };
 

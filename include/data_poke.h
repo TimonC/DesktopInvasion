@@ -4,25 +4,25 @@
 #include <gamestate.h>
 
 struct EligibleMove {
-    int move_id;
-    int level;
+    const int move_id;
+    const int level;
 };
 struct EligibleEvolve{
-    int pokedex_id;
-    int level;
+    const int pokedex_id;
+    const int level;
 };
 
 struct Poke {
-    int pokedex_id;
+    const int pokedex_id;
     const char* name;
-    Type types[2];
-    int base_stats[6];  // HP, Atk, Def, SpAtk, SpDef, Spd
+    const Type types[2];
+    const int base_stats[6];  // HP, Atk, Def, SpAtk, SpDef, Spd
                         //
     const EligibleMove* eligible_moves;
-    int eligible_move_count;
+    const int eligible_move_count;
 
     const EligibleEvolve* eligible_evolves;
-    int eligible_evolve_count;
+    const int eligible_evolve_count;
 };
 
 extern const Poke* const kPokesByIndex[];

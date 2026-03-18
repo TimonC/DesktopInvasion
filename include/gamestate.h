@@ -5,17 +5,17 @@
 
 struct PokemonState {
     int _id = -1;
-    int pokedex_id = 0;
+    int pokedex_id;
     int variant_id = 0;
     int pokeball_id = 0;
-    std::string name = "";
+    std::string name;
 
     int lvl = 1;
     int currentXP = 0;
 
-    int ivs[6] = {};
-    int evs[6] = {};
-    Nature nature = Nature::Hardy;
+    int ivs[6];
+    int evs[6];
+    Nature nature;
 
     int moves[4] = {-1, -1, -1, -1};
 };

@@ -18,6 +18,8 @@ public:
 
     // Core Pokemon operations
     PokemonState getPokemon(int id);
+    std::vector<PokemonState> getPokemonBatch(const std::vector<int>& ids);
+
     int createPokemon(const PokemonState& pokemon);
     bool updatePokemon(const PokemonState& pokemon);
     bool deletePokemon(int id);

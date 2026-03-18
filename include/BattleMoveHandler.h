@@ -7,9 +7,9 @@
 
 struct Static{
     int uid;
-    int stats[6]; //HP, Atk, SpAtk, Def, SpDef, Spd
-    Type types[2];
-    int moves[4];
+    std::array<int, 6> stats; //HP, Atk, SpAtk, Def, SpDef, Spd
+    const Type* types[2];
+    const Move* moves[4];
 };
 
 struct State{
