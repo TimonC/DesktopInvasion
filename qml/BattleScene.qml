@@ -22,6 +22,8 @@ Item {
     property alias player: player
     property alias hpBarOpponent: hpBarOpponent
     property alias hpBarPlayer: hpBarPlayer
+    property  alias opponentName: hpBarOpponent.pokeName
+    property  alias playerName: hpBarPlayer.pokeName
     property alias textBar: textBar
     property alias buttonGrid: buttonGrid
 
@@ -146,7 +148,7 @@ Item {
             case 1:
                 sprite.x = root.width - (margin + sprite.containerOffsetX + sprite.width);
                 sprite.y = root.height - (textBoxHeight + margin + sprite.height);
-                sprite.healthBar.x = root.width - 32 - margin
+                sprite.healthBar.x = root.width - 32*2.5 - margin
                 sprite.healthBar.y = root.height - (textBoxHeight + 3*32 - margin)
                 break;
             case 2:
@@ -158,7 +160,7 @@ Item {
             case 3:
                 sprite.x = margin + sprite.containerOffsetX;
                 sprite.y = root.height - (textBoxHeight + margin + sprite.height);
-                sprite.healthBar.x = 32 + margin
+                sprite.healthBar.x = 32/2 + margin
                 sprite.healthBar.y = root.height - (textBoxHeight + 3*32 - margin)
                 break;
         }

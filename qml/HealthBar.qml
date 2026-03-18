@@ -8,7 +8,7 @@ Item {
     property real animationSpeed: 1000
     width: 32*2
     height: 24
-    property alias barText: textBarText.text
+    property alias pokeName: textBarText.text
 
     Rectangle {
         anchors.top: parent.top
@@ -22,10 +22,11 @@ Item {
             id: textBarText
             anchors.fill: parent
             anchors.rightMargin: 4
-            text: "Health Bar"
+            text: "Pokemon"
             font.pixelSize: parent.height * 0.5
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignRight
+            elide: Text.ElideRight
         }
     }
 

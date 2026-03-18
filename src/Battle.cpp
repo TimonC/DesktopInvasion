@@ -24,7 +24,6 @@ Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent
     m_battleScene->setProperty("debugLines", Globals::DEBUG);
     m_opp = setupPokemon(m_opp_info, "opponent"); //these are the only valid strings
     m_chosen = setupPokemon(m_chosen_info, "player");//no enums here, only hopes and dreams
-
     initPosition();
     show();
 
@@ -48,19 +47,19 @@ Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent
 }
 
 QQuickItem* Battle::setupPokemon(const PokemonInfo* info, const char* role) {
-    QQuickItem* container = m_battleScene->property(role).value<QQuickItem*>();
-
-    Q_ASSERT_X(container, "Battle::setupPokemon", "Container: '%1' is null".arg(role));
+    QQuickItem* pokemonSprite = m_battleScene->property(role).value<QQuickItem*>();
+    m_battleScene->setProperty((QString(role) + "Name").toUtf8(), info->name);
+    Q_ASSERT_X(pokemonSprite, "Battle::setupPokemon", "pokemonSprite: '%1' is null".arg(role));
 
     // Set the basic sprite properties
-    container->setProperty("spriteSheet", QString("qrc:/assets/HGSS/PokGen%1_transparent_reordered.png").arg(info->generation));
-    container->setProperty("row", info->spriteId);
-    container->setProperty("scaleFactor", Globals::SCALE);
-    container->setProperty("debugLines", Globals::DEBUG);
+    pokemonSprite->setProperty("spriteSheet", QString("qrc:/assets/HGSS/PokGen%1_transparent_reordered.png").arg(info->generation));
+    pokemonSprite->setProperty("row", info->spriteId);
+    pokemonSprite->setProperty("scaleFactor", Globals::SCALE);
+    pokemonSprite->setProperty("debugLines", Globals::DEBUG);
 
     const SpriteInfo* spriteInfo = Globals::getSpriteInfo(info->spriteId, info->generation);
 
-    // Calculate container size
+    // Calculate pokemonSprite size
     int width = Globals::SCALE * (spriteInfo->max_width + Globals::POKE_PADDING);
     int height = Globals::SCALE * (spriteInfo->max_height + Globals::POKE_PADDING);
 
@@ -68,16 +67,16 @@ QQuickItem* Battle::setupPokemon(const PokemonInfo* info, const char* role) {
     int offsetX = Globals::SCALE * (32 - spriteInfo->max_width) / 2;
     int offsetY = Globals::SCALE * (32 - spriteInfo->max_height) / 2;
 
-    // Set container properties
-    container->setProperty("itemWidth", width);
-    container->setProperty("itemHeight", height);
-    container->setProperty("containerOffsetX", offsetX);
-    container->setProperty("containerOffsetY", offsetY);
+    // Set pokemonSprite properties
+    pokemonSprite->setProperty("itemWidth", width);
+    pokemonSprite->setProperty("itemHeight", height);
+    pokemonSprite->setProperty("containerOffsetX", offsetX);
+    pokemonSprite->setProperty("containerOffsetY", offsetY);
 
     // Position the sprite
-    QMetaObject::invokeMethod(m_battleScene, "positionSpriteAndHealthbar", Q_ARG(QVariant, QVariant::fromValue(container)));
+    QMetaObject::invokeMethod(m_battleScene, "positionSpriteAndHealthbar", Q_ARG(QVariant, QVariant::fromValue(pokemonSprite)));
 
-    return container;
+    return pokemonSprite;
 }
 
 
