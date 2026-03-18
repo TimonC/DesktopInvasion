@@ -373,7 +373,7 @@ Item {
                     }
                 }
                 if (!pokemonSlot.iconVisible) return
-                root._display(root.swapSource)
+                root._display(pokemonSlot.pcPos)
             }
         }
     }
