@@ -500,7 +500,7 @@ Item {
 
         var x0 = x1 + (sprite.direction == 1 ? -sprite.width : sprite.width)
 
-        var y1 = sprite.y + sprite.height - pokeballHeight/2
+        var y1 = sprite.y + sprite.height - pokeballHeight
         var y0 = sprite.y - pokeballHeight
 
         y0 = Math.max(pokeballHeight/2, y0)
