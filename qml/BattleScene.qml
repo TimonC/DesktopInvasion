@@ -303,24 +303,25 @@ Item {
                 sequenceTimer.interval = step.delay
                 sequenceTimer.start()
                 break
+
             case "attack":
                 var attacker = (step.role === "player") ? player : opponent
                 attacker.actionForward.running = true
                 sequenceTimer.interval = step.delay
                 sequenceTimer.start()
                 break
+
             case "damage":
                 var defender = (step.role === "player") ? player : opponent
                 defender.takeDamage.running = true
                 sequenceTimer.interval = step.delay
                 sequenceTimer.start()
                 break
+
             case "change-health":
                 var target = (step.role === "player") ? player : opponent
                 let currentHealthRatio = target.statusBar.changeHealth(step.amount)
                 battleMenu.party.healthRatios[battleMenu.selectedIndex] = currentHealthRatio
-
-                sequenceTimer.interval = step.delay
                 if(currentHealthRatio==0){
                     root.actionSequence = [
                         {type: "lose-battle", message: target.name + " fainted!", role: step.role, delay: 2000 },
@@ -328,8 +329,20 @@ Item {
                     ]
                     root.currentActionIndex = 0
                 }
+                sequenceTimer.interval = step.delay
                 sequenceTimer.start()
                 break
+
+            case "status-condition":
+                if(step.role==="player"){
+                    statusBarPlayer.changeStatusCondition(step.label, step.remove)
+                }else{
+                    statusBarOpponent.changeStatusCondition(step.label, step.remove)
+                }
+                sequenceTimer.interval = 0;
+                sequenceTimer.start()
+                break
+
             case "lose-battle":
                 battleMenu.updateText(step.message)
                 var loser = (step.role === "player") ? player : opponent

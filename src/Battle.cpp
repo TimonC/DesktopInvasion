@@ -64,7 +64,7 @@ void Battle::handleSwitchedPokemon(int partyIndex, int generation, int spriteId)
     m_battleMoveHandler.get()->m_chosenPartyIndex=partyIndex;
 }
 
-void Battle::executeActionSequence(QVariantList sequence, QVariantList statusDeltaPlayer, QVariantList statusDeltaOpponent) {
+void Battle::executeActionSequence(QVariantList sequence) {
     QMetaObject::invokeMethod(m_battleScene, "showTextBar");
     QMetaObject::invokeMethod(m_battleScene, "executeActionSequence", Q_ARG(QVariant, QVariant(sequence)));
 }

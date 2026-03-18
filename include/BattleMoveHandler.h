@@ -63,14 +63,13 @@ public:
     int m_chosenPartyIndex = 0;
 
 signals:
-    void actionSequenceReady(QVariantList sequence, QVariantList statusDeltaPlayer, QVariantList statusDeltaOpponent);
+    void actionSequenceReady(QVariantList sequence);
 
 public slots:
     void startActionRound(int playerMoveIndex, QString action);
 
 private:
     Battler* createBattler(const PokemonState& state);
-    QVariantList statusConditionDelta(Battler* battler);
     void applyMove(const Move* _move, Battler* caster, Battler* target);
     void applySecondaryEffects(const Move* _move, Battler* target);
     void applyEndOfTurnEffects(Battler* battler);
@@ -88,7 +87,9 @@ private:
     QVariantMap createDamageAction(const QString& role, int delay);
     QVariantMap createHealthChangeAction(const QString& role, int amount, int delay);
     QVariantMap createCatchAction(int shakes, int delay);
+    QVariantMap createStatusCondition(const QString& role, Ailment ailment);
     QVariantMap createEndAction();
+
     QString ailmentToApplicationText(Ailment ailment);
     QString ailmentToHurtText(Ailment ailment);
     QString ailmentToRemovalText(Ailment ailment);

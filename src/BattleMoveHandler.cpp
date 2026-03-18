@@ -108,21 +108,9 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
 
     logActionSequence(sequence);
 
-    QVariantList statusDeltaPlayer = statusConditionDelta(m_battleParty[m_chosenPartyIndex]);
-    QVariantList statusDeltaOpponent = statusConditionDelta(m_battleOpponent);
-    emit actionSequenceReady(sequence, statusDeltaPlayer, statusDeltaOpponent);
+    emit actionSequenceReady(sequence);
 }
 
-QVariantList BattleMoveHandler::statusConditionDelta(Battler* battler){
-    QVariantList statusConditionDelta;
-    /* statusConditionDelta.append(battler->delta.removeStatusCondition); */
-    /* statusConditionDelta.append(battler->delta.addStatusCondition); */
-    /* statusConditionDelta.append(battler->delta.addConfusion); */
-    /* statusConditionDelta.append(battler->delta.removeConfusion); */
-    /* statusConditionDelta.append(battler->delta.deltaStatModifiers); */
-
-    return statusConditionDelta;
-};
 
 bool BattleMoveHandler::canBattlerMove(Battler* caster) {
     if (caster->battleState.statusCondition == Ailment::Sleep) {
@@ -504,6 +492,7 @@ void BattleMoveHandler::addPostMoveEffects(QVariantList& sequence, Battler& batt
     }
 
     if(battler.delta.addStatusCondition != Ailment::Null) {
+        sequence.append(createStatusCondition(role, battler.delta.addStatusCondition));
         QString ailmentText = ailmentToApplicationText(battler.delta.addStatusCondition);
         sequence.append(createTextAction(name + " " + ailmentText, ms_statusConditionText));
     }
@@ -513,6 +502,7 @@ void BattleMoveHandler::addPostMoveEffects(QVariantList& sequence, Battler& batt
     }
 
     if(battler.delta.removeStatusCondition != Ailment::Null) {
+        sequence.append(createStatusCondition(role, Ailment::Null));
         QString ailment = ailmentToRemovalText(battler.delta.removeStatusCondition);
         sequence.append(createTextAction(name + " is no longer " + ailment + "!", ms_statusConditionText));
     }
@@ -590,6 +580,23 @@ QVariantMap BattleMoveHandler::createCatchAction(int shakes, int delay) {
     action["delay"] = delay;
     return action;
 }
+
+QVariantMap BattleMoveHandler::createStatusCondition(const QString& role, Ailment ailment){
+    QVariantMap action;
+    action["type"] = "status-condition";
+    action["role"] = role;
+    action["remove"] = false;
+    switch(ailment){
+        case Ailment::Burn: action["label"] = "BRN"; break;
+        case Ailment::Freeze: action["label"] = "FRZ"; break;
+        case Ailment::Paralysis: action["label"] = "PAR"; break;
+        case Ailment::Sleep: action["label"] = "SLP"; break;
+        case Ailment::Poison: action["label"] = "PSN"; break;
+        case Ailment::Null: action["remove"] = true; break;
+        default: action["label"] = ""; break;
+    }
+    return action;
+};
 
 
 QVariantMap BattleMoveHandler::createEndAction() {

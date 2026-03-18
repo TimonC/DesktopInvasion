@@ -69,7 +69,7 @@ private slots:
     void handleBattleEnded(QString endState, bool removeWild);
     QQuickItem* updateSprite(int pokedexId, int generation, const char* role = "player");
     void handleSwitchedPokemon(int partyIndex, int generation, int spriteId);
-    void executeActionSequence(QVariantList sequence, QVariantList statusDeltaPlayer, QVariantList statusDeltaOpponent);
+    void executeActionSequence(QVariantList sequence);
 
 private:
     void setupParty(Party party);

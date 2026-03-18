@@ -77,6 +77,9 @@ Item {
         }
     }
 
+    function changeStatusCondition(label, remove){
+
+    }
 
     function changeHealth(healthDelta) {
         var targetValue = (progressBar.value * totalHealth + healthDelta) / totalHealth
