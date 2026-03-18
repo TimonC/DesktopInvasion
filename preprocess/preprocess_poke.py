@@ -5,6 +5,8 @@ from pathlib import Path
 from PIL import Image
 import numpy as np
 
+from  form_ids_and_nrs import FORM_IDS_AND_NRS
+
 def has_visible_content(frames):
     for frame in frames:
         if frame.mode != 'RGBA':
