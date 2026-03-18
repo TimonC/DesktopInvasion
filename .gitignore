@@ -5,7 +5,12 @@ src/data_poke_asset.cpp
 src/data_poke_flavor.cpp
 
 CMakeFiles/
-scripts/
+CMakeFiles
+cmake_install.cmake
+CMakeCache.txt
+resources.qrc.depends
+Makefile
+
 build/
 AppDir/
 data/
