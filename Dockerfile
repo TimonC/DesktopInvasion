@@ -13,6 +13,12 @@ RUN apt-get update && apt-get install -y \
     libgl1-mesa-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# Set UTF-8 locale
+RUN locale-gen en_US.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
+
 WORKDIR /app
 COPY build_and_run.sh ./build_and_run.sh
 COPY CMakeLists.txt ./CMakeLists.txt
