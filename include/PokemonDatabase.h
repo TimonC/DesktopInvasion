@@ -8,7 +8,7 @@
 #include <QSqlQuery>
 
 constexpr int PARTY_SIZE = 6;
-constexpr int BOX_SIZE   = 30;
+constexpr int BOX_SIZE   = 16;
 constexpr int MAX_BOXES  = 99;
 
 struct PokemonState {

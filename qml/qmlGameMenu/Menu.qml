@@ -21,6 +21,10 @@ Rectangle {
     readonly property int pcW:         640
     readonly property int rightPanelW: 640
 
+    property int iconScale: 8
+    property int iconScaleForBig: 6
+    property int iconScaleForTrainer: 5
+
     width:  outerPad + pcW + outerPad + panelGap + outerPad + rightPanelW + outerPad
     height: outerPad + trainerH + sectionGap + pcH + outerPad
 
@@ -29,8 +33,9 @@ Rectangle {
     property color  buttonColor:         "#3c3c3c"
     property color  buttonSelectedColor: "#5294e2"
     property color  textColor:           "#ffffff"
-    property int    headerFontSize:      24
-    property int    bodyFontSize:        18
+    property int    fontSizeLg: 22
+    property int    fontSizeMd: 18
+    property int    fontSizeSm: 16
     property string p2pFont:             "Press Start 2P"
     property string dotGothicFont:       "DotGothic16"
 
@@ -102,7 +107,7 @@ Rectangle {
                                               : "qrc:/assets/HGSS/reordered_sprites.png"
             pokeView.frameWidth  = poke.isBig ? 64 : 32
             pokeView.frameHeight = poke.isBig ? 64 : 32
-            pokeView.scaleFactor = poke.isBig ? 6  : 8
+            pokeView.scaleFactor = poke.isBig ? root.iconScaleForBig  : root.iconScale
         }
     }
 
@@ -118,8 +123,9 @@ Rectangle {
         Trainer {
             anchors.fill: parent
             textColor:    root.textColor
-            fontSize:     root.bodyFontSize
+            fontSize:     root.fontSizeMd
             fontFamily:   root.p2pFont
+            iconScale: root.iconScaleForTrainer
         }
 
         Rectangle {
@@ -138,6 +144,9 @@ Rectangle {
         y:      root.outerPad + root.trainerH + root.sectionGap
         width:  root.pcW
         height: root.pcH
+        fontSizeLg: root.fontSizeLg
+        fontSizeMd: root.fontSizeMd
+        fontSizeSm: root.fontSizeSm
         fontFamily: root.dotGothicFont
     }
 

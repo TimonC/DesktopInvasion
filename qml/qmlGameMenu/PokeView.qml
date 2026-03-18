@@ -67,6 +67,7 @@ Row {
             height: childrenRect.height
 
             AnimatedSprite {
+                id: sprite
                 width:       pokeView.frameWidth  * pokeView.scaleFactor
                 height:      pokeView.frameHeight * pokeView.scaleFactor
                 running:     true
@@ -80,6 +81,44 @@ Row {
                 antialiasing: false
                 frameX: pokeView.frameWidth * 4
                 frameY: pokeView.rowId * pokeView.frameHeight
+
+                property bool isJumping: false
+                property int jumpUpDuration: 200
+                property int jumpDownDuration: 150
+                property int jumpHeight: 32
+
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: undefined
+                    onClicked: {
+                        if (!sprite.isJumping) {
+                            sprite.isJumping = true
+                            jumpAnim.start()
+                        }
+                    }
+                }
+
+                SequentialAnimation {
+                    id: jumpAnim
+
+                    PropertyAnimation {
+                        target: sprite
+                        property: "y"
+                        to: sprite.y - sprite.jumpHeight
+                        duration: sprite.jumpUpDuration
+                        easing.type: Easing.OutQuad
+                    }
+
+                    PropertyAnimation {
+                        target: sprite
+                        property: "y"
+                        to: sprite.y
+                        duration: sprite.jumpDownDuration
+                        easing.type: Easing.InQuad
+                    }
+
+                    PropertyAction { target: sprite; property: "isJumping"; value: false }
+                }
             }
         }
     }
