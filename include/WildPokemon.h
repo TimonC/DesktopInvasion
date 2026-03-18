@@ -12,7 +12,7 @@ public:
 private slots:
     void makeRandomDecision();
     void moveStep();
-    void onClick();
+    void onSelect();
     void stopOpening();
     void systemMove();
 public slots:

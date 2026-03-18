@@ -9,12 +9,12 @@ Battlescene::Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent)
 {
     setFlags(     Qt::WindowStaysOnTopHint
                 | Qt::Tool
-                | Qt::WindowDoesNotAcceptFocus
-                | Qt::FramelessWindowHint);
+                | Qt::WindowDoesNotAcceptFocus);
+                /* | Qt::FramelessWindowHint); */
     setColor(Qt::transparent);
 
     m_opp->setFlag(Qt::WindowTransparentForInput);
-    chosen->setFlag(Qt::WindowTransparentForInput);
+    m_chosen->setFlag(Qt::WindowTransparentForInput);
 
     setSource(QUrl("qrc:/sprites/BattleScene.qml"));
 
@@ -23,8 +23,8 @@ Battlescene::Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent)
     QQuickItem* mouseArea = ui->property("mouseArea").value<QQuickItem*>();
     connect(mouseArea, SIGNAL(pressed(QQuickMouseEvent*)), this, SLOT(systemMove()));
 
-    /* m_opp->setParent(this); */
-    /* m_chosen->setParent(this); */
+    m_opp->setParent(this);
+    m_chosen->setParent(this);
     m_opp->rootObject()->setParent(this);
     m_chosen->rootObject()->setParent(this);
     int distance = m_opp->direction()%2==0 ? 3*32 : 4*32;

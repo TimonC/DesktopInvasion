@@ -3,8 +3,7 @@
 
 #include <QQuickView>
 
-class Pokemon : public QQuickView
-{
+class Pokemon : public QQuickView{
     Q_OBJECT
 
 public:

@@ -3,6 +3,7 @@
 #include <QQuickItem>
 #include <QQuickView>
 #include <QRandomGenerator>
+#include <qnamespace.h>
 #include "Pokemon.h"
 #include "WildPokemon.h"
 #include "Player.h"
@@ -15,7 +16,7 @@ WildPokemon::WildPokemon(QWindow *parent, int row)
     , m_moveSpeed(1 + QRandomGenerator::global()->bounded(2))
 {
     QQuickItem* mouseArea = m_sprite->property("mouseArea").value<QQuickItem*>();
-    connect(mouseArea, SIGNAL(doubleClicked(QQuickMouseEvent*)), this, SLOT(onClick()));
+    connect(mouseArea, SIGNAL(doubleClicked(QQuickMouseEvent*)), this, SLOT(onSelect()));
     connect(mouseArea, SIGNAL(pressed(QQuickMouseEvent*)), this, SLOT(systemMove()));
 
     m_decisionTimer->setInterval(1000 + QRandomGenerator::global()->bounded(2000));
@@ -41,8 +42,9 @@ void WildPokemon::systemMove(){
 void WildPokemon::startBattle(){
     getPlayer().iChooseYou(this);
 
+
     QQuickItem* mouseArea = m_sprite->property("mouseArea").value<QQuickItem*>();
-    disconnect(mouseArea, SIGNAL(clicked(QQuickMouseEvent*)), this, SLOT(onClick()));
+    disconnect(mouseArea, SIGNAL(clicked(QQuickMouseEvent*)), this, SLOT(onSelect()));
 
     mouseArea->setProperty("enabled", false);
     mouseArea->setProperty("visible", false);
@@ -53,7 +55,7 @@ void WildPokemon::startBattle(){
 }
 
 
-void WildPokemon::onClick(){
+void WildPokemon::onSelect(){
     m_moveTimer->stop();
     m_decisionTimer->stop();
 
