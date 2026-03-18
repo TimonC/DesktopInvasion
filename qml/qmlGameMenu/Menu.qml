@@ -57,7 +57,7 @@ Rectangle {
                 }
 
                 Rectangle {
-                    id: partySection
+                    id: pcSection
                     Layout.fillWidth: true
                     Layout.preferredHeight: parent.height * (5/7)
                     color: root.backgroundColor
@@ -65,13 +65,6 @@ Rectangle {
                     border.width: root.showDebugOutlines ? 2 : 0
 
                     PC {
-                    }
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: "Party Pokemon"
-                        color: root.textColor
-                        font.pixelSize: 16
                     }
                 }
             }
