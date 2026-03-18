@@ -1,5 +1,5 @@
-#ifndef INVASIONVIEW_HH
-#define INVASIONVIEW_HH
+#ifndef INVASIONVIEW_H
+#define INVASIONVIEW_H
 
 #include <QGraphicsView>
 #include <QGraphicsScene>

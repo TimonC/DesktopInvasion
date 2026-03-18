@@ -1,10 +1,10 @@
-#include "InvasionView.hh"
+#include "InvasionView.h"
 #include <QApplication>
 #include <QRect>
 #include <QRectF>
 #include <QScreen>
 #include <QGraphicsScene>
-#include <qnamespace.h>
+
 InvasionView::InvasionView(){
     this -> init();
 }
@@ -14,7 +14,7 @@ void InvasionView::init(){
                           | Qt::WindowType::WindowStaysOnTopHint
                           | Qt::WindowType::WindowTransparentForInput;
     this -> setWindowFlags(flags);
-    this -> setAttribute(Qt::WidgetAttribute::WA_TranslucentBackground);
+    this -> setAttribute(Qt::WidgetAttribute::WA_TranslucentBackground); //this is the key transparency line
     this -> setAttribute(Qt::WidgetAttribute::WA_ShowWithoutActivating);
 
     QScreen *screen = QApplication::primaryScreen();

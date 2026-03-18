@@ -9,12 +9,11 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-# Find Qt (adjust if you use Qt6 instead of Qt5)
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 add_executable(DesktopInvasion
-    src/main.cc
-    src/InvasionView.cc
+    src/main.cpp
+    src/InvasionView.cpp
 )
 
 target_include_directories(DesktopInvasion PRIVATE src)

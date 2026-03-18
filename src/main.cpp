@@ -1,5 +1,5 @@
 #include <QApplication>
-#include "InvasionView.hh"
+#include "InvasionView.h"
 
 int main(int argc, char* argv[]){
     QApplication app(argc, argv);
