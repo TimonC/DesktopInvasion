@@ -10,7 +10,7 @@ Rectangle {
     readonly property color dividerColor: "#3a3a3a"
 
     // ── Section dimensions (single source of truth) ────────────────────────────
-    readonly property int trainerH:    260
+    readonly property int trainerH:    200
     readonly property int pcH:         640
     readonly property int pcW:         640
     readonly property int rightPanelW: 640

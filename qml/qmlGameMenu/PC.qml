@@ -4,7 +4,6 @@ import "../Style/PokeColor.js" as PokeColor
 Item {
     id: root
 
-    // ── Visual config ──────────────────────────────────────────────────────────
     property string fontFamily:      "sans-serif"
     property color  partyBackground: "white"
     property color  pcBackground:    "green"
@@ -14,25 +13,23 @@ Item {
     property int    slotWidth:       120
     property int    slotHeight:      90
     property int    freePartySlot:   -1
+    property int    panelPadding:    12
 
-    // ── Color system ───────────────────────────────────────────────────────────
-    // Highlight colors (replacing harsh orange)
-    property color  highlightDefault:      "#4a90e2"        // Soft blue
-    property color  highlightHover:        "#6aaef5"        // Lighter blue for hover
-    property color  highlightSwappable:    "#9b9bff"        // Soft purple for available swap slots
-    property color  highlightSwappableHover: "#b3b3ff"      // Lighter purple for hover on swappable
-    property color  highlightDisplayed:    "#64b5f6"        // Bright blue for displayed Pokemon
+    property color  highlightDefault:      "#4a90e2"
+    property color  highlightHover:        "#6aaef5"
+    property color  highlightSwappable:    "#7ab0f5"
+    property color  highlightSwappableHover: "#8fc5ff"
+    property color  highlightDisplayed:    "#64b5f6"
+    property color  swapButtonHighlight:   "#ff9933"
 
-    // Opacity variants for overlays
-    property real   highlightOpacity:      0.3              // Base opacity for overlays
-    property real   highlightHoverOpacity: 0.5              // Hover opacity
+    property real   highlightOpacity:      0.3
+    property real   highlightHoverOpacity: 0.5
 
-    // Derived highlight colors with opacity (used in PokemonSlot)
-    property color  highlightColor:        Qt.rgba(0.29, 0.56, 0.89, highlightOpacity)      // #4a90e2 with opacity
-    property color  hoverHighlightColor:   Qt.rgba(0.42, 0.68, 0.96, highlightHoverOpacity) // #6aaef5 with opacity
-    property color  swapColor:             Qt.rgba(0.61, 0.61, 1.0, highlightOpacity)       // #9b9bff with opacity
-    property color  swapHoverColor:        Qt.rgba(0.70, 0.70, 1.0, highlightHoverOpacity)  // #b3b3ff with opacity
-    property color  displayedColor:        Qt.rgba(0.39, 0.71, 0.96, highlightHoverOpacity) // #64b5f6 with opacity
+    property color  highlightColor:        Qt.rgba(0.29, 0.56, 0.89, highlightOpacity)
+    property color  hoverHighlightColor:   Qt.rgba(0.42, 0.68, 0.96, highlightHoverOpacity)
+    property color  swapColor:             Qt.rgba(0.48, 0.69, 0.96, highlightOpacity)
+    property color  swapHoverColor:        Qt.rgba(0.56, 0.77, 1.0, highlightHoverOpacity)
+    property color  displayedColor:        Qt.rgba(0.39, 0.71, 0.96, highlightHoverOpacity)
 
     readonly property int partyRows:    2
     readonly property int partyColumns: 3
@@ -44,23 +41,16 @@ Item {
     property int fontSizeMd: 0
     property int fontSizeSm: 0
 
-    // ── Spacing (single source of truth) ──────────────────────────────────────
     readonly property int layoutMargin:  30
     readonly property int layoutSpacing: 20
+    readonly property int buttonWidth:   48
+    readonly property int buttonHeight:  64
+    readonly property int labelHeight:   fontSizeLg > 0 ? fontSizeLg + 16 : 28
 
-    // ── Button size ───────────────────────────────────────────────────────────
-    readonly property int buttonWidth:  48
-    readonly property int buttonHeight: 64
-
-    // ── Label strip height ────────────────────────────────────────────────────
-    readonly property int labelHeight: fontSizeLg > 0 ? fontSizeLg + 16 : 28
-
-    // ── Style tokens ──────────────────────────────────────────────────────────
     readonly property int   panelRadius:      8
     readonly property int   panelBorderWidth: 2
     readonly property int   buttonRadius:     10
 
-    // ── State ─────────────────────────────────────────────────────────────────
     property int currentBoxIndex: 0
     property var partyMap: ({})
     property var boxes:    ({})
@@ -70,7 +60,6 @@ Item {
     signal preloadBoxRequested(int boxIndex)
     signal swapRequested(var posx, var posy)
 
-    // ── Swap state ─────────────────────────────────────────────────────────────
     property bool  inSwapMode:           false
     property var   swapSource:           null
     property var   displayedPokemonSlot: null
@@ -94,23 +83,18 @@ Item {
         else            { inSwapMode = true;  activateSwapMode() }
     }
 
-    // ── Computed widths for centering ─────────────────────────────────────────
-    // PC row total width  = btn + gap + grid + gap + btn
     readonly property int pcRowWidth:    root.buttonWidth + root.layoutSpacing
                                        + root.pcColumns * root.slotWidth
                                        + root.layoutSpacing + root.buttonWidth
-    // Party row total width = grid + gap + swapBtn
     readonly property int partyRowWidth: root.partyColumns * root.slotWidth
                                        + root.layoutSpacing
                                        + Math.round(root.buttonWidth * 1.4)
 
-    // ── Root column: party row / pc row ───────────────────────────────────────
     Column {
         anchors.centerIn: parent
         width:            parent.width
         spacing:          root.layoutSpacing
 
-        // ── Party row ─────────────────────────────────────────────────────────
         Item {
             width:  parent.width
             height: root.partyRows * root.slotHeight
@@ -121,14 +105,12 @@ Item {
                 width:  root.partyRowWidth
                 height: root.partyRows * root.slotHeight
 
-                // Party grid panel
                 Item {
                     anchors.left:           parent.left
                     anchors.verticalCenter: parent.verticalCenter
                     width:  root.partyColumns * root.slotWidth
                     height: root.partyRows    * root.slotHeight
 
-                    // Drop shadow
                     Rectangle {
                         anchors.fill:       parent
                         anchors.margins:    -1
@@ -139,7 +121,6 @@ Item {
                         z:                  -1
                     }
 
-                    // Border ring
                     Rectangle {
                         anchors.fill: parent
                         radius:       root.panelRadius
@@ -149,7 +130,6 @@ Item {
                         z: 1
                     }
 
-                    // Gradient fill
                     Rectangle {
                         anchors.fill: parent
                         radius:       root.panelRadius
@@ -178,7 +158,6 @@ Item {
                     }
                 }
 
-                // Swap button
                 PcButton {
                     id: swapButton
                     anchors.right:          parent.right
@@ -186,24 +165,21 @@ Item {
                     width:    Math.round(root.buttonWidth * 1.4)
                     height:   Math.round(root.buttonHeight * 0.6)
                     label:    "Swap"
-                    btnColor: root.inSwapMode ? root.swapColor : root.buttonColor
+                    btnColor: root.buttonColor
+                    highlightColor: root.inSwapMode ? root.swapButtonHighlight : root.buttonColor
                     onClicked: root.toggleSwapMode()
                 }
             }
         }
 
-        // ── PC row ────────────────────────────────────────────────────────────
-        // The panel is labelHeight taller than the raw grid so the label strip
-        // sits inside the border/shadow rather than overflowing above it.
         Item {
             width:  parent.width
-            height: root.labelHeight + root.pcRows * root.slotHeight
+            height: root.labelHeight + root.pcRows * root.slotHeight + (root.panelPadding * 2)
 
             Row {
                 anchors.centerIn: parent
                 spacing:          root.layoutSpacing
 
-                // Left nav — vertically centered on the grid portion
                 PcButton {
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.verticalCenterOffset: Math.round(root.labelHeight / 2)
@@ -214,97 +190,97 @@ Item {
                     onClicked: root._slideLeft()
                 }
 
-            // PC panel — sized exactly to label strip + grid, no more
-            Item {
-                width:  root.pcColumns * root.slotWidth
-                height: root.labelHeight + root.pcRows * root.slotHeight
-
-                // Drop shadow
-                Rectangle {
-                    anchors.fill:       parent
-                    anchors.margins:    -1
-                    anchors.topMargin:  4
-                    anchors.leftMargin: 4
-                    radius:             root.panelRadius + 1
-                    color:              root.panelShadowColor
-                    z:                  -1
-                }
-                // Border ring — now correctly wraps label + grid
-                Rectangle {
-                    anchors.fill: parent
-                    radius:       root.panelRadius
-                    color:        "transparent"
-                    border.color: root.panelBorderColor
-                    border.width: root.panelBorderWidth
-                    z:            1
-                }
-                // Gradient fill
-                Rectangle {
-                    anchors.fill: parent
-                    radius:       root.panelRadius
-                    gradient: Gradient {
-                        GradientStop { position: 0.0; color: PokeColor.lighter(root.pcBackground) }
-                        GradientStop { position: 1.0; color: PokeColor.darker(root.pcBackground)  }
-                    }
-                }
-
-                // ── Label strip ───────────────────────────────────────────────
                 Item {
-                    id: labelStrip
-                    anchors.top:   parent.top
-                    anchors.left:  parent.left
-                    anchors.right: parent.right
-                    height:        root.labelHeight
-                    z:             2
+                    width:  root.pcColumns * root.slotWidth
+                    height: root.labelHeight + root.pcRows * root.slotHeight + (root.panelPadding * 2)
 
-                    Text {
-                        anchors.centerIn: parent
-                        text:           "Box " + (root.currentBoxIndex + 1)
-                        color:          "#ffffffcc"
-                        font.family:    root.fontFamily
-                        font.pixelSize: root.fontSizeLg
-                        font.bold:      true
+                    Rectangle {
+                        anchors.fill:       parent
+                        anchors.margins:    -1
+                        anchors.topMargin:  4
+                        anchors.leftMargin: 4
+                        radius:             root.panelRadius + 1
+                        color:              root.panelShadowColor
+                        z:                  -1
                     }
 
                     Rectangle {
-                        anchors.bottom: parent.bottom
-                        anchors.left:   parent.left
-                        anchors.right:  parent.right
-                        height: 1
-                        color: root.panelBorderColor
+                        anchors.fill: parent
+                        radius:       root.panelRadius
+                        color:        "transparent"
+                        border.color: root.panelBorderColor
+                        border.width: root.panelBorderWidth
+                        z:            1
                     }
-                }
 
-                // ── Grid area — fills everything below the label strip ─────────
-                Item {
-                    anchors.top:    labelStrip.bottom
-                    anchors.left:   parent.left
-                    anchors.right:  parent.right
-                    anchors.bottom: parent.bottom
+                    Rectangle {
+                        anchors.fill: parent
+                        radius:       root.panelRadius
+                        gradient: Gradient {
+                            GradientStop { position: 0.0; color: PokeColor.lighter(root.pcBackground) }
+                            GradientStop { position: 1.0; color: PokeColor.darker(root.pcBackground)  }
+                        }
+                    }
 
-                    Grid {
-                        anchors.centerIn: parent
-                        rows:             root.pcRows
-                        columns:          root.pcColumns
-                        rowSpacing:       0
-                        columnSpacing:    0
+                    Item {
+                        id: labelStrip
+                        anchors.top:   parent.top
+                        anchors.topMargin: root.panelPadding
+                        anchors.left:  parent.left
+                        anchors.right: parent.right
+                        height:        root.labelHeight
+                        z:             2
 
-                        Repeater {
-                            id: pcRepeater
-                            model: root.pcRows * root.pcColumns
-                            PokemonSlot {
-                                property var currentBox: root.boxes[root.currentBoxIndex]
-                                iconVisible: currentBox !== undefined && currentBox[index] !== undefined
-                                frameIndex:  (currentBox !== undefined && currentBox[index] !== undefined)
-                                             ? currentBox[index] : 0
-                                pcPos: [root.currentBoxIndex, index]
+                        Text {
+                            anchors.centerIn: parent
+                            text:           "Box " + (root.currentBoxIndex + 1)
+                            color:          "#ffffffcc"
+                            font.family:    root.fontFamily
+                            font.pixelSize: root.fontSizeLg
+                            font.bold:      true
+                        }
+
+                        Rectangle {
+                            anchors.bottom: parent.bottom
+                            anchors.left:   parent.left
+                            anchors.right:  parent.right
+                            height: 1
+                            color: root.panelBorderColor
+                        }
+                    }
+
+                    Item {
+                        anchors.top:    labelStrip.bottom
+                        anchors.topMargin: root.panelPadding
+                        anchors.left:   parent.left
+                        anchors.leftMargin: root.panelPadding
+                        anchors.right:  parent.right
+                        anchors.rightMargin: root.panelPadding
+                        anchors.bottom: parent.bottom
+                        anchors.bottomMargin: root.panelPadding
+
+                        Grid {
+                            anchors.centerIn: parent
+                            rows:             root.pcRows
+                            columns:          root.pcColumns
+                            rowSpacing:       0
+                            columnSpacing:    0
+
+                            Repeater {
+                                id: pcRepeater
+                                model: root.pcRows * root.pcColumns
+                                PokemonSlot {
+                                    property var currentBox: root.boxes[root.currentBoxIndex]
+                                    iconVisible: currentBox !== undefined && currentBox[index] !== undefined
+                                    frameIndex:  (currentBox !== undefined && currentBox[index] !== undefined)
+                                                 ? currentBox[index] : 0
+                                    pcPos: [root.currentBoxIndex, index]
+                                }
                             }
                         }
                     }
                 }
-            }
 
-                // Right nav
                 PcButton {
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.verticalCenterOffset: Math.round(root.labelHeight / 2)
@@ -318,98 +294,94 @@ Item {
         }
     }
 
-    // ── Components ────────────────────────────────────────────────────────────
+component PcButton: Item {
+    id: pcButtonRoot
+    width:  root.buttonWidth
+    height: root.buttonHeight
 
-    component PcButton: Item {
-        id: pcButtonRoot
-        width:  root.buttonWidth
-        height: root.buttonHeight
+    property string label:    ""
+    property bool   active:   true
+    property color  btnColor: root.buttonColor
+    property color  highlightColor: btnColor
 
-        property string label:    ""
-        property bool   active:   true
-        property color  btnColor: root.buttonColor
+    signal clicked()
 
-        signal clicked()
+    property bool _hovered: mouseArea.containsMouse && active
+    property bool _pressed: mouseArea.pressed        && active
 
-        // ── Derived state ─────────────────────────────────────────────────────
-        property bool _hovered: mouseArea.containsMouse && active
-        property bool _pressed: mouseArea.pressed        && active
+    // Use highlightColor as base color when it's different from btnColor (swap mode)
+    property color _currentBaseColor: highlightColor != btnColor ? highlightColor : btnColor
 
-        // Border: lighter at rest, base color on hover (matches reference)
-        property color _borderColor: active
-            ? (_hovered ? btnColor : PokeColor.lighter(btnColor))
-            : "#555555"
-        Behavior on _borderColor { ColorAnimation { duration: 120; easing.type: Easing.OutQuad } }
+    property color _borderColor: active
+        ? (_hovered ? _currentBaseColor : PokeColor.lighter(_currentBaseColor))
+        : "#555555"
+    Behavior on _borderColor { ColorAnimation { duration: 120; easing.type: Easing.OutQuad } }
 
-        // ── Scale container (press = squish, release = springy bounce) ────────
-        Item {
-            id: buttonContent
-            anchors.fill: parent
-            scale: pcButtonRoot._pressed ? 0.92 : 1.0
-            Behavior on scale {
-                NumberAnimation {
-                    duration:          pcButtonRoot._pressed ? 80 : 200
-                    easing.type:       pcButtonRoot._pressed ? Easing.OutQuad : Easing.OutBack
-                    easing.overshoot:  1.2
-                }
-            }
-
-            // Border ring
-            Rectangle {
-                anchors.fill: parent
-                radius:       root.buttonRadius
-                color:        pcButtonRoot._borderColor
-            }
-
-            // Gradient face
-            Rectangle {
-                anchors.fill:    parent
-                anchors.margins: 2
-                radius:          Math.max(0, root.buttonRadius - 2)
-                gradient: Gradient {
-                    GradientStop {
-                        position: 0.0
-                        color: pcButtonRoot.active
-                            ? (pcButtonRoot._hovered
-                               ? pcButtonRoot.btnColor
-                               : PokeColor.lighter(pcButtonRoot.btnColor))
-                            : "#444444"
-                        Behavior on color { ColorAnimation { duration: 120; easing.type: Easing.OutCubic } }
-                    }
-                    GradientStop {
-                        position: 1.0
-                        color: pcButtonRoot.active
-                            ? (pcButtonRoot._hovered
-                               ? PokeColor.darker(PokeColor.darker(pcButtonRoot.btnColor))
-                               : PokeColor.darker(pcButtonRoot.btnColor))
-                            : "#333333"
-                        Behavior on color { ColorAnimation { duration: 120; easing.type: Easing.OutCubic } }
-                    }
-                }
-            }
-
-            Text {
-                anchors.centerIn: parent
-                text:             pcButtonRoot.label
-                color:            pcButtonRoot.active ? "#ffffff" : "#888888"
-                font.family:      root.fontFamily
-                font.pixelSize:   root.fontSizeMd
-                font.bold:        true
-                style:            Text.Raised
-                styleColor:       "#00000060"
+    Item {
+        id: buttonContent
+        anchors.fill: parent
+        scale: pcButtonRoot._pressed ? 0.92 : 1.0
+        Behavior on scale {
+            NumberAnimation {
+                duration:          pcButtonRoot._pressed ? 80 : 200
+                easing.type:       pcButtonRoot._pressed ? Easing.OutQuad : Easing.OutBack
+                easing.overshoot:  1.2
             }
         }
 
-        MouseArea {
-            id: mouseArea
+        Rectangle {
             anchors.fill: parent
-            enabled:      pcButtonRoot.active
-            hoverEnabled: true
-            onClicked:    pcButtonRoot.clicked()
-            cursorShape:  undefined
+            radius:       root.buttonRadius
+            color:        pcButtonRoot._borderColor
+        }
+
+        Rectangle {
+            anchors.fill:    parent
+            anchors.margins: 2
+            radius:          Math.max(0, root.buttonRadius - 2)
+            gradient: Gradient {
+                GradientStop {
+                    position: 0.0
+                    color: pcButtonRoot.active
+                        ? (pcButtonRoot._hovered
+                           ? pcButtonRoot._currentBaseColor
+                           : PokeColor.lighter(pcButtonRoot._currentBaseColor))
+                        : "#444444"
+                    Behavior on color { ColorAnimation { duration: 120; easing.type: Easing.OutCubic } }
+                }
+                GradientStop {
+                    position: 1.0
+                    color: pcButtonRoot.active
+                        ? (pcButtonRoot._hovered
+                           ? PokeColor.darker(PokeColor.darker(pcButtonRoot._currentBaseColor))
+                           : PokeColor.darker(pcButtonRoot._currentBaseColor))
+                        : "#333333"
+                    Behavior on color { ColorAnimation { duration: 120; easing.type: Easing.OutCubic } }
+                }
+            }
+        }
+
+        Text {
+            anchors.centerIn: parent
+            text:             pcButtonRoot.label
+            color:            pcButtonRoot.active ? "#ffffff" : "#888888"
+            font.family:      root.fontFamily
+            font.pixelSize:   root.fontSizeMd
+            font.bold:        true
+            style:            Text.Raised
+            styleColor:       "#00000060"
         }
     }
 
+    MouseArea {
+        id: mouseArea
+        anchors.fill: parent
+        enabled:      pcButtonRoot.active
+        hoverEnabled: true
+        onClicked:    pcButtonRoot.clicked()
+        cursorShape:  undefined
+    }
+}
 
     component PokemonSlot: Rectangle {
         id: pokemonSlot
@@ -445,7 +417,6 @@ Item {
 
         color: "transparent"
 
-        // Always-visible slot background
         Rectangle {
             anchors.fill:    parent
             anchors.margins: 2
@@ -455,7 +426,6 @@ Item {
             border.width:    1
         }
 
-        // Highlight overlay
         Rectangle {
             anchors.fill:    parent
             anchors.margins: 1
@@ -518,7 +488,6 @@ Item {
         }
     }
 
-    // ── Swap implementation ───────────────────────────────────────────────────
     function _executeSwap(posx, posy) {
         if (posx[0] === posy[0] && posx[1] === posy[1]) { console.log("Can't swap a slot with itself"); return }
 
