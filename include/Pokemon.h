@@ -13,6 +13,7 @@ public:
     int direction();
     int m_row;
     int m_scaleFactor;
+    bool m_inABattle = false;
 protected:
     QQuickItem* m_sprite;
     int m_currentDirection;

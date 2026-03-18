@@ -27,9 +27,8 @@ WildPokemon::WildPokemon(QWindow *parent, int row)
     connect( openingButtons, SIGNAL(clicked()), this, SLOT(startBattle()));
 
     QRect& screen = getScreenGeometry();
-    /* setX(std::rand()%screen.width()); */
-    /* setY(std::rand()%screen.height()); */
-    setPosition(QPoint(screen.width()/2, screen.height()/2));
+    setX(std::rand()%screen.width()/2);
+    setY(std::rand()%screen.height()/2);
     m_decisionTimer->start();
     makeRandomDecision();
 
@@ -59,7 +58,11 @@ void WildPokemon::onClick(){
 }
 
 void WildPokemon::startOpening(int durationMs){
-    if(!getPlayer().inABattle()) m_sprite->setProperty("openingButtons", true);
+    if(getPlayer().pokemonAvailable()){
+        m_sprite->setProperty("openingButtons", true);
+    }else{
+        qDebug() << "No party Pokemon available for battle.";
+    }
     QTimer::singleShot(durationMs, this, &WildPokemon::stopOpening);
 }
 
