@@ -18,10 +18,6 @@ InvasionOverlay::InvasionOverlay(QWindow *parent)
     setResizeMode(SizeViewToRootObject);
     setSource(QUrl("qrc:/InvasionCanvas.qml"));
 
-    if (!rootObject()) {
-        qDebug() << "Failed to load InvasionCanvas.qml!";
-    }
-
     setGeometry(QGuiApplication::primaryScreen()->geometry());
 }
 

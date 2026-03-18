@@ -16,6 +16,8 @@ qt6_add_resources(RESOURCES_RCC
 
 # Add executable
 add_executable(DesktopInvasion
+    src/PokemonSpawner.h
+    src/PokemonSpawner.cpp
     src/main.cpp
     src/InvasionOverlay.cpp
     ${RESOURCES_RCC}   # <-- include compiled resources
