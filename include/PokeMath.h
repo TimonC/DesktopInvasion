@@ -237,5 +237,6 @@ namespace PokeMath{
         return static_cast<int>((baseXP * defeatedLevel * TRAINER_MULTIPLIER) /
                                 (PARTICIPANT_DIVISOR * nrParticipated));
     }
+}
 
 #endif

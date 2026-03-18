@@ -13,7 +13,7 @@ struct Move {
     const int accuracy;
     const int priority;
     const MoveCategory category;
-    const std::array<int, 7> stat_changes;
+    const std::array<int, 7> stat_changes; //Atk, Def, SpAtk, SpDef, Speed, Accuracy, Evasion,
     const Ailment ailment;
     const int drain;
     const int healing;

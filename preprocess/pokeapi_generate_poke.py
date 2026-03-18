@@ -1,8 +1,11 @@
+from skip_move_ids import SKIP_MOVE_IDS #This list of moves to exclude was manually compiled to drastically reduce complexity of DesktopInvasion
+
 import urllib.request
 import json
 from pathlib import Path
 import time
 import random
+
 
 MAX_POKEMON_ID = 493
 BASE_DELAY =1
@@ -64,12 +67,12 @@ def extract_eligible_moves(moves_list):
             learn_method = detail.get('move_learn_method', {}).get('name', '')
             level_learned = detail.get('level_learned_at', 0)
 
-            if learn_method in ['level-up', 'machine', 'egg', 'tutor', 'stadium-surfing-pikachu']:
-                move_url = move_entry.get('move', {}).get('url', '')
-                if move_url:
-                    parts = move_url.rstrip('/').split('/')
-                    if parts:
-                        move_id = int(parts[-1])
+            move_url = move_entry.get('move', {}).get('url', '')
+            if move_url:
+                parts = move_url.rstrip('/').split('/')
+                if parts:
+                    move_id = int(parts[-1])
+                    if move_id not in SKIP_MOVE_IDS:
 
                         is_level_up = (learn_method == 'level-up')
 
@@ -80,7 +83,7 @@ def extract_eligible_moves(moves_list):
                             move_dict[move_id] = (level_learned, is_level_up)
                         elif is_level_up and not move_dict[move_id][1]:
                             move_dict[move_id] = (level_learned, is_level_up)
-                        elif is_level_up and level_learned < move_dict[move_id][0]:
+                        elif is_level_up and level_learned > 0 and level_learned < move_dict[move_id][0]:
                             move_dict[move_id] = (level_learned, is_level_up)
 
     for move_id, (level, _) in move_dict.items():
@@ -201,10 +204,41 @@ for poke_id in range(1, MAX_POKEMON_ID + 1):
 
     print(f"Added Pokémon: {poke_id:03d} - {format_pokemon_name(poke_data.get('name', ''))} ({move_count} moves, {evolve_str}, catch rate: {catch_rate}, base XP: {base_experience})")
 
+# Propagate moves from pre-evolutions to evolutions
+evolution_parents = {}
+
+for pokemon in pokemons:
+    for evolve in pokemon['eligible_evolves']:
+        child_id = evolve['pokedex_id']
+        if child_id not in evolution_parents:
+            evolution_parents[child_id] = []
+        evolution_parents[child_id].append(pokemon['id'])
+
+for pokemon in pokemons:
+    poke_id = pokemon['id']
+    if poke_id in evolution_parents:
+        parent_ids = evolution_parents[poke_id]
+        all_parent_moves = []
+
+        for parent_id in parent_ids:
+            parent_pokemon = next(p for p in pokemons if p['id'] == parent_id)
+            all_parent_moves.extend(parent_pokemon['eligible_moves'])
+
+        current_move_ids = {move['move_id'] for move in pokemon['eligible_moves']}
+        for parent_move in all_parent_moves:
+            if parent_move['move_id'] not in current_move_ids:
+                pokemon['eligible_moves'].append(parent_move)
+
+        pokemon['eligible_moves'].sort(key=lambda x: (x['level'], x['move_id']))
+
+        new_count = len(pokemon['eligible_moves'])
+        old_count = len(current_move_ids)
+        if new_count > old_count:
+            print(f"Updated {pokemon['name']} with {new_count - old_count} moves from parents {parent_ids}")
+
 def generate_pokemon_data_direct():
     source_content = """#include "data_poke.h"
 
-namespace {
 """
 
     for pokemon in pokemons:
@@ -212,24 +246,24 @@ namespace {
 
         eligible_moves = pokemon['eligible_moves']
         if eligible_moves:
-            source_content += f"    static constexpr EligibleMove eligible_moves_{poke_id}[] = {{\n"
+            source_content += f"static constexpr EligibleMove eligible_moves_{poke_id}[] = {{\n"
             for move in eligible_moves:
-                source_content += f"        {{{move['move_id']}, {move['level']}}},\n"
-            source_content += "    };\n"
+                source_content += f"    {{{move['move_id']}, {move['level']}}},\n"
+            source_content += "};\n"
             eligible_move_count = len(eligible_moves)
         else:
-            source_content += f"    static constexpr EligibleMove eligible_moves_{poke_id}[] = {{}};\n"
+            source_content += f"static constexpr EligibleMove eligible_moves_{poke_id}[] = {{}};\n"
             eligible_move_count = 0
 
         eligible_evolves = pokemon['eligible_evolves']
         if eligible_evolves:
-            source_content += f"    static constexpr EligibleEvolve eligible_evolves_{poke_id}[] = {{\n"
+            source_content += f"static constexpr EligibleEvolve eligible_evolves_{poke_id}[] = {{\n"
             for evolve in eligible_evolves:
-                source_content += f"        {{{evolve['pokedex_id']}, {evolve['level']}}},\n"
-            source_content += "    };\n"
+                source_content += f"    {{{evolve['pokedex_id']}, {evolve['level']}}},\n"
+            source_content += "};\n"
             eligible_evolve_count = len(eligible_evolves)
         else:
-            source_content += f"    static constexpr EligibleEvolve eligible_evolves_{poke_id}[] = {{}};\n"
+            source_content += f"static constexpr EligibleEvolve eligible_evolves_{poke_id}[] = {{}};\n"
             eligible_evolve_count = 0
 
         _type1 = pokemon['types'][0]
@@ -247,22 +281,21 @@ namespace {
         catch_rate = pokemon['catch_rate']
         base_experience = pokemon['base_experience']
 
-        source_content += f"""    static constexpr Poke poke_{poke_id} = {{
-        {poke_id},
-        "{formatted_name}",
-        {{{type1}, {type2}}},
-        {stats_str},
-        {catch_rate},
-        {base_experience},  // ADDED: base_experience field
-        eligible_moves_{poke_id},
-        {eligible_move_count},
-        eligible_evolves_{poke_id},
-        {eligible_evolve_count}
-    }};
+        source_content += f"""static constexpr Poke poke_{poke_id} = {{
+    {poke_id},
+    "{formatted_name}",
+    {{{type1}, {type2}}},
+    {stats_str},
+    {catch_rate},
+    {base_experience},
+    eligible_moves_{poke_id},
+    {eligible_move_count},
+    eligible_evolves_{poke_id},
+    {eligible_evolve_count}
+}};
 
 """
 
-    source_content += "} // namespace\n\n"
     source_content += f"const Poke* const kPokesByIndex[{MAX_POKEMON_ID + 1}] = {{\n"
     source_content += f"    nullptr,  // 0\n"
 
