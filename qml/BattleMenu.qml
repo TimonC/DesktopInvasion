@@ -275,7 +275,7 @@ Rectangle {
             RoundButton {
                 id: pokeballButton
                 anchors.centerIn: parent
-                width: root.buttonWidth * 1.3
+                width: root.buttonWidth * 1.6
                 height: root.buttonHeight * 0.9
                 radius: height / 2
                 background: Rectangle {
@@ -299,11 +299,20 @@ Rectangle {
                         antialiasing: false
                     }
                     Text {
+                        id: ballName
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.left: pokeImage.right
                         anchors.leftMargin: 4
                         text: "Pokeball"
                         font.pixelSize: root.buttonFontSize
+                    }
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.left: ballName.right
+                        anchors.leftMargin: 4
+                        text: "inf"
+                        font.pixelSize: root.buttonFontSize
+                        color: "darkgrey"
                     }
                 }
                 onClicked: root.catchChosen(3)
