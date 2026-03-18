@@ -539,7 +539,7 @@ Rectangle {
                                     anchors.centerIn: parent
                                     frameIndex: root.party.pokedexIds[index]-1
                                     iconScale: root.iconScale
-                                    opacity: party.healthRatios[index] > 0 ? (index==root.currentIndex ? root.selectedIconOpacity : root.normalIconOpacity) : root.faintedIconOpacity
+                                    opacity: party.healthRatios[index] > 0 ? (index==root.selectedIndex ? root.selectedIconOpacity : root.normalIconOpacity) : root.faintedIconOpacity
                                 }
                             }
                             Text {
