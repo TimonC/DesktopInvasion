@@ -1,4 +1,4 @@
-name: Build Windows
+name: Build Windows (MinGW)
 
 on:
   push:
@@ -15,21 +15,41 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Install Qt (MSVC)
+    - name: Setup MinGW
+      run: |
+        # Install MinGW via chocolatey
+        choco install mingw --version=13.2.0 --allow-downgrade -y --force
+
+        # Add MinGW to PATH
+        echo "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin" >> $env:GITHUB_PATH
+
+        # Create any missing directories to avoid errors
+        New-Item -ItemType Directory -Force -Path "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\x86_64-w64-mingw32\lib" -ErrorAction SilentlyContinue
+      shell: powershell
+
+    - name: Verify MinGW
+      run: |
+        gcc --version
+        g++ --version
+      shell: bash
+
+    - name: Install Qt (MinGW)
       uses: jurplel/install-qt-action@v3
       with:
         version: '6.8.0'
         host: 'windows'
         target: 'desktop'
-        arch: 'win64_msvc2022_64'
+        arch: 'win64_mingw'
         cache: true
 
-    - name: Configure CMake
-      run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+    - name: Configure CMake (MinGW)
+      run: |
+        cmake -B build -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
       shell: bash
 
     - name: Build
-      run: cmake --build build --config Release --parallel
+      run: |
+        cmake --build build --parallel
       shell: bash
 
     - name: Package
@@ -39,27 +59,56 @@ jobs:
         New-Item -ItemType Directory -Force -Path output/DesktopInvasion-Windows
 
         # Copy executable
-        Copy-Item build/Release/DesktopInvasion.exe output/DesktopInvasion-Windows/
+        Copy-Item build/DesktopInvasion.exe output/DesktopInvasion-Windows/
 
         # Find Qt path
         $qtPath = "${{ env.Qt6_Dir }}"
         $qtBin = $qtPath -replace 'lib\\cmake\\Qt6', 'bin'
 
+        Write-Host "Qt path: $qtPath"
+        Write-Host "Qt bin: $qtBin"
+
         # Run windeployqt
         & "$qtBin/windeployqt.exe" --release --qmldir qml output/DesktopInvasion-Windows/DesktopInvasion.exe
 
-        # For MSVC, we need VC runtime DLLs
-        $vcRedistPath = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Redist\MSVC\v143\x64\Microsoft.VC143.CRT"
-        Copy-Item "$vcRedistPath\*.dll" output\DesktopInvasion-Windows\
+        # Find and copy MinGW runtime DLLs
+        $mingwPaths = @(
+          "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin",
+          "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\x86_64-w64-mingw32\lib",
+          "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\lib"
+        )
+
+        $mingwDlls = @("libstdc++-6.dll", "libgcc_s_seh-1.dll", "libwinpthread-1.dll")
+
+        foreach ($dll in $mingwDlls) {
+          $found = $false
+          foreach ($path in $mingwPaths) {
+            $dllPath = Join-Path $path $dll
+            if (Test-Path $dllPath) {
+              Copy-Item $dllPath output/DesktopInvasion-Windows/
+              Write-Host "Copied $dll from $path"
+              $found = $true
+              break
+            }
+          }
+          if (-not $found) {
+            Write-Host " Warning: Could not find $dll"
+          }
+        }
 
         # Create README
         @"
         Desktop Invasion - Windows Version
+
         To play: Double-click DesktopInvasion.exe
-        "@ | Out-File -FilePath output/DesktopInvasion-Windows/README.txt -Encoding UTF8
+
+        Built with: Qt 6.8.0 (MinGW)
+        " @ | Out-File -FilePath output/DesktopInvasion-Windows/README.txt -Encoding UTF8
 
         # Create zip
         Compress-Archive -Path output\DesktopInvasion-Windows -DestinationPath DesktopInvasion-Windows.zip -Force
+
+        Write-Host "Package created: DesktopInvasion-Windows.zip"
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
