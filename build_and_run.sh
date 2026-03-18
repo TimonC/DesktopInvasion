@@ -15,7 +15,7 @@ make
 ./DesktopInvasion &
 APP_PID=$!
 
-while inotifywait -r -e modify,create,delete ../src ../include ../assets ../sprites; do
+while inotifywait -r -e modify,create,delete ../src ../include ../sprites; do
     echo -e "\n\033[1;33m========== HMR triggered at $(date '+%Y-%m-%d %H:%M') ==========\033[0m"
 
     # Stop old app

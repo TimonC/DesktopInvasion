@@ -1,21 +1,35 @@
 #include <QGuiApplication>
+#include <QDebug>
+#include <memory>
+#include <cstdlib>
+#include <ctime>
 #include "WildPokemon.h"
+#include "pokemon_data.h"  // contains kPokemonList, kPokemonCount
+#include <globals.h>
 
 int main(int argc, char *argv[]) {
     QGuiApplication app(argc, argv);
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 
-    std::unique_ptr<WildPokemon> pok1  = std::make_unique<WildPokemon>(nullptr, std::rand() % 120);
+    // Pick 3 random spriteIds
+    int spriteId1 = std::rand() % kPokemonCount;
+    int spriteId2 = std::rand() % kPokemonCount;
+    int spriteId3 = std::rand() % kPokemonCount;
 
-    std::unique_ptr<WildPokemon> pok2  = std::make_unique<WildPokemon>(nullptr, std::rand() % 120);
+    // Debug using findPokemonBySpriteId to get the full entry
+    const PokemonInfo* p1 = findPokemonBySpriteId(spriteId1);
+    const PokemonInfo* p2 = findPokemonBySpriteId(spriteId2);
+    const PokemonInfo* p3 = findPokemonBySpriteId(spriteId3);
 
-    std::unique_ptr<WildPokemon> pok3  = std::make_unique<WildPokemon>(nullptr, std::rand() % 120);
+    // Create WildPokemon objects using the spriteId directly
+    std::unique_ptr<WildPokemon> pok1 = std::make_unique<WildPokemon>(p1);
+    std::unique_ptr<WildPokemon> pok2 = std::make_unique<WildPokemon>(p2);
+    std::unique_ptr<WildPokemon> pok3 = std::make_unique<WildPokemon>(p3);
 
-    /* std::unique_ptr<WildPokemon> pok4  = std::make_unique<WildPokemon>(nullptr, std::rand() % 120); */
 
-    /* std::unique_ptr<WildPokemon> pok5  = std::make_unique<WildPokemon>(nullptr, std::rand() % 120); */
-
-    /* std::unique_ptr<WildPokemon> pok6  = std::make_unique<WildPokemon>(nullptr, std::rand() % 120); */
+    if (p1) qDebug() << "Pokémon 1:" << "#" << p1->pokedexId << "-" << p1->name;
+    if (p2) qDebug() << "Pokémon 2:" << "#" << p2->pokedexId << "-" << p2->name;
+    if (p3) qDebug() << "Pokémon 3:" << "#" << p3->pokedexId << "-" << p3->name;
 
     return app.exec();
 }

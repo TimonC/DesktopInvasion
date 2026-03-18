@@ -5,12 +5,14 @@
 #include "Pokemon.h"
 #include <globals.h>
 
-Pokemon::Pokemon(QWindow *parent, int row)
+Pokemon::Pokemon(const PokemonInfo* info, QWindow *parent)
     : QQuickView(parent)
-    , m_row(row)
+    , m_pokeinfo(info)
     , m_currentDirection(0)
     , m_scaleFactor(3)
 {
+    m_row = info->spriteId;
+
     setFlags( Qt::WindowStaysOnTopHint
             | Qt::Tool
             | Qt::WindowDoesNotAcceptFocus
@@ -25,20 +27,21 @@ Pokemon::Pokemon(QWindow *parent, int row)
     m_sprite->setProperty("debugLines", DEBUG);
 
     // Set random spritesheet here
-    QString randomSpriteSheet = getRandomSpriteSheet();
+    QString randomSpriteSheet = getSpriteSheet();
     m_sprite->setProperty("spriteSheet", randomSpriteSheet);
 
     setSize(50);
 }
 
-QString Pokemon::getRandomSpriteSheet() {
-    int randomValue = std::rand() % 3;
-    switch(randomValue) {
-        case 0:
-            return "qrc:/assets/HGSS/PokGen1_transparent_reordered.png";
+QString Pokemon::getSpriteSheet() {
+    switch(m_pokeinfo->generation) {
         case 1:
-            return "qrc:/assets/HGSS/PokGen3_transparent_reordered.png";
+            return "qrc:/assets/HGSS/PokGen1_transparent_reordered.png";
         case 2:
+            return "qrc:/assets/HGSS/PokGen2_transparent_reordered.png";
+        case 3:
+            return "qrc:/assets/HGSS/PokGen3_transparent_reordered.png";
+        case 4:
             return "qrc:/assets/HGSS/PokGen4_transparent_reordered.png";
         default:
             return "qrc:/assets/HGSS/PokGen1_transparent_reordered.png";

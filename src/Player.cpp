@@ -1,12 +1,14 @@
 #include "Battlescene.h"
+#include "globals.h"
 #include <Player.h>
 #include <memory>
 
 Player::Player(QObject* parent) : QObject(parent){
     qDebug() << "Player constructor called!";
-    m_party[0] = std::make_unique<Pokemon>(nullptr, std::rand()%120);
-    m_party[1] = std::make_unique<Pokemon>(nullptr, std::rand()%120);
-    /* m_party[2] = std::make_unique<Pokemon>(nullptr, random()%100); */
+    const PokemonInfo* p1 = findPokemonBySpriteId(std::rand()%100);
+    const PokemonInfo* p2 = findPokemonBySpriteId(std::rand()%100);
+    m_party[0] = std::make_unique<Pokemon>(p1);
+    m_party[1] = std::make_unique<Pokemon>(p2);
     m_pokemonAvailable = true;
 };
 void Player::_iChooseYou(Pokemon* opp, Pokemon* chosen){
@@ -20,7 +22,7 @@ void Player::_iChooseYou(Pokemon* opp, Pokemon* chosen){
     battle->raise();
     m_activeBattles.push_back(std::move(battle));
 
-    qDebug() << "I choose you!";
+    qDebug() << "I choose you," << chosen->m_pokeinfo->name << "!";
 }
 
 Pokemon* Player::iChooseYou(Pokemon *opp){

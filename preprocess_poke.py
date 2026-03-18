@@ -1,4 +1,5 @@
 import argparse
+import os
 from pathlib import Path
 from PIL import Image
 import numpy as np
@@ -51,7 +52,7 @@ def process_image(image_path, n_rows, n_cols, frame_width, frame_height):
 
             # Only keep non-empty frame sets
             if has_visible_content(frames):
-                all_rows.append(frames)
+               all_rows.append(frames)
 
     # Create output image
     new_width = 8 * frame_width
@@ -79,10 +80,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Reorder frames from multiple PNGs, skipping empty sprites."
     )
-    parser.add_argument("inputs", nargs='+', help="Input PNG file paths")
-    parser.add_argument("--n_rows", type=int, default=15,
+    parser.add_argument("--input_path", type=str, default ="assets/HGSS")
+    parser.add_argument("--inputs", nargs='+', default = ["PokGen1_transparent.png", "PokGen2_transparent.png", "PokGen3_transparent.png", "PokGen4_transparent.png"])
+    parser.add_argument("--n_rows", type=int, default=20,
                         help="Number of rows of sections per image (default 15)")
-    parser.add_argument("--n_cols", type=int, default=11,
+    parser.add_argument("--n_cols", type=int, default=15,
                         help="Number of columns of sections per image (default 11)")
     parser.add_argument("--frame_width", type=int, default=32,
                         help="Width of a single frame (default 32)")
@@ -90,7 +92,7 @@ if __name__ == "__main__":
                         help="Height of a single frame (default 32)")
 
     args = parser.parse_args()
-
+    input_paths = [os.path.join(args.input_path, input) for input in args.inputs]
     preprocess_poke(
-        args.inputs, args.n_rows, args.n_cols, args.frame_width, args.frame_height
+        input_paths, args.n_rows, args.n_cols, args.frame_width, args.frame_height
     )

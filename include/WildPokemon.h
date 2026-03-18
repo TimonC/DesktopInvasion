@@ -3,12 +3,13 @@
 
 #include "Pokemon.h"
 #include "Hitbox.h"
+#include "pokemon_data.h"
 class WildPokemon : public Pokemon{
 
     Q_OBJECT
 
 public:
-    explicit WildPokemon(QWindow *parent = nullptr, int row = 0);
+    explicit WildPokemon(const PokemonInfo* info,  QWindow *parent = nullptr);
     void startRoaming() override;
 
 private slots:

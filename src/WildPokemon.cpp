@@ -9,9 +9,10 @@
 #include "WildPokemon.h"
 #include "Player.h"
 #include "globals.h"
+#include "pokemon_data.h"
 
-WildPokemon::WildPokemon(QWindow *parent, int row)
-    : Pokemon(parent, row)
+WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
+    : Pokemon(info, parent)
     , m_hitbox(new Hitbox(nullptr))
     , m_decisionTimer(new QTimer(this))
     , m_moveTimer(new QTimer(this))

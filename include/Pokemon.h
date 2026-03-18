@@ -1,13 +1,13 @@
-#ifndef Pokemon_H
-#define Pokemon_H
+#ifndef POKEMON_H
+#define POKEMON_H
 
 #include <QQuickView>
-
+#include <pokemon_data.h>
 class Pokemon : public QQuickView{
     Q_OBJECT
 
 public:
-    explicit Pokemon(QWindow *parent = nullptr, int row = 0);
+    explicit Pokemon(const PokemonInfo* info, QWindow *parent = nullptr);
     void direction(int direction);
     int direction();
     int m_row;
@@ -17,12 +17,13 @@ public:
     void useMove();
     void attacked();
     QQuickItem* m_sprite;
+    const PokemonInfo* m_pokeinfo;
 
 public slots:
     virtual QPoint movePos(QPoint delta);
 
 protected:
-    QString getRandomSpriteSheet();
+    QString getSpriteSheet();
     void setSize(int size);
     int m_currentDirection;
 
