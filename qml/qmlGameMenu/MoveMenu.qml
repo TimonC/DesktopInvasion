@@ -18,6 +18,10 @@ Item {
     property int    fontSizeMd: 18
     property int    fontSizeSm: 16
 
+
+    property int displayedPokemonPos: -1
+    property int displayedPokemonBox: -1
+
     property bool inNameEditMode:      false
     property int  selectedEligibleIdx: -1
 

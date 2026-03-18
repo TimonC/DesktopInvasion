@@ -241,6 +241,7 @@ void PokemonDatabase::dbWriteWild(const PokemonState& p) {
     writePokemonToRow(q, p);
     q.addBindValue(m_saveId);
     q.exec(); logQuery(q);
+    DB_LOG("Wild ->" << (p.empty() ? "empty" : QString::fromStdString(p.name)));
 }
 
 void PokemonDatabase::dbWritePartySlot(int slot, const PokemonState& p) {

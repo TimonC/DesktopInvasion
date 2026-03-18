@@ -172,12 +172,10 @@ QVariantList Game::boxToVariantList(int boxIndex) {
 }
 
 void Game::pushBoxToMenu(int boxIndex) {
-    m_menu->loadBox(boxIndex, boxToVariantList(boxIndex));
     qDebug() << "[Game] Pushed PC box" << boxIndex << "to menu";
 }
 
 void Game::handleMenuPreloadBox(int boxIndex) {
-    qDebug() << "[Game] Menu requested preload of box" << boxIndex;
     pushBoxToMenu(boxIndex);
 }
 

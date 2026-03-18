@@ -266,7 +266,7 @@ Rectangle {
                     })
 
                     item.nameChanged.connect(function(name) {
-                        menuBridge.nameChangeRequested(pc.displayedPokemonIndex, pc.displayedPokemonSlot, name)
+                        menuBridge.nameChangeRequested(pc.displayedPokemonBox, pc.displayedPokemonIndex, name)
                     })
                     item.requestMoveChange.connect(function(slot, moveId) {
                     })
