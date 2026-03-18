@@ -1,6 +1,4 @@
 cmake_minimum_required(VERSION 3.16)
-cmake_policy(SET CMP0100 NEW)
-
 project(DesktopInvasion)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -9,16 +7,15 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
+find_package(Qt6 REQUIRED COMPONENTS Core Quick)
 
-qt5_add_resources(RESOURCES resources.qrc)
+qt_add_resources(RESOURCES resources.qrc)
 
 add_executable(DesktopInvasion
     src/main.cpp
-    src/InvasionView.cpp
-    src/Sprite.cpp
+    src/InvasionOverlay.cpp
     ${RESOURCES}
 )
-target_include_directories(DesktopInvasion PRIVATE src)
-target_link_libraries(DesktopInvasion Qt5::Widgets)
 
+target_include_directories(DesktopInvasion PRIVATE src)
+target_link_libraries(DesktopInvasion Qt6::Core Qt6::Quick)

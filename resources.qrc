@@ -1,4 +1,7 @@
 <RCC>
+    <qresource prefix="/">
+        <file>InvasionCanvas.qml</file>
+    </qresource>
     <qresource prefix="/assets">
         <file>assets/HGSS/PokGen1.png</file>
         <file>assets/HGSS/trainers.png</file>

@@ -1,3 +1,6 @@
-build
+build/
+*.user
+*.autosave
+.qt
 .cache
 compile_commands.json

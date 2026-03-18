@@ -203,53 +203,29 @@ qrc_resources.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/DesktopInvasion.dir/build.make CMakeFiles/DesktopInvasion.dir/qrc_resources.cpp.s
 .PHONY : qrc_resources.cpp.s
 
-src/InvasionView.o: src/InvasionView.cpp.o
-.PHONY : src/InvasionView.o
+src/InvasionOverlay.o: src/InvasionOverlay.cpp.o
+.PHONY : src/InvasionOverlay.o
 
 # target to build an object file
-src/InvasionView.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/DesktopInvasion.dir/build.make CMakeFiles/DesktopInvasion.dir/src/InvasionView.cpp.o
-.PHONY : src/InvasionView.cpp.o
+src/InvasionOverlay.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/DesktopInvasion.dir/build.make CMakeFiles/DesktopInvasion.dir/src/InvasionOverlay.cpp.o
+.PHONY : src/InvasionOverlay.cpp.o
 
-src/InvasionView.i: src/InvasionView.cpp.i
-.PHONY : src/InvasionView.i
-
-# target to preprocess a source file
-src/InvasionView.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/DesktopInvasion.dir/build.make CMakeFiles/DesktopInvasion.dir/src/InvasionView.cpp.i
-.PHONY : src/InvasionView.cpp.i
-
-src/InvasionView.s: src/InvasionView.cpp.s
-.PHONY : src/InvasionView.s
-
-# target to generate assembly for a file
-src/InvasionView.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/DesktopInvasion.dir/build.make CMakeFiles/DesktopInvasion.dir/src/InvasionView.cpp.s
-.PHONY : src/InvasionView.cpp.s
-
-src/Sprite.o: src/Sprite.cpp.o
-.PHONY : src/Sprite.o
-
-# target to build an object file
-src/Sprite.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/DesktopInvasion.dir/build.make CMakeFiles/DesktopInvasion.dir/src/Sprite.cpp.o
-.PHONY : src/Sprite.cpp.o
-
-src/Sprite.i: src/Sprite.cpp.i
-.PHONY : src/Sprite.i
+src/InvasionOverlay.i: src/InvasionOverlay.cpp.i
+.PHONY : src/InvasionOverlay.i
 
 # target to preprocess a source file
-src/Sprite.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/DesktopInvasion.dir/build.make CMakeFiles/DesktopInvasion.dir/src/Sprite.cpp.i
-.PHONY : src/Sprite.cpp.i
+src/InvasionOverlay.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/DesktopInvasion.dir/build.make CMakeFiles/DesktopInvasion.dir/src/InvasionOverlay.cpp.i
+.PHONY : src/InvasionOverlay.cpp.i
 
-src/Sprite.s: src/Sprite.cpp.s
-.PHONY : src/Sprite.s
+src/InvasionOverlay.s: src/InvasionOverlay.cpp.s
+.PHONY : src/InvasionOverlay.s
 
 # target to generate assembly for a file
-src/Sprite.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/DesktopInvasion.dir/build.make CMakeFiles/DesktopInvasion.dir/src/Sprite.cpp.s
-.PHONY : src/Sprite.cpp.s
+src/InvasionOverlay.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/DesktopInvasion.dir/build.make CMakeFiles/DesktopInvasion.dir/src/InvasionOverlay.cpp.s
+.PHONY : src/InvasionOverlay.cpp.s
 
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
@@ -292,12 +268,9 @@ help:
 	@echo "... qrc_resources.o"
 	@echo "... qrc_resources.i"
 	@echo "... qrc_resources.s"
-	@echo "... src/InvasionView.o"
-	@echo "... src/InvasionView.i"
-	@echo "... src/InvasionView.s"
-	@echo "... src/Sprite.o"
-	@echo "... src/Sprite.i"
-	@echo "... src/Sprite.s"
+	@echo "... src/InvasionOverlay.o"
+	@echo "... src/InvasionOverlay.i"
+	@echo "... src/InvasionOverlay.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
