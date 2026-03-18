@@ -90,7 +90,8 @@ Item {
                 break
             case 1:
                 sprite.x = Math.round(root.width - root.frameSize/2 - root.statusBarWidth/2 - sprite.width/2)
-                sprite.y = Math.round(0.5*(root.statusBarHeight + root.height - root.menuHeight - sprite.height + Math.max(0, (sprite.height-sprite.horizontalHeight))))
+                sprite.y = Math.round(root.height - battleMenu.height - sprite.height + Math.max(0, sprite.height-sprite.horizontalHeight)/2)
+                sprite.y = Math.min(sprite.y, Math.round(root.height-battleMenu.height-frameSize/4))
                 sprite.statusBar.x = Math.round(root.width - root.frameSize/2 - root.statusBarWidth)
                 sprite.statusBar.y = 0
                 break
@@ -102,7 +103,7 @@ Item {
                 break
             case 3:
                 sprite.x = Math.round(root.frameSize/2 + root.statusBarWidth/2 - sprite.width/2)
-                sprite.y = Math.round(0.5*(root.statusBarHeight + root.height - root.menuHeight - sprite.height + Math.max(0, (sprite.height-sprite.horizontalHeight))))
+                sprite.y = Math.round(root.height - battleMenu.height - sprite.height + Math.max(0, sprite.height-sprite.horizontalHeight)/2)
                 sprite.statusBar.x = Math.round(root.frameSize/2)
                 sprite.statusBar.y = 0
                 break

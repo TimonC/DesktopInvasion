@@ -148,10 +148,10 @@ QQuickItem* Battle::updateSprite(int pokedexId, const char* role){
     // Apply correct scaling
     pokemonSprite->setProperty("scaleFactor", Globals::scale() / scaleDivisor);
     pokemonSprite->setProperty("debugLines", Globals::debug());
-    pokemonSprite->setProperty("horizontalHeight", 3*Globals::scale()*info->hHeight);
-    pokemonSprite->setProperty("verticalWidth", 3*Globals::scale()*info->vWidth);
-    pokemonSprite->setProperty("hCenterUp", 3*Globals::scale()*info->hCenterUp);
-    pokemonSprite->setProperty("hCenterDown", 3*Globals::scale()*info->hCenterDown);
+    pokemonSprite->setProperty("horizontalHeight", Globals::scale()/scaleDivisor * info->hHeight);
+    pokemonSprite->setProperty("verticalWidth", Globals::scale()/scaleDivisor * info->vWidth);
+    pokemonSprite->setProperty("hCenterUp", Globals::scale()/scaleDivisor * info->hCenterUp);
+    pokemonSprite->setProperty("hCenterDown", Globals::scale()/scaleDivisor * info->hCenterDown);
 
     // Calculate dimensions with isBig scaling
     int width = (Globals::scale() / scaleDivisor) * info->width ;

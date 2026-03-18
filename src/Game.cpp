@@ -343,7 +343,7 @@ void Game::handleBattleEnd(const char* endState, bool removeWild) {
 
 void Game::createInitialPokemon() {
     PokemonState gastly;
-    gastly.pokedex_id = 92;
+    gastly.pokedex_id = 336;
     gastly.name = "Gastly";
     gastly.pokeball_id = 0;
 
