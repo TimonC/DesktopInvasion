@@ -65,10 +65,6 @@ Item {
         player.statusBar.changeStatusCondition(label, label=="")
     }
     function positionSpriteAndStatusBar(sprite) {
-        sprite.statusBar.anchors.left = undefined
-        sprite.statusBar.anchors.right = undefined
-        sprite.statusBar.anchors.top = undefined
-        sprite.statusBar.anchors.bottom = undefined
         switch(sprite.direction) {
             case 0:
                 sprite.x = (root.width - root.statusBarWidth - sprite.width)/2
@@ -98,9 +94,12 @@ Item {
         sprite.startingX = sprite.x
         sprite.startingY = sprite.y
     }
+
     Component.onCompleted: {
+
         positionSpriteAndStatusBar(player)
         positionSpriteAndStatusBar(opponent)
+
         Qt.callLater(function() {
             root.currentPlayerBallIndex = battleMenu.party.ballIds[0]
             root.resetPlayerBall()
@@ -108,9 +107,12 @@ Item {
             battleMenu.updateText(playerName + ", I choose you!")
             var coords = calculateBallCoords(player)
             player.visible = false
-            pokeBallPlayer.throwAt(coords[0], coords[1], coords[2], coords[3])
+
+            var adjustedY1 = coords[3] + pokeBallPlayer.height * 0.5
+            pokeBallPlayer.throwAt(coords[0], coords[1], coords[2], adjustedY1)
         })
     }
+
     Rectangle {
         id: containerDebugLines
         anchors.fill: parent
@@ -169,44 +171,50 @@ Item {
             opponent.visible=false
         }
     }
+
     Pokeball {
         id: pokeBallPlayer
         scaleFactor: root.scale
     }
-    function resetPlayerBall() {
-        pokeBallPlayer.reset(root.currentPlayerBallIndex)
-        pokeBallPlayer.visible = true
-        pokeBallPlayer.circleBaseWidth = player.width
-        pokeBallPlayer.circleBaseHeight = player.height
-        pokeBallPlayer.circleX = player.x + player.width/2
-        pokeBallPlayer.circleY = player.y + player.height/2
-        pokeBallPlayer.delayReveal = 2
 
-        if (root.pokemonInsideBallConnection) {
-            pokeBallPlayer.onPokemonInsideBall.disconnect(root.pokemonInsideBallConnection)
-        }
-        if (root.ballOpenedConnection) {
-            pokeBallPlayer.onBallOpened.disconnect(root.ballOpenedConnection)
-        }
+function resetPlayerBall() {
+    pokeBallPlayer.reset(root.currentPlayerBallIndex)
+    pokeBallPlayer.visible = true
 
-        root.pokemonInsideBallConnection = function() {
-            pokeBallPlayer.circleExpand()
-        }
-        root.ballOpenedConnection = function() {
-            pokeBallPlayer.visible = false
-            player.visible = true
-            statusBarPlayer.visible = true
-            if(root.safePokemonSwitch){
-                battleMenu.resetToRoot()
-            }else{
-                root.signalToStartActionRound(battleMenu.selectedIndex, "Switch");
-            }
-        }
+    var pokeballCenterY = player.y + player.height/2 - pokeBallPlayer.height/2
 
-        pokeBallPlayer.onPokemonInsideBall.connect(root.pokemonInsideBallConnection)
-        pokeBallPlayer.onBallOpened.connect(root.ballOpenedConnection)
+    pokeBallPlayer.circleBaseWidth = player.width
+    pokeBallPlayer.circleBaseHeight = Math.min(player.height, pokeballCenterY * 2)
+
+    pokeBallPlayer.circleX = player.x + player.width/2
+    pokeBallPlayer.circleY = pokeballCenterY
+
+    pokeBallPlayer.delayReveal = 2
+
+    if (root.pokemonInsideBallConnection) {
+        pokeBallPlayer.onPokemonInsideBall.disconnect(root.pokemonInsideBallConnection)
+    }
+    if (root.ballOpenedConnection) {
+        pokeBallPlayer.onBallOpened.disconnect(root.ballOpenedConnection)
     }
 
+    root.pokemonInsideBallConnection = function() {
+        pokeBallPlayer.circleExpand()
+    }
+    root.ballOpenedConnection = function() {
+        pokeBallPlayer.visible = false
+        player.visible = true
+        statusBarPlayer.visible = true
+        if(root.safePokemonSwitch){
+            battleMenu.resetToRoot()
+        }else{
+            root.signalToStartActionRound(battleMenu.selectedIndex, "Switch");
+        }
+    }
+
+    pokeBallPlayer.onPokemonInsideBall.connect(root.pokemonInsideBallConnection)
+    pokeBallPlayer.onBallOpened.connect(root.ballOpenedConnection)
+}
     BattleMenu {
         id: battleMenu
         iconScale: root.scale
@@ -464,10 +472,16 @@ Item {
 
 
     function calculateBallCoords(sprite){
-        var x1 = sprite.x + (sprite.width / 2) - (root.frameSize/4)
-        var x0 = x1 + 2*(sprite.direction==1 ? -root.frameSize : root.frameSize)
-        var y0 = Math.max(0, sprite.y - pokeBallOpponent.frameHeight)
-        var y1 = sprite.y + sprite.height - pokeBallOpponent.frameHeight
+        var pokeballWidth = pokeBallOpponent.width
+        var pokeballHeight = pokeBallOpponent.height
+
+        var x1 = sprite.x + (sprite.width / 2) - (pokeballWidth / 2)
+
+        var x0 = x1 + (sprite.direction == 1 ? -root.frameSize * 2 : root.frameSize * 2)
+
+        var y0 = Math.max(16, sprite.y - pokeballHeight)
+        var y1 = sprite.y + sprite.height - pokeballHeight
+
         return [x0, x1, y0, y1]
     }
 
