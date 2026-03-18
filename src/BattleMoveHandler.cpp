@@ -450,7 +450,7 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
         params.stab = hasStab ? 150 : 100;
 
         params.type1 = typeEffectiveness1;
-        params.type2 = 100;
+        params.type2 = typeEffectiveness2;
 
         int damage = PokeMath::calculateDamage(params, m_rng);
         result.addEffect(BattleActionResult::CHANGE_HEALTH, caster, target, damage);
