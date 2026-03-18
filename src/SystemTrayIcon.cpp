@@ -34,12 +34,13 @@ void SystemTrayIcon::setupMenu(){
 }
 
 void SystemTrayIcon::onActivated(QSystemTrayIcon::ActivationReason reason){
-    if (reason == QSystemTrayIcon::Trigger || reason == QSystemTrayIcon::Context) {
+    if (reason == QSystemTrayIcon::Trigger && reason == QSystemTrayIcon::Context) { //right click
         QPoint pos = QCursor::pos();
         QPoint hotspot = QCursor().hotSpot();
         pos.setX(pos.x() - hotspot.x());
-
         m_menu->popup(pos);
+    }else if(reason == QSystemTrayIcon::Trigger){//left click
+        toggleGameActive();
     }
 }
 
