@@ -2,7 +2,8 @@
 #define GLOBALS_H
 
 #include <data_poke.h>
-#include <data_battle.h>
+#include <data_move.h>
+
 class QRect;
 class QSize;
 

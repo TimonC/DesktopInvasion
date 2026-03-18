@@ -202,8 +202,7 @@ def generate_moves_data_direct():
     max_move_id = max(m['id'] for m in valid_moves)
 
     # Generate source file content
-    source_content = """#include "data_battle.h"
-#include <vector>
+    source_content = """#include "data_move.h"
 
 namespace {
 """
@@ -218,8 +217,10 @@ namespace {
             source_content += f"    static const int learned_by_{move_id}[] = {{"
             source_content += ", ".join(str(p) for p in learned_by)
             source_content += "};\n"
+            learned_count = len(learned_by)
         else:
             source_content += f"    static const int learned_by_{move_id}[] = {{0}};\n"
+            learned_count = 0
 
         # Move definition
         name = move['name'].replace('"', '\\"')
@@ -234,7 +235,6 @@ namespace {
         power = move['power'] if move['power'] is not None else -1
 
         stats = "{" + ", ".join(str(s) for s in move['stat_changes']) + "}"
-        learned_count = len(learned_by)
 
         source_content += f"""    static const Move move_{move_id} = {{
         {move_id},
@@ -246,7 +246,8 @@ namespace {
         "{move_type}",
         {stats},
         "{flavor}",
-        std::vector<int>(learned_by_{move_id}, learned_by_{move_id} + {learned_count})
+        learned_by_{move_id},  // Pointer to static array
+        {learned_count}        // Size of array
     }};
 
 """
@@ -275,13 +276,12 @@ namespace {
     source_content += f"const int kMoveCount = {len(valid_moves)};\n"
 
     return source_content
-
 # Generate the C++ file
 source_content = generate_moves_data_direct()
 
 if source_content:
     # Ensure the src directory exists
-    output_path = Path("src/data_battle.cpp")
+    output_path = Path("src/data_move.cpp")
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Write source file
@@ -289,7 +289,7 @@ if source_content:
         f.write(source_content)
 
     valid_move_count = len([m for m in moves if not should_skip_move(m['id'])])
-    print(f"\nGenerated ../src/data_battle.cpp")
+    print(f"\nGenerated ../src/data_move.cpp")
     print(f"Total moves: {valid_move_count}")
     print(f"Max move ID: {max(m['id'] for m in moves if not should_skip_move(m['id']))}")
     print(f"Array size: {max(m['id'] for m in moves if not should_skip_move(m['id'])) + 1}")

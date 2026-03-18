@@ -6,7 +6,8 @@
 #include <QQuickItem>
 #include <WildPokemon.h>
 #include <qtmetamacros.h>
-#include  <BattleMoveHandler.h>
+#include <BattleMoveHandler.h>
+
 
 class Battle : public DesktopScene{
 

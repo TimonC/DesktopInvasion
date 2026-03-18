@@ -1,6 +1,5 @@
-#include "data_battle.h"
+#include "data_move.h"
 #include <BattleMoveHandler.h>
-#include <algorithm>
 #include <globals.h>
 
 BattleMoveHandler::BattleMoveHandler(Poke opponent, Poke party[6])
