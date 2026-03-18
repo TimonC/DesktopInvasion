@@ -1,4 +1,3 @@
-// Battle.cpp
 #include "BattleMoveHandler.h"
 #include "PokeMath/calculatePokeStats.h"
 #include <Battle.h>
@@ -25,7 +24,7 @@ Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildS
             this, &Battle::executeActionSequence);
 
     // Connect BattleScene's action start signal to BattleMoveHandler
-    connect(m_battleScene, SIGNAL(_startActionRound(int,QString)),
+    connect(m_battleScene, SIGNAL(signalToStartActionRound(int,QString)),
             m_battleMoveHandler.get(), SLOT(startActionRound(int, QString)));
 
     connect(m_battleScene, SIGNAL(_battleEnded(QString, bool)),
@@ -105,6 +104,7 @@ QQuickItem* Battle::setupPokemon(const PokemonInfo* info, const char* role) {
 QQuickItem* Battle::updateSprite(int spriteId, int generation, const char* role){
     QQuickItem* pokemonSprite = m_battleScene->property(role).value<QQuickItem*>();
     Q_ASSERT_X(pokemonSprite, "Battle::setupPokemon", "pokemonSprite: '%1' is null".arg(role));
+
     /* // Set the basic sprite properties */
     QMetaObject::invokeMethod(pokemonSprite, "updatePokemon", Q_ARG(QVariant, generation), Q_ARG(QVariant, spriteId));
     pokemonSprite->setProperty("scaleFactor", Globals::SCALE);
@@ -125,9 +125,6 @@ QQuickItem* Battle::updateSprite(int spriteId, int generation, const char* role)
     pokemonSprite->setProperty("itemHeight", height);
     pokemonSprite->setProperty("containerOffsetX", offsetX);
     pokemonSprite->setProperty("containerOffsetY", offsetY);
-
-    // Position the sprite
-
     return pokemonSprite;
 }
 

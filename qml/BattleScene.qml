@@ -1,4 +1,3 @@
-// BattleScene.qml
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 Item {
@@ -43,8 +42,12 @@ Item {
     property int runEndDuration: 1000
     property bool catchAttemptActive: false
 
+    //Signal references to allow disconnect/reset
+    property var ballOpenedConnection: null
+    property var pokemonInsideBallConnection: null
+
     signal _battleEnded(string endState, bool removeWild);
-    signal _startActionRound(int actionIndex, string actionState)
+    signal signalToStartActionRound(int actionIndex, string actionState)
     signal switchedPokemon(int generation, int spriteId)
 
     function setInitialTotalHealth(opponentTotalHealth, playerTotalHealth){
@@ -93,7 +96,7 @@ Item {
         // Schedule for next event loop
         Qt.callLater(function() {
             root.currentPlayerBallIndex = battleMenu.party.ballIds[0]
-            resetPlayerBall()
+            root.resetPlayerBall()
             battleMenu.showTextBar()
             battleMenu.updateText(playerName + ", I choose you!")
             var coords = calculateBallCoords(player)
@@ -166,7 +169,7 @@ Item {
     Pokeball {
         id: pokeBallPlayer
     }
-    function resetPlayerBall() {
+        function resetPlayerBall() {
         pokeBallPlayer.reset(root.currentPlayerBallIndex)
         pokeBallPlayer.visible = true
         pokeBallPlayer.circleBaseWidth = player.width
@@ -176,21 +179,35 @@ Item {
         pokeBallPlayer.scaleFactor = 2
         pokeBallPlayer.circleAnimationDuration = 1000
         pokeBallPlayer.delayReveal = 2
-        pokeBallPlayer.onPokemonInsideBall.connect(function() {
+
+        // Disconnect previous connections if they exist
+        if (root.pokemonInsideBallConnection) {
+            pokeBallPlayer.onPokemonInsideBall.disconnect(root.pokemonInsideBallConnection)
+        }
+        if (root.ballOpenedConnection) {
+            pokeBallPlayer.onBallOpened.disconnect(root.ballOpenedConnection)
+        }
+
+        // Create and store new connections
+        root.pokemonInsideBallConnection = function() {
             pokeBallPlayer.circleExpand()
-        })
-        pokeBallPlayer.onBallOpened.connect(function() {
+        }
+        root.ballOpenedConnection = function() {
             pokeBallPlayer.visible = false
             player.visible = true
             statusBarPlayer.visible = true
             if(root.safePokemonSwitch){
                 battleMenu.resetToRoot()
             }else{
-                _startActionRound(battleMenu.selectedIndex, "Switch");
+                root.signalToStartActionRound(battleMenu.selectedIndex, "Switch");
             }
-        })
+        }
+
+        pokeBallPlayer.onPokemonInsideBall.connect(root.pokemonInsideBallConnection)
+        pokeBallPlayer.onBallOpened.connect(root.ballOpenedConnection)
     }
-    // UI
+
+// UI
     BattleMenu {
         id: battleMenu
         frameSize: root.frameSize
@@ -212,8 +229,8 @@ Item {
         opponentName: root.opponentName
 
         // Forward the startActionRound signal from BattleMenu to BattleScene
-        onStartActionRound: function(actionIndex, actionType) {
-            root._startActionRound(actionIndex, actionType)
+        onActionRound: function(actionIndex, actionType) {
+            root.signalToStartActionRound(actionIndex, actionType)
         }
 
         // Legacy signal handlers (can be removed or kept for compatibility)
@@ -236,12 +253,13 @@ Item {
 
             root.switchedPokemon(newPlayerGeneration, newPlayerSpriteId)
             positionSpriteAndStatusBar(player)
+
             battleMenu.showTextBar()
             battleMenu.updateText("Go!" + " " + newPlayerName + "!")
 
-            statusBarPlayer.pokeName = newPlayerName;
-            statusBarPlayer.currentHealthRatio = battleMenu.party.healthRatios[newPartyId];
-            statusBarPlayer.totalHealth = 100;
+            statusBarPlayer.pokeName = newPlayerName
+            statusBarPlayer.currentHealthRatio = battleMenu.party.healthRatios[newPartyId]
+            statusBarPlayer.totalHealth = battleMenu.party.healthTotals[newPartyId]
 
             root.currentPlayerBallIndex = battleMenu.party.ballIds[newPartyId]
             root.safePokemonSwitch = battleMenu.forceSwitchMode

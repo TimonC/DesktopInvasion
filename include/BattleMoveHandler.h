@@ -76,9 +76,7 @@ private:
 
     // Sequence generation methods
     QVariantList generateActionSequence(Battler& opponent, Battler& player, bool playerFirst, int switchedIn, int shakes);
-    void generateMoveSequence(QVariantList& sequence, Battler& attacker, Battler& defender,
-                              const QString& attackerName, const QString& defenderName,
-                              const QString& attackerRole, const QString& defenderRole);
+    void generateMoveSequence(QVariantList& sequence, Battler& attacker, Battler& defender, bool isAttackerPlayer);
     void logActionSequence(const QVariantList& sequence);
 
     QVariantMap createTextAction(const QString& message, int delay);

@@ -1,5 +1,4 @@
 #include <BattleMoveHandler.h>
-#include "Battle.h"
 #include "PokeMath/calculatePokeStats.h"
 #include "data_move.h"
 #include <cstring>
@@ -49,8 +48,6 @@ Battler* BattleMoveHandler::createBattler(const PokemonState& state) {
 
 void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
     const char* action = _action.toStdString().data();
-    qDebug() << "Starting action round:" << actionIndex << action;
-
     assert((!std::strcmp(action, "Switch") || !std::strcmp(action, "Fight") || !std::strcmp(action, "Catch"))
            && "Action must be 'Switch', 'Fight' or 'Catch'");
     assert(actionIndex>-1 && actionIndex<6 && "actionIndex must be between 0 and 5 inclusive");
@@ -111,10 +108,9 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
         applyMove(opponentMove, m_battleOpponent, m_battleParty[m_chosenPartyIndex]);
     }
 
-    qDebug() << "Battle round - playerFirst:" << playerFirst << "opponent damage:" << m_battleOpponent->delta.damage;
-
     // Generate the action sequence
     QVariantList sequence = generateActionSequence(*m_battleOpponent, *m_battleParty[m_chosenPartyIndex], playerFirst, switchedIn, shakes);
+
     logActionSequence(sequence);
     emit actionSequenceReady(sequence);
 }
@@ -362,9 +358,12 @@ int BattleMoveHandler::applyStatModifier(int baseStat, int modifier) {
 }
 
 // Helper function to generate move sequence for a single battler
-void BattleMoveHandler::generateMoveSequence(QVariantList& sequence, Battler& attacker, Battler& defender,
-                                             const QString& attackerName, const QString& defenderName,
-                                             const QString& attackerRole, const QString& defenderRole) {
+void BattleMoveHandler::generateMoveSequence(QVariantList& sequence, Battler& attacker, Battler& defender, bool isAttackerPlayer) {
+    QString attackerName = QString::fromStdString(attacker.pokeState.name);
+    QString defenderName = QString::fromStdString(defender.pokeState.name);
+    QString attackerRole = isAttackerPlayer ? "player" : "opponent";
+    QString defenderRole = isAttackerPlayer ? "opponent" : "player";
+
     const Move* _move = attacker.pokeState.moves[attacker.battleState.lastMoveIndex];
     QString moveName = QString::fromStdString(_move->name);
 
@@ -406,42 +405,21 @@ void BattleMoveHandler::generateMoveSequence(QVariantList& sequence, Battler& at
             sequence.append(createTextAction("It doesn't affect " + defenderName + "...", ms_effectivenessText));
     }
 
-    addPostMoveEffects(sequence, attacker, attackerName, attackerRole == "player");
-    addPostMoveEffects(sequence, defender, defenderName, defenderRole == "player");
+    addPostMoveEffects(sequence, attacker, attackerName, isAttackerPlayer);
+    addPostMoveEffects(sequence, defender, defenderName, !isAttackerPlayer);
 }
 
 QVariantList BattleMoveHandler::generateActionSequence(Battler& opponent, Battler& player, bool playerFirst, int switchedIn, int shakes){
     QVariantList sequence;
 
-    // Regular battle turn
-    QString firstAttackerName = playerFirst ? "Player" : "Opponent";
-    QString firstDefenderName = playerFirst ? "Opponent" : "Player";
-    QString firstAttackerRole = playerFirst ? "player" : "opponent";
-    QString firstDefenderRole = playerFirst ? "opponent" : "player";
-
-    QString secondAttackerName = playerFirst ? "Opponent" : "Player";
-    QString secondDefenderName = playerFirst ? "Player" : "Opponent";
-    QString secondAttackerRole = playerFirst ? "opponent" : "player";
-    QString secondDefenderRole = playerFirst ? "player" : "opponent";
-
-    // First attacker's turn
-    Battler& firstAttacker = playerFirst ? player : opponent;
-    Battler& firstDefender = playerFirst ? opponent : player;
-    Battler& secondAttacker = playerFirst ? opponent : player;
-    Battler& secondDefender = playerFirst ? player : opponent;
-    // Debug print sequence parameters
-    qDebug() << "Generating action sequence with: playerFirst =" << playerFirst
-             << "switchedIn =" << switchedIn << "shakes =" << shakes;
-
     // Catch attempt
     if(shakes > -1) {
-         shakes = rand()%2 == 0 ? 1 : 4;
-         sequence.append(createTextAction("Player used one Poké Ball!", 300));
-         sequence.append(createCatchAction(shakes, ms_catchStart));
+        QString playerName = QString::fromStdString(player.pokeState.name);
+        shakes = rand()%2 == 0 ? 1 : 4; //REMOVE THIS EVENTUALLY
+        sequence.append(createTextAction("Player used one Poké Ball!", 300));
+        sequence.append(createCatchAction(shakes, ms_catchStart));
 
-        generateMoveSequence(sequence, secondAttacker, secondDefender,
-                 secondAttackerName, secondDefenderName,
-                 secondAttackerRole, secondDefenderRole);
+        generateMoveSequence(sequence, opponent, player, false);
 
         sequence.append(createEndAction());
         return sequence;
@@ -449,21 +427,22 @@ QVariantList BattleMoveHandler::generateActionSequence(Battler& opponent, Battle
 
     // Switch scenario - only opponent attacks
     if(switchedIn > -1) {
-        generateMoveSequence(sequence, opponent, player, "Opponent", "Player", "opponent", "player");
+        generateMoveSequence(sequence, opponent, player, false);
         sequence.append(createEndAction());
         return sequence;
     }
 
+    Battler& firstAttacker = playerFirst ? player : opponent;
+    Battler& firstDefender = playerFirst ? opponent : player;
+    Battler& secondAttacker = playerFirst ? opponent : player;
+    Battler& secondDefender = playerFirst ? player : opponent;
 
-    generateMoveSequence(sequence, firstAttacker, firstDefender,
-                         firstAttackerName, firstDefenderName,
-                         firstAttackerRole, firstDefenderRole);
+    // First attacker's turn
+    generateMoveSequence(sequence, firstAttacker, firstDefender, playerFirst);
 
     // Second attacker's turn (only if first defender didn't faint)
     if(firstDefender.battleState.currentHealth > 0) {
-        generateMoveSequence(sequence, secondAttacker, secondDefender,
-                             secondAttackerName, secondDefenderName,
-                             secondAttackerRole, secondDefenderRole);
+        generateMoveSequence(sequence, secondAttacker, secondDefender, !playerFirst);
     }
 
     sequence.append(createEndAction());
@@ -472,12 +451,9 @@ QVariantList BattleMoveHandler::generateActionSequence(Battler& opponent, Battle
 }
 
 void BattleMoveHandler::logActionSequence(const QVariantList& sequence) {
-    qDebug() << "";
-    qDebug() << "========================================";
     qDebug() << "       ACTION SEQUENCE LOG";
     qDebug() << "========================================";
     qDebug() << "Total actions:" << sequence.size();
-    qDebug() << "";
 
     for (int i = 0; i < sequence.size(); ++i) {
         QVariantMap action = sequence[i].toMap();
@@ -508,12 +484,9 @@ void BattleMoveHandler::logActionSequence(const QVariantList& sequence) {
         else if (type == "end") {
             qDebug() << "    (End of sequence)";
         }
-
-        qDebug() << "";
     }
 
     qDebug() << "========================================";
-    qDebug() << "";
 }
 
 QString BattleMoveHandler::ailmentToString(Ailment ailment) {
@@ -627,4 +600,3 @@ QVariantMap BattleMoveHandler::createEndAction() {
     action["type"] = "end";
     return action;
 }
-

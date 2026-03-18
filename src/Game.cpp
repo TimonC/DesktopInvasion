@@ -281,7 +281,7 @@ void Game::handleBattleEnd(const char* endState, bool removeWild) {
     assert((   !std::strcmp(endState, "PlayerWon")
             || !std::strcmp(endState, "PlayerRun")
             || !std::strcmp(endState, "OpponentWon")
-            || !std::strcmp(endState, "OpponWntCaught"))
+            || !std::strcmp(endState, "OpponentCaught"))
            && "Action must be 'Switch', 'Fight' or 'Catch'");
     qDebug() << endState;
 

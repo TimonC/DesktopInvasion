@@ -65,7 +65,7 @@ Rectangle {
     property bool forceSwitchMode: false
 
     // Signal to start an action round with the chosen action
-    signal startActionRound(int actionIndex, string actionType)
+    signal actionRound(int actionIndex, string actionType)
 
     signal attackChosen(int attackId)
     signal runChosen(bool removeWild)
@@ -353,7 +353,7 @@ Rectangle {
                         anchors.fill: parent
                         enabled: moveEnabled
                         onClicked: {
-                            root.startActionRound(index, "Fight")
+                            root.actionRound(index, "Fight")
                         }
                     }
                 }
@@ -534,7 +534,7 @@ Rectangle {
                             anchors.fill: parent
                             enabled: ballEnabled
                             onClicked: {
-                                root.startActionRound(index, "Catch")
+                                root.actionRound(index, "Catch")
                             }
                         }
                     }
