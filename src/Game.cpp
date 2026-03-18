@@ -84,6 +84,7 @@ void Game::setGameActive(bool active) {
         QTimer::singleShot(0, this, &Game::spawnPokemon);
     }
     else{
+        updateWildPokemonPosToBattlePos();
         if (m_wildPokemon) {
             m_spawnPoint = m_wildPokemon->position();
             m_spawnDirection = m_wildPokemon->m_currentDirection;
@@ -92,7 +93,6 @@ void Game::setGameActive(bool active) {
         }
         if (m_activeBattle) {
             m_activeBattle->setSceneVisibility(false);
-            updateWildPokemonPosToBattlePos();
             safelyRemoveBattleScene();
         }
             //Wait for deletions to complete
@@ -240,7 +240,6 @@ void Game::spawnPokemon() {
 
     if (m_wildPokemonInfo) {
         m_wildPokemon = new WildPokemon(m_wildPokemonInfo, m_spawnPoint, m_spawnDirection);
-
         connect(m_wildPokemon, &WildPokemon::startABattle, this, &Game::handleBattleStart);
 
         m_wildPokemon->show();
