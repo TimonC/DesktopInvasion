@@ -215,7 +215,7 @@ void Game::spawnPokemon() {
         qDebug() << "Spawning existing wild Pokemon:" << QString::fromStdString(wildState.name);
     } else {
 
-        m_wildPokemonInfo = Globals::getPokemonInfo(); //random
+        m_wildPokemonInfo = Globals::getPokemonInfo(355);
 
         PokemonState newWild;
         newWild.pokedex_id = m_wildPokemonInfo->pokedexId;
@@ -230,9 +230,7 @@ void Game::spawnPokemon() {
         newWild.nature = Nature::Hardy;
 
         newWild.moves[0] = 1 ;
-        newWild.moves[1] = 33;
-        newWild.moves[2] = 52;
-        newWild.moves[3] = 53;
+        /* newWild.moves[1] = 52; */
 
         m_db.spawnWildPokemon(newWild);
         qDebug() << "Created new wild Pokemon:" << QString::fromStdString(newWild.name);

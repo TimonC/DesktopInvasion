@@ -50,7 +50,7 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
     assert(actionIndex>-1 && actionIndex<6 && "actionIndex must be between 0 and 5 inclusive");
     assert((!std::strcmp(action,"Switch") || actionIndex<4) && "actionIndex for non-switch action must be between 0 and 3 inclusive");
 
-    int opponentMoveIndex = rand()%4;
+    int opponentMoveIndex = 0;
 
     const Move* opponentMove = m_battleOpponent->pokeState.moves[opponentMoveIndex];
     const Move* playerMove = m_battleParty[m_chosenPartyIndex]->pokeState.moves[actionIndex];
@@ -155,12 +155,6 @@ int BattleMoveHandler::calculateConfusionDamage(int level) {
     return (40 * level / 100) + 2;
 }
 
-int BattleMoveHandler::calculateTypeEffectiveness(const Move* _move, Battler* target) {
-    Type targetTypes[2] = {target->pokeState.types[0] ? *target->pokeState.types[0] : Null,
-                           target->pokeState.types[1] ? *target->pokeState.types[1] : Null};
-
-    return PokemonTypes::getTypeEffectiveness(_move->type, targetTypes);
-}
 
 void BattleMoveHandler::applyMove(const Move* _move, Battler* caster, Battler* target){
     // First check if the battler can move at all
@@ -228,34 +222,21 @@ void BattleMoveHandler::applyMove(const Move* _move, Battler* caster, Battler* t
         }
         params.stab = hasStab ? 150 : 100; // 1.5x for STAB
 
-        // Calculate type1 and type2 effectiveness
-        Type targetType1 = target->pokeState.types[0] ? *target->pokeState.types[0] : Null;
-        Type targetType2 = target->pokeState.types[1] ? *target->pokeState.types[1] : Null;
+        const Type* targetType1 = target->pokeState.types[0];
+        const Type* targetType2 = target->pokeState.types[1];
 
-        // Check for special moves: Struggle, Future Sight, Beat Up, Doom Desire
-        // For now, assume all normal moves - you can add specific checks for these moves
-        bool isSpecialMove = false; // Set to true for Struggle, Future Sight, Beat Up, Doom Desire
 
-        if (!isSpecialMove) {
-            // Calculate type1: effectiveness against first type
-            Type targetTypes1[2] = {targetType1, Null};
-            params.type1 = PokemonTypes::getTypeEffectiveness(_move->type, targetTypes1);
+        // Calculate type1: effectiveness against first type
+        params.type1 = PokemonTypes::getTypeEffectiveness(_move->type, *targetType1);
 
-            // Calculate type2: effectiveness against second type (100 if no second type)
-            if (targetType2 != Null) {
-                Type targetTypes2[2] = {targetType2, Null};
-                params.type2 = PokemonTypes::getTypeEffectiveness(_move->type, targetTypes2);
-            } else {
-                params.type2 = 100; // Default to 1x if no second type
-            }
+        // Calculate type2: effectiveness against second type (100 if no second type)
+        if (*targetType2 != Type::Null) {
+            params.type2 = PokemonTypes::getTypeEffectiveness(_move->type, *targetType2);
         } else {
-            // For special moves, both type1 and type2 are always 100 (1x)
-            params.type1 = 100;
-            params.type2 = 100;
+            params.type2 = 100; // Default to 1x if no second type
         }
 
-        // Calculate combined effectiveness for super/not very effective messages
-        int combinedEffectiveness = (params.type1 * params.type2) / 100;
+        qDebug() << params.type1 << params.type2 << "LOOK AT ME";
 
         // Calculate actual damage
         int damage = calculateDamage(params, m_rng);
@@ -265,11 +246,13 @@ void BattleMoveHandler::applyMove(const Move* _move, Battler* caster, Battler* t
         target->battleState.currentHealth = std::max(0, target->battleState.currentHealth - damage);
 
         // Determine if super effective or not very effective
-        if (combinedEffectiveness > 100) {
+        // Calculate combined effectiveness for super/not very effective messages
+        int combinedEffectiveness = params.type1 * params.type2;
+        if (combinedEffectiveness > 10000) {
             caster->delta.superEffective = true;
-        } else if (combinedEffectiveness < 100 && combinedEffectiveness > 0) {
+        } else if (combinedEffectiveness<10000 && combinedEffectiveness > 0) {
             caster->delta.notVeryEffective = true;
-        } else if (combinedEffectiveness <= 0){
+        } else if (combinedEffectiveness==0){
             caster->delta.noEffect = true;
         }
 
@@ -400,20 +383,20 @@ void BattleMoveHandler::generateMoveSequence(QVariantList& sequence, Battler& at
         sequence.append(createDamageAction(defenderRole, ms_damageAnimation));
         sequence.append(createHealthChangeAction(defenderRole, -attacker.delta.damage, ms_healthChange));
 
-        if(defender.delta.critical) {
+        if(attacker.delta.critical) {
             sequence.append(createTextAction("A critical hit!", ms_criticalHitText));
         }
-        if(defender.delta.superEffective) {
+        if(attacker.delta.superEffective) {
             sequence.append(createTextAction("It's super effective!", ms_effectivenessText));
-        } else if (defender.delta.notVeryEffective) {
+        } else if (attacker.delta.notVeryEffective) {
             sequence.append(createTextAction("It's not very effective...", ms_effectivenessText));
-        }else if(defender.delta.noEffect){
-            sequence.append(createTextAction("It doesn't affect " + defenderName + "...", ms_effectivenessText));
         }
         if(attacker.delta.drain > 0) {
             sequence.append(createTextAction(attackerName + " drained health!", ms_drainEffectText));
             sequence.append(createHealthChangeAction(attackerRole, attacker.delta.drain, ms_drainHealthChange));
         }
+    }else if(attacker.delta.noEffect){
+            sequence.append(createTextAction("It doesn't affect " + defenderName + "...", ms_effectivenessText));
     }
 
     addPostMoveEffects(sequence, attacker, attackerName, attackerRole == "player");

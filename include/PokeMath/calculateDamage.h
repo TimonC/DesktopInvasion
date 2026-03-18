@@ -29,7 +29,7 @@ inline int calculateDamage(const DamageParams& p, std::mt19937& rng) {
     damage = (damage * p.critical) / 100;
     damage = (damage * random) / 100;
 
-    return damage > 0 ? damage : 1;
+    return damage;
 }
 
 #endif
