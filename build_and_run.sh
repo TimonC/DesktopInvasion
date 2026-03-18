@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e
 
-xhost +local:root 2>/dev/null || true
 
 : "${XDG_RUNTIME_DIR:=/tmp/xdg}"
 mkdir -p "$XDG_RUNTIME_DIR"

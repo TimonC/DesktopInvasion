@@ -19,8 +19,8 @@ PokemonInteractable::PokemonInteractable(QWindow *parent, int row)
 {
     setFlags( Qt::WindowStaysOnTopHint
             | Qt::Tool
-            | Qt::WindowDoesNotAcceptFocus);
-            /* | Qt::FramelessWindowHint); */
+            | Qt::WindowDoesNotAcceptFocus
+            | Qt::FramelessWindowHint);
 
     setColor(Qt::transparent);
 
@@ -63,10 +63,6 @@ PokemonInteractable::PokemonInteractable(QWindow *parent, int row)
 }
 
 void PokemonInteractable::startBattle(){
-    setWidth(m_scaleFactor*32*4);
-    setHeight(m_scaleFactor*32*4);
-    qDebug() << "Battle started!";
-
     QQuickItem* mouseArea = m_wildPokemon->property("mouseArea").value<QQuickItem*>();
     disconnect(mouseArea, SIGNAL(clicked(QQuickMouseEvent*)), this, SLOT(onClick()));
 
@@ -76,6 +72,8 @@ void PokemonInteractable::startBattle(){
     stopOpening();
     m_moveTimer->disconnect();
     m_decisionTimer->disconnect();
+
+    qDebug() << "Battle started!";
 }
 
 
