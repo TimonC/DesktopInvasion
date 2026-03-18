@@ -370,7 +370,7 @@ Item {
                 // Third attempt - jump instead of shake
                 pokeBallOpponent.jump()
                 // Pokemon caught!
-                battleMenu.updateText("Gotcha! " + opponentName + "was caught!")
+                battleMenu.updateText("Gotcha! " + opponentName + " was caught!")
 
                 Qt.callLater(function() {
                     var hideTimer = Qt.createQmlObject('import QtQuick 2.15; Timer {}', root)
