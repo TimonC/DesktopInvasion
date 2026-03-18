@@ -61,10 +61,9 @@ Item {
             id: statusContainer
             anchors.right: levelLabel.left
             anchors.rightMargin: root.statusPadding/2
-            anchors.topMargin: root.statusPadding/2
             anchors.verticalCenter: parent.verticalCenter
             width: statusLabel.implicitWidth + root.statusPadding
-            height: root.subTextFontSize + root.statusPadding/2
+            height: statusLabel.implicitHeight + root.statusPadding
             radius: 2
             color: "transparent"
             border.width: 1
@@ -78,8 +77,8 @@ Item {
 
             PopoutText {
                 id: statusLabel
-                anchors.centerIn: parent
-                text: ""
+                anchors.fill: parent
+                text: "NIL"
                 visible: false
                 font.pixelSize: root.subTextFontSize
                 horizontalAlignment: Text.AlignHCenter
