@@ -21,6 +21,9 @@ public:
     void direction(int direction) override;
     QPoint m_origin;
     void setupParty(const std::vector<std::pair<int, std::string>>& party);
+    void setSceneVisibility(bool visibility){
+        m_battleScene->setProperty("visible",visibility);
+    };
 
 signals:
     void battleEnded(const char* endState);

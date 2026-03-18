@@ -69,11 +69,11 @@ void Game::setGameActive(bool active) {
     } else {
         if (m_activeBattle) {
             updateWildPokemonPosToBattlePos();
-
             /* m_activeBattle->disconnect(); //this might not be secure with deleteLater, could potentially be the cause of freezes */
                                           //but i do it here to avoid a bug where all all the battleended signals are triggered
             disconnect(m_activeBattle, &Battle::battleEnded,
                     this, &Game::handleBattleEnd); //Only disconnect the battle-game connection to avoid the bug w/o freezes
+            m_activeBattle->setSceneVisibility(false);
             m_activeBattle->deleteLater();
             m_activeBattle = nullptr;
         }
