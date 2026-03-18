@@ -1,10 +1,4 @@
 #include "InvasionView.h"
-#include <QApplication>
-#include <QRect>
-#include <QRectF>
-#include <QScreen>
-#include <QGraphicsScene>
-
 InvasionView::InvasionView(){
     this -> init();
 }

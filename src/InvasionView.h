@@ -3,6 +3,12 @@
 
 #include <QGraphicsView>
 #include <QGraphicsScene>
+#include <QApplication>
+#include <QRect>
+#include <QRectF>
+#include <QScreen>
+#include <QGraphicsScene>
+
 
 class InvasionView : public QGraphicsView
 {

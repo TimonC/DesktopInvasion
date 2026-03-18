@@ -6,8 +6,8 @@
 #include <QTimer>
 #include <QPixmap>
 #include <QPainter>
-#include <qgraphicsscene.h>
-#include <qobjectdefs.h>
+/* #include <qgraphicsscene.h> */
+/* #include <qobjectdefs.h> */
 
 class Sprite: public QObject, public QGraphicsItem{
     Q_OBJECT
