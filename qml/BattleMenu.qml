@@ -119,6 +119,7 @@ Rectangle {
         }
     }
 
+
     function forceSwitch() {
         forceSwitchMode = true
         stack.replace(switchSelection)
@@ -251,7 +252,9 @@ Rectangle {
                 GradientRoundButton {
                     text: "Fight"
                     buttonColor: root.attackButtonColor
-                    onClicked: stack.push(attackSelection)
+                    onClicked: {
+                        stack.push(attackSelection)
+                    }
                 }
 
                 GradientRoundButton {
@@ -278,21 +281,33 @@ Rectangle {
     Component {
         id: attackContent
         Grid {
+            id: attackGrid
             columns: 2
             rows: 2
             spacing: root.gridSpacing
 
             property real cellWidth: (parent.width - spacing) / 2
             property real cellHeight: (parent.height - spacing) / 2
+            property int partyIndex: 0
 
             Repeater {
                 model: 4
                 Item {
+                    id: moveItem
                     width: cellWidth
                     height: cellHeight
 
-                    property string moveName: party.moves[0][index].name || "---"
-                    property string moveType: party.moves[0][index].type || "Null"
+                    // Function that re-evaluates when dependencies change
+                    function getMoveData() {
+                        if (party && party.moves && party.moves[root.selectedIndex]) {
+                            return party.moves[root.selectedIndex][index] || {name: "---", type: "Null"}
+                        }
+                        return {name: "---", type: "Null"}
+                    }
+
+                    // These properties will update automatically when attackGrid.partyIndex changes
+                    property string moveName: getMoveData().name || "---"
+                    property string moveType: getMoveData().type || "Null"
                     property bool moveEnabled: moveType !== "Null"
                     property color baseColor: moveEnabled ? PokeColor.typeColor(moveType) : root.disabledBackgroundColor
 
@@ -334,8 +349,6 @@ Rectangle {
                         anchors.fill: parent
                         enabled: moveEnabled
                         onClicked: {
-                            // Emit both signals for compatibility
-                            // root.attackChosen(index)
                             root.startActionRound(index, "Fight")
                         }
                     }
@@ -343,7 +356,6 @@ Rectangle {
             }
         }
     }
-
     Component {
         id: switchContent
         Grid {
