@@ -6,10 +6,12 @@
 
 class InvasionView : public QGraphicsView
 {
-public:
-    InvasionView();
-private:
-    QGraphicsScene *scene;
+    Q_OBJECT
+
+    public:
+        InvasionView;
+    private:
+        QGraphicsScene *scene;
 };
 
 #endif

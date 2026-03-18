@@ -17,7 +17,7 @@ APP_PID=$!
 
 # Watch for changes in source folder
 while inotifywait -r -e modify,create,delete ../src; do
-    echo "Change detected, rebuilding..."
+    echo -e "\n\033[1;33m========== HMR triggered at $(date '+%Y-%m-%d %H:%M:%S') ==========\033[0m"
     kill $APP_PID 2>/dev/null
     cmake ..
     make
