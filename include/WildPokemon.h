@@ -11,9 +11,8 @@ class WildPokemon : public DesktopScene{
 public:
     explicit WildPokemon(const PokemonInfo* info,  QWindow *parent = nullptr);
     void startRoaming();
-    int direction();
-    void direction(int direction);
-
+    void direction(int direction) override;
+    const PokemonInfo* info;
 private slots:
     void handleDrag(bool isDragged) override;
 
@@ -23,7 +22,6 @@ private slots:
     /* void handleDoubleClick(); */
 
 private:
-    const PokemonInfo* info;
     QQuickItem* m_sprite;
     QTimer* m_decisionTimer;
     QTimer* m_moveTimer;

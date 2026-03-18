@@ -44,7 +44,7 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
     m_sprite->setProperty("offsetX" , padding/2);
     m_sprite->setProperty("offsetY", padding/2);
     /* if (auto mouseArea = m_sprite->property("mouseArea").value<QQuickItem*>()) */
-    /*     connect(mouseArea, SIGNAL(doubleClicked(QQuickMouseEvent*)), this, SLOT(handleDoubleClick())); */
+        /* connect(mouseArea, SIGNAL(doubleClicked(QQuickMouseEvent*)), this, SLOT(handleDoubleClick())); */
 
     m_decisionTimer->setInterval(1000 + QRandomGenerator::global()->bounded(2000));
     m_moveTimer->setInterval(50); // 20fps
@@ -68,6 +68,7 @@ void WildPokemon::handleDrag(bool isDragged){
         m_sprite->setProperty("frameRate", 6);
         m_moveTimer->stop();
         m_decisionTimer->stop();
+        Globals::getPlayer().iChooseYou(this);
     }else{
         m_sprite->setProperty("frameRate", 3);
         m_decisionTimer->start();
@@ -79,9 +80,6 @@ void WildPokemon::direction(int direction){
     m_sprite->setProperty("direction",m_currentDirection);
 };
 
-int WildPokemon::direction(){
-    return m_currentDirection;
-};
 void WildPokemon::startBattle(){
     m_moveTimer->disconnect();
     m_decisionTimer->disconnect();
@@ -117,7 +115,7 @@ void WildPokemon::startBattle(){
         setPosition(position() + delta);
     }
 
-    /* Globals::getPlayer().iChooseYou(this); */
+    Globals::getPlayer().iChooseYou(this);
 }
 
 void WildPokemon::makeRandomDecision(){

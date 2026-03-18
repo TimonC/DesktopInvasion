@@ -2,6 +2,7 @@
 #define BATTLE_H
 
 #include "DesktopScene.h"
+#include "pokemon_data.h"
 #include <QQuickView>
 #include <WildPokemon.h>
 #include <qtmetamacros.h>
@@ -11,11 +12,11 @@ class Battle : public DesktopScene
     Q_OBJECT
 
 public:
-    Battle(WildPokemon *opp, WildPokemon *chosen, QWindow *parent = nullptr);
+    explicit Battle(int opp_direction, QPoint opp_pos, const PokemonInfo* opp, const PokemonInfo* chosen, QWindow *parent = nullptr);
     void updateTextbar(const std::string& text);
     QQuickView* initCorners();
     QQuickView *m_corners = nullptr;
-
+    void direction(int direction) override;
 private slots:
     void handleDrag(bool isDragged) override;
     /* void run(); */
@@ -23,17 +24,13 @@ private slots:
 
 
 private:
-    /* void initPosition(); */
+    void initPosition();
 
     // Store initial positions for perfect sync
-    QPoint m_initialBattlescenePos;
-    QPoint m_initialCornersPos;
     QPoint m_initialOppPos;
-    QPoint m_initialChosenPos;
 
-    QPoint m_cornerSize;
-    /* Pokemon* m_chosen; */
-    /* Pokemon* m_opp; */
+    const PokemonInfo* m_chosen;
+    const PokemonInfo* m_opp;
     QPoint m_origin;
     QQuickItem *m_ui = nullptr;
 };
