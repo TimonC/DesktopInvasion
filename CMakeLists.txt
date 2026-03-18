@@ -8,7 +8,6 @@ set(CMAKE_AUTORCC OFF)   # We'll manually add resources
 
 
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick)
-
 # Create executable
 add_executable(DesktopInvasion)
 
