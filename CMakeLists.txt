@@ -5,10 +5,10 @@ project(DesktopInvasion LANGUAGES CXX)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTORCC OFF)   # We'll manually add resources
+set(CMAKE_AUTORCC OFF)
 
 # Require Qt6
-find_package(Qt6 REQUIRED COMPONENTS Gui Quick Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick Widgets)
 
 # Add resources
 qt6_add_resources(RESOURCES_RCC resources.qrc)
@@ -24,19 +24,22 @@ add_executable(DesktopInvasion
     ${RESOURCES_RCC}
 )
 
-# Include directories (headers live in include/, code in src/)
+# Include directories
 target_include_directories(DesktopInvasion PRIVATE
     ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR}/src
 )
 
-# Set the C++ standard
+# Set C++ standard
 target_compile_features(DesktopInvasion PRIVATE cxx_std_17)
 
-# Link Qt libraries
+# Link Qt6 libraries
 target_link_libraries(DesktopInvasion PRIVATE
+    Qt6::Core
     Qt6::Gui
     Qt6::Quick
     Qt6::Widgets
 )
 
+# Link SQLite3
+target_link_libraries(DesktopInvasion PRIVATE sqlite3)
