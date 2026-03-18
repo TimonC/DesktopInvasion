@@ -7,7 +7,7 @@
 Game::Game(QQmlApplicationEngine* engine, QObject* parent) : QObject(parent) {
     m_menu = new GameMenu(); m_engine  = engine;
 
-    spawnNewPokemon();
+    spawnPokemon();
 
     connect(&Globals::getPlayer(), &Player::startABattle,
             this, &Game::handleBattleStart);
