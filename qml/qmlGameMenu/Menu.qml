@@ -21,6 +21,8 @@ Rectangle {
     property bool showDebugOutlines: true
     property color debugOutlineColor: "#FFD700"
 
+    property double leftSideWidthRatio: 0.5
+
     RowLayout {
         anchors.fill: parent
         anchors.margins: root.margin
@@ -29,7 +31,7 @@ Rectangle {
         // LEFT COLUMN
         Rectangle {
             Layout.fillHeight: true
-            Layout.preferredWidth: parent.width * 0.5
+            Layout.preferredWidth: parent.width * root.leftSideWidthRatio
             color: root.backgroundColor
             border.color: root.showDebugOutlines ? root.debugOutlineColor : "transparent"
             border.width: root.showDebugOutlines ? 2 : 0
@@ -42,7 +44,7 @@ Rectangle {
                 Rectangle {
                     id: trainerSection
                     Layout.fillWidth: true
-                    Layout.preferredHeight: parent.height * (1/6)
+                    Layout.preferredHeight: parent.height * (2/7)
                     color: root.backgroundColor
                     border.color: root.showDebugOutlines ? root.debugOutlineColor : "transparent"
                     border.width: root.showDebugOutlines ? 2 : 0
@@ -59,7 +61,7 @@ Rectangle {
                 Rectangle {
                     id: partySection
                     Layout.fillWidth: true
-                    Layout.preferredHeight: parent.height * (2/6)
+                    Layout.preferredHeight: parent.height * (5/7)
                     color: root.backgroundColor
                     border.color: root.showDebugOutlines ? root.debugOutlineColor : "transparent"
                     border.width: root.showDebugOutlines ? 2 : 0
@@ -67,23 +69,6 @@ Rectangle {
                     Text {
                         anchors.centerIn: parent
                         text: "Party Pokemon"
-                        color: root.textColor
-                        font.pixelSize: 16
-                    }
-                }
-
-                // PC Pokemon section (remaining 3/6 of height)
-                Rectangle {
-                    id: pcSection
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    color: root.backgroundColor
-                    border.color: root.showDebugOutlines ? root.debugOutlineColor : "transparent"
-                    border.width: root.showDebugOutlines ? 2 : 0
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: "PC Storage"
                         color: root.textColor
                         font.pixelSize: 16
                     }
