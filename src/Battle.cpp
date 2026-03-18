@@ -11,7 +11,6 @@ Battle::Battle(WildPokemon* opp, Party party, std::unique_ptr<BattleMoveHandler>
     , m_battleMoveHandler(std::move(battleMoveHandler))
 {
     qDebug() << "Battle constructor called!";
-    qDebug() << "hello" << Globals::getPokemonInfo(party.pokedexIds[0]);
     m_currentDirection = opp->m_currentDirection;
 
     // Load the PokemonSprite as root

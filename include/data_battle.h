@@ -48,7 +48,7 @@ struct Static{
     int uid;
     int stats[6];
     Type types[2];
-    Move moves[4];
+    int moves[4];
 };
 
 struct State{
@@ -59,6 +59,5 @@ struct State{
 struct Poke{
     Static pokeStatic;
     State pokeState;
-    void applyMove(int moveIndex);
 };
 #endif

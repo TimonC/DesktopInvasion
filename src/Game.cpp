@@ -260,9 +260,8 @@ Poke Game::initBattleState(int uid){
             uid,
             {100,100,100,100,100,100},
             {Type::Normal, Type::Null},
-            {
-                {1,"Tackle",Type::Normal, 50, 100,MoveCategory::Physical,nullptr, nullptr},
-        }},
+            { 1, -1, -1, -1},
+        },
         {
             100,
             {}}

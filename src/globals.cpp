@@ -18,6 +18,9 @@ namespace Globals {
         return geometry;
     }
 
+    Move getMove() {
+        return Move{1, "Tackle", Type::Normal, 50, 100, MoveCategory::Physical, nullptr, nullptr};
+    }
 
     const PokemonInfo* getPokemonInfo(int pokedexId) {
         static const PokemonInfo* pokeLookup[MAX_POKEDEX_ID + 1] = {};

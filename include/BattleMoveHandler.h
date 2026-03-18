@@ -16,6 +16,7 @@ signals:
     void actionRoundOver(State& opponentState, State& chosenState);
 
 private:
+    void applyMove(Move moveToApply, Poke& caster, Poke& target);
     Poke m_opponent;
     Poke m_party[6];
     int m_chosenPartyIndex = 0;
