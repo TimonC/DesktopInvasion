@@ -63,10 +63,10 @@ Battlescene::Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent)
     m_direction = m_chosen->direction();
     setPosition(m_origin);
 
-    show();
-
     m_corners = initCorners();
     m_corners->show();
+
+    show();
 }
 
 QQuickView* Battlescene::initCorners(){
@@ -81,15 +81,15 @@ QQuickView* Battlescene::initCorners(){
         boxHeight = y() + height() - top;
     }
     QQuickView *corners = new QQuickView(nullptr);
-    corners->setFlags(     Qt::WindowStaysOnTopHint
-                | Qt::Tool
-                | Qt::WindowDoesNotAcceptFocus
-                | Qt::WindowTransparentForInput);
-                /* | Qt::FramelessWindowHint); */
+    corners->setFlags(Qt::WindowStaysOnTopHint | Qt::Tool | Qt::FramelessWindowHint);
     corners->setColor(Qt::transparent);
     corners->setPosition(QPoint(lft,top));
+    corners->setSource(QUrl("qrc:/sprites/Corners.qml"));
     corners->setWidth(boxWidth);
     corners->setHeight(boxHeight);
+
+    corners->rootObject()->setProperty("debugLines", DEBUG);
+    corners->show();
 
     return corners;
 }
