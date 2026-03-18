@@ -7,7 +7,7 @@ Item {
 
     property  real scale: 1
     property real frameSize: 32*scale
-    property int animationSpeed: 1
+    property real animationSpeed: 1
 
 
     width: (direction === 0 || direction === 2) ? Math.round(frameSize * 6.5) : Math.round(frameSize * 8)
@@ -245,6 +245,7 @@ Item {
 
     BattleMenu {
         id: battleMenu
+        animationSpeed: root.animationSpeed
         iconScale: root.scale
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter

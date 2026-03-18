@@ -2,9 +2,12 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import "Style/PokeColor.js" as PokeColor
+
 Rectangle {
     id: root
     color: "transparent"
+    property real animationSpeed: 1
+
     // Menu dimensions
     property int menuWidth: 0
     property int menuHeight: 0
@@ -16,11 +19,13 @@ Rectangle {
     property double contentMarginsRatio: 0.02
     property double backButtonWidthRatio: 0.1
     property double backButtonHeightRatio: 0.8
+
     // Calculated dimensions
     property real contentWidth: Math.floor(menuWidth * (1 - backButtonWidthRatio * 2 - contentMarginsRatio * 2))
     property real contentHeight: Math.floor(menuHeight * (1 - contentMarginsRatio * 2))
     property real backButtonWidth: Math.floor(menuWidth * backButtonWidthRatio)
     property real backButtonHeight: Math.floor(menuHeight * backButtonHeightRatio)
+
     // Text properties
     property int buttonFontSize: 0
     property int moveFontSize: 0
@@ -29,6 +34,7 @@ Rectangle {
     property string textBarFontFamily: ""
     property color textBarTextColor: "black"
     property color menuTextColor: "white"
+
     // Colors
     property color fightButtonColor: "#ff3333"
     property color switchButtonColor: "green"
@@ -44,17 +50,21 @@ Rectangle {
     property color textBarBorderColor: "black"
     property color backButtonColor: "lightblue"
     property color forceSwitchBackButtonColor: "#b0bec5"
+
     // Opacity and effects
-    property real enabledOpacity: 1
+    property real enabledOpacity: 1.0
     property real disabledOpacity: 0.7
     property real normalIconOpacity: 1.0
     property real faintedIconOpacity: 0.7
     property real hoverScale: 1.04
-    property int menuTransitionDuration: 50
-    property int colorAnimationDuration: 100
-    property int downDuration: 150
-    property int upDuration: 80
-    property double iconScale: 1.0
+    property real iconScale: 1.0
+
+    // Animation durations
+    property int menuTransitionDuration: Math.max(20, Math.floor(70 / animationSpeed))
+    property int colorAnimationDuration: Math.max(30, Math.floor(110 / animationSpeed))
+    property int downDuration: Math.max(40, Math.floor(140 / animationSpeed))
+    property int upDuration: Math.max(30, Math.floor(110 / animationSpeed))
+    property int clickDelayDuration: Math.max(0, Math.floor(80 / animationSpeed))
 
     // Game state
     property bool textBarShown: false
@@ -66,12 +76,14 @@ Rectangle {
     property string ballSpriteSheet: "qrc:/assets/HGSS/reordered_pokeballs.png"
     property var nrOfBalls: [1000, 0, 0, 0]
     property list<string> ballNames: ["Poké Ball", "Great Ball", "Ultra Ball", "Master Ball"]
+
     // Signals
     signal actionRound(int actionIndex, string actionType)
     signal fightChosen(int fightId)
     signal runChosen(bool removeWild)
     signal switchChosen(int newPartyIdx)
     property alias stack: stack
+
     // Party data
     property var party: {
         "pokedexIds": [-1, -1, -1, -1, -1, -1],
@@ -90,6 +102,7 @@ Rectangle {
             [[], [], [], []]
         ]
     }
+
     // Functions
     function _setPartyMember(partyIdx, pokedexId, spriteId, ballId, pokemonName, lvl, totalHealth, moves) {
         var temp = party
@@ -103,90 +116,105 @@ Rectangle {
         temp.moves[partyIdx] = moves
         party = temp
     }
+
     function showTextBar() {
         root.textBarShown = true
         stack.replace(textBarComponent)
     }
+
     function updateText(text) {
         if (stack.currentItem && stack.currentItem.hasOwnProperty("text")) {
             stack.currentItem.text = text
         }
     }
+
     function getText() {
         if (stack.currentItem && stack.currentItem.hasOwnProperty("text")) {
             return stack.currentItem.text
         }
     }
+
     function forceSwitch() {
         forceSwitchMode = true
         root.textBarShown = false
         stack.replace(switchSelection)
     }
+
     function resetToRoot() {
         forceSwitchMode = false
         root.textBarShown = false
         stack.replace(rootSelection)
     }
+
     // Components
-    component HoverableMouseArea: MouseArea{
-        cursorShape: undefined
-        hoverEnabled: true
-        z: 1
+    component ClickableItem: Item {
+        id: clickable
         property var hoverTarget: parent
-        property bool hoverEffectEnabled: true
-        property bool isDragging: false
-        property point pressPos
-        // Check if mouse is already over when component appears
-        Component.onCompleted: {
-            if (containsMouse && hoverEffectEnabled && hoverTarget) {
-                if (hoverTarget.hasOwnProperty("hovered")) hoverTarget.hovered = true
-            }
+        property bool enabled: true
+        signal clicked()
+
+        Timer {
+            id: clickTimer
+            interval: root.clickDelayDuration
+            onTriggered: clickable.clicked()
         }
-        onEntered: {
-            if (hoverEffectEnabled && hoverTarget) {
-                if (hoverTarget.hasOwnProperty("hovered")) hoverTarget.hovered = true
+
+        MouseArea {
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: undefined
+            enabled: clickable.enabled
+
+            // Check if mouse is already over when component appears
+            Component.onCompleted: {
+                if (containsMouse && clickable.hoverTarget) {
+                    if (clickable.hoverTarget.hasOwnProperty("hovered"))
+                        clickable.hoverTarget.hovered = true
+                }
             }
-        }
-        onExited: {
-            if (hoverEffectEnabled && hoverTarget) {
-                if (hoverTarget.hasOwnProperty("hovered")) hoverTarget.hovered = false
-                if (hoverTarget.hasOwnProperty("down")) hoverTarget.down = false
+
+            onEntered: {
+                if (clickable.hoverTarget) {
+                    if (clickable.hoverTarget.hasOwnProperty("hovered"))
+                        clickable.hoverTarget.hovered = true
+                }
             }
-        }
-        onPressed: {
-            if (hoverEffectEnabled && hoverTarget && hoverTarget.hasOwnProperty("down")) {
-                pressPos = Qt.point(mouseX, mouseY)
-                isDragging = false
-                hoverTarget.down = true
+
+            onExited: {
+                if (clickable.hoverTarget) {
+                    if (clickable.hoverTarget.hasOwnProperty("hovered"))
+                        clickable.hoverTarget.hovered = false
+                    if (clickable.hoverTarget.hasOwnProperty("down"))
+                        clickable.hoverTarget.down = false
+                }
             }
-        }
-        onPositionChanged: {
-            if (pressed) {
-                var distance = Math.sqrt(Math.pow(mouseX - pressPos.x, 2) + Math.pow(mouseY - pressPos.y, 2))
-                if (distance > 5) {
-                    isDragging = true
-                    if (hoverTarget && hoverTarget.hasOwnProperty("down")) {
-                        hoverTarget.down = false
-                    }
+
+            onPressed: {
+                if (clickable.hoverTarget && clickable.hoverTarget.hasOwnProperty("down")) {
+                    clickable.hoverTarget.down = true
+                }
+            }
+
+            onReleased: {
+                if (clickable.hoverTarget && clickable.hoverTarget.hasOwnProperty("down")) {
+                    clickable.hoverTarget.down = false
+                }
+            }
+
+            onClicked: {
+                if (clickable.enabled) {
+                    clickTimer.start()
+                }
+            }
+
+            onCanceled: {
+                if (clickable.hoverTarget && clickable.hoverTarget.hasOwnProperty("down")) {
+                    clickable.hoverTarget.down = false
                 }
             }
         }
-        onReleased: {
-            if (hoverEffectEnabled && hoverTarget && hoverTarget.hasOwnProperty("down")) {
-                hoverTarget.down = false
-            }
-        }
-        onClicked: {
-            if (isDragging) {
-                mouse.accepted = false
-            }
-        }
-        onCanceled: {
-            if (hoverEffectEnabled && hoverTarget && hoverTarget.hasOwnProperty("down")) {
-                hoverTarget.down = false
-            }
-        }
     }
+
     component GradientRoundButton: Item {
         id: gradientButton
         required property color buttonColor
@@ -203,21 +231,11 @@ Rectangle {
         width: Math.floor(root.contentWidth / 2 - root.gridSpacing)
         height: Math.floor(root.contentHeight / 2 - root.gridSpacing)
 
-        Timer {
-            id: clickDelayTimer
-            interval: 100
-            onTriggered: gradientButton.clicked()
-        }
-
-        HoverableMouseArea {
+        ClickableItem {
             anchors.fill: parent
             enabled: gradientButton.enabled
             hoverTarget: gradientButton
-            onClicked: {
-                if (!isDragging) {
-                    clickDelayTimer.start()
-                }
-            }
+            onClicked: gradientButton.clicked()
         }
 
         Item {
@@ -226,7 +244,7 @@ Rectangle {
             scale: gradientButton.down ? 0.92 : 1.0
             Behavior on scale {
                 NumberAnimation {
-                    duration: gradientButton.down ? 80 : 150
+                    duration: gradientButton.down ? root.upDuration : root.downDuration
                     easing.type: gradientButton.down ? Easing.OutQuad : Easing.OutBack
                     easing.overshoot: gradientButton.down ? 1.0 : 1.2
                 }
@@ -278,6 +296,7 @@ Rectangle {
             }
         }
     }
+
     // StackView
     StackView {
         id: stack
@@ -306,6 +325,7 @@ Rectangle {
             }
         }
     }
+
     // Components
     Component {
         id: textBarComponent
@@ -332,6 +352,7 @@ Rectangle {
             }
         }
     }
+
     Component {
         id: rootSelection
         Item {
@@ -366,6 +387,7 @@ Rectangle {
             }
         }
     }
+
     Component {
         id: fightContent
         Item {
@@ -406,7 +428,7 @@ Rectangle {
                             scale: moveItem.down ? 0.92 : 1.0
                             Behavior on scale {
                                 NumberAnimation {
-                                    duration: moveItem.down ? 80 : 150
+                                    duration: moveItem.down ? root.upDuration : root.downDuration
                                     easing.type: moveItem.down ? Easing.OutQuad : Easing.OutBack
                                     easing.overshoot: moveItem.down ? 1.0 : 1.2
                                 }
@@ -446,18 +468,18 @@ Rectangle {
                                 color: moveEnabled ? root.menuTextColor : root.placeholderTextColor
                             }
                         }
-                        HoverableMouseArea {
+                        ClickableItem {
                             anchors.fill: parent
                             enabled: moveEnabled
                             hoverTarget: moveItem
-                            hoverEffectEnabled: moveEnabled
-                            onClicked: if (!isDragging) root.actionRound(index, "Fight")
+                            onClicked: root.actionRound(index, "Fight")
                         }
                     }
                 }
             }
         }
     }
+
     Component {
         id: switchContent
         Item {
@@ -554,18 +576,13 @@ Rectangle {
                                 verticalAlignment: Text.AlignVCenter
                             }
                         }
-                        HoverableMouseArea {
+                        ClickableItem {
                             anchors.fill: parent
                             enabled: isEnabled
                             hoverTarget: switchItem
-                            hoverEffectEnabled: isEnabled && !isSelected && !isEmpty
                             onClicked: {
-                                if(!isDragging && root.selectedIndex !== index &&
-                                   root.party.pokedexIds[index] >= 0 &&
-                                   party.healthRatios[index] > 0){
-                                    root.selectedIndex = index
-                                    root.switchChosen(index)
-                                }
+                                root.selectedIndex = index
+                                root.switchChosen(index)
                             }
                         }
                     }
@@ -573,6 +590,7 @@ Rectangle {
             }
         }
     }
+
     Component {
         id: catchContent
         Item {
@@ -602,8 +620,8 @@ Rectangle {
                             scale: ballItem.down ? 0.92 : 1.0
                             Behavior on scale {
                                 NumberAnimation {
-                                    duration: switchItem.down ? root.upDuration : root.downDuration
-                                    easing.type: switchItem.down ? Easing.OutQuad : Easing.OutBack
+                                    duration: ballItem.down ? root.upDuration : root.downDuration
+                                    easing.type: ballItem.down ? Easing.OutQuad : Easing.OutBack
                                     easing.overshoot: ballItem.down ? 1.0 : 1.2
                                 }
                             }
@@ -656,17 +674,18 @@ Rectangle {
                                 }
                             }
                         }
-                        HoverableMouseArea {
+                        ClickableItem {
                             anchors.fill: parent
                             enabled: ballEnabled
                             hoverTarget: ballItem
-                            onClicked: if (!isDragging) root.actionRound(index, "Catch")
+                            onClicked: root.actionRound(index, "Catch")
                         }
                     }
                 }
             }
         }
     }
+
     Component {
         id: runContent
         Item {
@@ -694,7 +713,7 @@ Rectangle {
                             scale: runOptionItem.down ? 0.92 : 1.0
                             Behavior on scale {
                                 NumberAnimation {
-                                    duration: runOptionItem.down ? 80 : 150
+                                    duration: runOptionItem.down ? root.upDuration : root.downDuration
                                     easing.type: runOptionItem.down ? Easing.OutQuad : Easing.OutBack
                                     easing.overshoot: runOptionItem.down ? 1.0 : 1.2
                                 }
@@ -728,16 +747,17 @@ Rectangle {
                                 maximumLineCount: 2
                             }
                         }
-                        HoverableMouseArea {
+                        ClickableItem {
                             anchors.fill: parent
                             hoverTarget: runOptionItem
-                            onClicked: if (!isDragging) modelData.action()
+                            onClicked: modelData.action()
                         }
                     }
                 }
             }
         }
     }
+
     Component {
         id: backButton
         GradientRoundButton {
@@ -750,6 +770,7 @@ Rectangle {
             text: "←"
         }
     }
+
     Component {
         id: selectionTemplate
         Item {
@@ -780,6 +801,7 @@ Rectangle {
             }
         }
     }
+
     Component {
         id: fightSelection
         Loader {
@@ -789,6 +811,7 @@ Rectangle {
             onLoaded: item.content = fightContent
         }
     }
+
     Component {
         id: switchSelection
         Loader {
@@ -798,6 +821,7 @@ Rectangle {
             onLoaded: item.content = switchContent
         }
     }
+
     Component {
         id: catchSelection
         Loader {
@@ -807,6 +831,7 @@ Rectangle {
             onLoaded: item.content = catchContent
         }
     }
+
     Component {
         id: runSelection
         Loader {
