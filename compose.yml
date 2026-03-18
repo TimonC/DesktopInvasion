@@ -13,7 +13,7 @@ services:
       - ./include:/app/include
       - ./sprites:/app/sprites
       - ./assets:/app/assets
-      - /dev/dri:/dev/dri   # <-- forward GPU device
+      - /dev/dri:/dev/dri
     stdin_open: true
     tty: true
 

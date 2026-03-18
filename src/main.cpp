@@ -9,5 +9,13 @@ int main(int argc, char *argv[]) {
 
     std::unique_ptr<WildPokemon> pok2  = std::make_unique<WildPokemon>(nullptr, std::rand() % 120);
 
+    std::unique_ptr<WildPokemon> pok3  = std::make_unique<WildPokemon>(nullptr, std::rand() % 120);
+
+    /* std::unique_ptr<WildPokemon> pok4  = std::make_unique<WildPokemon>(nullptr, std::rand() % 120); */
+
+    /* std::unique_ptr<WildPokemon> pok5  = std::make_unique<WildPokemon>(nullptr, std::rand() % 120); */
+
+    /* std::unique_ptr<WildPokemon> pok6  = std::make_unique<WildPokemon>(nullptr, std::rand() % 120); */
+
     return app.exec();
 }
