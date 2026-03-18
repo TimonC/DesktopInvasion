@@ -10,10 +10,10 @@ Item {
     // Scaling properties
     property int frameSize: 32
     property int buttonWidth: frameSize * 2
-    property int buttonHeight: frameSize * 0.7
+    property int buttonHeight: frameSize * 0.75
     property int buttonFontSize: frameSize * 0.4
     property int gridSpacing: frameSize * 0.1
-
+    property int pokeMargin: frameSize*0.25
     property bool debugLines: false
 
     // Top-level Pokemon properties (for easy C++ access)
@@ -31,6 +31,7 @@ Item {
     property alias switchButton: switchButton
     property alias catchButton: catchButton
     property alias runButton: runButton
+
 
     // Opponent Pokemon (wild) - positioned opposite to player
     PokemonSprite {
@@ -85,28 +86,32 @@ Item {
         sprite.anchors.horizontalCenter = undefined;
         sprite.anchors.verticalCenter = undefined;
 
-        var margin = 20;
+        var margin = root.pokeMargin;
 
         switch(sprite.direction) {
-            case 0: // North - position at top
-                sprite.anchors.top = root.top;
-                sprite.anchors.horizontalCenter = root.horizontalCenter;
-                sprite.anchors.topMargin = margin;
+            case 0:
+                sprite.anchors.bottom = root.bottom;
+                sprite.anchors.bottomMargin = textBar.height;
+                sprite.anchors.left = root.left;
+                sprite.anchors.leftMargin = margin;
                 break;
             case 1: // East - position at right
                 sprite.anchors.right = root.right;
-                sprite.anchors.verticalCenter = root.verticalCenter;
                 sprite.anchors.rightMargin = margin;
+                sprite.anchors.top = root.top;
+                sprite.anchors.topMargin = textBar.height/2;
                 break;
-            case 2: // South - position at bottom
-                sprite.anchors.bottom = root.bottom;
-                sprite.anchors.horizontalCenter = root.horizontalCenter;
-                sprite.anchors.bottomMargin = margin + textBar.height;
+            case 2: // South - position at top
+                sprite.anchors.top = root.top;
+                sprite.anchors.topMargin = margin
+                sprite.anchors.left = root.left;
+                sprite.anchors.leftMargin = margin;
                 break;
             case 3: // West - position at left
                 sprite.anchors.left = root.left;
-                sprite.anchors.verticalCenter = root.verticalCenter;
                 sprite.anchors.leftMargin = margin;
+                sprite.anchors.top = root.top;
+                sprite.anchors.topMargin = textBar.height/2;
                 break;
         }
     }
@@ -138,11 +143,11 @@ Item {
         playerSprite.tackle = true;
     }
 
-    function playOpponentAttack() {
+    function playOpponentAttacked() {
         opponentSprite.attacked = true;
     }
 
-    function playPlayerAttack() {
+    function playPlayerAttacked() {
         playerSprite.attacked = true;
     }
 
