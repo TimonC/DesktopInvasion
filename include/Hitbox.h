@@ -3,6 +3,7 @@
 
 #include <QQuickView>
 #include <QMouseEvent>
+#include <qevent.h>
 
 class Hitbox : public QQuickView
 {
@@ -13,13 +14,15 @@ public:
     void showButton(bool show = true);
     QQuickItem* m_mouseArea;
     QQuickItem* m_battleButton;
-    int offsetX = 0;
-    int offsetY = 0;
+    QPoint offset = QPoint(0,0);
+signals:
+    QPoint dragged(QPoint delta);
+
 protected:
+    QPoint m_oldpos = QPoint(0,0);
     void mousePressEvent(QMouseEvent* event) override;
+    void mouseMoveEvent(QMouseEvent*  event) override;
 
-
-private:
 };
 
 #endif

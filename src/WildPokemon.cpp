@@ -4,6 +4,7 @@
 #include <QQuickView>
 #include <QRandomGenerator>
 #include <qnamespace.h>
+#include "Hitbox.h"
 #include "Pokemon.h"
 #include "WildPokemon.h"
 #include "Player.h"
@@ -16,14 +17,11 @@ WildPokemon::WildPokemon(QWindow *parent, int row)
     , m_moveTimer(new QTimer(this))
     , m_moveSpeed(1 + QRandomGenerator::global()->bounded(2))
 {
-    QRect& screen = getScreenGeometry();
-    setX(screen.width()/2);//+ ((std::rand()%2)*2-1) * std::rand()%screen.width()/2);
-    setY(screen.height()/2);// + ((std::rand()%2)*2-1) * std::rand()%screen.height()/2);
 
-    m_hitbox->offsetX = width()/5;
-    m_hitbox->offsetY = height()/4;
-    m_hitbox->setX(x() + m_hitbox->offsetX);
-    m_hitbox->setY(y() + m_hitbox->offsetY);
+    m_hitbox->offset =QPoint(width()/5, height()/4);
+    move(QPoint(getScreenGeometry().width()/2, getScreenGeometry().height()/2));
+
+    connect(m_hitbox, &Hitbox::dragged, this, &WildPokemon::move);
     connect(m_hitbox->m_mouseArea, SIGNAL(doubleClicked(QQuickMouseEvent*)), this, SLOT(handleDoubleClick()));
     connect(m_hitbox->m_battleButton, SIGNAL(clicked()), this, SLOT(startBattle()));
 
@@ -82,32 +80,30 @@ void WildPokemon::makeRandomDecision(){
     }
 }
 
-void WildPokemon::moveStep(){
-    int newX = x();
-    int newY = y();
+QPoint WildPokemon::move(QPoint deltas) {
+    QPoint pos = position() + deltas;
+    int constrainedX = qMax(0, qMin(pos.x(), getScreenGeometry().width() - SPRITE_SIZE));
+    int constrainedY = qMax(0, qMin(pos.y(), getScreenGeometry().height() - SPRITE_SIZE));
+    QPoint newPos(constrainedX, constrainedY);
 
-    if (m_currentDirection == 0) {
-        newY -= m_moveSpeed;
-    } else if (m_currentDirection == 1) {
-        newX -= m_moveSpeed;
-    } else if (m_currentDirection == 2) {
-        newY += m_moveSpeed;
-    } else if (m_currentDirection == 3) {
-        newX += m_moveSpeed;
+    setPosition(newPos);
+    m_hitbox->setPosition(QPoint(newPos.x(), newPos.y()) + m_hitbox->offset);
+
+    return newPos;
+}
+
+void WildPokemon::moveStep(){
+    QPoint newPos;
+
+    switch (m_currentDirection) {
+        case 0: newPos = move(QPoint(0, -m_moveSpeed)); break;
+        case 1: newPos = move(QPoint(-m_moveSpeed, 0)); break;
+        case 2: newPos = move(QPoint(0, m_moveSpeed)); break;
+        case 3: newPos = move(QPoint(m_moveSpeed, 0)); break;
     }
 
-    QRect& screen = getScreenGeometry();
-    newX = qMax(0, qMin(newX, screen.width() - SPRITE_SIZE));
-    newY = qMax(0, qMin(newY, screen.height() - SPRITE_SIZE));
-
-    setX(newX);
-    setY(newY);
-
-    m_hitbox->setX(newX + m_hitbox->offsetX);
-    m_hitbox->setY(newY + m_hitbox->offsetY);
-
-    if (newX == 0 || newX == screen.width() - SPRITE_SIZE ||
-        newY == 0 || newY == screen.height() - SPRITE_SIZE) {
+    if (newPos.x() == 0 || newPos.x() == getScreenGeometry().width() - SPRITE_SIZE ||
+        newPos.y() == 0 || newPos.y() == getScreenGeometry().height() - SPRITE_SIZE) {
         makeRandomDecision();
     }
 }

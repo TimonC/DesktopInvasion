@@ -16,7 +16,8 @@ private slots:
     void moveStep();
     void startBattle();
     void handleDoubleClick();
-
+public slots:
+    QPoint move(QPoint delta);
 private:
     Hitbox* m_hitbox;
     QTimer* m_decisionTimer;

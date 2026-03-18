@@ -1,5 +1,6 @@
 #include "Hitbox.h"
 #include <QQuickItem>
+#include <qnamespace.h>
 Hitbox::Hitbox(QWindow *parent)
     : QQuickView(parent)
     , m_mouseArea(nullptr)
@@ -23,8 +24,20 @@ void Hitbox::showButton(bool show){
     m_battleButton->setProperty("visible", show);
 }
 
-
 void Hitbox::mousePressEvent(QMouseEvent* event) {
-    // Empty implementation for now
-    QQuickView::mousePressEvent(event); // Call base class implementation
+    if (Qt::LeftButton) {
+        m_oldpos = event->globalPosition().toPoint();
+    }
+    // QQuickView::mousePressEvent(event);
+}
+
+void Hitbox::mouseMoveEvent(QMouseEvent* event){
+    if (event->buttons() & Qt::LeftButton){
+        QPoint currentPos = event->globalPosition().toPoint();
+        QPoint deltas = currentPos - m_oldpos;
+        emit dragged(deltas);
+        m_oldpos = currentPos;
+    }
+
+    // QQuickView::mouseMoveEvent(event);
 }
