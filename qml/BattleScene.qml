@@ -99,7 +99,7 @@ Item {
                 break
             case 2:
                 sprite.x = (root.statusBarWidth + root.width - sprite.width)/2 + hPad + (sprite.verticalWidth/2 - sprite.hCenterDown)
-                sprite.y = root.statusBarHeight/4
+                sprite.y = 0
                 sprite.statusBar.x = hPad
                 sprite.statusBar.y = 0
                 break
