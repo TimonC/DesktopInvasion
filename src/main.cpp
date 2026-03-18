@@ -13,12 +13,22 @@
 #include <QFontDatabase>
 #include <QQmlContext>
 
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
+
 int main(int argc, char *argv[]) {
+#ifdef Q_OS_WIN
+    AllocConsole();
+    freopen("CONOUT$", "w", stdout);
+    freopen("CONOUT$", "w", stderr);
+#endif
+
     const char* valgrindMode = std::getenv("VALGRIND_MODE");
     bool isValgrindMode = (valgrindMode && strcmp(valgrindMode, "1") == 0);
 
-    const char* env =  getenv("DOCKER_ENV");
-    bool isDev = (env && strcmp(env, "dev") == 0);
+    QString dockerEnv = qEnvironmentVariable("DOCKER_ENV");
+    bool isDev = (dockerEnv == "dev");
 
     const bool DOOM_TIMER = isDev && isValgrindMode;
     const int DOOM_S = 60;
@@ -30,22 +40,17 @@ int main(int argc, char *argv[]) {
             qDebug() << "Will auto-exit after" << DOOM_S << "seconds";
         }
     }
-    /* Globals::debug(true); */
 
     QApplication app(argc, argv);
-    // Set organization and application name for proper data paths
     QCoreApplication::setOrganizationName("DesktopInvasion");
     QCoreApplication::setApplicationName("DesktopInvasion");
     QIcon icon;
     icon = QIcon(":/assets/icon/icon.png");
     app.setWindowIcon(icon);
 
-
-    // Load fonts from QRC once at app startup
     int pixelFontId = QFontDatabase::addApplicationFont(":/assets/fonts/PressStart2P-Regular.ttf");
     int dotGothicId = QFontDatabase::addApplicationFont(":/assets/fonts/DotGothic16-Regular.ttf");
 
-    // Get the font family names
     QString pixelFontFamily;
     QString dotGothicFamily;
 
@@ -66,11 +71,8 @@ int main(int argc, char *argv[]) {
     }
 
     QQmlApplicationEngine engine;
-    // Expose font names to QML
     engine.rootContext()->setContextProperty("pixelFontFamily", pixelFontFamily);
     engine.rootContext()->setContextProperty("dotGothicFontFamily", dotGothicFamily);
-
-    /* if (!Globals::DEBUG)  loggingCategory::setFilterRules("*.debug=false"); */
 
     QOpenGLContext context;
     if (context.create()) {
@@ -91,12 +93,10 @@ int main(int argc, char *argv[]) {
         dbDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
         qDebug() << "Running from AppImage, using data directory:" << dbDir;
     } else {
-        // Running from build directory - use local path for development
         dbDir = QCoreApplication::applicationDirPath();
         qDebug() << "Running from build directory, using local path:" << dbDir;
     }
 
-    // Ensure directory exists
     QDir dir(dbDir);
     if (!dir.exists()) {
         if (!dir.mkpath(".")) {
@@ -106,10 +106,9 @@ int main(int argc, char *argv[]) {
         qDebug() << "Created database directory:" << dbDir;
     }
 
-    QString dbPath = dbDir + "/pokemon.db";
+    QString dbPath = QDir(dbDir).filePath("pokemon.db");
     qDebug() << "Initializing database at:" << dbPath;
 
-    // Initialize the database
     if (!PokemonDatabase::instance().initialize(dbPath.toStdString())) {
         qCritical() << "Failed to initialize database at:" << dbPath;
         return 1;
