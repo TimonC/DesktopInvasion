@@ -18,8 +18,6 @@ pokemons = []
 def format_type_enum(type_name):
     if not type_name:
         return 'Type::Null'
-    if type_name == "fairy":
-        type_name = "normal"
     return f'Type::{type_name.capitalize()}'
 
 def extract_types(type_list):
@@ -222,8 +220,15 @@ namespace {
             source_content += f"    static constexpr EligibleEvolve eligible_evolves_{poke_id}[] = {{}};\n"
             eligible_evolve_count = 0
 
-        type1 = format_type_enum(pokemon['types'][0])
-        type2 = format_type_enum(pokemon['types'][1]) if pokemon['types'][1] else 'Type::Null'
+        _type1 = pokemon['types'][0]
+        _type2 = pokemon['types'][1]
+
+        if _type1=="fairy":
+            _type1="normal"
+        elif _type2=="fairy":
+            _type2=None
+        type1 = format_type_enum(_type1)
+        type2 = format_type_enum(_type2) if _type2 else 'Type::Null'
         formatted_name = format_pokemon_name(pokemon['name']).replace('"', '\\"')
         stats = pokemon['base_stats']
         stats_str = "{" + f"{stats[0]}, {stats[1]}, {stats[2]}, {stats[3]}, {stats[4]}, {stats[5]}" + "}"
