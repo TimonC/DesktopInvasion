@@ -3,7 +3,7 @@
 #include "pokemon_data.h"
 #include "Player.h"
 Player::Player(QObject* parent) : QObject(parent){
-    const PokemonInfo* p2 = Globals::getPokemonByPokedexId(173);
+    const PokemonInfo* p2 = Globals::getPokemonByPokedexId(355);
     /* const PokemonInfo* p2 = Globals::getRandomPokemon(); */
     m_party[0] = std::make_unique<PokemonInfo>(*p2);  // This matches the header
     /* m_party[1] = std::make_unique<PokemonInfo>(*p2); */

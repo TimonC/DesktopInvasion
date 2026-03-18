@@ -16,6 +16,7 @@ Item {
     property int pokeMargin: frameSize*0.25
     property bool debugLines: false
     property int textBoxHeight: 50
+    property int textBoxWidth: frameSize * 5
     property int direction: 0
 
     property alias opponent: opponent
@@ -46,7 +47,7 @@ Item {
         property int attackDistance: 20
 
         onStopped: {
-            delayedCall(200, function() {
+            delayedCall(200, () => {
                 opponentHitAnim.start();
             });
         }
@@ -90,7 +91,7 @@ Item {
 
         onStopped: {
             root.update_text_bar("It's super effective!");
-            delayedCall(1000, function() {
+            delayedCall(1200, () => {
                 root.attackInProgress = false;
                 buttonGrid.visible = true;
                 textBarText.visible = false;
@@ -161,12 +162,16 @@ Item {
 
     function handleAttack() {
         if (root.attackInProgress) return;
-        root.attackInProgress = true;
+
+        root.update_text_bar("Player used Tackle!");
         buttonGrid.visible = false;
         textBar.color = "darkgrey";
         textBarText.visible = true;
-        root.update_text_bar("Player used Tackle!");
-        playerAttackAnim.start();
+
+        delayedCall(200, () => {
+            root.attackInProgress = true;
+            playerAttackAnim.start();
+        });
     }
 
     Rectangle {
@@ -174,10 +179,9 @@ Item {
         color: "transparent"
         property string text: ""
         anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
+        anchors.horizontalCenter: parent.horizontalCenter
         height: root.textBoxHeight
-
+        width: root.textBoxWidth
         Text {
             id: textBarText
             anchors.fill: parent
