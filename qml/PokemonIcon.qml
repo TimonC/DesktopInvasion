@@ -9,4 +9,7 @@ Image {
 
     width: 40
     height: 30
+
+    smooth: false
+    antialiasing: false
 }
