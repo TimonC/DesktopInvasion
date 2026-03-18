@@ -641,6 +641,7 @@ QVariantList BattleMoveHandler::generateSequenceFromResult(const BattleActionRes
                         sequence.append(createAttackAction(sourceRole, ms_attackAnimation));
                     }
                     if (!targetRole.isEmpty()) {
+                        sequence.append(createTakeDamageAction(targetRole, ms_healthChange));
                         sequence.append(createChangeHealthAction(targetRole, -effect.amount, ms_healthChange));
                     }
                 }
@@ -829,6 +830,13 @@ QVariantMap BattleMoveHandler::createAttackAction(const QString& role, int delay
     return action;
 }
 
+QVariantMap BattleMoveHandler::createTakeDamageAction(const QString& role, int delay) {
+    QVariantMap action;
+    action["type"] = "take-damage";
+    action["role"] = role;
+    action["delay"] = delay;
+    return action;
+}
 
 QVariantMap BattleMoveHandler::createChangeHealthAction(const QString& role, int amount, int delay) {
     QVariantMap action;
