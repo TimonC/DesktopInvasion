@@ -9,13 +9,11 @@ Item {
     z: 3000
     property var mouseArea: mouseArea
     property var battleButton: battleButton
-    property bool openingButtons: false
-    property bool clickable: true
 
     MouseArea {
         id: mouseArea
         anchors.fill: parent
-        enabled: clickable
+        enabled: true
         hoverEnabled: true
     }
 
@@ -23,8 +21,8 @@ Item {
         id: battleButton
         text: "BATTLE"
         anchors.top: parent.top
-        visible: openingButtons
-        enabled: openingButtons
+        visible: false
+        enabled: false
         z: 10000
         onClicked: console.log("Battle clicked!")
     }

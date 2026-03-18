@@ -11,13 +11,11 @@
 
 WildPokemon::WildPokemon(QWindow *parent, int row)
     : Pokemon(parent, row)
-    , m_hitbox(new QQuickView(nullptr))
+    , m_hitbox(new Hitbox(nullptr))
     , m_decisionTimer(new QTimer(this))
     , m_moveTimer(new QTimer(this))
     , m_moveSpeed(1 + QRandomGenerator::global()->bounded(2))
 {
-    setupHitbox();
-
     QRect& screen = getScreenGeometry();
     setX(screen.width()/2);//+ ((std::rand()%2)*2-1) * std::rand()%screen.width()/2);
     setY(screen.height()/2);// + ((std::rand()%2)*2-1) * std::rand()%screen.height()/2);
@@ -26,30 +24,17 @@ WildPokemon::WildPokemon(QWindow *parent, int row)
     m_moveTimer->setInterval(50); // 20fps
     startRoaming();
 
+    connect(m_hitbox->m_mouseArea, SIGNAL(doubleClicked(QQuickMouseEvent*)), this, SLOT(handleDoubleClick()));
+    connect(m_hitbox->m_battleButton, SIGNAL(clicked()), this, SLOT(startBattle()));
+
     show();
     m_hitbox->show();
 }
 
-void WildPokemon::setupHitbox(){
-    m_hitbox->setSource(QUrl("qrc:/sprites/Hitbox.qml"));
-    m_hitbox->setFlags(
-              Qt::WindowStaysOnTopHint
-            | Qt::Tool
-            | Qt::WindowDoesNotAcceptFocus
-            | Qt::FramelessWindowHint);
-    m_hitbox->setColor(Qt::transparent);
-    QQuickItem* hitbox_sprite = m_hitbox->rootObject();
-
-    QQuickItem* mouseArea = hitbox_sprite->property("mouseArea").value<QQuickItem*>();
-    connect(mouseArea, SIGNAL(doubleClicked(QQuickMouseEvent*)), this, SLOT(onSelect()));
-    connect(mouseArea, SIGNAL(pressed(QQuickMouseEvent*)), this, SLOT(systemMove()));
 
 
-    QQuickItem* openingButtons = hitbox_sprite->property("battleButton").value<QQuickItem*>();
-    connect( openingButtons, SIGNAL(clicked()), this, SLOT(startBattle()));
-}
 
-void WildPokemon::systemMove(){
+void WildPokemon::handlePress(){
     m_hitbox->startSystemMove();
 }
 
@@ -61,10 +46,23 @@ void WildPokemon::startRoaming(){
     makeRandomDecision();
 }
 
+void WildPokemon::handleDoubleClick(){
+    m_moveTimer->stop();
+    m_decisionTimer->stop();
 
+    m_sprite->setProperty("jumping", true);
+
+    if(getPlayer().m_pokemonAvailable)
+        m_hitbox->showButton();
+
+    QTimer::singleShot(5000, this, [this]() {
+        m_decisionTimer->start();
+        m_hitbox->showButton(false);
+    });
+}
 
 void WildPokemon::startBattle(){
-    m_sprite->setProperty("openingButtons", false);
+    m_hitbox->showButton(false);
 
     getPlayer().iChooseYou(this);
 
@@ -72,28 +70,6 @@ void WildPokemon::startBattle(){
     m_decisionTimer->disconnect();
 }
 
-
-void WildPokemon::onSelect(){
-    m_moveTimer->stop();
-    m_decisionTimer->stop();
-
-    m_sprite->setProperty("jumping", true);
-    startOpening();
-}
-
-void WildPokemon::startOpening(int durationMs){
-    if(getPlayer().m_pokemonAvailable){
-        m_sprite->setProperty("openingButtons", true);
-    }else{
-        qDebug() << "No party Pokemon available for battle.";
-    }
-    QTimer::singleShot(durationMs, this, &WildPokemon::stopOpening);
-}
-
-void WildPokemon::stopOpening(){
-    m_sprite->setProperty("openingButtons", false);
-    m_decisionTimer->start();
-}
 
 void WildPokemon::makeRandomDecision(){
     int decision = QRandomGenerator::global()->bounded(8);
