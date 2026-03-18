@@ -2,7 +2,6 @@
 #include <Game.h>
 #include <WildPokemon.h>
 #include <globals.h>
-#include <Player.h>
 #include <QTimer>
 
 Game::Game(QQmlApplicationEngine* engine, QObject* parent)
@@ -12,11 +11,10 @@ Game::Game(QQmlApplicationEngine* engine, QObject* parent)
     , m_trayIcon(new SystemTrayIcon(this))
     , m_spawnTimer(new QTimer(this))
 {
-    connect(&Globals::getPlayer(), &Player::startABattle,
-            this, &Game::handleBattleStart);
-
     connect(m_trayIcon, &SystemTrayIcon::gameActive,
             this, &Game::setGameActive);
+    const PokemonInfo* p1 = Globals::getPokemonInfo(356); //dusclops
+    m_party[0] = p1;
 
     m_spawnTimer->setInterval(m_spawnDelay_ms);
     connect(m_spawnTimer, &QTimer::timeout, this, &Game::spawnPokemon);
@@ -53,6 +51,9 @@ void Game::spawnPokemon(){
         m_wildPokemonInfo = Globals::getPokemonInfo();
         m_wildPokemon = new WildPokemon(m_wildPokemonInfo);
     }
+
+    connect(m_wildPokemon, &WildPokemon::startABattle,
+            this, &Game::handleBattleStart);
     m_wildPokemon->show();
     m_spawnTimer->stop();
 };
@@ -89,12 +90,12 @@ void Game::updateWildPokemonPosToBattlePos(){
         m_wildPokemon->setPosition(newOppPos);
 }
 
-void Game::handleBattleStart(Battle* battle) {
+void Game::handleBattleStart() {
     assert(m_wildPokemon && "Cannot start battle: No WildPokemon exists");
     assert(!m_activeBattle && "Cannot start battle: Battle already active");
 
-    m_activeBattle = battle;
-    connect(battle, &Battle::battleEnded,
+    m_activeBattle = new Battle(m_wildPokemon, m_party[0]);
+    connect(m_activeBattle, &Battle::battleEnded,
             this, [this](bool removeWild) {
         handleBattleEnd(removeWild);
     });

@@ -1,6 +1,8 @@
 #include <globals.h>
 #include <QGuiApplication>
 #include <unordered_map>
+#include <QScreen>
+
 namespace Globals {
     bool DEBUG = false;
     int SCALE = 3;
@@ -10,11 +12,6 @@ namespace Globals {
     const QRect& screenGeometry() {
         static const QRect geometry = QGuiApplication::primaryScreen()->geometry();
         return geometry;
-    }
-
-    Player& getPlayer() {
-        static Player player;
-        return player;
     }
 
     const PokemonInfo* getPokemonInfo(std::optional<int> pokedexId) {

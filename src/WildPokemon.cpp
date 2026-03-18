@@ -66,7 +66,6 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QPoint spawnPoint, int spawnDi
     });
 }
 
-
 void WildPokemon::roaming(bool active){
     m_isDragged = false;
     m_sprite->setProperty("frameRate", 4);
@@ -124,7 +123,7 @@ void WildPokemon::startBattle(){
     }else if(intop){
         direction(2);
     }
-    Globals::getPlayer().iChooseYou(this);
+    emit startABattle();
 }
 
 void WildPokemon::makeRandomDecision(){

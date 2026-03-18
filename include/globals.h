@@ -2,7 +2,6 @@
 #define GLOBALS_H
 
 #include <QRect>
-#include <Player.h>
 #include <pokemon_data.h>
 
 namespace Globals {
@@ -12,7 +11,6 @@ namespace Globals {
     extern const int MAX_POKEDEX_ID;
 
     const QRect& screenGeometry();
-    Player& getPlayer();
     const PokemonInfo* getPokemonInfo(std::optional<int> pokedexId = std::nullopt);
 
     const SpriteInfo* getSpriteInfo(int spriteId, int generation);

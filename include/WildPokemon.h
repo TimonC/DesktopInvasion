@@ -4,14 +4,16 @@
 #include <DesktopScene.h>
 #include <pokemon_data.h>
 #include <qtmetamacros.h>
-#include <optional>
 
 class WildPokemon : public DesktopScene{
     Q_OBJECT
 
 public:
     explicit WildPokemon(const PokemonInfo* info, QPoint spawnPoint = QPoint(-1,-1), int spawnDirection = -1, QWindow *parent = nullptr);
-    ~WildPokemon(){qDebug() << "WildPokemon destructor called, with info: " << info->name;};
+    ~WildPokemon(){
+        qDebug() << "WildPokemon destructor called, with info: " << info->name;
+        disconnect();
+    };
     void roaming(bool active);
     void direction(int direction) override;
     const PokemonInfo* info;
@@ -19,6 +21,10 @@ public:
 
 public slots:
     void handleDrag(bool isDragged) override;
+
+signals:
+    void startABattle();
+
 
 private slots:
     void makeRandomDecision();

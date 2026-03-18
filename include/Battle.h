@@ -11,7 +11,10 @@ class Battle : public DesktopScene
     Q_OBJECT
 public:
     explicit Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent = nullptr);
-    ~Battle() { qDebug() << "Battle destructor called!"; }
+    ~Battle() {
+        qDebug() << "Battle destructor called!";
+        disconnect();
+    }
 
     void updateTextbar(const std::string& text);
     QQuickView* initCorners();

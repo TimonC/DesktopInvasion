@@ -22,6 +22,8 @@ private:
     GameMenu* m_menu;
     SystemTrayIcon* m_trayIcon;
 
+    std::array<const PokemonInfo*, 6> m_party;
+
     WildPokemon* m_wildPokemon = nullptr;
     Battle* m_activeBattle = nullptr;
     const PokemonInfo* m_wildPokemonInfo = nullptr;
@@ -29,13 +31,13 @@ private:
     int m_spawnDirection = -1;
 
     QTimer* m_spawnTimer;
-    const int m_spawnDelay_ms = 2000;
+    const int m_spawnDelay_ms = 1000;
 
     void updateWildPokemonPosToBattlePos();
     void spawnPokemon();
 
 private slots:
-    void handleBattleStart(Battle* battle);
+    void handleBattleStart();
     void handleBattleEnd(bool removeWild);
     void setGameActive(bool active = true);
 };

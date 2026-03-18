@@ -1,6 +1,8 @@
 #include "tests.h"
 #include <globals.h>
 #include <iostream>
+#include <ctime>
+#include <map>
 
 void runAllTests() {
     testPokespawnRandomness();
