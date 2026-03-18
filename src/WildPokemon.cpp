@@ -48,9 +48,8 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
     m_moveTimer->setInterval(50); // 20fps
 
 
-    qDebug() << "A wild" << info->name << "(#" <<info->pokedexId << ") appeared!";
-    qDebug() << "width: " << spriteInfo->max_width << " height: " << spriteInfo->max_height ;
-    qDebug() << "xOffset: " << spriteInfo->xOffset << " yOffset: " << spriteInfo->yOffset ;
+    qDebug() << "A wild" << info->name << "(#" <<info->pokedexId << ") appeared!"
+             << "width:" << spriteInfo->max_width << "height:" << spriteInfo->max_height ;
 
     startRoaming();
     show();
