@@ -32,9 +32,6 @@ Pokemon::Pokemon(QWindow *parent, int row)
     m_sprite->setProperty("spriteOffsetX", 32);
     m_sprite->setProperty("spriteOffsetY",32/2);
 
-    QRect& screen = getScreenGeometry();
-    setX(std::rand()%screen.width());
-    setY(std::rand()%screen.height());
 }
 
 

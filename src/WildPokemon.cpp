@@ -26,6 +26,10 @@ WildPokemon::WildPokemon(QWindow *parent, int row)
     QQuickItem* openingButtons = m_sprite->property("battleButton").value<QQuickItem*>();
     connect( openingButtons, SIGNAL(clicked()), this, SLOT(startBattle()));
 
+    QRect& screen = getScreenGeometry();
+    /* setX(std::rand()%screen.width()); */
+    /* setY(std::rand()%screen.height()); */
+    setPosition(QPoint(screen.width()/2, screen.height()/2));
     m_decisionTimer->start();
     makeRandomDecision();
 
