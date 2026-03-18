@@ -26,7 +26,7 @@ private:
     QPoint m_spawnPoint;
     int m_spawnDirection;
     const int m_spawnDelay_ms = 5000;
-    void updatePosToBattlePos();
+    void updateWildPokemonPosToBattlePos();
 
 private slots:
     void handleBattleStart(Battle* battle);

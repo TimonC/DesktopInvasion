@@ -31,11 +31,15 @@ Game::~Game() {
 }
 
 void Game::toggleGameActive(bool active){
+    static bool processing = false;
+    if(processing) return;
+
+    processing=true;
     if(active){
         if(m_wildPokemonInfo) m_wildPokemon = new WildPokemon(m_wildPokemonInfo, m_spawnPoint, m_spawnDirection);
     }else{
         if(m_activeBattle){
-            updatePosToBattlePos();
+            updateWildPokemonPosToBattlePos();
             m_activeBattle->disconnect();
             delete m_activeBattle;
             m_activeBattle = nullptr;
@@ -47,11 +51,11 @@ void Game::toggleGameActive(bool active){
             delete m_wildPokemon;
             m_wildPokemon = nullptr;
         }
-
     }
+    processing=false;
 }
 
-void Game::updatePosToBattlePos(){
+void Game::updateWildPokemonPosToBattlePos(){
         QPoint newOppPos = m_wildPokemon->position() + (m_activeBattle->position() - m_activeBattle->m_origin);
         m_wildPokemon->setPosition(newOppPos);
 }
@@ -84,7 +88,7 @@ void Game::handleBattleEnd(bool removeWild) {
         });
     }else{
         m_activeBattle->handleDrag(false);
-        updatePosToBattlePos();
+        updateWildPokemonPosToBattlePos();
         m_wildPokemon->show();
 
 

@@ -39,6 +39,10 @@ void SystemTrayIcon::onActivated(QSystemTrayIcon::ActivationReason reason){
     if (reason == QSystemTrayIcon::DoubleClick) {
         toggleGameActive();
     }
+    if (reason == QSystemTrayIcon::Context) {
+        QPoint pos = QCursor::pos();
+        m_menu->popup(pos);
+    }
 }
 
 void SystemTrayIcon::onGameActiveToggled(){
