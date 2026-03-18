@@ -60,10 +60,10 @@ Rectangle {
     property real faintedIconOpacity: 0.7
     property real iconScale: 1.0
 
-    property int colorAnimationDuration: Math.max(80, 200)
-    property int downDuration: Math.max(50, 140)
-    property int upDuration: Math.max(30, 100)
-    property int clickDelayDuration: downDuration
+    property int colorAnimationDuration: 200
+    property int downDuration: 80
+    property int upDuration: 60
+    property int clickDelayDuration: 80
 
     property bool textBarShown: false
     property bool forceSwitchMode: false
