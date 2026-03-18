@@ -7,7 +7,7 @@ Item {
     // Properties
     property int frameSize: 32
     property int menuWidth: frameSize * 6
-    property int menuHeight: frameSize * 2
+    property int menuHeight: frameSize * 2.4
     property int statusBarWidth: frameSize*2.5
     property int statusBarHeight: 25
     property int buttonWidth: frameSize * 2
@@ -70,7 +70,7 @@ Item {
                 break
             case 1:
                 sprite.x = root.width - (sprite.containerOffsetX + sprite.width)
-                sprite.y = root.height - (sprite.height + menuHeight*1.05) //slightly higher than menu w/ arbitrary 1.05
+                sprite.y = root.height - (sprite.height + menuHeight - gridSpacing*2) //compensate for downward shift of menu by gridSpacin*3
                 sprite.statusBar.x = root.width - root.frameSize/2 - root.statusBarWidth
                 sprite.statusBar.y = 0
                 break
@@ -82,7 +82,7 @@ Item {
                 break
             case 3:
                 sprite.x = sprite.containerOffsetX
-                sprite.y = root.height - (sprite.height + menuHeight*1.05)
+                sprite.y = root.height - (sprite.height + menuHeight - gridSpacing*2)
                 sprite.statusBar.x = root.frameSize/2
                 sprite.statusBar.y = 0
                 break

@@ -40,7 +40,7 @@ Rectangle {
     property real enabledOpacity: 1
     property real disabledOpacity: 0.5
 
-    property real selectedIconScale: 1.1
+    property real iconScale: 1.0
     property real normalIconOpacity: 1.0
     property real faintedIconOpacity: 0.8
 
@@ -143,6 +143,7 @@ Rectangle {
         id: stack
         initialItem: textBarComponent
         anchors.fill: parent
+        anchors.topMargin: root.gridSpacing*3
         z: 1
 
         pushEnter: Transition {
@@ -209,7 +210,7 @@ Rectangle {
             border.width: root.borderWidth
             property string text: ""
 
-            height: root.menuHeight*0.90
+            height: root.menuHeight*0.8
             width: root.menuWidth
             radius: 5
 
@@ -339,7 +340,7 @@ Rectangle {
         Grid {
             columns: 3
             rows: 2
-            spacing: root.gridSpacing
+            spacing: root.gridSpacing/3
 
             property real cellWidth: (parent.width - spacing) / 3
             property real cellHeight: (parent.height - spacing) / 2
@@ -390,7 +391,7 @@ Rectangle {
                             id: iconFrame
                             anchors.centerIn: parent
                             frameIndex: root.party.iconIds[index]
-                            scale: root.selectedIndex === index ? root.selectedIconScale : 1
+                            scale: root.iconScale
                             opacity: party.healthRatios[index] > 0 ? root.normalIconOpacity : root.faintedIconOpacity
                         }
                     }
@@ -521,7 +522,8 @@ Rectangle {
                 anchors.centerIn: parent
                 text: "Confirm run"
                 buttonColor: root.runButtonColor
-                width: root.buttonWidth * 1.6
+                width: root.buttonWidth * 2
+                height: root.buttonHeight
                 onClicked: root.runChosen()
             }
         }
