@@ -8,11 +8,10 @@ Rectangle {
     color: "transparent"
 
     property int menuTransitionDuration: 100
-    property int iconScale: 1
+    property double iconScale: 1.0
 
-    property int frameSize: 0
-    property int buttonWidth: frameSize * 2
-    property int buttonHeight: frameSize * 0.75
+    property int buttonWidth: 0
+    property int buttonHeight: 0
     property double textBarHeightRatio: 1
     property int menuHeight: 0
     property int menuWidth: 0
@@ -23,8 +22,8 @@ Rectangle {
     property string menuFontFamily: ""
     property string textBarFontFamily: ""
 
-    property int borderWidth: 2
-    property int gridSpacing: 3
+    property int borderWidth: 0
+    property int gridSpacing: 0
 
     property string opponentName: ""
 
@@ -67,16 +66,14 @@ Rectangle {
     property int selectedIndex: 0
     property bool forceSwitchMode: false
 
-    // Layout proportions
     property real backButtonWidthRatio: 0.08
     property real backButtonHeightRatio: 0.9
     property real contentMarginsRatio: 0.02
 
-    // Dynamic calculated properties
-    property real contentWidth: menuWidth * (1 - backButtonWidthRatio * 2 - contentMarginsRatio * 2)
-    property real contentHeight: menuHeight * (1 - contentMarginsRatio * 2)
-    property real backButtonWidth: menuWidth * backButtonWidthRatio
-    property real backButtonHeight: menuHeight * backButtonHeightRatio
+    property real contentWidth: Math.floor(menuWidth * (1 - backButtonWidthRatio * 2 - contentMarginsRatio * 2))
+    property real contentHeight: Math.floor(menuHeight * (1 - contentMarginsRatio * 2))
+    property real backButtonWidth: Math.floor(menuWidth * backButtonWidthRatio)
+    property real backButtonHeight: Math.floor(menuHeight * backButtonHeightRatio)
 
     signal actionRound(int actionIndex, string actionType)
     signal fightChosen(int fightId)
@@ -158,9 +155,8 @@ Rectangle {
         font.family: root.menuFontFamily
         font.weight: Font.DemiBold
 
-        // Dynamic sizing based on content area
-        width: root.contentWidth / 2 - root.gridSpacing
-        height: root.contentHeight / 2 - root.gridSpacing
+        width: Math.floor(root.contentWidth / 2 - root.gridSpacing)
+        height: Math.floor(root.contentHeight / 2 - root.gridSpacing)
     }
 
     StackView {
@@ -230,7 +226,7 @@ Rectangle {
         Rectangle {
             id: textBar
             width: root.menuWidth
-            height: root.menuHeight * root.textBarHeightRatio
+            height: Math.floor(root.menuHeight * root.textBarHeightRatio)
             color: root.textBarBackgroundColor
             border.color: root.textBarBorderColor
             border.width: root.borderWidth
@@ -240,7 +236,7 @@ Rectangle {
             Text {
                 id: textBarText
                 anchors.fill: parent
-                anchors.margins: root.menuWidth * 0.02 // 2% margin
+                anchors.margins: Math.floor(root.menuWidth * 0.02)
                 text: textBar.text
                 font.pixelSize: root.textBarFontSize
                 font.family: root.textBarFontFamily
@@ -304,7 +300,7 @@ Rectangle {
             Grid {
                 id: fightGrid
                 anchors.fill: parent
-                anchors.margins: root.contentMarginsRatio * root.menuHeight
+                anchors.margins: Math.floor(root.contentMarginsRatio * root.menuHeight)
                 columns: 2
                 rows: 2
                 spacing: root.gridSpacing
@@ -316,10 +312,9 @@ Rectangle {
 
                     Item {
                         id: moveItem
-                        width: fightGrid.width / 2 - root.gridSpacing / 2
-                        height: fightGrid.height / 2 - root.gridSpacing / 2
+                        width: Math.floor(fightGrid.width / 2 - root.gridSpacing / 2)
+                        height: Math.floor(fightGrid.height / 2 - root.gridSpacing / 2)
 
-                        // Function that re-evaluates when dependencies change
                         function getMoveData() {
                             if (party && party.moves && party.moves[root.selectedIndex]) {
                                 return party.moves[root.selectedIndex][index] || {name: "---", type: "Null"}
@@ -387,17 +382,17 @@ Rectangle {
 
             Grid {
                 anchors.fill: parent
-                anchors.margins: root.contentMarginsRatio * root.menuHeight
+                anchors.margins: Math.floor(root.contentMarginsRatio * root.menuHeight)
                 columns: 3
                 rows: 2
-                spacing: root.gridSpacing / 2
+                spacing: Math.floor(root.gridSpacing / 2)
 
                 Repeater {
                     model: 6
 
                     Item {
-                        width: (parent.width - root.gridSpacing) / 3
-                        height: (parent.height - root.gridSpacing) / 2
+                        width: Math.floor((parent.width - root.gridSpacing) / 3)
+                        height: Math.floor((parent.height - root.gridSpacing) / 2)
 
                         Rectangle {
                             anchors.fill: parent
@@ -486,7 +481,7 @@ Rectangle {
             Grid {
                 id: grid
                 anchors.fill: parent
-                anchors.margins: root.contentMarginsRatio * root.menuHeight
+                anchors.margins: Math.floor(root.contentMarginsRatio * root.menuHeight)
                 columns: 2
                 rows: 2
                 spacing: root.gridSpacing
@@ -495,8 +490,8 @@ Rectangle {
                     model: 4
 
                     Item {
-                        width: (grid.width - root.gridSpacing) / 2
-                        height: (grid.height - root.gridSpacing) / 2
+                        width: Math.floor((grid.width - root.gridSpacing) / 2)
+                        height: Math.floor((grid.height - root.gridSpacing) / 2)
 
                         property bool ballEnabled: root.nrOfBalls[index] > 0
 
@@ -525,20 +520,21 @@ Rectangle {
                             Item {
                                 width: root.ballSpriteWidth * root.iconScale
                                 height: root.ballSpriteHeight * root.iconScale
-
                                 Image {
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    anchors.verticalCenterOffset: 1
-                                    anchors.horizontalCenter: parent.horizontalCenter
-
                                     source: root.ballSpriteSheet
-                                    width: root.ballSpriteWidth * root.iconScale
-                                    height: root.ballSpriteHeight * root.iconScale
                                     sourceClipRect: Qt.rect(0, root.ballSpriteHeight * index,
                                                            root.ballSpriteWidth, root.ballSpriteHeight)
-                                    smooth: false
-                                    antialiasing: false
+
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.verticalCenterOffset: 1 * root.iconScale  // Scale the offset!
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    width: root.ballSpriteWidth * root.iconScale
+                                    height: root.ballSpriteHeight * root.iconScale
                                     opacity: ballEnabled ? 1.0 : 0.5
+
+                                    smooth:false
+                                    antialiasing: false
+                                    mipmap: true
                                 }
                             }
 
@@ -573,8 +569,8 @@ Rectangle {
 
             Column {
                 anchors.fill: parent
-                anchors.margins: root.contentMarginsRatio * root.menuHeight
-                spacing: root.gridSpacing / 2
+                anchors.margins: Math.floor(root.contentMarginsRatio * root.menuHeight)
+                spacing: Math.floor(root.gridSpacing / 2)
 
                 Repeater {
                     model: [
@@ -589,7 +585,7 @@ Rectangle {
                     ]
 
                     Rectangle {
-                        height: (parent.height - root.gridSpacing / 2) / 2
+                        height: Math.floor((parent.height - root.gridSpacing / 2) / 2)
                         width: parent.width
                         radius: 20
                         border.color: root.borderColor
@@ -649,23 +645,20 @@ Rectangle {
 
             RowLayout {
                 anchors.fill: parent
-                anchors.margins: root.contentMarginsRatio * root.menuHeight
-                spacing: root.contentMarginsRatio * root.menuWidth
+                anchors.margins: Math.floor(root.contentMarginsRatio * root.menuHeight)
+                spacing: Math.floor(root.contentMarginsRatio * root.menuWidth)
 
-                // Left spacer
                 Item {
                     Layout.preferredWidth: root.backButtonWidth
                     Layout.fillHeight: true
                 }
 
-                // Content area
                 Loader {
                     id: contentLoader
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                 }
 
-                // Back button area
                 Item {
                     Layout.preferredWidth: root.backButtonWidth
                     Layout.fillHeight: true

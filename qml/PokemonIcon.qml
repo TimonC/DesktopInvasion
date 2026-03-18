@@ -5,17 +5,17 @@ Image {
     source: "qrc:/assets/HGSS/reordered_icons.png"
 
     property int frameIndex: 0
-    property real iconScale: 1.0
+    property double iconScale: 1.0
 
     readonly property int spriteWidth: 40
     readonly property int spriteHeight: 30
 
-    width: spriteWidth * iconScale
-    height: spriteHeight * iconScale
+    width: Math.ceil(spriteWidth * iconScale)
+    height: Math.ceil(spriteHeight * iconScale)
 
     sourceClipRect: Qt.rect(0, frameIndex * spriteHeight, spriteWidth, spriteHeight)
 
     smooth: false
     antialiasing: false
-
+    mipmap: false
 }

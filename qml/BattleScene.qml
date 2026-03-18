@@ -5,30 +5,31 @@ Item {
     id: root
 
 
-    property  int scale: 1
-    property int frameSize: 32*scale
+    property  real scale: 1
+    property real frameSize: 32*scale
     property int animationSpeed: 1
 
 
-    width: (direction === 0 || direction === 2) ? frameSize * 6 : frameSize * 8
-    height: (direction === 0 || direction === 2) ? frameSize * 8 : frameSize * 6
+    width: (direction === 0 || direction === 2) ? Math.round(frameSize * 6) : Math.round(frameSize * 8)
+    height: (direction === 0 || direction === 2) ? Math.round(frameSize * 8) : Math.round(frameSize * 6)
 
     property string textBarFontFamily:  "DotGothic16"
     property string menuFontFamily: "Press Start 2P"
     property string statusBarFontFamily: "Press Start 2P"
 
-    property int menuWidth: frameSize * 6
-    property int menuHeight: frameSize * 2
-    property int statusBarWidth: frameSize*2.5
-    property int statusBarHeight: frameSize*1.2
-    property int buttonWidth: frameSize * 2.25
-    property int buttonHeight: frameSize * 0.75
-    property int gridSpacing: frameSize * 0.1
+    property int menuWidth: Math.round(frameSize * 6)
+    property int menuHeight: Math.round(frameSize * 2)
+    property int statusBarWidth: Math.round(frameSize*2.5)
+    property int statusBarHeight: Math.round(frameSize*1.2)
+    property int buttonWidth: Math.round(frameSize * 2.25)
+    property int buttonHeight: Math.round(frameSize * 0.75)
+    property int gridSpacing: Math.round(frameSize * 0.1)
+    property int borderWidth: Math.max(1, Math.round(frameSize * 0.05))
 
-    property int pokeNameFontSize:9*scale
-    property int buttonFontSize:9*scale
-    property int moveFontSize:8*scale
-    property int textBarFontSize: 15*scale
+    property int pokeNameFontSize: Math.round(9*scale)
+    property int buttonFontSize: Math.round(9*scale)
+    property int moveFontSize: Math.round(8*scale)
+    property int textBarFontSize: Math.round(15*scale)
 
     property bool debugLines: false
 
@@ -82,27 +83,27 @@ Item {
     function positionSpriteAndStatusBar(sprite) {
         switch(sprite.direction) {
             case 0:
-                sprite.x = (root.width - root.statusBarWidth - sprite.width)/2
-                sprite.y = root.height - root.menuHeight - sprite.height - root.frameSize/4
-                sprite.statusBar.x = root.width - root.statusBarWidth
-                sprite.statusBar.y = root.height - root.menuHeight - root.statusBarHeight/2 - root.frameSize*2
+                sprite.x = Math.round((root.width - root.statusBarWidth - sprite.width)/2)
+                sprite.y = Math.round(root.height - root.menuHeight - sprite.height - root.frameSize/4)
+                sprite.statusBar.x = Math.round(root.width - root.statusBarWidth)
+                sprite.statusBar.y = Math.round(root.height - root.menuHeight - root.statusBarHeight/2 - root.frameSize*2)
                 break
             case 1:
-                sprite.x = root.width - root.frameSize/2 - root.statusBarWidth/2 - sprite.width/2
-                sprite.y = 0.5*(root.statusBarHeight + root.height - root.menuHeight - sprite.height + Math.max(0, (sprite.height-sprite.horizontalHeight)))
-                sprite.statusBar.x = root.width - root.frameSize/2 - root.statusBarWidth
+                sprite.x = Math.round(root.width - root.frameSize/2 - root.statusBarWidth/2 - sprite.width/2)
+                sprite.y = Math.round(0.5*(root.statusBarHeight + root.height - root.menuHeight - sprite.height + Math.max(0, (sprite.height-sprite.horizontalHeight))))
+                sprite.statusBar.x = Math.round(root.width - root.frameSize/2 - root.statusBarWidth)
                 sprite.statusBar.y = 0
                 break
             case 2:
-                sprite.x = (root.width - root.statusBarWidth - sprite.width)/2
-                sprite.y = root.statusBarHeight/2
-                sprite.statusBar.x = root.width - root.statusBarWidth
-                sprite.statusBar.y = sprite.y
+                sprite.x = Math.round((root.width - root.statusBarWidth - sprite.width)/2)
+                sprite.y = Math.round(root.statusBarHeight/2)
+                sprite.statusBar.x = Math.round(root.width - root.statusBarWidth)
+                sprite.statusBar.y = Math.round(sprite.y)
                 break
             case 3:
-                sprite.x = root.frameSize/2 + root.statusBarWidth/2 - sprite.width/2
-                sprite.y = 0.5*(root.statusBarHeight + root.height - root.menuHeight - sprite.height + Math.max(0, (sprite.height-sprite.horizontalHeight)))
-                sprite.statusBar.x = root.frameSize/2
+                sprite.x = Math.round(root.frameSize/2 + root.statusBarWidth/2 - sprite.width/2)
+                sprite.y = Math.round(0.5*(root.statusBarHeight + root.height - root.menuHeight - sprite.height + Math.max(0, (sprite.height-sprite.horizontalHeight))))
+                sprite.statusBar.x = Math.round(root.frameSize/2)
                 sprite.statusBar.y = 0
                 break
         }
@@ -241,7 +242,6 @@ Item {
     BattleMenu {
         id: battleMenu
         iconScale: root.scale
-        frameSize: root.frameSize
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
         height: root.menuHeight
@@ -249,6 +249,7 @@ Item {
         buttonWidth: root.buttonWidth
         buttonHeight: root.buttonHeight
         gridSpacing: root.gridSpacing
+        borderWidth: root.borderWidth
         menuHeight: root.menuHeight
         menuWidth: root.menuWidth
         buttonFontSize: root.buttonFontSize
