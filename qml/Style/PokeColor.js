@@ -25,6 +25,7 @@ function typeColor(typeName) {
 }
 
     function lighter(baseColor) {
+        if(baseColor==="transparent") return Qt.rgba(0,0,0,0)
         var colorRatio = 1.1
         var c = Qt.color(baseColor)
         return Qt.rgba(
@@ -36,6 +37,7 @@ function typeColor(typeName) {
     }
 
     function darker(baseColor) {
+        if(baseColor==="transparent") return Qt.rgba(0,0,0,0)
         var colorRatio = 0.7
         var c = Qt.color(baseColor)
         return Qt.rgba(
