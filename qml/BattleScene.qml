@@ -4,6 +4,7 @@ import QtQuick.Controls 2.15
 Item {
     id: root
 
+
     property  int scale: 1
     property int frameSize: 32*scale
     property int animationSpeed: 1
@@ -502,7 +503,7 @@ Item {
         var x0 = x1 + (sprite.direction == 1 ? -sprite.width : sprite.width)
 
         var y1 = sprite.y + sprite.height - pokeballHeight
-        var y0 = sprite.y - pokeballHeight
+        var y0 = sprite.y - pokeballHeight*2
 
         y0 = Math.max(pokeballHeight/2, y0)
         y1 = Math.max(pokeballHeight/2, y1)

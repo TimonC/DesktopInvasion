@@ -104,12 +104,12 @@ Item {
         id: shakeAnimation
         running: false
         loops: 1
-        PropertyAnimation { target: pokeballSprite; property: "x"; to: pokeballSprite.x + 3; duration: Math.round(50 / speed) }
-        PropertyAnimation { target: pokeballSprite; property: "x"; to: pokeballSprite.x - 3; duration: Math.round(50 / speed) }
-        PropertyAnimation { target: pokeballSprite; property: "x"; to: pokeballSprite.x + 2; duration: Math.round(50 / speed) }
-        PropertyAnimation { target: pokeballSprite; property: "x"; to: pokeballSprite.x - 2; duration: Math.round(50 / speed) }
-        PropertyAnimation { target: pokeballSprite; property: "x"; to: pokeballSprite.x + 1; duration: Math.round(50 / speed) }
-        PropertyAnimation { target: pokeballSprite; property: "x"; to: pokeballSprite.x - 1; duration: Math.round(50 / speed) }
+        PropertyAnimation { target: pokeballSprite; property: "x"; to: pokeballSprite.x + 3*root.scale; duration: Math.round(50 / speed) }
+        PropertyAnimation { target: pokeballSprite; property: "x"; to: pokeballSprite.x - 3*root.scale; duration: Math.round(50 / speed) }
+        PropertyAnimation { target: pokeballSprite; property: "x"; to: pokeballSprite.x + 2*root.scale; duration: Math.round(50 / speed) }
+        PropertyAnimation { target: pokeballSprite; property: "x"; to: pokeballSprite.x - 2*root.scale; duration: Math.round(50 / speed) }
+        PropertyAnimation { target: pokeballSprite; property: "x"; to: pokeballSprite.x + 1*root.scale; duration: Math.round(50 / speed) }
+        PropertyAnimation { target: pokeballSprite; property: "x"; to: pokeballSprite.x - 1*root.scale; duration: Math.round(50 / speed) }
         PropertyAnimation { target: pokeballSprite; property: "x"; to: pokeballSprite.x; duration: Math.round(50 / speed) }
     }
 
@@ -120,7 +120,7 @@ Item {
         PropertyAnimation {
             target: pokeballSprite
             property: "y"
-            to: pokeballSprite.y - 20
+            to: pokeballSprite.y - 20*root.scale
             duration: Math.round(200 / speed)
             easing.type: Easing.OutQuad
         }
