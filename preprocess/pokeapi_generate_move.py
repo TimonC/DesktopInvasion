@@ -24,11 +24,34 @@ MOVE_EFFECT_EXCEPTION_LIST = [
     437,  # Leaf Storm: -2 Sp. Atk to USER (self-debuff after damage)
 ]
 
+#This list was generated in this script, and then inserted with manually set break points inside "filled"
+filled_move_names_longer_than_eight_characters = [
+    ("supersonic", "Super-sonic"),
+    ("flamethrower", "Flame-thrower"),
+    ("submission", "Sub-mission"),
+    ("thunderbolt", "Thunder-bolt"),
+    ("earthquake", "Earth-quake"),
+    ("confusion", "Con-fusion"),
+    ("smokescreen", "Smoke-screen"),
+    ("waterfall", "Water-fall"),
+    ("constrict", "Con-strict"),
+    ("crabhammer", "Crab-hammer"),
+    ("aeroblast", "Aero-blast"),
+    ("octazooka", "Octa-zooka"),
+    ("magnitude", "Magni-tude"),
+    ("synthesis", "Syn-thesis"),
+    ("moonlight", "Moon-light"),
+    ("superpower", "Super-power"),
+    ("extrasensory", "Extra-sensory"),
+    ("discharge", "Dis-charge")
+]
+move_names_longer_than_eight_characters = []
+
 # Approved ailments (matching the Ailment enum). 'Badly poisoned' is inserted based on known move name
 APPROVED_AILMENTS = ['none','burn', 'freeze', 'paralysis', 'poison', 'sleep', 'confusion']
+pokeApiFieldsToInclude = ["id", "name", "accuracy", "priority", "power"]
 
 moves = []
-pokeApiFieldsToInclude = ["id", "name", "accuracy", "priority", "power"]
 
 def should_skip_move(move_id):
     """Check if a move should be skipped"""
@@ -149,7 +172,11 @@ for i in range(1, 5):
         moveFilled['flavor_text'] = clean_flavor_text(raw_flavor_text)
         moveFilled['meta'] = meta_data
         moves.append(moveFilled)
-        print(f"Added move: {moveFilled['id']} - {moveFilled['name']}")
+
+        name = moveFilled['name']
+        if len(name)>8 and not "-" in name:
+            move_names_longer_than_eight_characters.append(name)
+        print(f"Added move: {moveFilled['id']} - {name}")
 
 def generate_moves_data_direct():
     """Generate C++ source using direct pointer array (simpler & faster)"""
@@ -173,7 +200,18 @@ namespace {
 
         move_id = move['id']
         raw_name = move['name']
-        formatted_name = format_move_name(raw_name).replace('"', '\\"')
+
+        #If longer than eight chars, fill in dash at the manually defined break point
+        longer_than_eight = False
+        formatted_name = "THIS SHOULD ALWAYS BE OVERWRITTEN"
+        for original, formatted in filled_move_names_longer_than_eight_characters:
+            longer_than_eight = raw_name == original
+            if longer_than_eight:
+                formatted_name = formatted
+                break
+        if not longer_than_eight:
+            formatted_name = format_move_name(raw_name)
+
         flavor = move['flavor_text'].replace('"', '\\"')
         type_enum = format_type_enum(move['type'])
         category_enum = format_category_enum(move['damage_class'])
@@ -243,6 +281,7 @@ namespace {
 
     return source_content
 
+
 # Generate the C++ file
 source_content = generate_moves_data_direct()
 if source_content:
@@ -255,5 +294,9 @@ if source_content:
     print(f"Total moves: {valid_move_count}")
     print(f"Max move ID: {max(m['id'] for m in moves if not should_skip_move(m['id']))}")
     print(f"Array size: {max(m['id'] for m in moves if not should_skip_move(m['id'])) + 1}")
+
+    with open("move_names_longer_than_eight_characters.txt", "w") as t:
+        for move in move_names_longer_than_eight_characters:
+            t.write(move + "\n")
 else:
     print("Error: No valid moves to generate")

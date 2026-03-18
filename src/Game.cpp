@@ -357,7 +357,7 @@ void Game::createInitialPokemon() {
     gastly.moves[0] = 202;
     gastly.moves[1] = 28;
     gastly.moves[2] = 339;
-    gastly.moves[3] = 260;
+    gastly.moves[3] = 93;
 
 
     int pokemonId1 = m_db.createPokemon(gastly);
@@ -368,7 +368,7 @@ void Game::createInitialPokemon() {
     }
 
     PokemonState wailord;
-    wailord.pokedex_id = 336;
+    wailord.pokedex_id = 321;
     wailord.name = "Wailord";
     wailord.pokeball_id = 0;
 
@@ -379,7 +379,7 @@ void Game::createInitialPokemon() {
 
     wailord.nature = Nature::Hardy;
     wailord.lvl = 10;
-    wailord.moves[0] = 202;
+    wailord.moves[0] = 48;
     wailord.moves[1] = 28;
     wailord.moves[2] = 339;
     wailord.moves[3] = 260;
@@ -406,7 +406,7 @@ void Game::createInitialPokemon() {
     groudon.nature = Nature::Hardy;
     groudon.lvl = 10;
     groudon.moves[0] = 14;
-    groudon.moves[1] = 104;
+    groudon.moves[1] = 53;
     groudon.moves[2] = 426;
     groudon.moves[3] = 434;
 
