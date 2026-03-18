@@ -48,6 +48,8 @@ public:
     bool setPartyPokemon(int slot, int pokemonId);
     bool clearPartySlot(int slot);
 
+    bool clearWild();
+
 private:
     PokemonDatabase() = default;
     ~PokemonDatabase();

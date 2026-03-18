@@ -1,6 +1,7 @@
 CMakeFiles/
 scripts/
 build/
+data/
 # assets/
 *.user
 *.autosave

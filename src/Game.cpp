@@ -60,7 +60,7 @@ void Game::initializeGame() {
         createInitialPokemon();
         loadParty();
     } else {
-        qDebug() << "Loading saved game...";
+        qDebug() << "Loading saved game from Player" << QString::fromStdString(state.name) << "...";
         loadParty();
     }
 
@@ -191,13 +191,18 @@ void Game::handleBattleEnd(const char* endState) {
     bool removeWild = playerWon || opponentCaught;
 
     if (removeWild) {
-        // Player won the battle - add XP efficiently
-        if (playerWon && m_partyIds[0] > 0) {
+        // Player won the battle - add XP
+        if (playerWon) {
             if (m_db.addPokemonXp(m_partyIds[0], 100)) {
                 int newXp = m_db.getPokemonXp(m_partyIds[0]);
                 qDebug() << "Added 100 XP to fighting Pokemon. Total XP:" << newXp;
             } else {
                 qWarning() << "Failed to add XP to Pokemon ID:" << m_partyIds[0];
+            }
+            if(m_db.clearWild()){
+                qDebug() << "Cleared wild pokemon instance";
+            }else{
+                qWarning() << "Failed to clear wild pokemon";
             }
         }
 
@@ -205,16 +210,19 @@ void Game::handleBattleEnd(const char* endState) {
         if (opponentCaught) {
             int caughtId = m_db.catchWildPokemon();
             if (caughtId > 0) {
-                qDebug() << "Pokemon caught! Database ID:" << caughtId;
+                PokemonState caughtPokemon = m_db.getPokemon(caughtId);
+                QString caughtName = QString::fromStdString(caughtPokemon.name);
+
+                qDebug() << caughtName << "caught! Database ID:" << caughtId;
 
                 // Add to first empty party slot
+                //
                 for (int i = 0; i < 6; i++) {
                     if (m_partyIds[i] == 0) {
                         m_db.setPartyPokemon(i, caughtId);
                         m_partyIds[i] = caughtId;
 
-                        PokemonState caughtPokemon = m_db.getPokemon(caughtId);
-                        qDebug() << "Added" << QString::fromStdString(caughtPokemon.name)
+                        qDebug() << "Added" << caughtName
                                  << "to party slot" << i;
                         break;
                     }

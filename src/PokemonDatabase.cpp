@@ -252,6 +252,16 @@ int PokemonDatabase::catchWildPokemon() {
     int caughtId = createPokemon(wild);
     if (caughtId <= 0) return -1;
 
+    if(clearWild()){
+        return caughtId;
+    }else{
+        return -1;
+    }
+}
+
+bool PokemonDatabase::clearWild() {
+    if (!m_db) return false;
+
     const char* clearWild = R"(
         UPDATE pokemon SET
             pokedex_id = 0, name = 'WILD_SLOT',
@@ -264,8 +274,20 @@ int PokemonDatabase::catchWildPokemon() {
         WHERE _id = 0
     )";
 
-    sqlite3_exec(m_db, clearWild, nullptr, nullptr, nullptr);
-    return caughtId;
+    sqlite3_stmt* stmt = nullptr;
+    if (sqlite3_prepare_v2(m_db, clearWild, -1, &stmt, nullptr) != SQLITE_OK) {
+        std::cerr << "Failed to prepare statement: " << sqlite3_errmsg(m_db) << std::endl;
+        return false;
+    }
+
+    bool success = (sqlite3_step(stmt) == SQLITE_DONE);
+
+    if (!success) {
+        std::cerr << "Failed to execute statement: " << sqlite3_errmsg(m_db) << std::endl;
+    }
+
+    sqlite3_finalize(stmt);
+    return success;
 }
 
 GameState PokemonDatabase::loadGameState() {
