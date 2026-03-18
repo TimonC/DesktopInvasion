@@ -23,7 +23,7 @@ Item {
     property int statusBarHeight: Math.round(frameSize*1.2)
     property int buttonWidth: Math.round(frameSize * 2.25)
     property int buttonHeight: Math.round(frameSize * 0.75)
-    property int gridSpacing: Math.round(frameSize * 0.1)
+    property int gridSpacing: Math.round(frameSize * 0.05)
     property int borderWidth: Math.max(1, Math.round(frameSize * 0.05))
 
     property int pokeNameFontSize: Math.round(9*scale)
