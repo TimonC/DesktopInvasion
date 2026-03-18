@@ -6,7 +6,10 @@
 #include <QGraphicsScene>
 #include <qnamespace.h>
 InvasionView::InvasionView(){
+    this -> init();
+}
 
+void InvasionView::init(){
     Qt::WindowFlags flags = Qt::WindowType::FramelessWindowHint
                           | Qt::WindowType::WindowStaysOnTopHint
                           | Qt::WindowType::WindowTransparentForInput;
@@ -27,3 +30,4 @@ InvasionView::InvasionView(){
     this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     this->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 }
+

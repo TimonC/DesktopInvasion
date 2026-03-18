@@ -11,6 +11,7 @@ class InvasionView : public QGraphicsView
         InvasionView();
     private:
         QGraphicsScene *scene;
+        void init();
 };
 
 #endif
