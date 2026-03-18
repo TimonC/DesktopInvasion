@@ -370,26 +370,26 @@ void Game::createInitialPokemon() {
         m_partyIds[0] = pokemonId;
     }
 
-    PokemonState dusclops;
-    dusclops.pokedex_id = 356;
-    dusclops.name = "Dusclops";
-    dusclops.pokeball_id = 1;
+    PokemonState dusknoir;
+    dusknoir.pokedex_id = 477;
+    dusknoir.name = "Dusknoir";
+    dusknoir.pokeball_id = 1;
 
     for (int i = 0; i < 6; i++) {
-        dusclops.ivs[i] = 32;
-        dusclops.evs[i] = 50;
+        dusknoir.ivs[i] = 32;
+        dusknoir.evs[i] = 50;
     }
 
-    dusclops.nature = Nature::Hardy;
-    dusclops.lvl = 100;
-    dusclops.moves[0] = 45;
-    dusclops.moves[1] = 86;
-    dusclops.moves[2] = 109;//425;
-    dusclops.moves[3] = 53;
+    dusknoir.nature = Nature::Hardy;
+    dusknoir.lvl = 100;
+    dusknoir.moves[0] = 45;
+    dusknoir.moves[1] = 86;
+    dusknoir.moves[2] = 109;//425;
+    dusknoir.moves[3] = 53;
 
-    int pokemonId2 = m_db.createPokemon(dusclops);
+    int pokemonId2 = m_db.createPokemon(dusknoir);
     if (pokemonId2 > 0) {
-        qDebug() << "Created Dusclops with database ID:" << pokemonId2;
+        qDebug() << "Created dusknoir with database ID:" << pokemonId2;
         m_db.setPartyPokemon(1, pokemonId2);
         m_partyIds[1] = pokemonId;
     }
