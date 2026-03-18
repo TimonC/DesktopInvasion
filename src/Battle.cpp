@@ -1,13 +1,7 @@
 #include "Battle.h"
-#include "DesktopScene.h"
-#include "WildPokemon.h"
-#include "globals.h"
-#include "pokemon_data.h"
-#include <QQuickItem>
-#include <qmetaobject.h>
-#include <qnamespace.h>
-#include <QMouseEvent>
 #include <QTimer>
+#include "globals.h"
+
 Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent)
     : DesktopScene(parent)
     , m_initialOppPos(opp->position())

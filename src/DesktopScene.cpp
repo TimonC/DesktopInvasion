@@ -2,7 +2,6 @@
 #include <QWindow>
 #include <QTimer>
 #include <QQuickItem>
-#include <QQuickView>
 
 DesktopScene::DesktopScene(QWindow *parent)
     : QQuickView(parent)

@@ -1,9 +1,7 @@
 #include "globals.h"
-#include "Player.h"
 #include <QGuiApplication>
 #include <QHash>
-#include <QScreen>
-#include <pokemon_data.h>
+
 namespace Globals {
     bool DEBUG = false;
     int SCALE = 3;

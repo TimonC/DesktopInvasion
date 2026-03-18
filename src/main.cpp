@@ -1,7 +1,4 @@
 #include <QGuiApplication>
-#include <QDebug>
-#include <cstdlib>
-#include <ctime>
 #include "WildPokemon.h"
 #include "pokemon_data.h"
 #include "globals.h"

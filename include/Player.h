@@ -4,7 +4,6 @@
 #include <Battle.h>
 #include "WildPokemon.h"
 #include "pokemon_data.h"
-#include <QObject>
 
 class Player: public QObject{
     Q_OBJECT

@@ -1,13 +1,11 @@
 #ifndef BATTLE_H
 #define BATTLE_H
 
-#include "DesktopScene.h"
-#include "pokemon_data.h"
+#include <DesktopScene.h>
+#include <pokemon_data.h>
 #include <QQuickView>
+#include <QQuickItem>
 #include <WildPokemon.h>
-#include <qquickitem.h>
-#include <qtmetamacros.h>
-#include <qvariant.h>
 
 class Battle : public DesktopScene
 {

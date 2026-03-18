@@ -1,13 +1,8 @@
 #include <QWindow>
-#include <QTimer>
 #include <QQuickItem>
 #include <QQuickView>
-#include <QRandomGenerator>
-#include <qevent.h>
-#include <qnamespace.h>
-#include <qrandom.h>
+#include <QTimer>
 #include "WildPokemon.h"
-#include "DesktopScene.h"
 #include "globals.h"
 #include "pokemon_data.h"
 
@@ -16,7 +11,7 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
     , info(info)
     , m_decisionTimer(new QTimer(this))
     , m_moveTimer(new QTimer(this))
-    , m_moveSpeed(1 + QRandomGenerator::global()->bounded(2))
+    , m_moveSpeed(1 + std::rand()%2000/1000)
 {
 
     const QRect& screen = Globals::screenGeometry();
