@@ -49,18 +49,27 @@ void BattleMoveHandler::startActionRound(int actionIndex, const char* action){
 
     int opponentMoveIndex = rand()%4;
 
-    const Move* playerMove = m_battleParty[m_chosenPartyIndex]->pokeState.moves[actionIndex];
     const Move* opponentMove = m_battleOpponent->pokeState.moves[opponentMoveIndex];
+    const Move* playerMove = m_battleParty[m_chosenPartyIndex]->pokeState.moves[actionIndex];
+    //Wipe battle state delta
+    m_battleOpponent->delta = {};
+    m_battleParty[m_chosenPartyIndex]->delta = {};
 
+    m_battleOpponent->battleState.lastMoveIndex = opponentMoveIndex;
+    m_battleOpponent->battleState.lastMoveIndex = actionIndex; //this property is ignored on non-fight actions, always passing it is a bit of a hack
+
+    int switchedIn = -1;
+    bool playerFirst = true;
     if(action[0]=='S'){
        m_chosenPartyIndex = actionIndex;
+       switchedIn = actionIndex;
     }else if(action[0]=='C'){
         int shakes = processCatchAttempt(m_rng, m_battleOpponent->pokeState.stats[0], m_battleOpponent->battleState.currentHealth, 50);
         if(shakes>3){
+            emit actionRoundOver(*m_battleOpponent, *m_battleParty[m_chosenPartyIndex], playerFirst, switchedIn, shakes);
         }
     }
 
-    bool playerFirst = true;
     if(action[0]=='F'){
         if (playerMove->priority == opponentMove->priority){
            playerFirst = m_battleOpponent->pokeState.stats[5] < m_battleParty[m_chosenPartyIndex]->pokeState.stats[5];
@@ -70,6 +79,8 @@ void BattleMoveHandler::startActionRound(int actionIndex, const char* action){
         if(playerFirst){
             applyMove(playerMove, m_battleParty[m_chosenPartyIndex], m_battleOpponent);
         }
+    }else{
+        assert(playerFirst && "Player should always go first if it isn't fighting");
     }
 
     applyMove(opponentMove, m_battleOpponent, m_battleParty[m_chosenPartyIndex]);
@@ -77,7 +88,7 @@ void BattleMoveHandler::startActionRound(int actionIndex, const char* action){
         applyMove(playerMove, m_battleParty[m_chosenPartyIndex], m_battleOpponent);
     }
 
-    emit actionRoundOver(*m_battleOpponent, *m_battleParty[m_chosenPartyIndex]);
+    emit actionRoundOver(*m_battleOpponent, *m_battleParty[m_chosenPartyIndex], playerFirst, switchedIn);
 }
 
 void BattleMoveHandler::applyMove(const Move* _move, Battler* caster, Battler* target){

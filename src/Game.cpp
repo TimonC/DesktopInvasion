@@ -269,17 +269,16 @@ void Game::handleBattleStart() {
 
     std::vector<PokemonState> pokemonStates = m_db.getPokemonBatch(idsToFetch);
 
-    // Store states
+    //Create BattleMoveHandler
     PokemonState wildState = pokemonStates[0];
     std::array<PokemonState, 6> partyStates;
     for(int i = 0; i < 6; i++){
         partyStates[i] = pokemonStates[i + 1];
     }
-
-    // Initialize battle handler with just the states
     auto battleMoveHandler = std::make_unique<BattleMoveHandler>(wildState, partyStates);
-    const Party party = getParty();
 
+    //Create Battle w/ BattleMoveHandler
+    const Party party = getParty();
     m_activeBattle = new Battle(m_wildPokemon, party, std::move(battleMoveHandler));
 
     connect(m_activeBattle, &Battle::battleEnded,

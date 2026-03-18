@@ -10,6 +10,9 @@ Battle::Battle(WildPokemon* opp, Party party, std::unique_ptr<BattleMoveHandler>
     , m_battleMoveHandler(std::move(battleMoveHandler))
 {
     qDebug() << "Battle constructor called!";
+
+    connect(m_battleMoveHandler.get(), &BattleMoveHandler::actionRoundOver, this, &Battle::playActionRound);
+
     m_currentDirection = opp->m_currentDirection;
 
     // Load the PokemonSprite as root
@@ -46,6 +49,13 @@ Battle::Battle(WildPokemon* opp, Party party, std::unique_ptr<BattleMoveHandler>
     });
 
 }
+
+void Battle::playActionRound(Battler& opponent, Battler& player, bool playerFirst, int switchedIn, int shakes){
+
+
+};
+
+
 void Battle::handleBattleEnded(QString endState){
     emit battleEnded(endState.toStdString().data());
 };

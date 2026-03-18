@@ -62,6 +62,7 @@ private slots:
     void handleSwitchedPokemon(int generation, int spriteId) {
         updateSprite(spriteId, generation, "player");
     }
+    void playActionRound(Battler& opponent, Battler& player, bool playerFirst, int switchedIn, int shakes);
 
 private:
     void setupParty(Party party);

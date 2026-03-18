@@ -10,6 +10,7 @@
 
 
 struct BattleStateDelta{
+    bool switchedIn = false;
     int damage = 0;
     int drain = 0;
     int heal = 0;
@@ -20,9 +21,14 @@ struct BattleStateDelta{
     bool critical = false;
 
     bool flinched = false;
+    bool sleep = false;
+    bool paralyzed = false;
+    bool freeze = false;
+    int ailmentDaamge = -1;
+    int confusedDamage = -1;
 
     Ailment addStatusCondition = Ailment::Null;
-    bool removeStatusCondition = false;
+    Ailment removeStatusCondition = Ailment::Null;
 
     bool addConfusion = false;
     bool removeConfusion = false;
@@ -33,6 +39,7 @@ struct PokeState{
     std::array<int, 6> stats;
     const Type* types[2];
     const Move* moves[4];
+    int xpForWinner = 100;
 };
 
 struct BattleState{
@@ -40,6 +47,7 @@ struct BattleState{
     Ailment statusCondition = Ailment::Null;
     Ailment confused = Ailment::Null;
     std::array<int, 5> statModifiers = {0, 0, 0, 0, 0};
+    int lastMoveIndex = -1;
 };
 
 struct Battler{
@@ -55,7 +63,7 @@ public:
     BattleMoveHandler(const PokemonState& wildState, const std::array<PokemonState, 6>& partyStates);
 
 signals:
-    void actionRoundOver(Battler& opponent, Battler& player);
+    void actionRoundOver(Battler& opponent, Battler& player, bool playerFirst = true, int switchedIn = -1, int shakes = -1);
 
 public slots:
     void startActionRound(int playerMoveIndex, const char* action);
