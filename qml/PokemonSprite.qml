@@ -15,9 +15,9 @@ Item {
     property int frameCount: 2
     property int frameRate: 4
 
-    // Animation control
-    property bool tackle: false
-    property bool attacked: false
+    // Signals
+    signal attackAnimationFinished()
+    signal attackedAnimationFinished()
 
     width: frameWidth * scaleFactor
     height: frameHeight * scaleFactor
@@ -34,7 +34,7 @@ Item {
         anchors.centerIn: parent
         scale: scaleFactor
 
-        running: false // Don't start immediately - wait for timer
+        running: false
         source: root.spriteSheet
         frameWidth: root.frameWidth
         frameHeight: root.frameHeight
@@ -57,21 +57,30 @@ Item {
         frameY: row * frameHeight
     }
 
+    // Attack animation
     Actions.MoveForward {
         id: attackAnim
         target: sprite
         direction: root.direction
         scaleFactor: root.scaleFactor
-        running: root.tackle
-        onStopped: root.tackle = false
+        onAnimationFinished: root.attackAnimationFinished()
     }
 
+    // Attacked animation
     Responses.MoveBack {
         id: attackedAnim
         target: sprite
         direction: root.direction
         scaleFactor: root.scaleFactor
-        running: root.attacked
-        onStopped: root.attacked = false
+        onAnimationFinished: root.attackedAnimationFinished()
+    }
+
+    // Slots to start animations
+    function startAttack() {
+        attackAnim.startAnimation();
+    }
+
+    function startAttacked() {
+        attackedAnim.startAnimation();
     }
 }

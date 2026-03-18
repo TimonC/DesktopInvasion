@@ -1,20 +1,13 @@
 import QtQuick 2.15
+import "../SpriteAnimation"  // Import base animations
 
-SequentialAnimation {
-    id: root
-
-    property Item target: parent
-    property int direction: 0
-    property real scaleFactor: 4
-
-    running: false
-    loops: 1
-
+SpriteAnimation {
+    // Get hit movement (backward)
     PropertyAnimation {
         target: root.target
         property: "x"
-        to: (direction==1 ? 2.5*scaleFactor :
-             direction==3 ? -2.5*scaleFactor :
+        to: (root.direction==1 ? 2.5*root.scaleFactor :
+             root.direction==3 ? -2.5*root.scaleFactor :
              0)
         duration: 100
     }
@@ -22,12 +15,13 @@ SequentialAnimation {
     PropertyAnimation {
         target: root.target
         property: "y"
-        to: (direction==0 ? 2.5*scaleFactor :
-             direction==2 ? -2.5*scaleFactor :
+        to: (root.direction==0 ? 2.5*root.scaleFactor :
+             root.direction==2 ? -2.5*root.scaleFactor :
              0)
         duration: 100
     }
 
+    // Return to original position
     PropertyAnimation {
         target: root.target
         property: "x"
