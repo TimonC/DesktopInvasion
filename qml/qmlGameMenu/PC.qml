@@ -17,6 +17,7 @@ Item {
     property color buttonColor:     "#5294e2"
     property int   slotWidth:       80
     property int   slotHeight:      60
+    property int freePartySlot: -1
     readonly property int partyRows:    2
     readonly property int partyColumns: 3
     readonly property int pcRows:       4
@@ -124,7 +125,6 @@ Item {
                 }
             }
 
-            // Swap button – color responds to inSwapMode automatically
             PcButton {
                 id: swapButton
                 Layout.column:          1
@@ -223,7 +223,6 @@ Item {
         property bool   active: true
         signal clicked()
 
-        // color can be overridden by the parent (e.g. swapButton binds to inSwapMode)
         color: active
                ? (press.pressed ? Qt.darker(root.buttonColor, 1.3) : root.buttonColor)
                : "#444"
@@ -250,20 +249,39 @@ Item {
         id: pokemonSlot
         width:  root.slotWidth
         height: root.slotHeight
-        property bool iconVisible: false
         property int  frameIndex:  0
         property var  pcPos:       [-1, -1]
 
+        property bool iconVisible: false
+        property bool swappable:{
+            if (root.inSwapMode && root.swapSource !== null){
+                if(root.swapSource === pcPos) return false
+                if(root.swapSource[0] === -1){
+                    if(pcPos[0]===-1 && (pcPos[1]>=root.freePartySlot)){
+                       return false
+                    }
+                    return true
+                }else{
+                    if(pcPos[0]===-1 && pcPos[1]>root.freePartySlot){
+                       return false
+                    }
+                    return true
+                }
+            }
+            return false
+        }
+
         color: {
-            if (!hoverArea.containsMouse)
-                return "transparent"
+            if(swappable){
+                if (hoverArea.containsMouse){
+                    return root.highlightColor
+                }
+                return root.swapColor
+            }
 
-            if (root.inSwapMode)
-                return root.highlightSwapColor
-
-            if (iconVisible)
+            if (hoverArea.containsMouse && iconVisible){
                 return root.highlightColor
-
+            }
             return "transparent"
         }
 
@@ -287,11 +305,22 @@ Item {
                 if(root.inSwapMode){
                     if (root.swapSource === null) {
                         root.swapSource = pokemonSlot.pcPos
-                        root.display(pokemonSlot.pcPos)
+                        if(pokemonSlot.iconVisible){
+                            root.display(pokemonSlot.pcPos)
+                        }else{
+                            root.toggleSwapMode()
+                        }
                         return
                     } else {
-                        root._executeSwap(root.swapSource, pokemonSlot.pcPos)
-                        root.swapRequested(root.swapSource, pokemonSlot.pcPos)
+                        if(pokemonSlot.swappable){
+                            if(root.swapSource[0]===-1 && pokemonSlot.pcPos[0]!==-1){
+                                root.freePartySlot-=1
+                            }else if(root.swapSource[0]!==-1 && pokemonSlot.pcPos[0]===-1){
+                                root.freePartySlot+=1
+                            }
+                            root._executeSwap(root.swapSource, pokemonSlot.pcPos)
+                            root.swapRequested(root.swapSource, pokemonSlot.pcPos)
+                        }
                         root.toggleSwapMode()
                         return
                     }
@@ -337,19 +366,18 @@ Item {
             newBoxes[posy[0]] = arrY
         }
 
+
         // Assign back – triggers QML change detection
         root.partyMap = newParty
         root.boxes    = newBoxes
     }
 
-    // ---------------------------------------------------------------
-    // Public API
-    // ---------------------------------------------------------------
     function loadParty(dataList) {
         var map = {}
         for (var i = 0; i < dataList.length; i++)
             map[dataList[i].slot] = dataList[i].iconId
         partyMap = map
+        root.freePartySlot = dataList.length
     }
 
     function loadBox(boxIndex, dataList) {

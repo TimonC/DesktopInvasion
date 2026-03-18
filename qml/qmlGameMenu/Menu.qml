@@ -105,9 +105,9 @@ Rectangle {
             boxPokes = newBoxes
         }
         function onDisplay(pcPos){
-            if(pcPos[0]==-1){
+            if(pcPos[0]==-1 && partyPokes[pcPos[1]]){
                 displayName = partyPokes[pcPos[1]].name
-            }else if(pcPos[0]>-1){
+            }else if(pcPos[0]>-1 && boxPokes[pcPos[0]][pcPos[1]]){
                 displayName = boxPokes[pcPos[0]][pcPos[1]].name
             }else{
                 console.log("ERROR faulty display pos")
