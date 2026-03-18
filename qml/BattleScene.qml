@@ -116,6 +116,7 @@ Item {
 
         // Configure circle properties
         circleBaseRadius: Math.max(player.width/2, player.height/2)
+        circleShrinkScale: 0.7
         circleAnimationDuration: root.ballTransitionDuration
         circleX: player.x + player.width/2  // Center on player
         circleY: player.y + player.height/2
