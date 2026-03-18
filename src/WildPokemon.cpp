@@ -88,6 +88,29 @@ void WildPokemon::direction(int direction){
 void WildPokemon::startBattle(){
     m_moveTimer->disconnect();
     m_decisionTimer->disconnect();
+
+    const int BOUNDARY_MARGIN = 16;
+    const QRect& screen = Globals::screenGeometry();
+    int screenRight = screen.x() + screen.width();
+    int screenBottom = screen.y() + screen.height();
+
+
+    if (y() < BOUNDARY_MARGIN) {
+        direction(2);
+    }
+
+    if (x() < BOUNDARY_MARGIN) {
+        direction(3);
+    }
+
+    if (y() + height() > screenBottom - BOUNDARY_MARGIN) {
+        direction(0);
+    }
+
+    if (x() + width() > screenRight - BOUNDARY_MARGIN) {
+        direction(1);
+    }
+
     Globals::getPlayer().iChooseYou(this);
 }
 
