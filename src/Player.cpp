@@ -7,7 +7,9 @@ Player::Player(QObject* parent) : QObject(parent){
 };
 
 Pokemon* Player::iChooseYou(QPoint opp_spot, int opp_direction){
-    Pokemon* chosen = m_party[0]->get();
+    _inABattle = true;
+
+    Pokemon* chosen = m_party[0].value().get();
     int distance = 100;
 
     switch(opp_direction){

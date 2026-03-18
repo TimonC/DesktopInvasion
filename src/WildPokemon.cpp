@@ -55,7 +55,7 @@ void WildPokemon::onClick(){
 }
 
 void WildPokemon::startOpening(int durationMs){
-    m_sprite->setProperty("openingButtons", true);
+    if(!getPlayer().inABattle()) m_sprite->setProperty("openingButtons", true);
     QTimer::singleShot(durationMs, this, &WildPokemon::stopOpening);
 }
 
