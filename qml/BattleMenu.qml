@@ -3,18 +3,16 @@ import QtQuick.Controls 2.15
 
 Rectangle {
     id: root
-
     color: "transparent"
 
     property int frameSize: 32
     property int buttonWidth: frameSize * 2
     property int buttonHeight: frameSize * 0.75
     property int buttonFontSize: 0
-    property int textBarFontSize:0
+    property int textBarFontSize: 0
     property int gridSpacing: frameSize * 0.1
-    property int menuHeight:0
-    property int menuWidth:0
-
+    property int menuHeight: 0
+    property int menuWidth: 0
     property int pokeSpriteId: 3
     property double spriteScale: 1
     property int pokeSpriteWidth: 16
@@ -32,7 +30,9 @@ Rectangle {
     }
 
     function updateText(text) {
-        stack.currentItem.text = text
+        if (stack.currentItem && stack.currentItem.hasOwnProperty("text")) {
+            stack.currentItem.text = text
+        }
     }
 
     function resetToRoot() {
@@ -41,14 +41,15 @@ Rectangle {
 
     StackView {
         id: stack
-        initialItem: rootSelection
+        initialItem: textBarComponent
         anchors.fill: parent
         z: 1
+
         pushEnter: Transition {
             PropertyAnimation {
                 property: "opacity"
                 from: 0
-                to:1
+                to: 1
                 duration: 200
             }
         }
@@ -56,7 +57,7 @@ Rectangle {
             PropertyAnimation {
                 property: "opacity"
                 from: 1
-                to:0
+                to: 0
                 duration: 200
             }
         }
@@ -64,7 +65,7 @@ Rectangle {
             PropertyAnimation {
                 property: "opacity"
                 from: 0
-                to:1
+                to: 1
                 duration: 200
             }
         }
@@ -72,7 +73,7 @@ Rectangle {
             PropertyAnimation {
                 property: "opacity"
                 from: 1
-                to:0
+                to: 0
                 duration: 200
             }
         }
@@ -80,7 +81,7 @@ Rectangle {
             PropertyAnimation {
                 property: "opacity"
                 from: 0
-                to:1
+                to: 1
                 duration: 10
             }
         }
@@ -88,42 +89,41 @@ Rectangle {
             PropertyAnimation {
                 property: "opacity"
                 from: 1
-                to:0
+                to: 0
                 duration: 10
             }
         }
     }
 
-Component {
-    id: textBarComponent
-    Rectangle {
-        id: textBar
-        color: "white"
-        border.color: "black"
-        border.width: 2
-        property string text: "UNINITIALIZED TEXT!!!!"
-        height: root.menuHeight
-        width: root.menuWidth
-        radius: 5
+    Component {
+        id: textBarComponent
+        Rectangle {
+            id: textBar
+            color: "white"
+            border.color: "black"
+            border.width: 2
+            property string text: ""
+            height: root.menuHeight
+            width: root.menuWidth
+            radius: 5
 
-        Text {
-            id: textBarText
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.rightMargin: parent.width * 0.2 //Wrap at 80%
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
-            anchors.margins: 6
-            text: textBar.text
-            font.pixelSize: root.textBarFontSize
-            verticalAlignment: Text.AlignVCenter
-
-            wrapMode: Text.WordWrap
-            maximumLineCount: 2
-            elide: Text.ElideRight
+            Text {
+                id: textBarText
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.rightMargin: parent.width * 0.2
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                anchors.margins: 6
+                text: textBar.text
+                font.pixelSize: root.textBarFontSize
+                verticalAlignment: Text.AlignVCenter
+                wrapMode: Text.WordWrap
+                maximumLineCount: 2
+                elide: Text.ElideRight
+            }
         }
     }
-}
 
     Component {
         id: rootSelection
@@ -132,6 +132,7 @@ Component {
                 anchors.centerIn: parent
                 columns: 2
                 spacing: root.gridSpacing
+
                 RoundButton {
                     text: "Attack"
                     palette.button: "red"
@@ -177,6 +178,7 @@ Component {
                 Grid {
                     columns: 2
                     spacing: root.gridSpacing
+
                     Repeater {
                         model: 4
                         Rectangle {
@@ -186,11 +188,13 @@ Component {
                             border.color: "black"
                             border.width: 2
                             radius: 3
+
                             Text {
                                 anchors.centerIn: parent
                                 text: "Tackle"
                                 font.pixelSize: root.buttonFontSize
                             }
+
                             MouseArea {
                                 anchors.fill: parent
                                 onClicked: root.attackChosen(0)
@@ -207,61 +211,59 @@ Component {
         }
     }
 
+    Component {
+        id: catchSelection
+        Item {
+            RoundButton {
+                id: pokeballButton
+                anchors.centerIn: parent
+                width: root.buttonWidth * 1.3
+                height: root.buttonHeight * 0.9
+                radius: height / 2
 
-Component {
-    id: catchSelection
-
-    Item {
-        RoundButton {
-            id: pokeballButton
-            anchors.centerIn: parent
-            width: root.buttonWidth * 1.3
-            height: root.buttonHeight * 0.9
-            radius: height/2
-
-            background: Rectangle {
-                radius: parent.radius
-                color: pokeballButton.pressed ? "#f0f0f0" : "white"
-                border.color: "black"
-                border.width: 2
-            }
-
-            contentItem: Item {
-                Image {
-                    id: pokeImage
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.verticalCenterOffset: 0.58
-                    anchors.left: parent.left
-                    source: root.spriteSheet
-                    width: root.pokeSpriteWidth * root.spriteScale
-                    height: root.pokeSpriteHeight * root.spriteScale
-                    sourceClipRect: Qt.rect(0, root.pokeSpriteHeight * root.pokeSpriteId,
-                                           root.pokeSpriteWidth, root.pokeSpriteHeight)
-                    smooth: false
-                    antialiasing: false
+                background: Rectangle {
+                    radius: parent.radius
+                    color: pokeballButton.pressed ? "#f0f0f0" : "white"
+                    border.color: "black"
+                    border.width: 2
                 }
 
-                Text {
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.left: pokeImage.right
-                    anchors.leftMargin: 4
-                    text: "Pokeball"
-                    font.pixelSize: root.buttonFontSize
+                contentItem: Item {
+                    Image {
+                        id: pokeImage
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.verticalCenterOffset: 0.58
+                        anchors.left: parent.left
+                        source: root.spriteSheet
+                        width: root.pokeSpriteWidth * root.spriteScale
+                        height: root.pokeSpriteHeight * root.spriteScale
+                        sourceClipRect: Qt.rect(0, root.pokeSpriteHeight * root.pokeSpriteId,
+                                               root.pokeSpriteWidth, root.pokeSpriteHeight)
+                        smooth: false
+                        antialiasing: false
+                    }
+
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.left: pokeImage.right
+                        anchors.leftMargin: 4
+                        text: "Pokeball"
+                        font.pixelSize: root.buttonFontSize
+                    }
                 }
+
+                onClicked: root.catchChosen(3)
             }
 
-            onClicked: root.catchChosen(3)
-        }
-
-        Loader {
-            anchors.right: parent.right
-            anchors.verticalCenter: parent.verticalCenter
-            sourceComponent: backButton
+            Loader {
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                sourceComponent: backButton
+            }
         }
     }
-}
 
-    Component{
+    Component {
         id: runSelection
         Item {
             Grid {
@@ -269,17 +271,17 @@ Component {
                 columns: 2
                 spacing: root.gridSpacing
 
-            RoundButton{
-                palette.button: "blue"
-                text: "Are you sure?"
-                width: root.buttonWidth*1.5
-                height: root.buttonHeight
-                onClicked: root.runChosen()
-            }
+                RoundButton {
+                    palette.button: "blue"
+                    text: "Are you sure?"
+                    width: root.buttonWidth * 1.5
+                    height: root.buttonHeight
+                    onClicked: root.runChosen()
+                }
 
-            Loader {
-                sourceComponent: backButton
-            }
+                Loader {
+                    sourceComponent: backButton
+                }
             }
         }
     }
@@ -291,12 +293,14 @@ Component {
             height: root.buttonHeight
             color: "lightblue"
             radius: 3
+
             Text {
                 anchors.centerIn: parent
                 text: "←"
                 color: "white"
                 font.pixelSize: root.buttonFontSize
             }
+
             MouseArea {
                 anchors.fill: parent
                 onClicked: stack.pop()
@@ -304,5 +308,3 @@ Component {
         }
     }
 }
-
-
