@@ -11,6 +11,7 @@
 BattleMoveHandler::BattleMoveHandler(const PokemonState& wildState, const std::array<PokemonState, 6>& partyStates, std::mt19937 &rng)
     : m_rng(rng)
     , m_moveChoiceDist(0, 3)
+    , m_expShare(Globals::expShare())
 {
     qDebug() << "BattleMoveHandler constructor called!";
     m_battleOpponent = createBattler(wildState);
@@ -21,11 +22,12 @@ BattleMoveHandler::BattleMoveHandler(const PokemonState& wildState, const std::a
         //I am too lazy to debug this for now and it doesn't really cause issues since the empty party slots are inaccessible
         //But ideally, empty party slots should just be able to be nullptrs without silently crashing everything
             m_battleParty[i] = createBattler(wildState);
+            m_nrInParty+=1;
         }else{
             m_battleParty[i] = createBattler(partyStates[i]);
         }
     }
-    m_includedPartyIndices.insert(m_chosenIndex);
+    if(m_expShare) m_includedPartyIndices.insert(m_chosenIndex);
 }
 
 BattleMoveHandler::~BattleMoveHandler() {
@@ -66,20 +68,28 @@ Battler* BattleMoveHandler::createBattler(const PokemonState& state) {
 
 std::array<int, 6> BattleMoveHandler::getExperienceSpread(){
     std::array<int,6> spread = {-1,-1,-1,-1,-1,-1};
-    int includedCount = 0;
-
-    for(int partyIndex : m_includedPartyIndices){
-        Battler* member = m_battleParty[partyIndex];
-        if(member->battleState.currentHealth >= 0 && member->pokeState.lvl<100){
-            includedCount++;
+    if(m_expShare){
+        int includedCount = 0;
+        for(int partyIndex : m_includedPartyIndices){
+            Battler* member = m_battleParty[partyIndex];
+            if(member->battleState.currentHealth >= 0 && member->pokeState.lvl<100){
+                includedCount++;
+            }
         }
-    }
-
-    int xp = PokeMath::calculateExperience(m_battleOpponent->pokeState.lvl, includedCount, m_battleOpponent->pokeState.baseXP);
-    for(int partyIndex : m_includedPartyIndices){
-        Battler* member = m_battleParty[partyIndex];
-        if(member->battleState.currentHealth > 0 && member->pokeState.lvl<100){
-            spread[partyIndex] = xp;
+        int xp = PokeMath::calculateExperience(m_battleOpponent->pokeState.lvl, includedCount, m_battleOpponent->pokeState.baseXP);
+        for(int partyIndex : m_includedPartyIndices){
+            Battler* member = m_battleParty[partyIndex];
+            if(member->battleState.currentHealth > 0 && member->pokeState.lvl<100){
+                spread[partyIndex] = xp;
+            }
+        }
+    }else{
+        int xp = PokeMath::calculateExperience(m_battleOpponent->pokeState.lvl, m_nrInParty, m_battleOpponent->pokeState.baseXP);
+        for(int partyIndex = 0; partyIndex<6; partyIndex++){
+            Battler* member = m_battleParty[partyIndex];
+            if(member->battleState.currentHealth > 0 && member->pokeState.lvl<100){
+                spread[partyIndex] = xp;
+            }
         }
     }
 

@@ -159,6 +159,8 @@ private:
     int m_partyPokemonSentOut[6] = {-1,-1,-1,-1,-1,-1};
     std::mt19937 &m_rng;
     std::uniform_int_distribution<int> m_moveChoiceDist;
+    bool m_expShare = false;
+    int m_nrInParty = 0;
 
     static constexpr int ms_moveUsedText = 800;
     static constexpr int ms_ailmentText = 800;
