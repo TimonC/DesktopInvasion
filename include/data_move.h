@@ -3,6 +3,7 @@
 
 #include <array>
 #include <gamestate.h>
+#include <PokemonTypes.h>
 
 enum class Ailment{
     Burn, Freeze, Paralysis, Poison, Sleep, Confusion, Null

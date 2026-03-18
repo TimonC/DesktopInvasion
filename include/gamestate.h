@@ -1,23 +1,7 @@
 #ifndef GAMESTATE_H
 #define GAMESTATE_H
 #include <string>
-
-enum class Type {
-    Null,
-    Normal, Fighting, Flying, Poison, Ground,
-    Rock, Bug, Ghost, Steel, Fire,
-    Water, Grass, Electric, Psychic, Ice,
-    Dragon, Dark
-};
-
-enum class Nature {
-    Hardy, Docile, Serious, Bashful, Quirky,
-    Lonely, Adamant, Naughty, Brave,
-    Bold, Impish, Lax, Relaxed,
-    Modest, Mild, Rash, Quiet,
-    Calm, Gentle, Careful, Sassy,
-    Timid, Hasty, Jolly, Naive
-};
+#include <PokemonTypes.h>
 
 struct PokemonState {
     int _id = -1;

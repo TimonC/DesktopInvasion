@@ -33,16 +33,25 @@ Rectangle {
         "ballIds"      : [-1, -1, -1, -1, -1, -1],
         "gens"         : [-1, -1, -1, -1, -1, -1],
         "names"        : ["", "", "", "", "", ""],
-        "healthRatios" : [-1, -1, -1, -1, -1, -1]
+        "healthRatios" : [-1, -1, -1, -1, -1, -1],
+        "moves"        : [
+            [[], [], [], []],
+            [[], [], [], []],
+            [[], [], [], []],
+            [[], [], [], []],
+            [[], [], [], []],
+            [[], [], [], []]
+        ]
     }
 
-    function _setPartyMember(partyIdx, spriteId, iconId, ballId, gen, pokemonName) {
+    function _setPartyMember(partyIdx, spriteId, iconId, ballId, gen, pokemonName, moves) {
         var temp = party
         temp.spriteIds[partyIdx] = spriteId
         temp.iconIds[partyIdx] = iconId
         temp.ballIds[partyIdx] = ballId
         temp.gens[partyIdx] = gen
         temp.names[partyIdx] = pokemonName
+        temp.moves[partyIdx] = moves
         temp.healthRatios[partyIdx] = 1
         party = temp
     }
@@ -151,6 +160,7 @@ Rectangle {
             }
         }
     }
+
     Component {
         id: rootSelection
         Item {
@@ -193,6 +203,7 @@ Rectangle {
             }
         }
     }
+
     Component {
         id: attackSelection
         Item {
@@ -204,22 +215,12 @@ Rectangle {
                     spacing: root.gridSpacing
                     Repeater {
                         model: 4
-                        Rectangle {
-                            width: root.buttonWidth
-                            height: root.buttonHeight
-                            color: "white"
-                            border.color: "black"
-                            border.width: 2
-                            radius: 3
-                            Text {
-                                anchors.centerIn: parent
-                                text: "Tackle"
-                                font.pixelSize: root.buttonFontSize
-                            }
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: root.attackChosen(0)
-                            }
+                        Move {
+                            buttonWidth: root.buttonWidth
+                            buttonHeight: root.buttonHeight
+                            name: party.moves[0][index].name || ""
+                            type: party.moves[0][index].type || "Null"
+                            onClicked: root.attackChosen(index)
                         }
                     }
                 }
@@ -230,6 +231,7 @@ Rectangle {
             }
         }
     }
+
     Component {
         id: switchSelection
         Item {

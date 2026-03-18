@@ -1,11 +1,17 @@
 <RCC>
     <qresource prefix="/">
+        <file>qml/StyleSheet/PokeType.js</file>
+
         <file>qml/PokemonSprite.qml</file>
+
         <file>qml/BattleScene.qml</file>
-        <file>qml/BattleMenu.qml</file>
-        <file>qml/PokemonIcon.qml</file>
         <file>qml/StatusBar.qml</file>
         <file>qml/Pokeball.qml</file>
+
+        <file>qml/BattleMenu.qml</file>
+        <file>qml/Move.qml</file>
+        <file>qml/PokemonIcon.qml</file>
+
 
         <file>qml/qmlGameMenu/Menu.qml</file>
         <file>qml/qmlGameMenu/Party.qml</file>

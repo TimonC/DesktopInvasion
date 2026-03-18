@@ -62,17 +62,29 @@ Battle::Battle(WildPokemon* opp, Party party, std::unique_ptr<BattleMoveHandler>
 
 }
 
-void Battle::setupParty(Party party){
-    for(size_t i = 0; i < party.spriteIds.size(); ++i){
+void Battle::setupParty(Party party) {
+    for(size_t i = 0; i < party.spriteIds.size(); i++) {
+
+        QVariantList moves;
+        for(int moveSlot = 0; moveSlot < 4; moveSlot++) {
+            BattleMove _move = party.moves[i][moveSlot];
+            QVariantMap moveData;
+            moveData["name"] = QString::fromStdString(_move.name);
+            moveData["type"] = QString::fromStdString(_move.type);
+            moves.append(moveData);
+        }
+
         QMetaObject::invokeMethod(m_battleScene, "setPartyMember",
             Q_ARG(QVariant, QVariant(static_cast<int>(i))),
             Q_ARG(QVariant, QVariant(party.spriteIds[i])),
             Q_ARG(QVariant, QVariant(party.iconIds[i])),
             Q_ARG(QVariant, QVariant(party.ballIds[i])),
             Q_ARG(QVariant, QVariant(party.gens[i])),
-            Q_ARG(QVariant, QString::fromStdString(party.names[i])));
-    };
+            Q_ARG(QVariant, QString::fromStdString(party.names[i])),
+            Q_ARG(QVariant, moves));
+    }
 }
+
 QQuickItem* Battle::setupPokemon(const PokemonInfo* info, const char* role) {
     m_battleScene->setProperty((QString(role) + "Name").toUtf8(), info->name);
     QQuickItem* pokemonSprite = updateSprite(info->spriteId, info->generation, role);

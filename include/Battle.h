@@ -6,11 +6,12 @@
 #include <QQuickItem>
 #include <WildPokemon.h>
 #include <qtmetamacros.h>
+#include <PokemonTypes.h>
 #include <BattleMoveHandler.h>
 
 struct BattleMove{ //stub struct to build the move menu
-    const char* name = "";
-    Type type = Type::Null;
+    std::string name = "";
+    std::string type = "Null";
 };
 struct Party {
     std::array<int, 6> pokedexIds{-1, -1, -1, -1, -1, -1};

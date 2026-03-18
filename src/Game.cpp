@@ -240,8 +240,7 @@ Party Game::getParty() {
            int moveId = pokemon.moves[moveSlot];
            if(moveId<1) continue;
            const Move* _move = Globals::getMove(moveId);
-           party.moves[i][moveSlot] = {_move->name, _move->type};
-           qDebug() << party.moves[i][moveSlot].name;
+           party.moves[i][moveSlot] = {_move->name, typeToString(_move->type)};
         };
 
     }

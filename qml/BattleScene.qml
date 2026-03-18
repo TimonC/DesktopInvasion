@@ -248,8 +248,8 @@ Item {
     }
 
 
-    function setPartyMember(partyId, spriteId, iconId, ballId, gen, pokemonName) {
-       battleMenu._setPartyMember(partyId, spriteId, iconId, ballId, gen, pokemonName);
+    function setPartyMember(partyId, spriteId, iconId, ballId, gen, pokemonName, moves) {
+       battleMenu._setPartyMember(partyId, spriteId, iconId, ballId, gen, pokemonName, moves);
     }
     // Action sequence
     Timer {
