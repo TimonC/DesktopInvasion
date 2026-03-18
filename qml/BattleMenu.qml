@@ -66,7 +66,7 @@ Rectangle {
     property int selectedIndex: 0
     property bool forceSwitchMode: false
 
-    property real backButtonWidthRatio: 0.08
+    property real backButtonWidthRatio: 0.1
     property real backButtonHeightRatio: 0.9
     property real contentMarginsRatio: 0.02
 
