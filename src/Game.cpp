@@ -169,7 +169,7 @@ void Game::spawnPokemon() {
         PokemonState newWild;
         newWild.pokedex_id = m_wildPokemonInfo->pokedexId;
         newWild.name = m_wildPokemonInfo->name;
-        newWild.lvl = 5;
+        newWild.lvl = 20;
 
         for (int i = 0; i < 6; i++) {
             newWild.ivs[i] = 32;
@@ -178,8 +178,8 @@ void Game::spawnPokemon() {
         newWild.nature = Nature::Hardy;
 
         newWild.moves[0] = 1;
-        newWild.moves[1] = 109;
-        newWild.moves[2] = 181;
+        newWild.moves[1] = 1;
+        newWild.moves[2] = 247;
         newWild.moves[3] = 247;
 
         m_db.spawnWildPokemon(newWild);
@@ -404,7 +404,7 @@ void Game::createInitialPokemon() {
     }
 
     dusknoir.nature = Nature::Hardy;
-    dusknoir.lvl = 99;
+    dusknoir.lvl = 5;
     dusknoir.moves[0] = 45;
     dusknoir.moves[1] = 86;
     dusknoir.moves[2] = 109;

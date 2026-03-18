@@ -408,10 +408,8 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
         params.lvl = caster->pokeState.lvl;
         params.power = _move->power;
 
-        if (PokeMath::checkCriticalHit(_move->crit_rate, m_rng)) {
-            result.addEffect(BattleActionResult::CRITICAL, caster, target);
-            params.critical = 150;
-        }
+        bool isCritical = PokeMath::checkCriticalHit(_move->crit_rate, m_rng);
+        if (isCritical) params.critical = 150;
 
         int attackStatIndex = 1;
         if(_move->category == MoveCategory::SpecialAtk){
@@ -459,6 +457,7 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
         int damage = PokeMath::calculateDamage(params, m_rng);
         result.addEffect(BattleActionResult::CHANGE_HEALTH, caster, target, damage);
 
+        if(isCritical) result.addEffect(BattleActionResult::CRITICAL, caster, target);
         int combinedEffectiveness = params.type1 * params.type2;
         if (combinedEffectiveness > 10000) {
             result.addEffect(BattleActionResult::SUPER_EFFECTIVE, caster, target);
@@ -640,21 +639,21 @@ QVariantList BattleMoveHandler::generateSequenceFromResult(const BattleActionRes
                         sequence.append(createAttackAction(sourceRole, ms_attackAnimation));
                     }
                     if (!targetRole.isEmpty()) {
-                        sequence.append(createHealthChangeAction(targetRole, -effect.amount, ms_healthChange));
+                        sequence.append(createChangeHealthAction(targetRole, -effect.amount, ms_healthChange));
                     }
                 }
                 break;
 
             case BattleActionResult::HEAL:
                 if (effect.amount > 0 && !targetRole.isEmpty()) {
-                    sequence.append(createHealthChangeAction(targetRole, effect.amount, ms_healthChange));
+                    sequence.append(createChangeHealthAction(targetRole, effect.amount, ms_healthChange));
                 }
                 break;
 
             case BattleActionResult::DRAIN:
                 if (!sourceRole.isEmpty() && effect.amount > 0) {
                     sequence.append(createTextAction(sourceName + " drained health!", ms_drainEffectText));
-                    sequence.append(createHealthChangeAction(sourceRole, effect.amount, ms_healthChange));
+                    sequence.append(createChangeHealthAction(sourceRole, effect.amount, ms_healthChange));
                 }
                 break;
 
@@ -710,7 +709,7 @@ QVariantList BattleMoveHandler::generateSequenceFromResult(const BattleActionRes
                 if (effect.amount > 0) {
                     sequence.append(createTextAction("It hurt itself in its confusion!", ms_ailmentText));
                     if (!targetRole.isEmpty()) {
-                        sequence.append(createHealthChangeAction(targetRole, -effect.amount, ms_healthChange));
+                        sequence.append(createChangeHealthAction(targetRole, -effect.amount, ms_healthChange));
                     }
                 } else {
                     sequence.append(createTextAction("It hurt itself in its confusion!", ms_ailmentText));
@@ -829,7 +828,7 @@ QVariantMap BattleMoveHandler::createAttackAction(const QString& role, int delay
 }
 
 
-QVariantMap BattleMoveHandler::createHealthChangeAction(const QString& role, int amount, int delay) {
+QVariantMap BattleMoveHandler::createChangeHealthAction(const QString& role, int amount, int delay) {
     QVariantMap action;
     action["type"] = "change-health";
     action["role"] = role;
