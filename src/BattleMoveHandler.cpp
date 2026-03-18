@@ -524,7 +524,6 @@ BattleActionResult BattleMoveHandler::applySecondaryEffects(const Move* _move, B
 
     if (damageLanded && _move->flinch_chance > 0 && !otherHasHadTurn) {
         if (PokeMath::checkSecondaryEffect(_move->flinch_chance, m_rng)) {
-            result.addEffect(BattleActionResult::FLINCH, nullptr, target);
             target->delta.flinched = true;
         }
     }
