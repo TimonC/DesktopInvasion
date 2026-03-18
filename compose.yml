@@ -15,4 +15,3 @@ services:
       - /dev/dri:/dev/dri
     stdin_open: true
     tty: true
-

@@ -17,18 +17,23 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
     , m_moveTimer(new QTimer(this))
     , m_moveSpeed(1 + QRandomGenerator::global()->bounded(2))
 {
-
+    qDebug() << "A wild" << info->name << "(#" <<info->pokedexId << ") appeared!";
 
     const QRect& screen = Globals::screenGeometry();
     setPosition(QPoint(screen.width()/2, screen.height()/2));
 
-    setFlags( Qt::WindowStaysOnTopHint
-            | Qt::Tool
-            | Qt::WindowDoesNotAcceptFocus
-            /* | Qt::WindowTransparentForInput); */
-            | Qt::FramelessWindowHint);
+setFlags(Qt::WindowStaysOnTopHint
+    | Qt::Tool
+    | Qt::WindowDoesNotAcceptFocus
+    | Qt::FramelessWindowHint
+    | Qt::BypassWindowManagerHint
+    /* | Qt::WindowTransparentForInput */
+    );
     setColor(Qt::transparent);
-
+/* setAttribute(Qt::WA_TranslucentBackground, true); */
+/* setAttribute(Qt::WA_NoSystemBackground, true);      // ← No background painting */
+/* setAttribute(Qt::WA_OpaquePaintEvent, false);       // ← Allow transparency */
+/* setAttribute(Qt::WA_PaintOnScreen, true);           // ← Bypass Qt compositing (risky) */
     setSource(QUrl("qrc:/sprites/PokemonSprite.qml"));
     m_sprite = rootObject();
     m_sprite->setProperty("spriteSheet", QString("qrc:/assets/HGSS/PokGen%1_transparent_reordered.png").arg(info->generation));
