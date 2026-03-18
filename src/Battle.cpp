@@ -45,7 +45,9 @@ Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent
     m_opp = setupPokemon(m_opp_info, "opponent");
     m_chosen = setupPokemon(m_chosen_info, "player");
     initPosition();
+
     show();
+
 }
 
 void Battle::handleRunChosen() {

@@ -1,3 +1,4 @@
+#include "globals.h"
 #include <DesktopScene.h>
 #include <QWindow>
 #include <QTimer>
@@ -15,15 +16,29 @@ DesktopScene::DesktopScene(QWindow *parent)
         /* | Qt::WindowTransparentForInput */
         );
      setColor(Qt::transparent);
-
+    //Short delay to ensure proper window size
+    QTimer::singleShot(2, this, [this]() {
+        m_width  = width();
+        m_height = height();
+    });
 }
 
 
 void DesktopScene::mouseMoveEvent(QMouseEvent* event){
     if(!m_isDragged) return;
-    const QPoint newMousePos = event->globalPosition().toPoint();
-    setPosition(position() + newMousePos - m_oldMousePos);
-    m_oldMousePos = newMousePos;
+
+    QPoint mousePos = event->globalPosition().toPoint();
+    qDebug() << mousePos << m_width << width();
+
+    QPoint newPos = position()+ mousePos - m_oldMousePos;
+
+    QRect screenGeom = Globals::screenGeometry();
+    newPos.setX(qBound(screenGeom.left(), newPos.x(), screenGeom.right()- m_width));
+    newPos.setY(qBound(screenGeom.top(), newPos.y(), screenGeom.bottom() - m_height));
+
+    qDebug() << newPos;
+    setPosition(newPos);
+    m_oldMousePos = mousePos;
 }
 
 

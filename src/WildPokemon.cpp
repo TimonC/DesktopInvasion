@@ -91,7 +91,7 @@ void WildPokemon::startBattle(){
     int screenRight = screen.x() + screen.width();
     int screenBottom = screen.y() + screen.height();
 
-    bool intop =  y() < BOUNDARY_MARGIN*2.5;
+    bool intop =  y() < BOUNDARY_MARGIN;
     bool inbottom =  y() + height() > screenBottom - BOUNDARY_MARGIN;
     bool inleft =  x() < BOUNDARY_MARGIN;
     bool inright =  x() + width() > screenRight - BOUNDARY_MARGIN;

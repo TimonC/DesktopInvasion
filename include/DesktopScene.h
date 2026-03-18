@@ -13,6 +13,8 @@ public:
 
 protected:
     bool m_isDragged = false;
+    int m_width = -1;
+    int m_height = -1;
     QPoint m_oldMousePos;
 
     virtual void mousePressEvent(QMouseEvent* event) override;

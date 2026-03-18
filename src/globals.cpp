@@ -8,7 +8,7 @@ namespace Globals {
     const int MAX_POKEDEX_ID = 493;
 
     const QRect& screenGeometry() {
-        static const QRect geometry = QGuiApplication::primaryScreen()->availableGeometry();
+        static const QRect geometry = QGuiApplication::primaryScreen()->geometry();
         return geometry;
     }
 
