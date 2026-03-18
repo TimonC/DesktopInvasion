@@ -76,7 +76,7 @@ Rectangle {
             property: "opacity"
             from: 0
             to:1
-            duration: 200
+            duration: 10
         }
     }
     replaceExit: Transition {
@@ -84,7 +84,7 @@ Rectangle {
             property: "opacity"
             from: 1
             to:0
-            duration: 200
+            duration: 10
         }
     }
     }
