@@ -79,6 +79,7 @@ Item {
             text:             pcButtonRoot.label
             color:            pcButtonRoot.active ? "#ffffff" : "#888888"
             font.family:      pcButtonRoot.fontFamily
+            font.pixelSize : 18
             font.bold:        true
             style:            Text.Raised
             styleColor:       "#00000060"

@@ -212,8 +212,7 @@ Item {
                 PcButton {
                     id: swapButton
                     anchors.verticalCenter: parent.verticalCenter
-                    width: Math.round(root.buttonWidth * 1.4)
-                    height: root.buttonHeight
+                    width: Math.round(root.buttonWidth * 2)
                     label: "SWAP"
                     btnColor: root.buttonColor
                     highlightColor: root.inSwapMode ? root.swapButtonHighlight : root.buttonColor
