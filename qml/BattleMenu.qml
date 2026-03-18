@@ -243,7 +243,7 @@ Rectangle {
                 spacing: root.gridSpacing
 
                 GradientRoundButton {
-                    text: "Attack"
+                    text: "Fight"
                     buttonColor: root.attackButtonColor
                     onClicked: stack.push(attackSelection)
                 }
@@ -341,7 +341,7 @@ Rectangle {
             rows: 2
             spacing: root.gridSpacing
 
-            property real cellWidth: (parent.width - spacing) / 3.5
+            property real cellWidth: (parent.width - spacing) / 3
             property real cellHeight: (parent.height - spacing) / 2
 
             Repeater {
@@ -439,7 +439,7 @@ Rectangle {
                 spacing: root.gridSpacing
                 anchors.centerIn: parent
 
-                property real cellWidth: (parent.width - spacing) / 2.5
+                property real cellWidth: (parent.width - spacing) / 2
                 property real cellHeight: (parent.height - spacing) / 2
 
                 Repeater {
