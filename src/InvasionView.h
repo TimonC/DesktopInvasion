@@ -15,6 +15,7 @@ class InvasionView : public QGraphicsView
     Q_OBJECT
     public:
         InvasionView();
+        const QGraphicsScene* getScene() const { return scene; }
     private:
         QGraphicsScene *scene;
         void init();
