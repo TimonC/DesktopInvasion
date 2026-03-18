@@ -48,7 +48,6 @@ Item {
     // --- Swap state ---
     property color highlightColor:     Qt.rgba(0, 0.6, 1, 0.3)
     property color swapColor:          "orange"
-    property color highlightSwapColor: Qt.rgba(0.6, 0.6, 0, 0.7)
     property bool  inSwapMode:         false
     property var   swapSource:         null   // null = nothing selected; else [boxIndex, slotIndex]
     property var displayedPokemonSlot: null
@@ -294,25 +293,17 @@ Item {
 
         color: {
             if(displayed && root.displayedPokemonBox===pcPos[0]) {
-                if(hoverArea.containsMouse && !root.isSwapMode){
-                    return  root.highlightSwapColor
-                }else{
-                    return root.highlightColor
-                }
+                return root.highlightColor
             }
             if(swappable){
                 if (hoverArea.containsMouse){
-                    return root.highlightSwapColor
+                    return root.highlightColor
                 }
                 return root.swapColor
             }
 
             if (hoverArea.containsMouse && iconVisible){
-                if(root.inSwapMode){
-                    return root.highlightSwapColor
-                }else{
-                    return root.highlightColor
-                }
+                return root.highlightColor
             }
             return "transparent"
         }
