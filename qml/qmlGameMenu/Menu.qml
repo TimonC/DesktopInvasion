@@ -7,27 +7,105 @@ Rectangle {
     height: 600
     color: backgroundColor
 
+    property int margin: 0
     property color backgroundColor: "#2b2b2b"
     property color buttonColor: "#3c3c3c"
     property color buttonSelectedColor: "#5294e2"
     property color textColor: "#ffffff"
-
-    property int headerFontSize: 18
-    property int bodyFontSize: 14
-    property string fontFamily: "Sans Serif"
-
-    property int headerHeight: height / 8
-    property int contentHeight: height - headerHeight
-
+    property int headerFontSize: 24
+    property int bodyFontSize: 18
+    property string fontFamily: "Press Start 2P"
     property string currentMenu: "Party"
 
-    Rectangle{
-        Layout.fillWidth: true
-        Layout.fillHeight: true
-        color: root.backgroundColor
-        RowLayout {
-            anchors.fill: parent
-            spacing: 0
+    // Debug outline toggle
+    property bool showDebugOutlines: true
+    property color debugOutlineColor: "#FFD700"
+
+    RowLayout {
+        anchors.fill: parent
+        anchors.margins: root.margin
+        spacing: 0
+
+        // LEFT COLUMN
+        Rectangle {
+            Layout.fillHeight: true
+            Layout.preferredWidth: parent.width * 0.5
+            color: root.backgroundColor
+            border.color: root.showDebugOutlines ? root.debugOutlineColor : "transparent"
+            border.width: root.showDebugOutlines ? 2 : 0
+
+            ColumnLayout {
+                anchors.fill: parent
+                spacing: 0
+
+                // Trainer section (1/6 of height)
+                Rectangle {
+                    id: trainerSection
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: parent.height * (1/6)
+                    color: root.backgroundColor
+                    border.color: root.showDebugOutlines ? root.debugOutlineColor : "transparent"
+                    border.width: root.showDebugOutlines ? 2 : 0
+
+                    Trainer {
+                        anchors.fill: parent
+                        textColor: root.textColor
+                        fontSize: root.bodyFontSize
+                        fontFamily: root.fontFamily
+                    }
+                }
+
+                // Party Pokemon section (2/6 of height)
+                Rectangle {
+                    id: partySection
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: parent.height * (2/6)
+                    color: root.backgroundColor
+                    border.color: root.showDebugOutlines ? root.debugOutlineColor : "transparent"
+                    border.width: root.showDebugOutlines ? 2 : 0
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: "Party Pokemon"
+                        color: root.textColor
+                        font.pixelSize: 16
+                    }
+                }
+
+                // PC Pokemon section (remaining 3/6 of height)
+                Rectangle {
+                    id: pcSection
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    color: root.backgroundColor
+                    border.color: root.showDebugOutlines ? root.debugOutlineColor : "transparent"
+                    border.width: root.showDebugOutlines ? 2 : 0
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: "PC Storage"
+                        color: root.textColor
+                        font.pixelSize: 16
+                    }
+                }
+            }
+        }
+
+        // RIGHT COLUMN
+        Rectangle {
+            id: rightPanel
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            color: root.backgroundColor
+            border.color: root.showDebugOutlines ? root.debugOutlineColor : "transparent"
+            border.width: root.showDebugOutlines ? 2 : 0
+
+            Text {
+                anchors.centerIn: parent
+                text: "Right Panel (Replaceable)"
+                color: root.textColor
+                font.pixelSize: 16
+            }
         }
     }
 }

@@ -7,7 +7,7 @@ GameMenu::GameMenu()
 {
     qDebug() << "GameMenu constructor called!";
 
-    setFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    setFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::FramelessWindowHint);
     if(strcmp(std::getenv("DOCKER_ENV"), "dev") == 0){
         setSource(QUrl("../qml/qmlGameMenu/Menu.qml"));
     }else{

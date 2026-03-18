@@ -11,6 +11,7 @@
         <file>qml/PokemonIcon.qml</file>
 
         <file>qml/qmlGameMenu/Menu.qml</file>
+        <file>qml/qmlGameMenu/Trainer.qml</file>
 
         <file>assets/fonts/PressStart2P-Regular.ttf</file>
         <file>assets/fonts/DotGothic16-Regular.ttf</file>
@@ -24,6 +25,7 @@
         <file>assets/HGSS/reordered_sprites.png</file>
         <file>assets/HGSS/reordered_sprites_big.png</file>
         <file>assets/HGSS/reordered_icons.png</file>
+        <file>assets/HGSS/reordered_trainers.png</file>
         <file>assets/HGSS/reordered_pokeballs.png</file>
     </qresource>
 </RCC>
