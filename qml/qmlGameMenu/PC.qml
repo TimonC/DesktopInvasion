@@ -47,6 +47,7 @@ Item {
     property var swapSelect: [-1, -1]
     property color swapColor: "orange"
     property color highlightSwapColor: Qt.rgba(0.6, 0.6, 0, 0.3)
+    signal activateSwapMode();
     function toggleSwapMode(){
         if(inSwapMode){
             inSwapMode=false;
@@ -54,6 +55,7 @@ Item {
         }else{
             inSwapMode=true;
             swapButton.color=root.swapColor;
+            activateSwapMode();
         }
     }
 

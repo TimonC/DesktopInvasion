@@ -20,6 +20,15 @@ Rectangle {
     property color  debugOutlineColor:   "#FFD700"
     property double leftSideWidthRatio:  0.5
 
+    MouseArea{
+        onClicked: {
+            console.log("global click")
+            if(pc.inSwapMode) pc.toggleSwapMode();
+        }
+        cursorShape:  undefined
+        anchors.fill: parent
+    }
+
     // C++ (Game) -> QML: push party and box data into PC
     Connections {
         target: menuBridge
