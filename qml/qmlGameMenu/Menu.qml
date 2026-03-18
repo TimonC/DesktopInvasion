@@ -64,7 +64,7 @@ Rectangle {
                     border.color: root.showDebugOutlines ? root.debugOutlineColor : "transparent"
                     border.width: root.showDebugOutlines ? 2 : 0
 
-                    PC{
+                    PC {
                     }
 
                     Text {

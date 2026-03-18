@@ -8,13 +8,13 @@ DesktopScene::DesktopScene(QWindow *parent)
     : QQuickView(parent)
     , m_currentDirection(0)
 {
-    setFlags(Qt::WindowStaysOnTopHint
-        | Qt::Tool
-        | Qt::WindowDoesNotAcceptFocus
-        | Qt::FramelessWindowHint
-        | Qt::BypassWindowManagerHint
-        );
-     setColor(Qt::transparent);
+    setFlags( Qt::WindowStaysOnTopHint
+            | Qt::Tool
+            | Qt::WindowDoesNotAcceptFocus
+            | Qt::FramelessWindowHint
+            | Qt::BypassWindowManagerHint
+    );
+    setColor(Qt::transparent);
 
      m_grabCursor = QCursor(QPixmap(":/assets/XY/grab.png"));
      m_pointerCursor = QCursor(QPixmap(":/assets/XY/pointer.png"), 6, 6);

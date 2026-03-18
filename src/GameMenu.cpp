@@ -1,13 +1,20 @@
 #include <GameMenu.h>
 #include <QTimer>
 #include <QScreen>
+#include <qnamespace.h>
 
 GameMenu::GameMenu()
     : QQuickView()
 {
     qDebug() << "GameMenu constructor called!";
 
-    setFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::FramelessWindowHint);
+    setFlags( Qt::Dialog
+            | Qt::WindowTitleHint
+            | Qt::WindowCloseButtonHint
+            | Qt::FramelessWindowHint
+            /* | Qt::WindowDoesNotAcceptFocus */
+    );
+
     if(strcmp(std::getenv("DOCKER_ENV"), "dev") == 0){
         setSource(QUrl("../qml/qmlGameMenu/Menu.qml"));
     }else{
