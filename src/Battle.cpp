@@ -13,6 +13,7 @@ Battle::Battle(int opp_direction, QPoint opp_pos, const PokemonInfo* opp, const 
     , m_chosen(chosen)
 {
     qDebug() << "Battle constructor called!";
+    qDebug() << m_opp;
     m_currentDirection = opp_direction;
 
     setSource(QUrl("qrc:/sprites/BattleScene.qml"));
@@ -60,50 +61,3 @@ void Battle::initPosition(){
     setPosition(m_origin);
 }
 void Battle::direction(int direction){};
-/* void Battlescene::run(){ */
-/*     setVisible(false); */
-/*     m_corners->hide(); */
-/*     m_chosen->setVisible(false); */
-/*     m_chosen->m_inABattle = false; */
-/*     Globals::getPlayer().m_pokemonAvailable = true; */
-/*     m_opp->startRoaming(); */
-/* } */
-
-/* void Battlescene::attack(){ */
-/*     m_chosen->useMove(); */
-/*     m_opp->attacked(); */
-/* } */
-
-/* void Battlescene::updateTextbar(const std::string &text){ */
-/*     if (m_ui) { */
-/*         QString qText = QString::fromStdString(text); */
-/*         QMetaObject::invokeMethod(m_ui, "update_text_bar", Q_ARG(QVariant, qText)); */
-/*     } */
-/* } */
-
-/* QQuickView* Battlescene::initCorners(){ */
-/*     int lft = std::min(m_opp->position().x(), m_chosen->position().x()); */
-/*     int top = std::min(m_opp->position().y(), m_chosen->position().y()); */
-/*     int boxHeight; int boxWidth; */
-/*     if(m_direction % 2 == 0){ */
-/*         boxWidth  = x() + m_ui->width()  - lft; */
-/*         boxHeight = y() + m_ui->height() -  std::min(m_opp->position().y() , m_chosen->position().y()); */
-/*     }else{ */
-/*         boxWidth  = std::max(m_opp->position().x() + m_opp->width(), m_chosen->position().x() + m_chosen->width()) - lft; */
-/*         boxHeight = y() + height() - top; */
-/*     } */
-/*     QQuickView *corners = new QQuickView(nullptr); */
-/*     corners->setFlags(Qt::WindowStaysOnTopHint | Qt::Tool | Qt::WindowDoesNotAcceptFocus | Qt::FramelessWindowHint | Qt::WindowTransparentForInput); */
-/*     corners->setColor(Qt::transparent); */
-/*     corners->setPosition(QPoint(lft,top)); */
-/*     corners->setSource(QUrl("qrc:/sprites/Corners.qml")); */
-/*     corners->setWidth(boxWidth); */
-/*     corners->setHeight(boxHeight); */
-
-/*     m_cornerSize = QPoint(boxWidth, boxHeight); */
-/*     corners->rootObject()->setProperty("debugLines", Globals::DEBUG); */
-/*     corners->show(); */
-
-/*     return corners; */
-/* } */
-
