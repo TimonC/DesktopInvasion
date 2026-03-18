@@ -20,10 +20,10 @@ Item {
 
     property alias opponent: opponent
     property alias player: player
-    property alias hpBarOpponent: hpBarOpponent
-    property alias hpBarPlayer: hpBarPlayer
-    property  alias opponentName: hpBarOpponent.pokeName
-    property  alias playerName: hpBarPlayer.pokeName
+    property alias statusBarOpponent: statusBarOpponent
+    property alias statusBarPlayer: statusBarPlayer
+    property  alias opponentName: statusBarOpponent.pokeName
+    property  alias playerName: statusBarPlayer.pokeName
 
     property alias textBar: textBar
     property alias buttonGrid: buttonGrid
@@ -47,8 +47,8 @@ Item {
     }
 
     // Sprites
-    HealthBar{
-        id: hpBarOpponent
+    StatusBar{
+        id: statusBarOpponent
     }
 
     PokemonSprite {
@@ -58,11 +58,11 @@ Item {
         direction: root.direction
         debugLines: root.debugLines
         debugColor: "red"
-        property alias healthBar: root.hpBarOpponent
+        property alias statusBar: root.statusBarOpponent
     }
 
-   HealthBar{
-       id: hpBarPlayer
+   StatusBar{
+       id: statusBarPlayer
     }
 
     PokemonSprite {
@@ -72,7 +72,7 @@ Item {
         direction: (root.direction + 2) % 4
         debugLines: root.debugLines
         debugColor: "blue"
-        property alias healthBar: root.hpBarPlayer
+        property alias statusBar: root.statusBarPlayer
     }
 
    // UI
@@ -134,50 +134,50 @@ Item {
             } } }
 
 
-    function positionSpriteAndHealthbar(sprite) {
+    function positionSpriteAndStatusBar(sprite) {
         var margin = root.pokeMargin;
 
         // Clear all anchors first
-        sprite.healthBar.anchors.left = undefined
-        sprite.healthBar.anchors.right = undefined
-        sprite.healthBar.anchors.top = undefined
-        sprite.healthBar.anchors.bottom = undefined
+        sprite.statusBar.anchors.left = undefined
+        sprite.statusBar.anchors.right = undefined
+        sprite.statusBar.anchors.top = undefined
+        sprite.statusBar.anchors.bottom = undefined
 
         switch(sprite.direction) {
             case 0:
                 sprite.x = margin + sprite.containerOffsetX;
                 sprite.y = root.height - (textBoxHeight + margin + sprite.containerOffsetY + sprite.height);
-                sprite.healthBar.x = 3*32 - margin
-                sprite.healthBar.y = sprite.y
+                sprite.statusBar.x = 3*32 - margin
+                sprite.statusBar.y = sprite.y
                 break;
             case 1:
                 sprite.x = root.width - (margin + sprite.containerOffsetX + sprite.width);
                 sprite.y = root.height - (textBoxHeight + margin + sprite.height);
-                sprite.healthBar.x = root.width - 32*2.5 - margin
-                sprite.healthBar.y = root.height - (textBoxHeight + 3*32 - margin)
+                sprite.statusBar.x = root.width - 32*2.5 - margin
+                sprite.statusBar.y = root.height - (textBoxHeight + 3*32 - margin)
                 break;
             case 2:
                 sprite.x = margin + sprite.containerOffsetX;
                 sprite.y = margin + sprite.containerOffsetY;
-                sprite.healthBar.x = 3*32 - margin
-                sprite.healthBar.y = sprite.y
+                sprite.statusBar.x = 3*32 - margin
+                sprite.statusBar.y = sprite.y
                 break;
             case 3:
                 sprite.x = margin + sprite.containerOffsetX;
                 sprite.y = root.height - (textBoxHeight + margin + sprite.height);
-                sprite.healthBar.x = 32/2 + margin
-                sprite.healthBar.y = root.height - (textBoxHeight + 3*32 - margin)
+                sprite.statusBar.x = 32/2 + margin
+                sprite.statusBar.y = root.height - (textBoxHeight + 3*32 - margin)
                 break;
         }
         sprite.startingX = sprite.x;
         sprite.startingY = sprite.y;
-        sprite.healthBar.visible = true;
+        sprite.statusBar.visible = true;
     }
 
 
     Component.onCompleted: {
-        positionSpriteAndHealthbar(player);
-        positionSpriteAndHealthbar(opponent);
+        positionSpriteAndStatusBar(player);
+        positionSpriteAndStatusBar(opponent);
     }
 
     function update_text_bar(newText) {
@@ -275,7 +275,7 @@ Item {
                 break;
 
             case "change-health":
-                let currentHealthRatio = step.defender.healthBar.incrementHealth(-51);
+                let currentHealthRatio = step.defender.statusBar.incrementHealth(-51);
 
                 if(currentHealthRatio==0){
                     root.attackSequence = [

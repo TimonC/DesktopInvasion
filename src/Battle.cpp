@@ -85,7 +85,7 @@ QQuickItem* Battle::setupPokemon(const PokemonInfo* info, const char* role) {
     pokemonSprite->setProperty("containerOffsetY", offsetY);
 
     // Position the sprite
-    QMetaObject::invokeMethod(m_battleScene, "positionSpriteAndHealthbar", Q_ARG(QVariant, QVariant::fromValue(pokemonSprite)));
+    QMetaObject::invokeMethod(m_battleScene, "positionSpriteAndStatusBar", Q_ARG(QVariant, QVariant::fromValue(pokemonSprite)));
 
     return pokemonSprite;
 }
