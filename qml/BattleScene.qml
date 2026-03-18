@@ -216,8 +216,6 @@ Item {
                 pokeBallPlayer.circleBaseHeight = pokeBallPlayer.circleY * 2
             }
 
-            pokeBallPlayer.delayReveal = 2
-
             if (root.pokemonInsideBallConnection) {
                 pokeBallPlayer.onPokemonInsideBall.disconnect(root.pokemonInsideBallConnection)
             }
@@ -511,13 +509,13 @@ Item {
         var pokeballHeight = pokeBallOpponent.height
 
         var x1 = sprite.x + (sprite.width / 2) - (pokeballWidth / 2)
-        var x0 = x1 + (sprite.direction == 1 ? -sprite.width : sprite.width)
+        var x0 = x1 + (sprite.direction == 0 ? sprite.width : -sprite.width)
 
         var y0 = Math.max(pokeballHeight, sprite.y - pokeballHeight)
 
         var y1 = sprite.y + sprite.height/2 - pokeballHeight
 
-        var groundY = sprite.y + sprite.height - pokeballHeight - root.frameSize/2
+        var groundY = sprite.y + sprite.height - pokeballHeight/2 - root.frameSize/4
 
         return [x0, x1, y0, y1, groundY]
     }

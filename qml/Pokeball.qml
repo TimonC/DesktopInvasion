@@ -30,7 +30,7 @@ Item {
     signal pokemonInsideBall()
     signal ballOpened()
 
-    property int delayReveal: 1
+    property real delayReveal: 1.5
     width: frameWidth
     height: frameHeight
     z: 100
