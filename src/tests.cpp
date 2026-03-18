@@ -15,7 +15,7 @@ void testPokespawnRandomness() {
     const int TOTAL_TRIALS = 100000;
 
     for (int i = 0; i < TOTAL_TRIALS; i++) {
-        auto* pokemon = Globals::getPokemonInfo(std::nullopt);
+        auto* pokemon = Globals::getPokemonInfo();
         counts[pokemon->pokedexId]++;
     }
 

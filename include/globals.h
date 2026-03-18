@@ -3,6 +3,7 @@
 
 #include <QRect>
 #include <pokemon_data.h>
+#include <QSize>
 
 namespace Globals {
     extern bool DEBUG;
@@ -11,7 +12,7 @@ namespace Globals {
     extern const int MAX_POKEDEX_ID;
 
     const QRect& screenGeometry();
-    const PokemonInfo* getPokemonInfo(std::optional<int> pokedexId = std::nullopt);
+    const PokemonInfo* getPokemonInfo(int pokeDexId = -1);
 
     const SpriteInfo* getSpriteInfo(int spriteId, int generation);
     QSize getSpriteSize(int spriteId, int generation);

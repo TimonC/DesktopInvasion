@@ -14,29 +14,28 @@ namespace Globals {
         return geometry;
     }
 
-    const PokemonInfo* getPokemonInfo(std::optional<int> pokedexId) {
+    const PokemonInfo* getPokemonInfo(int pokedexId) {
         static std::unordered_map<int, const PokemonInfo*> lookup;
         static std::vector<const PokemonInfo*> pokemonVector;
 
         if (lookup.empty()) {
             for (int i = 0; i < kPokemonCount; ++i) {
 
-                int pokedexId = kPokemonList[i].pokedexId;
-                if(lookup.find(pokedexId)==lookup.end()){
-                    lookup[pokedexId] = &kPokemonList[i];
+                int id = kPokemonList[i].pokedexId;
+                if(lookup.find(id)==lookup.end()){
+                    lookup[id] = &kPokemonList[i];
                     pokemonVector.push_back(&kPokemonList[i]);
                 }
 
             }
         }
 
-        if (pokedexId.has_value()) {
-            int id = pokedexId.value();
-            if (id < 1 || id > MAX_POKEDEX_ID) {
-                assert(!"Pokedex ID must be between 1 and 493");
+        if (pokedexId>0) {
+            if (pokedexId > MAX_POKEDEX_ID) {
+                assert(!"Max pokedex id is ${MAX_POKEDEX_ID}");
             }
 
-            auto it = lookup.find(id);
+            auto it = lookup.find(pokedexId);
             if (it == lookup.end()) {
                 assert(!"Pokemon ID not available in this version");
             }
