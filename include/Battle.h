@@ -29,7 +29,7 @@ class Battle : public DesktopScene{
 
     Q_OBJECT
 public:
-    explicit Battle(WildPokemon* opp, PokemonState wildState, Party party, std::unique_ptr<BattleMoveHandler> battleMoveHandler, QWindow *parent = nullptr);
+    explicit Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildState, Party party, std::unique_ptr<BattleMoveHandler> battleMoveHandler, QWindow *parent = nullptr);
     ~Battle() {
         qDebug() << "Battle destructor called!";
     }
@@ -38,7 +38,10 @@ public:
     QQuickView* initCorners();
     QQuickView *m_corners = nullptr;
     void direction(int direction) override;
-    QPoint m_origin;
+
+    // Store initial positions position swap with WildPokemon
+    QPoint m_oppPos;
+
     void setSceneVisibility(bool visibility){
         m_battleScene->setProperty("visible",visibility);
     };
@@ -70,10 +73,6 @@ private:
     int m_pokeMargin = 2;
     void initPosition();
 
-    WildPokemon* m_oppReference = nullptr;
-
-    // Store initial positions position swap with WildPokemon
-    QPoint m_initialOppPos;
 
     QQuickItem* setupPokemon(const PokemonInfo* info, const char* role = "opponent");
     QQuickItem* m_battleScene;

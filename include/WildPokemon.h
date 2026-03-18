@@ -10,9 +10,9 @@ class WildPokemon : public DesktopScene{
 
 public:
     explicit WildPokemon(const PokemonInfo* info, QPoint spawnPoint = QPoint(-1,-1), int spawnDirection = -1, QWindow *parent = nullptr);
-    ~WildPokemon(){
-        qDebug() << "WildPokemon destructor called, with info: " << info->name;
-    };
+
+    ~WildPokemon();
+
     void roaming(bool active);
     void direction(int direction) override;
     const PokemonInfo* info;

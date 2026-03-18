@@ -6,26 +6,19 @@
 #include <QTimer>
 #include <qobjectdefs.h>
 
-Battle::Battle(WildPokemon* opp, PokemonState wildState, Party party, std::unique_ptr<BattleMoveHandler> battleMoveHandler, QWindow *parent)
+Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildState, Party party, std::unique_ptr<BattleMoveHandler> battleMoveHandler, QWindow *parent)
     : DesktopScene(parent)
-    , m_oppReference(opp)
-    , m_initialOppPos(opp->position())
+    , m_oppPos(initialOppPos)
     , m_battleMoveHandler(std::move(battleMoveHandler))
 {
     qDebug() << "Battle constructor called!";
 
-
-    m_currentDirection = opp->m_currentDirection;
+    direction(initialOppDirection);
 
     // Load the PokemonSprite as root
     setSource(QUrl("qrc:/qml/BattleScene.qml"));
     m_battleScene = rootObject();
     assert(m_battleScene);
-
-    // Short delay before hiding for smooth transition
-    QTimer::singleShot(100, this, [opp]() {
-        opp->hide();
-    });
 
     // Connect BattleMoveHandler's action sequence signal to Battle's slot
     connect(m_battleMoveHandler.get(), &BattleMoveHandler::actionSequenceReady,
@@ -45,14 +38,14 @@ Battle::Battle(WildPokemon* opp, PokemonState wildState, Party party, std::uniqu
     m_battleScene->setProperty("direction", m_currentDirection);
     m_battleScene->setProperty("pokeMargin", m_pokeMargin);
     m_battleScene->setProperty("debugLines", Globals::DEBUG);
-    m_opp = setupPokemon(opp->info, "opponent");
+    m_opp = setupPokemon(Globals::getPokemonInfo(wildState.pokedex_id), "opponent");
     m_chosen = setupPokemon(Globals::getPokemonInfo(party.pokedexIds[0]), "player");
     initPosition();
 
     setupParty(party);
 
     int opponentHealth = calculateHealth(wildState.lvl,
-        Globals::getPoke(opp->info->pokedexId)->base_stats[0],
+        Globals::getPoke(wildState.pokedex_id)->base_stats[0],
         wildState.ivs[0],
         wildState.evs[0]);
     int playerHealth = party.healthTotals[0];
@@ -145,21 +138,21 @@ void Battle::initPosition() {
     // has to be QPointF for the method, but since we set offsets as integer in qml it gives smooth transition
     QPointF spriteOffset = opponentItem->mapToItem(rootItem, QPointF(0, 0));
 
-    m_origin = m_initialOppPos + QPoint(-spriteOffset.x(), -spriteOffset.y());
+    QPoint origin = m_oppPos + QPoint(-spriteOffset.x(), -spriteOffset.y());
     QRect screenGeom = Globals::screenGeometry();
 
-    QPoint originalOrigin = QPoint(m_origin);
-    QTimer::singleShot(20, this, [this, screenGeom, originalOrigin]() {
+    QTimer::singleShot(20, this, [this, screenGeom, origin]() {
+        QPoint adjustedOrigin = origin;
 
-        //snap battle to bounds
-        m_origin.setX(qBound(screenGeom.left(), m_origin.x(), screenGeom.right()-width()));
-        m_origin.setY(qBound(screenGeom.top(), m_origin.y(), screenGeom.bottom()-height()));
-        setPosition(m_origin);
+        adjustedOrigin.setX(qBound(screenGeom.left(), adjustedOrigin.x(),
+                                 screenGeom.right() - width()));
+        adjustedOrigin.setY(qBound(screenGeom.top(), adjustedOrigin.y(),
+                                 screenGeom.bottom() - height()));
 
-        //reposition wild pokemon if there was any snap
-        if(m_origin!=originalOrigin){
-            m_initialOppPos = m_initialOppPos - (originalOrigin - m_origin);
-            m_oppReference->setPosition(m_initialOppPos);
+        setPosition(adjustedOrigin);
+
+        if(adjustedOrigin != origin) {
+            m_oppPos = m_oppPos - (origin - adjustedOrigin);
         }
     });
 }

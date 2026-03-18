@@ -42,13 +42,13 @@ Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
 }
 
 Game::~Game() {
-    if (m_activeBattle) delete m_activeBattle;
-    if (m_wildPokemon) delete m_wildPokemon;
+    if (m_activeBattle) safelyRemoveBattleScene();
+    if (m_wildPokemon) safelyRemoveWildPokemon();
     delete m_menu;
 }
 
 void Game::safelyRemoveBattleScene(){
-    if(!m_activeBattle) return;
+    assert(m_wildPokemon && "There should be no existing Battle when this is called.");
 
     disconnect(m_activeBattle, nullptr, this, nullptr);
     disconnect(this, nullptr, m_activeBattle, nullptr);
@@ -56,6 +56,14 @@ void Game::safelyRemoveBattleScene(){
     m_activeBattle->deleteLater();
     m_activeBattle = nullptr;
 }
+
+void Game::safelyRemoveWildPokemon(){
+    assert(m_wildPokemon && "There should be no existing WildPokemon instance when this is called.");
+
+    disconnect(m_wildPokemon, nullptr, this, nullptr);
+    m_wildPokemon->deleteLater();
+    m_wildPokemon = nullptr;
+};
 
 void Game::handleMenuOpen(){
     bool usedToBeActive = m_gameUsedToBeActive;
@@ -85,12 +93,10 @@ void Game::setGameActive(bool active) {
         spawnPokemon();
     }
     else{
-        updateWildPokemonPosToBattlePos();
         if (m_wildPokemon) {
             m_spawnPoint = m_wildPokemon->position();
             m_spawnDirection = m_wildPokemon->m_currentDirection;
-            m_wildPokemon->deleteLater();
-            m_wildPokemon = nullptr;
+            safelyRemoveWildPokemon();
         }
         if (m_activeBattle) {
             m_activeBattle->setSceneVisibility(false);
@@ -156,17 +162,16 @@ const PokemonInfo* Game::getPartyPokemonInfo(int slot) const {
 }
 
 void Game::spawnPokemon() {
-    if (m_wildPokemon) {
-        qDebug() << "Removing existing WildPokemon instance with name: " << m_wildPokemon->info->name;
-        m_wildPokemon->deleteLater();
-        m_wildPokemon = nullptr;
-    }
+    assert(!(m_wildPokemon) && "Spawn pokemon called with existing instance, there should only ever be one.");
 
     PokemonState wildState = m_db.getWildPokemon();
     if (wildState.pokedex_id > 0) {
         m_wildPokemonInfo = Globals::getPokemonInfo(wildState.pokedex_id);
         qDebug() << "Spawning existing wild Pokemon:" << QString::fromStdString(wildState.name);
     } else {
+
+        m_spawnDirection = rand()%4;
+        m_spawnPoint = QPoint(-1,-1);
 
         m_wildPokemonInfo = Globals::getPokemonInfo();
 
@@ -235,6 +240,14 @@ void Game::handleBattleStart() {
         return;
     }
 
+    m_spawnPoint = m_wildPokemon->position();
+    m_spawnDirection = m_wildPokemon->m_currentDirection;
+
+    //Cleanup with delay for smooth transition from WildPokemon to Battle
+    QTimer::singleShot(100, this, [this]() {
+        safelyRemoveWildPokemon();
+    });
+
     // Gather all IDs (wild + party)
     std::vector<int> idsToFetch = {0}; // Wild Pokemon ID at index 0
     for(int i = 0; i < 6; i++){
@@ -251,9 +264,10 @@ void Game::handleBattleStart() {
     }
     auto battleMoveHandler = std::make_unique<BattleMoveHandler>(wildState, partyStates);
 
-    //Create Battle w/ BattleMoveHandler
     const Party party = getParty();
-    m_activeBattle = new Battle(m_wildPokemon, wildState, party, std::move(battleMoveHandler));
+
+
+    m_activeBattle = new Battle(m_spawnPoint, m_spawnDirection, wildState, party, std::move(battleMoveHandler));
 
     connect(m_activeBattle, &Battle::battleEnded,
             this, &Game::handleBattleEnd);
@@ -262,16 +276,11 @@ void Game::handleBattleStart() {
 }
 
 void Game::handleBattleEnd(const char* endState, bool removeWild) {
-    if (!endState) {
-        qWarning() << "handleBattleEnd called with null endState";
-        return;
-    }
     assert((   !std::strcmp(endState, "PlayerWon")
             || !std::strcmp(endState, "PlayerRun")
             || !std::strcmp(endState, "OpponentWon")
-            || !std::strcmp(endState, "OpponentCaught"))
+            || !std::strcmp(endState, "OpponWntCaught"))
            && "Action must be 'Switch', 'Fight' or 'Catch'");
-
     qDebug() << endState;
 
     bool playerWon = (strcmp(endState, "PlayerWon") == 0);
@@ -318,42 +327,24 @@ void Game::handleBattleEnd(const char* endState, bool removeWild) {
         }else{
             qWarning() << "Failed to clear wild pokemon";
         }
-        if (m_wildPokemon) {
-            m_wildPokemon->deleteLater();
-            m_wildPokemon = nullptr;
-        }
-        if (m_activeBattle)  safelyRemoveBattleScene();
+
+        safelyRemoveBattleScene();
         m_spawnPoint = QPoint(-1,-1);
         m_spawnTimer->start();
 
     } else {
         // Battle ended without removing wild Pokemon
-        if (m_activeBattle) {
-            m_activeBattle->handleDrag(false);
-        }
+        m_activeBattle->handleDrag(false);
 
-        updateWildPokemonPosToBattlePos();
-
-        if (m_wildPokemon) {
-            m_wildPokemon->show();
-        }
+        spawnPokemon();
 
         //Cleanup with delay for smooth transition from battlescene to wild pokemon
         QTimer::singleShot(100, this, [this]() {
-            if (m_wildPokemon) m_wildPokemon->roaming(true);
             if (m_activeBattle) safelyRemoveBattleScene();
         });
     }
 }
 
-
-void Game::updateWildPokemonPosToBattlePos() {
-    if (m_wildPokemon && m_activeBattle) {
-        QPoint newOppPos = m_wildPokemon->position() +
-                          (m_activeBattle->position() - m_activeBattle->m_origin);
-        m_wildPokemon->setPosition(newOppPos);
-    }
-}
 
 void Game::createInitialPokemon() {
     PokemonState duskull;

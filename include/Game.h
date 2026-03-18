@@ -45,6 +45,7 @@ private:
     Party getParty();
     void updateWildPokemonPosToBattlePos();
     void safelyRemoveBattleScene();
+    void safelyRemoveWildPokemon();
 
 private slots:
     void handleMenuOpen();
