@@ -54,6 +54,6 @@ COPY qml ./qml
 COPY include ./include
 COPY src ./src
 COPY build_dev.sh ./build_dev.sh
-COPY build_prod.sh ./build_prod.sh
+COPY build_linux.sh ./build_linux.sh
 
 RUN chmod +x ./build_dev.sh ./build_linux.sh

@@ -32,17 +32,5 @@ services:
     volumes:
       - ./app/output:/app/output
 
-  build-windows:
-    build:
-      context: .
-      dockerfile: Dockerfile-win
-    container_name: desktopinvasion-build-windows
-    entrypoint: ["./build_windows.sh"]
-    environment:
-      - DOCKER_ENV=prod
-      - VALGRIND_MODE=0
-    volumes:
-      - ./app/output:/app/output
-
 volumes:
   game_state:

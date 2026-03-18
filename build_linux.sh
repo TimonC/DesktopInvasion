@@ -1,5 +1,8 @@
 #!/bin/bash
 set -e
+if [ -f "CMakeLists_dev.txt" ]; then
+    cp CMakeLists_dev.txt CMakeLists.txt
+fi
 mkdir -p build_linux
 cd build_linux
 cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..

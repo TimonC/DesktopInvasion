@@ -9,6 +9,9 @@ chmod 0700 "$XDG_RUNTIME_DIR"
 if [ -f "resources.dev.qrc" ]; then
     cp resources.dev.qrc resources.qrc
 fi
+if [ -f "CMakeLists_dev.txt" ]; then
+    cp CMakeLists_dev.txt CMakeLists.txt
+fi
 
 echo "First script execution - wiping volume"
 rm -rf /app/data/* 2>/dev/null || true
@@ -31,7 +34,7 @@ if [ "$VALGRIND_MODE" = "1" ]; then
         --show-leak-kinds=all \
         --track-origins=yes \
         --log-file="$LOG_FILE" \
-        ./DesktopInvasion
+        ./bin/DesktopInvasion
 
     echo "Log saved. Check ./valgrind_logs/ on your host machine"
     ls -la /app/logs/
@@ -44,7 +47,7 @@ else
     ninja
 
     echo "Starting DesktopInvasion with HMR"
-    ./DesktopInvasion &
+    ./bin/DesktopInvasion &  # CHANGED: added bin/
     APP_PID=$!
 
     while inotifywait -r -e modify,create,delete ../src ../include ../qml; do
@@ -52,7 +55,7 @@ else
 
         kill $APP_PID 2>/dev/null || true
         ninja
-        ./DesktopInvasion &
+        ./bin/DesktopInvasion &
         APP_PID=$!
     done
 
