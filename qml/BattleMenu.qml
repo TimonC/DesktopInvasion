@@ -33,10 +33,10 @@ Rectangle {
     property color textBarTextColor: "black"
     property color menuTextColor: "white"
 
-    property color fightButtonColor: "#ff3333"    // 95% of pure red
-    property color switchButtonColor: "green"
-    property color catchButtonColor: "orange"
-    property color runButtonColor: "#3366ff"      // 95% of pure blue
+    property color fightButtonColor: "#ff3333"
+    property color switchButtonColor: "#26a626"
+    property color catchButtonColor: "#ff7f00"
+    property color runButtonColor: "#3366ff"
 
     property color borderColor: "#999999"
     property color disabledBorderColor: "#777777"
