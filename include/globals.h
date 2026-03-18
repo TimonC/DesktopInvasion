@@ -1,9 +1,9 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#include <QRect>
 #include <pokemon_data.h>
-#include <QSize>
+class QRect;
+class QSize;
 
 namespace Globals {
     extern bool DEBUG;

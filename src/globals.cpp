@@ -2,6 +2,8 @@
 #include <QGuiApplication>
 #include <unordered_map>
 #include <QScreen>
+#include <QRect>
+#include <QSize>
 
 namespace Globals {
     bool DEBUG = false;

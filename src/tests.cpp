@@ -3,6 +3,7 @@
 #include <iostream>
 #include <ctime>
 #include <map>
+#include <cassert>
 
 void runAllTests() {
     testPokespawnRandomness();
