@@ -12,6 +12,8 @@
 
         <file>qml/qmlGameMenu/Menu.qml</file>
         <file>qml/qmlGameMenu/Trainer.qml</file>
+        <file>qml/qmlGameMenu/PC.qml</file>
+        <file>qml/qmlGameMenu/PokeView.qml</file>
 
         <file>assets/fonts/PressStart2P-Regular.ttf</file>
         <file>assets/fonts/DotGothic16-Regular.ttf</file>

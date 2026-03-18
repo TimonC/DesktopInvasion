@@ -40,7 +40,6 @@ Rectangle {
                 anchors.fill: parent
                 spacing: 0
 
-                // Trainer section (1/6 of height)
                 Rectangle {
                     id: trainerSection
                     Layout.fillWidth: true
@@ -57,7 +56,6 @@ Rectangle {
                     }
                 }
 
-                // Party Pokemon section (2/6 of height)
                 Rectangle {
                     id: partySection
                     Layout.fillWidth: true
@@ -65,6 +63,9 @@ Rectangle {
                     color: root.backgroundColor
                     border.color: root.showDebugOutlines ? root.debugOutlineColor : "transparent"
                     border.width: root.showDebugOutlines ? 2 : 0
+
+                    PC{
+                    }
 
                     Text {
                         anchors.centerIn: parent
@@ -85,6 +86,8 @@ Rectangle {
             border.color: root.showDebugOutlines ? root.debugOutlineColor : "transparent"
             border.width: root.showDebugOutlines ? 2 : 0
 
+            PokeView{
+            }
             Text {
                 anchors.centerIn: parent
                 text: "Right Panel (Replaceable)"
