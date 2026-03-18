@@ -1,49 +1,282 @@
 import QtQuick 2.15
+import QtQuick.Controls 2.15
+import QtQuick.Layouts 1.15
 
-// Trainer strip.
-// Menu allocates a fixed Item (pcW × trainerH) and sets anchors.fill on this
-// component.  All content is centered within whatever space is given.
 Rectangle {
     id: root
     color: "transparent"
 
-    // ── Props passed in by Menu ────────────────────────────────────────────────
+    readonly property real spriteSizeDefault:         2.0
+    readonly property real battleSpeedDefault:        1.0
+    readonly property int  encounterLevelHighDefault: 5
+    readonly property int  encounterLevelLowDefault:  5
+
+    readonly property real spriteSizeMin:         1.0
+    readonly property real spriteSizeMax:         4.0
+    readonly property real spriteSizeStep:        0.5
+
+    readonly property real battleSpeedMin:        1.0
+    readonly property real battleSpeedMax:        6.0
+    readonly property real battleSpeedStep:       0.5
+
+    readonly property int  encounterHighMin:      5
+    readonly property int  encounterHighMax:      25
+    readonly property int  encounterHighStep:     5
+
+    readonly property int  encounterLowMin:       5
+    readonly property int  encounterLowMax:       25
+    readonly property int  encounterLowStep:      5
+
     property color  textColor:  "white"
-    property int    fontSize:   16
+    property int    fontSizeLg: 22
+    property int    fontSizeMd: 18
+    property int    fontSizeSm: 16
     property int    row:        35
-    property double iconScale:  3
-    property string fontFamily: "Sans Serif"
+    property int    frameSize: 32
+    property string p2pFont:       "Press Start 2P"
+    property string dotGothicFont: "DotGothic16"
 
-    property int frameSize: 32
+    property real iconScale: spriteSizeSlider.value
 
-    // ── Content – centered inside the allocated area ───────────────────────────
-    Row {
-        anchors.centerIn: parent
-        spacing:          root.frameSize
+    property real spriteSize:         spriteSizeDefault
+    property real battleSpeed:        battleSpeedDefault
+    property int  encounterLevelHigh: encounterLevelHighDefault
+    property int  encounterLevelLow:  encounterLevelLowDefault
 
-        Image {
-            id: trainerFrame
-            anchors.verticalCenter: parent.verticalCenter
+    component DiscreteSlider : Item {
+        id: discreteSlider
+        required property string label
+        required property real   from
+        required property real   to
+        required property real   stepSize
+        required property real   initialValue
 
-            property int frameIndex: root.row
-            readonly property int spriteWidth:  root.frameSize
-            readonly property int spriteHeight: root.frameSize
+        property alias value: mouseArea.value
 
-            width:  Math.ceil(spriteWidth  * root.iconScale)
-            height: Math.ceil(spriteHeight * root.iconScale)
+        width: parent.width
+        height: 30
 
-            source:         "qrc:/assets/HGSS/reordered_trainers.png"
-            sourceClipRect: Qt.rect(0, frameIndex * spriteHeight, spriteWidth, spriteHeight)
-            smooth:         false
-            antialiasing:   false
+        Row {
+            width: parent.width
+            height: parent.height
+            spacing: 8
+
+            Text {
+                text: discreteSlider.label
+                font.family: root.dotGothicFont
+                font.pixelSize: root.fontSizeSm - 2
+                color: root.textColor
+                width: 110
+                height: parent.height
+                verticalAlignment: Text.AlignVCenter
+                elide: Text.ElideRight
+                font.bold: true
+                opacity: 0.9
+            }
+
+            Item {
+                id: sliderTrack
+                width: parent.width - 110 - valueLabel.width - parent.spacing - 8
+                height: parent.height
+
+                Rectangle {
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: parent.width
+                    height: 4
+                    radius: 2
+                    color: "#333333"
+                    border.color: "#666666"
+                    border.width: 1
+                }
+
+                Rectangle {
+                    anchors.verticalCenter: parent.verticalCenter
+                    x: 0
+                    width: mouseArea.visualPosition * parent.width
+                    height: 4
+                    radius: 2
+                    color: "#7aa9e6"
+                    border.color: "#aaccff"
+                    border.width: 1
+                }
+
+                Repeater {
+                    model: (discreteSlider.to - discreteSlider.from) / discreteSlider.stepSize + 1
+                    Rectangle {
+                        x: (index * discreteSlider.stepSize / (discreteSlider.to - discreteSlider.from)) * sliderTrack.width - width/2
+                        y: parent.height/2 - 4
+                        width: 2
+                        height: index === 0 || index === model-1 ? 12 : 8
+                        color: index === 0 || index === model-1 ? "#ffffff" : "#aaaaaa"
+                    }
+                }
+
+                Rectangle {
+                    x: mouseArea.visualPosition * (parent.width - 16)
+                    y: parent.height/2 - 8
+                    width: 16
+                    height: 16
+                    radius: 8
+                    color: mouseArea.pressed ? "#3a73c0" : "#7aa9e6"
+                    border.color: "#ffffff"
+                    border.width: 2
+
+                    Rectangle {
+                        anchors.centerIn: parent
+                        width: 6
+                        height: 6
+                        radius: 3
+                        color: "#ffffff"
+                        opacity: 0.8
+                    }
+                }
+
+                MouseArea {
+                    id: mouseArea
+                    anchors.fill: parent
+                    cursorShape: undefined
+
+                    property real value: discreteSlider.initialValue
+                    property real visualPosition: (value - discreteSlider.from) / (discreteSlider.to - discreteSlider.from)
+
+                    function updateValueFromMouse(mouse) {
+                        var pos = Math.max(0, Math.min(1, mouse.x / width))
+                        var newValue = discreteSlider.from + pos * (discreteSlider.to - discreteSlider.from)
+
+                        if (discreteSlider.stepSize > 0) {
+                            var steps = Math.round((newValue - discreteSlider.from) / discreteSlider.stepSize)
+                            newValue = discreteSlider.from + steps * discreteSlider.stepSize
+                        }
+
+                        newValue = Math.max(discreteSlider.from, Math.min(discreteSlider.to, newValue))
+                        value = newValue
+                    }
+
+                    onPressed: (mouse) => updateValueFromMouse(mouse)
+                    onPositionChanged: (mouse) => {
+                        if (pressed) {
+                            updateValueFromMouse(mouse)
+                        }
+                    }
+                }
+            }
+
+            Text {
+                id: valueLabel
+                text: {
+                    var val = mouseArea.value
+                    Number(val % 1 === 0 ? val : val.toFixed(1)).toString()
+                }
+                font.family: root.p2pFont
+                font.pixelSize: root.fontSizeSm - 4
+                color: root.textColor
+                width: 35
+                height: parent.height
+                horizontalAlignment: Text.AlignRight
+                verticalAlignment: Text.AlignVCenter
+                style: Text.Raised
+                styleColor: "#000000"
+            }
         }
 
-        Text {
+        onValueChanged: {
+            if (discreteSlider.label === "Sprite size")         root.spriteSize = value
+            else if (discreteSlider.label === "Battle speed")   root.battleSpeed = value
+            else if (discreteSlider.label === "Encounter level +") root.encounterLevelHigh = value
+            else if (discreteSlider.label === "Encounter level -") root.encounterLevelLow = value
+        }
+    }
+
+    Row {
+        anchors.fill: parent
+        anchors.leftMargin: 4
+        anchors.rightMargin: 8
+        spacing: 16
+
+        Item {
+            id: spriteContainer
+            width: Math.ceil(root.frameSize * root.iconScale) + 8
+            height: parent.height
+
+            Rectangle {
+                anchors.fill: trainerSprite
+                anchors.margins: -4
+                color: "transparent"
+                border.color: "#7aa9e6"
+                border.width: 2
+                radius: 4
+                visible: mouseArea.containsMouse
+            }
+
+            Image {
+                id: trainerSprite
+                anchors.centerIn: parent
+
+                property int spriteWidth: root.frameSize
+                property int spriteHeight: root.frameSize
+
+                width: Math.ceil(spriteWidth * root.iconScale)
+                height: Math.ceil(spriteHeight * root.iconScale)
+
+                source: "qrc:/assets/HGSS/reordered_trainers.png"
+                sourceClipRect: Qt.rect(0, root.row * spriteHeight, spriteWidth, spriteHeight)
+                smooth: false
+                antialiasing: false
+            }
+
+            MouseArea {
+                id: mouseArea
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: undefined
+            }
+        }
+
+        Column {
+            id: slidersColumn
             anchors.verticalCenter: parent.verticalCenter
-            text:           "Player"
-            font.pixelSize: root.fontSize
-            font.family:    root.fontFamily
-            color:          root.textColor
+            width: parent.width - spriteContainer.width - parent.spacing - parent.anchors.leftMargin - parent.anchors.rightMargin
+            spacing: 2
+
+            DiscreteSlider {
+                id: spriteSizeSlider
+                label: "Sprite size"
+                from: root.spriteSizeMin
+                to: root.spriteSizeMax
+                stepSize: root.spriteSizeStep
+                initialValue: root.spriteSizeDefault
+                width: parent.width
+            }
+
+            DiscreteSlider {
+                id: battleSpeedSlider
+                label: "Battle speed"
+                from: root.battleSpeedMin
+                to: root.battleSpeedMax
+                stepSize: root.battleSpeedStep
+                initialValue: root.battleSpeedDefault
+                width: parent.width
+            }
+
+            DiscreteSlider {
+                id: encounterHighSlider
+                label: "Encounter +"
+                from: root.encounterHighMin
+                to: root.encounterHighMax
+                stepSize: root.encounterHighStep
+                initialValue: root.encounterLevelHighDefault
+                width: parent.width
+            }
+
+            DiscreteSlider {
+                id: encounterLowSlider
+                label: "Encounter -"
+                from: root.encounterLowMin
+                to: root.encounterLowMax
+                stepSize: root.encounterLowStep
+                initialValue: root.encounterLevelLowDefault
+                width: parent.width
+            }
         }
     }
 }

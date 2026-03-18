@@ -4,31 +4,25 @@ Rectangle {
     id: root
     color: backgroundColor
 
-    // ── Spacing / geometry ─────────────────────────────────────────────────────
     readonly property int pad:      12
     readonly property int dividerW: 1
     readonly property color dividerColor: "#3a3a3a"
 
-    // ── Section dimensions (single source of truth) ────────────────────────────
-    readonly property int trainerH:    160
+    readonly property int trainerH:    180
     readonly property int pcH:         640
     readonly property int pcW:         640
     readonly property int rightPanelW: 640
 
-    // ── Label heights ──────────────────────────────────────────────────────────
     readonly property int labelHeight: 24
     readonly property int contentSpacing: 8
 
-    // ── Icon scales ────────────────────────────────────────────────────────────
     property int iconScale:           8
     property int iconScaleForBig:     6
     property int iconScaleForTrainer: 5
 
-    // ── Overall window size ────────────────────────────────────────────────────
     width:  pad + pcW + pad + dividerW + pad + rightPanelW + pad
     height: pad + labelHeight + contentSpacing + trainerH + pad + dividerW + pad + labelHeight + contentSpacing + pcH + pad
 
-    // ── Theme ──────────────────────────────────────────────────────────────────
     property color  backgroundColor:     "#2b2b2b"
     property color  buttonColor:         "#3c3c3c"
     property color  buttonSelectedColor: "#5294e2"
@@ -46,12 +40,8 @@ Rectangle {
     property var partyPokes: ({})
     property var boxPokes:   ({})
 
-    // ── Menu state ─────────────────────────────────────────────────────────────
-    // "default"  → PokeView loaded, MoveMenu unloaded
-    // "moveMenu" → MoveMenu loaded, PokeView unloaded
     property string menuState: "default"
 
-    // ── Pending move-menu data (held here so Loader can pass it on create) ─────
     property var    _pendingPokeData:    null
     property int    _pendingRowId:       0
     property string _pendingSheet:       ""
@@ -59,7 +49,6 @@ Rectangle {
     property int    _pendingFrameHeight: 32
     property real   _pendingScaleFactor: 8
 
-    // ── Background click – cancel swap ─────────────────────────────────────────
     MouseArea {
         anchors.fill: parent
         cursorShape:  undefined
@@ -73,7 +62,6 @@ Rectangle {
         }
     }
 
-    // ── Bridge connections ─────────────────────────────────────────────────────
     Connections {
         target: menuBridge
 
@@ -122,7 +110,6 @@ Rectangle {
                 poke = boxPokes[pcPos[0]][pcPos[1]]
             else { console.log("ERROR faulty display pos"); return }
 
-            // Push to PokeView if it's loaded, else just cache it.
             var pv = pokeViewLoader.item
             if (pv) {
                 pv.pokeData    = poke
@@ -136,12 +123,10 @@ Rectangle {
         }
     }
 
-    // ── Entry point called by the VIEW button ──────────────────────────────────
     function editButtonClicked(pokeData) {
         if (!pokeData) return
         if (pc.inSwapMode) pc.toggleSwapMode()
 
-        // Cache data so the Loader can apply it once MoveMenu finishes creating.
         _pendingPokeData    = pokeData
         _pendingRowId       = pokeData.rowId
         _pendingSheet       = pokeData.isBig ? "qrc:/assets/HGSS/reordered_sprites_big.png"
@@ -150,19 +135,14 @@ Rectangle {
         _pendingFrameHeight = pokeData.isBig ? 64 : 32
         _pendingScaleFactor = pokeData.isBig ? root.iconScaleForBig : root.iconScale
 
-        // Switching state unloads PokeView and loads MoveMenu.
         root.menuState = "moveMenu"
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
-    //  Main layout
-    // ══════════════════════════════════════════════════════════════════════════
     Row {
         anchors.fill:    parent
         anchors.margins: root.pad
         spacing:         0
 
-        // ── LEFT COLUMN ───────────────────────────────────────────────────────
         Column {
             id: leftColumn
             width:   root.pcW
@@ -173,7 +153,8 @@ Rectangle {
             Text {
                 width: parent.width; height: root.labelHeight
                 text: "TRAINER"
-                font.family: root.p2pFont; font.pixelSize: root.fontSizeSm
+                font.family: root.p2pFont;
+                font.pixelSize: root.fontSizeSm
                 color: root.subheaderColor
                 horizontalAlignment: Text.AlignLeft; verticalAlignment: Text.AlignVCenter
             }
@@ -185,8 +166,10 @@ Rectangle {
                 Trainer {
                     anchors.fill: parent
                     textColor:    root.textColor
-                    fontSize:     root.fontSizeLg
-                    fontFamily:   root.p2pFont
+                    fontSizeSm:     root.fontSizeSm
+                    fontSizeMd:     root.fontSizeMd
+                    fontSizeLg:     root.fontSizeLg
+                    // fontFamily:   root.dotGothicFont
                     iconScale:    root.iconScaleForTrainer
                 }
             }
@@ -220,19 +203,16 @@ Rectangle {
             }
         }
 
-        // ── Vertical divider (default state only) ─────────────────────────────
         Item      { width: root.pad;     height: parent.height; visible: root.menuState === "default" }
         Rectangle { width: root.dividerW; height: parent.height; color: root.dividerColor; visible: root.menuState === "default" }
         Item      { width: root.pad;     height: parent.height; visible: root.menuState === "default" }
 
-        // ── RIGHT COLUMN ──────────────────────────────────────────────────────
         Item {
             width: root.menuState === "default"
                        ? root.rightPanelW
                        : root.pcW + root.pad * 2 + root.dividerW + root.rightPanelW
             height: parent.height
 
-            // ── DEFAULT state: header + PokeView (via Loader) ─────────────────
             Column {
                 width:   parent.width
                 height:  parent.height
@@ -258,8 +238,6 @@ Rectangle {
 
                 Item { width: parent.width; height: root.contentSpacing }
 
-                // Loader destroys PokeView (and its AnimatedSprite) when not in
-                // default state, freeing the render-thread sprite ticker entirely.
                 Loader {
                     id:     pokeViewLoader
                     width:  parent.width
@@ -273,16 +251,10 @@ Rectangle {
                         item.fontSizeSm = root.fontSizeSm
                         item.mainFont   = root.p2pFont
                         item.bodyFont   = root.dotGothicFont
-                        // Re-apply last displayed pokemon if pc has one selected.
-                        // pc.lastDisplayedPoke is a convenience you can add, or
-                        // just leave it null until the user clicks a slot again.
                     }
                 }
             }
 
-            // ── MOVE MENU state (via Loader) ───────────────────────────────────
-            // Loader destroys MoveMenu (timers, AnimatedSprite, everything) the
-            // moment the user returns to default view.
             Loader {
                 id:           moveMenuLoader
                 anchors.fill: parent
@@ -290,7 +262,6 @@ Rectangle {
                 source:       "MoveMenu.qml"
 
                 onLoaded: {
-                    // Wire up signals before setting data.
                     item.fontSizeLg = root.fontSizeLg
                     item.fontSizeMd = root.fontSizeMd
                     item.fontSizeSm = root.fontSizeSm
@@ -306,10 +277,8 @@ Rectangle {
                         menuBridge.nameChangeRequested(pc.displayedPokemonIndex, pc.displayedPokemonSlot, name)
                     })
                     item.requestMoveChange.connect(function(slot, moveId) {
-                        // forward to your backend as needed
                     })
 
-                    // Apply the pending pokemon data now that the component exists.
                     item.spriteSheet = root._pendingSheet
                     item.frameWidth  = root._pendingFrameWidth
                     item.frameHeight = root._pendingFrameHeight
@@ -321,4 +290,3 @@ Rectangle {
         }
     }
 }
-
