@@ -12,6 +12,11 @@ cd build
 cmake ..
 make
 
+
+echo "First script execution - wiping volume"
+rm -rf /app/data/* 2>/dev/null || true
+
+echo "Starting DesktopInvasion with HMR loop"
 ./DesktopInvasion &
 APP_PID=$!
 
