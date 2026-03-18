@@ -12,34 +12,143 @@ Item {
     property int buttonWidth: frameSize * 2
     property int buttonHeight: frameSize * 0.7
     property int buttonFontSize: frameSize * 0.4
-    property int gridSpacing: frameSize * 0.1  // Small spacing between buttons
-    property int chosenSide: 1  // 0, 1, 2, or 3
+    property int gridSpacing: frameSize * 0.1
+    property int chosenSide: 1  // 0=North, 1=East, 2=South, 3=West
 
     property bool debugLines: false
+
+    // Pokemon sprite configurations
+    property var wildPokemon: null  // Set from outside: {spriteSheet, row, direction, etc}
+    property var playerPokemon: null  // Set from outside: {spriteSheet, row, direction, etc}
+
+    // Aliases for external access
     property alias textBar: textBar
-    property alias buttonGrid: buttonGrid;
+    property alias buttonGrid: buttonGrid
     property alias attackButton: attackButton
     property alias switchButton: switchButton
     property alias catchButton: catchButton
     property alias runButton: runButton
     property alias mouseArea: mouseArea
+
     MouseArea {
         id: mouseArea
         anchors.fill: parent
     }
 
-    function set_chosen_side(side) {
-        chosenSide = side
+    // Wild Pokemon (opponent) - positioned opposite to player
+    Loader {
+        id: wildPokemonLoader
+        active: wildPokemon !== null
+        sourceComponent: pokemonSpriteComponent
+
+        property var config: wildPokemon
+        property int side: getOppositeSide(chosenSide)
+
+        Component.onCompleted: positionSprite(this, side)
+
+        Connections {
+            target: root
+            function onChosenSideChanged() {
+                wildPokemonLoader.side = getOppositeSide(chosenSide);
+                positionSprite(wildPokemonLoader, wildPokemonLoader.side);
+            }
+        }
     }
 
-    // Invokable function to update text bar
+    // Player Pokemon - positioned according to chosenSide
+    Loader {
+        id: playerPokemonLoader
+        active: playerPokemon !== null
+        sourceComponent: pokemonSpriteComponent
+
+        property var config: playerPokemon
+        property int side: chosenSide
+
+        Component.onCompleted: positionSprite(this, side)
+
+        Connections {
+            target: root
+            function onChosenSideChanged() {
+                playerPokemonLoader.side = chosenSide;
+                positionSprite(playerPokemonLoader, chosenSide);
+            }
+        }
+    }
+
+    // Reusable Pokemon sprite component
+    Component {
+        id: pokemonSpriteComponent
+
+        PokemonSprite {
+            spriteSheet: parent.config ? parent.config.spriteSheet || "" : ""
+            row: parent.config ? parent.config.row || 0 : 0
+            direction: parent.config ? parent.config.direction || 0 : 0
+            scaleFactor: parent.config ? parent.config.scaleFactor || 4 : 4
+            frameWidth: parent.config ? parent.config.frameWidth || 32 : 32
+            frameHeight: parent.config ? parent.config.frameHeight || 32 : 32
+            frameCount: parent.config ? parent.config.frameCount || 2 : 2
+            frameRate: parent.config ? parent.config.frameRate || 4 : 4
+        }
+    }
+
+    // Helper function to get opposite side
+    function getOppositeSide(side) {
+        switch(side) {
+            case 0: return 2;  // North -> South
+            case 1: return 3;  // East -> West
+            case 2: return 0;  // South -> North
+            case 3: return 1;  // West -> East
+        }
+        return 2;
+    }
+
+    // Position sprite based on side
+    function positionSprite(loader, side) {
+        // Reset all anchors first
+        loader.anchors.top = undefined;
+        loader.anchors.bottom = undefined;
+        loader.anchors.left = undefined;
+        loader.anchors.right = undefined;
+        loader.anchors.horizontalCenter = undefined;
+        loader.anchors.verticalCenter = undefined;
+
+        var margin = 20;
+
+        switch(side) {
+            case 0: // North - position at top
+                loader.anchors.top = root.top;
+                loader.anchors.horizontalCenter = root.horizontalCenter;
+                loader.anchors.topMargin = margin;
+                break;
+            case 1: // East - position at right
+                loader.anchors.right = root.right;
+                loader.anchors.verticalCenter = root.verticalCenter;
+                loader.anchors.rightMargin = margin;
+                break;
+            case 2: // South - position at bottom
+                loader.anchors.bottom = root.bottom;
+                loader.anchors.horizontalCenter = root.horizontalCenter;
+                loader.anchors.bottomMargin = margin + textBar.height;
+                break;
+            case 3: // West - position at left
+                loader.anchors.left = root.left;
+                loader.anchors.verticalCenter = root.verticalCenter;
+                loader.anchors.leftMargin = margin;
+                break;
+        }
+    }
+
+    // Public functions
+    function set_chosen_side(side) {
+        chosenSide = side;
+    }
+
     function update_text_bar(newText) {
         textBar.text = newText;
     }
 
-    // New method to swap visibility between buttons and text
     function swap_visibility() {
-        var showButtons = !buttonGrid.visible;  // What we want to show after swap
+        var showButtons = !buttonGrid.visible;
         buttonGrid.visible = showButtons;
         textBarText.visible = !showButtons;
 
@@ -47,6 +156,31 @@ Item {
             textBar.color = "transparent";
         } else {
             textBar.color = "lightgrey";
+        }
+    }
+
+    // Trigger animations on loaded sprites
+    function playWildPokemonTackle() {
+        if (wildPokemonLoader.item) {
+            wildPokemonLoader.item.tackle = true;
+        }
+    }
+
+    function playPlayerPokemonTackle() {
+        if (playerPokemonLoader.item) {
+            playerPokemonLoader.item.tackle = true;
+        }
+    }
+
+    function playWildPokemonAttack() {
+        if (wildPokemonLoader.item) {
+            wildPokemonLoader.item.attacked = true;
+        }
+    }
+
+    function playPlayerPokemonAttack() {
+        if (playerPokemonLoader.item) {
+            playerPokemonLoader.item.attacked = true;
         }
     }
 
@@ -75,34 +209,32 @@ Item {
             font.pixelSize: 14
             verticalAlignment: Text.AlignVCenter
             elide: Text.ElideRight
-            visible: false  // Text hidden by default
+            visible: false
             z: 8000
         }
 
-        // Button grid - centered in the text bar
+        // Button grid
         Grid {
             id: buttonGrid
             columns: 2
             spacing: gridSpacing
-            visible: true  // Buttons visible by default
+            visible: true
 
-            // Simple centering - no complex anchors
             x: (parent.width - width) / 2
             y: (parent.height - height) / 2
             z: 8000
-            // Attack button - top left
+
             RoundButton {
                 id: attackButton
                 text: "Attack"
                 font.pixelSize: buttonFontSize
-                palette.button:"red"
+                palette.button: "red"
                 width: buttonWidth
                 height: buttonHeight
                 radius: buttonHeight / 2
-                onClicked: {console.log("Attack clicked")}
+                onClicked: console.log("Attack clicked")
             }
 
-            // Switch button - top right
             RoundButton {
                 id: switchButton
                 text: "Switch"
@@ -114,7 +246,6 @@ Item {
                 onClicked: console.log("Switch clicked")
             }
 
-            // Catch button - bottom left
             RoundButton {
                 id: catchButton
                 text: "Catch"
@@ -126,7 +257,6 @@ Item {
                 onClicked: console.log("Catch clicked")
             }
 
-            // Run button - bottom right
             RoundButton {
                 id: runButton
                 text: "Run"
@@ -139,8 +269,8 @@ Item {
             }
         }
     }
+
     Rectangle {
-        // optional visual debugging
         anchors.fill: parent
         color: "transparent"
         border.color: "green"
