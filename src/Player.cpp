@@ -20,7 +20,7 @@ void Player::iChooseYou(WildPokemon *opp){
     int direction = opp->m_currentDirection;
     m_pokemonAvailable = false;
 
-    auto it = m_party.begin();
+    /* auto it = m_party.begin(); */
     /* while(it!=m_party.end()){ */
     /*     if(!it->has_value() || it->value()->m_inABattle){ */
     /*         it++; */

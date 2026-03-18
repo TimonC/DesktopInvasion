@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
 
     const int num_wild        = 1;
     const int start_pokedexid = 6;
-    /* Globals::DEBUG = true; */
+    Globals::DEBUG = true;
 
     /* if (!Globals::DEBUG) { */
         /* QLoggingCategory::setFilterRules("*.debug=false"); */

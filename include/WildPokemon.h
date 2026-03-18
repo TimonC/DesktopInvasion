@@ -20,7 +20,8 @@ private slots:
     void moveStep();
     void startBattle();
     /* void handleDoubleClick(); */
-
+protected:
+    void mouseDoubleClickEvent(QMouseEvent* event) override;
 private:
     QQuickItem* m_sprite;
     QTimer* m_decisionTimer;

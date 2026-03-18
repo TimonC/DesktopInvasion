@@ -62,13 +62,15 @@ void WildPokemon::startRoaming(){
     makeRandomDecision();
 }
 
+void WildPokemon::mouseDoubleClickEvent(QMouseEvent* event){
+    startBattle();
+};
 void WildPokemon::handleDrag(bool isDragged){
     m_isDragged = isDragged;
     if(isDragged){
         m_sprite->setProperty("frameRate", 6);
         m_moveTimer->stop();
         m_decisionTimer->stop();
-        Globals::getPlayer().iChooseYou(this);
     }else{
         m_sprite->setProperty("frameRate", 3);
         m_decisionTimer->start();

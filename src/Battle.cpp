@@ -12,6 +12,7 @@ Battle::Battle(int opp_direction, QPoint opp_pos, const PokemonInfo* opp, const 
     , m_opp(opp)
     , m_chosen(chosen)
 {
+    qDebug() << "Battle constructor called!";
     m_currentDirection = opp_direction;
 
     setSource(QUrl("qrc:/sprites/BattleScene.qml"));
@@ -22,7 +23,7 @@ Battle::Battle(int opp_direction, QPoint opp_pos, const PokemonInfo* opp, const 
     m_ui->setProperty("debugLines", Globals::DEBUG);
 
     /* QQuickItem* runButton = ui->property("runButton").value<QQuickItem*>(); */
-    /* connect(runButton, SIGNAL(clicked()), this, SLOT(run())); */
+    /* connect(runbutton, signal(clicked()), this, slot(run())); */
 
     /* QQuickItem* attackButton = ui->property("attackButton").value<QQuickItem*>(); */
     /* connect(attackButton, SIGNAL(clicked()), this, SLOT(attack())); */
