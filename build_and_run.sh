@@ -7,7 +7,6 @@ cd build
 cmake ..
 make
 
-export XDG_RUNTIME_DIR=/tmp/runtime-root
 export LIBGL_ALWAYS_SOFTWARE=1
 # Run the app in background
 ./DesktopInvasion &
