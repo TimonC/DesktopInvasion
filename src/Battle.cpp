@@ -6,6 +6,7 @@
 #include <QTimer>
 #include <qglobal.h>
 #include <qobjectdefs.h>
+#include <lookup.h>
 
 Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildState, Party party, std::unique_ptr<BattleMoveHandler> battleMoveHandler, QWindow *parent)
     : DesktopScene(parent)
@@ -49,7 +50,7 @@ Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildS
     setupParty(party);
 
     int opponentHealth = PokeMath::calculateHealth(wildState.lvl,
-        Globals::getPoke(wildState.pokedex_id)->base_stats[0],
+        Lookup::getPoke(wildState.pokedex_id)->base_stats[0],
         wildState.ivs[0],
         wildState.evs[0]);
     int playerHealth = party.healthTotals[0];
@@ -131,7 +132,7 @@ QQuickItem* Battle::setupPokemon(int pokedexId, std::string name, int level, con
 }
 
 QQuickItem* Battle::updateSprite(int pokedexId, const char* role){
-    const AssetInfo* info = Globals::getSpriteInfo(pokedexId);
+    const AssetInfo* info = Lookup::getSpriteInfo(pokedexId);
     bool isBig = info->spriteSheet == SpriteSheet::Big;
     float scaleDivisor = isBig ? 1.4/3.0f : 1.0f/3.0f;
 

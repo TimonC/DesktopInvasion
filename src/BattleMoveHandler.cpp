@@ -6,6 +6,7 @@
 #include <PokeMath.h>
 #include <PokeTypes.h>
 #include <random>
+#include <lookup.h>
 
 BattleMoveHandler::BattleMoveHandler(const PokemonState& wildState, const std::array<PokemonState, 6>& partyStates, std::mt19937 &rng)
     : m_rng(rng)
@@ -31,7 +32,7 @@ BattleMoveHandler::~BattleMoveHandler() {
 }
 
 Battler* BattleMoveHandler::createBattler(const PokemonState& state) {
-    const Poke* poke = Globals::getPoke(state.pokedex_id);
+    const Poke* poke = Lookup::getPoke(state.pokedex_id);
 
     Battler* battler = new Battler();
     battler->pokeState.name = state.name;
@@ -42,7 +43,7 @@ Battler* BattleMoveHandler::createBattler(const PokemonState& state) {
     battler->pokeState.types[1] = &poke->types[1];
 
     for (int i = 0; i < 4; i++) {
-        battler->pokeState.moves[i] = Globals::getMove(state.moves[i]);
+        battler->pokeState.moves[i] = Lookup::getMove(state.moves[i]);
     }
 
     battler->pokeState.stats = PokeMath::calculatePokeStats(

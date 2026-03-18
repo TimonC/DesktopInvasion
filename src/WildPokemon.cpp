@@ -5,10 +5,11 @@
 #include <WildPokemon.h>
 #include <globals.h>
 #include <data_poke_asset.h>
+#include <lookup.h>
 
 WildPokemon::WildPokemon(int pokedexId, QPoint spawnPoint, int spawnDirection,  QWindow *parent)
     : DesktopScene(parent)
-    , info(Globals::getSpriteInfo(pokedexId))
+    , info(Lookup::getSpriteInfo(pokedexId))
     , m_decisionTimer(new QTimer(this))
     , m_moveTimer(new QTimer(this))
     , m_moveSpeed(1 + std::rand()%2000/1000)

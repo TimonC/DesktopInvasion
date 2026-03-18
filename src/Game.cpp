@@ -7,8 +7,9 @@
 #include <QTimer>
 #include <QDebug>
 #include <cstring>
-#include "BattleMoveHandler.h"
-#include "data_poke_asset.h"
+#include <BattleMoveHandler.h>
+#include <data_poke_asset.h>
+#include <lookup.h>
 
 Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
     : QObject(parent)
@@ -131,7 +132,7 @@ void Game::initializeGame() {
 
     PokemonState wildState = m_db.getWildPokemon();
     if (wildState.pokedex_id > 0) {
-        qDebug() << "Found wild Pokemon in database:" << QString::fromStdString(Globals::getPoke(wildState.pokedex_id)->name);
+        qDebug() << "Found wild Pokemon in database:" << QString::fromStdString(Lookup::getPoke(wildState.pokedex_id)->name);
     }
 }
 
@@ -148,7 +149,7 @@ void Game::spawnPokemon() {
 
     PokemonState wildState = m_db.getWildPokemon();
     if (wildState.pokedex_id > 0) {
-        qDebug() << "Spawning existing wild Pokemon:" << QString::fromStdString(Globals::getPoke(wildState.pokedex_id)->name);
+        qDebug() << "Spawning existing wild Pokemon:" << QString::fromStdString(Lookup::getPoke(wildState.pokedex_id)->name);
     } else {
         m_spawnDirection = rand()%4;
         m_spawnPoint = QPoint(-1,-1);
@@ -158,7 +159,7 @@ void Game::spawnPokemon() {
         std::uniform_int_distribution<int> dist(1, 493);
         /* int pokedexId = dist(m_rng); */
         int pokedexId = 384;
-        const Poke* wildPoke = Globals::getPoke(pokedexId);
+        const Poke* wildPoke = Lookup::getPoke(pokedexId);
 
         wildState = {};
         wildState.pokedex_id = pokedexId;
@@ -222,18 +223,18 @@ void Game::updatePartyCache() {
 }
 
 void Game::fillPartySlot(Party& party, int slot, const PokemonState& pokemon) {
-    const AssetInfo* info = Globals::getSpriteInfo(pokemon.pokedex_id);
+    const AssetInfo* info = Lookup::getSpriteInfo(pokemon.pokedex_id);
     party.pokedexIds[slot] = pokemon.pokedex_id;
     party.spriteIds[slot] = info->rowId;
     party.names[slot] = pokemon.name;
     party.lvls[slot] = pokemon.lvl;
     party.ballIds[slot] = pokemon.pokeball_id;
-    party.healthTotals[slot] = PokeMath::calculateHealth(pokemon.lvl, Globals::getPoke(pokemon.pokedex_id)->base_stats[0], pokemon.ivs[0], pokemon.evs[0]);
+    party.healthTotals[slot] = PokeMath::calculateHealth(pokemon.lvl, Lookup::getPoke(pokemon.pokedex_id)->base_stats[0], pokemon.ivs[0], pokemon.evs[0]);
 
     for (int moveSlot = 0; moveSlot<4; moveSlot++){
         int moveId = pokemon.moves[moveSlot];
         if(moveId<1) continue;
-        const Move* _move = Globals::getMove(moveId);
+        const Move* _move = Lookup::getMove(moveId);
         party.moves[slot][moveSlot] = {_move->name, PokeTypes::typeToString(_move->type)};
     }
 }
