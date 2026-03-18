@@ -15,7 +15,7 @@ Pokemon::Pokemon(QWindow *parent, int row)
             | Qt::WindowDoesNotAcceptFocus
             | Qt::FramelessWindowHint);
 
-    setColor(Qt::transparent);
+    setColor(QColor(0,0,0,1));
 
 
     setSource(QUrl("qrc:/sprites/PokemonSprite.qml"));

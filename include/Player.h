@@ -10,7 +10,7 @@ class Player: public QObject{
 
 public:
     explicit Player(QObject* parent = nullptr);
-    Pokemon* iChooseYou(QPoint opp_spot, int direction);
+    Pokemon* iChooseYou(QPoint opp_spot, int opp_direction);
     bool inABattle(){return _inABattle;};
 
 private:
