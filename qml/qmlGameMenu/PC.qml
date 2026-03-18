@@ -44,6 +44,7 @@ Item {
     signal preloadBoxRequested(int boxIndex)
     property color highlightColor: Qt.rgba(0, 0.6, 1, 0.3)
     property bool inSwapMode: false
+    property var swapSelect: [-1, -1]
     property color swapColor: "orange"
     property color highlightSwapColor: Qt.rgba(0.6, 0.6, 0, 0.3)
     function toggleSwapMode(){
@@ -110,6 +111,7 @@ Item {
                         PokemonSlot {
                             iconVisible: root.partyMap[index] !== undefined
                             frameIndex:  root.partyMap[index] || 0
+                            pcPos: [0, index]
                         }
                     }
                 }
@@ -184,6 +186,7 @@ Item {
                             iconVisible: currentBox !== undefined && currentBox[index] !== undefined
                             frameIndex:  (currentBox !== undefined && currentBox[index] !== undefined)
                                          ? currentBox[index] : 0
+                            pcPos: [root.currentBoxIndex, index] //questionable logic
                         }
                     }
                 }
@@ -236,10 +239,12 @@ Item {
     }
 
     component PokemonSlot: Rectangle {
+        id: pokemonSlot
         width:  root.slotWidth
         height: root.slotHeight
         property bool iconVisible: false
         property int  frameIndex:  0
+        property var pcPos: [-1,-1]
         color: (hoverArea.containsMouse && iconVisible) ? (root.inSwapMode ? root.highlightSwapColor : root.highlightColor) : "transparent"
 
         Image {
@@ -258,6 +263,22 @@ Item {
             anchors.fill: parent
             hoverEnabled: true
             cursorShape:  undefined
+            onClicked: {
+                if(pokemonSlot.iconVisible){
+                    if(root.inSwapMode){
+                        if(root.swapSelect[0]>=0){
+                            console.log("swap!", root.swapSelect, pokemonSlot.pcPos)
+                        }else{
+                            root.swapSelect = pokemonSlot.pcPos
+                            //DISPLAY
+                            console.log("display!")
+                        }
+                    }else{
+                        //DISPLAY
+                        console.log("display!")
+                    }
+                }
+            }
         }
     }
 
