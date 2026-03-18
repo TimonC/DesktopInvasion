@@ -270,6 +270,7 @@ Item {
                     if(root.inSwapMode){
                         if(root.swapSelect[0]>=-1){
                             console.log("swap!", root.swapSelect, pokemonSlot.pcPos)
+                            root.toggleSwapMode()
                         }else{
                             root.swapSelect = pokemonSlot.pcPos
                             //DISPLAY
