@@ -216,6 +216,7 @@ Item {
             anchors.fill: parent
             enabled:     parent.active
             onClicked:   parent.clicked()
+            cursorShape: undefined
         }
     }
 }
