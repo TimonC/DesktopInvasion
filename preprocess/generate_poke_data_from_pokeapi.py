@@ -169,9 +169,13 @@ for poke_id in range(1, MAX_POKEMON_ID + 1):
     eligible_moves = extract_eligible_moves(poke_data.get('moves', []))
 
     species_url = poke_data.get('species', {}).get('url', '')
+    catch_rate = 0
     eligible_evolves = []
 
     if species_url:
+        response = urllib.request.urlopen(species_url)
+        species_data = json.loads(response.read().decode('utf-8'))
+        catch_rate = species_data.get('capture_rate', 0)
         eligible_evolves = extract_evolution_data(species_url, poke_id)
 
     pokemons.append({
@@ -179,6 +183,7 @@ for poke_id in range(1, MAX_POKEMON_ID + 1):
         'name': poke_data.get('name', ''),
         'types': types,
         'base_stats': base_stats,
+        'catch_rate': catch_rate,
         'eligible_moves': eligible_moves,
         'eligible_evolves': eligible_evolves
     })
@@ -187,7 +192,7 @@ for poke_id in range(1, MAX_POKEMON_ID + 1):
     evolve_count = len(eligible_evolves)
     evolve_str = f"{evolve_count} evolve" + ("s" if evolve_count != 1 else "")
 
-    print(f"Added Pokémon: {poke_id:03d} - {format_pokemon_name(poke_data.get('name', ''))} ({move_count} moves, {evolve_str})")
+    print(f"Added Pokémon: {poke_id:03d} - {format_pokemon_name(poke_data.get('name', ''))} ({move_count} moves, {evolve_str}, catch rate: {catch_rate})")
 
 def generate_pokemon_data_direct():
     source_content = """#include "data_poke.h"
@@ -232,12 +237,14 @@ namespace {
         formatted_name = format_pokemon_name(pokemon['name']).replace('"', '\\"')
         stats = pokemon['base_stats']
         stats_str = "{" + f"{stats[0]}, {stats[1]}, {stats[2]}, {stats[3]}, {stats[4]}, {stats[5]}" + "}"
+        catch_rate = pokemon['catch_rate']
 
         source_content += f"""    static constexpr Poke poke_{poke_id} = {{
         {poke_id},
         "{formatted_name}",
         {{{type1}, {type2}}},
         {stats_str},
+        {catch_rate},
         eligible_moves_{poke_id},
         {eligible_move_count},
         eligible_evolves_{poke_id},
@@ -276,6 +283,7 @@ tm_count = sum(1 for m in bulbasaur['eligible_moves'] if m['level'] == -1)
 print(f"  Total: {len(bulbasaur['eligible_moves'])}")
 print(f"  Level-up moves: {level_up_count}")
 print(f"  TM/HM/other moves: {tm_count}")
+print(f"  Catch rate: {bulbasaur['catch_rate']}")
 
 for i, move in enumerate(bulbasaur['eligible_moves'][:15]):
     type_str = "LVL" if move['level'] >= 1 else "TM "

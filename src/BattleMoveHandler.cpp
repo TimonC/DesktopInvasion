@@ -41,6 +41,7 @@ Battler* BattleMoveHandler::createBattler(const PokemonState& state) {
     Battler* battler = new Battler();
     battler->pokeState.name = state.name;
     battler->pokeState.lvl = state.lvl;
+    battler->pokeState.catchRate = poke->catch_rate;
     battler->pokeState.types[0] = &poke->types[0];
     battler->pokeState.types[1] = &poke->types[1];
 
@@ -101,7 +102,7 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
     if(action[0]=='S'){
        switchedIn = actionIndex;
     } else if(action[0]=='C'){
-        shakes = PokeMath::calculateBallShakes(m_rng, m_battleOpponent->pokeState.stats[0], m_battleOpponent->battleState.currentHealth, 50);
+        shakes = PokeMath::calculateBallShakes(m_rng, m_battleOpponent->pokeState.stats[0], m_battleOpponent->battleState.currentHealth, m_battleOpponent->pokeState.catchRate);
         m_battleOpponent->delta.flinched = false;
         player->delta.flinched = false;
 

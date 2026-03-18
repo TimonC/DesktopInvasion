@@ -85,10 +85,12 @@ namespace PokeMath{
         return -1;
     }
 
+    // https://bulbapedia.bulbagarden.net/wiki/Catch_rate#Capture_method_(Generation_III-IV)
     inline bool processShake(float modifiedCatchRate, std::mt19937& rng) {
-        float threshold = 1048560.0f / sqrt(sqrt(16711680.0f / modifiedCatchRate));
+        float a = 65536.0f / powf(255.0f / modifiedCatchRate, 0.25f);
+
         static std::uniform_int_distribution<int> shakeDist(0, 65535);
-        return shakeDist(rng) < static_cast<int>(threshold);
+        return shakeDist(rng) < static_cast<int>(a);
     }
 
     inline int calculateBallShakes(
@@ -102,7 +104,6 @@ namespace PokeMath{
         float hpFactor = (3.0f * HP_max - 2.0f * HP_current) / (3.0f * HP_max);
         float modifiedCatchRate = hpFactor * catchRate * (ballMod / 100.0f) * (statusMod / 100.0f);
 
-        return 4;
         if (!processShake(modifiedCatchRate, rng)) return 0;
         if (!processShake(modifiedCatchRate, rng)) return 1;
         if (!processShake(modifiedCatchRate, rng)) return 2;

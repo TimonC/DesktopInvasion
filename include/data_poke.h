@@ -17,7 +17,7 @@ struct Poke {
     const char* name;
     const Type types[2];
     const int base_stats[6];  // HP, Atk, Def, SpAtk, SpDef, Spd
-                        //
+    const int catch_rate;
     const EligibleMove* eligible_moves;
     const int eligible_move_count;
 

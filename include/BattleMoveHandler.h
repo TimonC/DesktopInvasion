@@ -42,6 +42,7 @@ struct PokeState{
     std::string name;
     int lvl;
     int xpForWinner;
+    int catchRate;
     const Type* types[2];
     const Move* moves[4];
     std::array<int, 6> stats;
