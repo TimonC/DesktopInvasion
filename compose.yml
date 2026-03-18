@@ -10,6 +10,7 @@ services:
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ./src:/app/src
+      - ./include:/app/include
       - ./sprites:/app/sprites
       - ./assets:/app/assets
       - /dev/dri:/dev/dri   # <-- forward GPU device

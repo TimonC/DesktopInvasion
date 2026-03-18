@@ -2,7 +2,7 @@
 #include "Pokemon.h"
 
 Pokemon* Player::iChooseYou(QPoint opp_spot, int opp_direction){
-    m_chosen = new Pokemon(nullptr, random()%100);
+    m_chosen = std::make_unique<Pokemon>(nullptr, random()%100);
     int distance = 100;
 
     switch(opp_direction){
@@ -27,6 +27,6 @@ Pokemon* Player::iChooseYou(QPoint opp_spot, int opp_direction){
     m_chosen->show();
 
     qDebug() << "I choose you!";
-    return m_chosen;
+    return m_chosen.get();
 };
 

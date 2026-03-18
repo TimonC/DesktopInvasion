@@ -12,7 +12,8 @@ public:
     Pokemon* iChooseYou(QPoint opp_spot, int direction);
 
 private:
-    Pokemon* m_chosen;
+    std::unique_ptr<Pokemon> m_chosen;
+
 };
 
 #endif

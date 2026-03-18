@@ -2,7 +2,8 @@
 #include "WildPokemon.h"
 #include "Player.h"
 
-Player* player = new Player();
+std::unique_ptr<Player> player = std::make_unique<Player>();
+
 int main(int argc, char *argv[]) {
     QGuiApplication app(argc, argv);
     std::srand(static_cast<unsigned>(std::time(nullptr)));
