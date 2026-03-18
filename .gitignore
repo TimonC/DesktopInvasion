@@ -3,6 +3,7 @@
 CMakeFiles/
 scripts/
 build/
+AppDir/
 data/
 # assets/
 *.user

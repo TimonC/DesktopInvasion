@@ -5,7 +5,7 @@ project(DesktopInvasion LANGUAGES CXX)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTORCC OFF)
+set(CMAKE_AUTORCC ON)
 
 # Require Qt6
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick Widgets)
