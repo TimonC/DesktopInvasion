@@ -32,11 +32,11 @@ struct Move{
     int id;
     const char* name;
     Type type;
-    int power;
-    int accuracy;
+    int power = 0;
+    int accuracy = 100;
     MoveCategory moveCategory;
-    SideEffect* sideEffects;
-    StatChange* statChanges;
+    SideEffect* sideEffects = nullptr;
+    StatChange* statChanges = nullptr;
 };
 
 struct MoveMap{

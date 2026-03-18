@@ -23,6 +23,8 @@ private:
     int m_partyPokemonSentOut[6] = {-1,-1,-1,-1,-1,-1};
 
     WeatherCondition m_weatherCondition;
+
+    int calculateDamage();
 };
 
 #endif

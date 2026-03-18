@@ -18,7 +18,7 @@ namespace Globals {
         return geometry;
     }
 
-    Move getMove() {
+    Move getMove(int moveId) {
         return Move{1, "Tackle", Type::Normal, 50, 100, MoveCategory::Physical, nullptr, nullptr};
     }
 
