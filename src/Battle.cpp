@@ -18,7 +18,7 @@ Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent
     assert(m_battleScene);
 
     // Short delay before hiding for smooth transition
-    QTimer::singleShot(50, this, [opp]() {
+    QTimer::singleShot(100, this, [opp]() {
         opp->hide();
     });
 
@@ -60,13 +60,13 @@ void Battle::handleRunChosen() {
     QPoint newOppPos = m_oppReference->position() + delta;
 
     // Delay slightly to ensure reposition
-    QTimer::singleShot(20, this, [this, newOppPos]() {
+    QTimer::singleShot(10, this, [this, newOppPos]() {
         if (m_oppReference) {
             m_oppReference->setPosition(newOppPos);
             m_oppReference->startRoaming();
             m_oppReference->show();
         }
-        QTimer::singleShot(50, this, [this]() { //Short delay to ensure smooth visual transition
+        QTimer::singleShot(100, this, [this]() { //Short delay to ensure smooth visual transition
             emit battleEnded(this, m_oppReference, false);
         });
     });
