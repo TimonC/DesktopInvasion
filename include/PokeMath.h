@@ -158,6 +158,11 @@ namespace PokeMath{
         static std::uniform_int_distribution<int> speedTieDist(0, 1);
         return speedTieDist(rng) == 0;
     }
+
+
+    inline int calculateExperience(int lvl, int nrParticipated, int baseXP){
+        return static_cast<int>(baseXP*lvl/7.0f * 1/nrParticipated * 1.5f);
+    }
 }
 
 #endif

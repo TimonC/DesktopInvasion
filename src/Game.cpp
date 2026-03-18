@@ -320,7 +320,7 @@ void Game::handleBattleEnd(const char* endState, bool removeWild) {
         if (playerWon) {
             if (m_db.addPokemonXp(m_partyIds[0], 100)) {
                 int newXp = m_db.getPokemonXp(m_partyIds[0]);
-                qDebug() << "Added 100 XP to fighting Pokemon. Total XP:" << newXp;
+                qDebug() << "Added XP to fighting Pokemon. Total XP:" << newXp;
             } else {
                 qWarning() << "Failed to add XP to Pokemon ID:" << m_partyIds[0];
             }
@@ -388,7 +388,7 @@ void Game::createInitialPokemon() {
     }
 
     dusclops.nature = Nature::Hardy;
-    dusclops.lvl = 10;
+    dusclops.lvl = 100;
     dusclops.moves[0] = 45;
     dusclops.moves[1] = 86;
     dusclops.moves[2] = 109;//425;

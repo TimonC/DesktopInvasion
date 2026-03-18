@@ -14,6 +14,7 @@ BattleMoveHandler::BattleMoveHandler(const PokemonState& wildState, const std::a
     for (int i = 0; i < 6; i++) {
         m_battleParty[i] = createBattler(partyStates[i]);
     }
+    m_includedPartyIndices.push_back(m_chosenIndex);
 }
 
 BattleMoveHandler::~BattleMoveHandler() {
@@ -28,6 +29,7 @@ Battler* BattleMoveHandler::createBattler(const PokemonState& state) {
     battler->pokeState.name = state.name;
     battler->pokeState.lvl = state.lvl;
     battler->pokeState.catchRate = poke->catch_rate;
+    battler->pokeState.baseXP= poke->base_xp;
     battler->pokeState.types[0] = &poke->types[0];
     battler->pokeState.types[1] = &poke->types[1];
 
@@ -47,6 +49,30 @@ Battler* BattleMoveHandler::createBattler(const PokemonState& state) {
     return battler;
 }
 
+std::array<int, 6> BattleMoveHandler::getExperienceSpread(){
+    std::array<int,6> spread = {-1,-1,-1,-1,-1,-1};
+    int includedCount = 0;
+
+    for(int index = 0; index < m_includedPartyIndices.size(); index++){
+        int partyIndex = m_includedPartyIndices[index];
+        Battler* member = m_battleParty[partyIndex];
+        if(member->battleState.currentHealth >= 0){
+            includedCount++;
+        }
+    }
+
+    int xp = PokeMath::calculateExperience(m_battleOpponent->pokeState.lvl, includedCount, m_battleOpponent->pokeState.baseXP);
+    for(int index = 0; index < m_includedPartyIndices.size(); index++){
+        int partyIndex = m_includedPartyIndices[index];
+        Battler* member = m_battleParty[partyIndex];
+        if(member->battleState.currentHealth > 0){
+            spread[partyIndex] = xp;
+        }
+    }
+
+    return spread;
+}
+
 QString BattleMoveHandler::switchPartyMember(int newChosenIndex){
     Battler* currentMember = m_battleParty[m_chosenIndex];
     currentMember->battleState.statModifiers = {0, 0, 0, 0, 0};
@@ -54,6 +80,7 @@ QString BattleMoveHandler::switchPartyMember(int newChosenIndex){
     currentMember->battleState.confusedCounter = -1;
 
     m_chosenIndex = newChosenIndex;
+    m_includedPartyIndices.push_back(m_chosenIndex);
 
     Battler* newMember = m_battleParty[m_chosenIndex];
     return ailmentToLabel(newMember->battleState.statusCondition);

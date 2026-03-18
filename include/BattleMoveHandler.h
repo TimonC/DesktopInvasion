@@ -41,8 +41,8 @@ struct BattleStateDelta{
 struct PokeState{
     std::string name;
     int lvl;
-    int xpForWinner;
     int catchRate;
+    int baseXP;
     const Type* types[2];
     const Move* moves[4];
     std::array<int, 6> stats;
@@ -115,6 +115,7 @@ public:
     BattleMoveHandler(const BattleMoveHandler&) = delete;
     BattleMoveHandler& operator=(const BattleMoveHandler&) = delete;
     QString switchPartyMember(int newChosenIndex);
+    std::array<int, 6> getExperienceSpread();
 
 signals:
     void actionSequenceReady(QVariantList sequence);
@@ -124,6 +125,7 @@ public slots:
 
 private:
     int m_chosenIndex = 0;
+    std::vector<int> m_includedPartyIndices = {};
 
     Battler* createBattler(const PokemonState& state);
     BattleActionResult applyMove(const Move* _move, Battler* caster, Battler* target);
@@ -162,13 +164,13 @@ private:
     static const int ms_statusConditionText = 500;
     static const int ms_attackAnimation = 500;
     static const int ms_healthChange = 1000;
-    static const int ms_criticalHitText = 800;
-    static const int ms_effectivenessText = 800;
-    static const int ms_drainEffectText = 800;
+    static const int ms_criticalHitText = 500;
+    static const int ms_effectivenessText = 500;
+    static const int ms_drainEffectText = 500;
     static const int ms_catchStart = 1000;
     static const int ms_ballUsed = 500;
     static const int ms_failCatch = 1000;
-    static const int ms_successCatch = 1000;
+    static const int ms_successCatch = 500;
 };
 
 #endif

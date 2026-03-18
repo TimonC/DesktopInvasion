@@ -34,6 +34,9 @@ Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildS
     connect(m_battleScene, SIGNAL(switchedPokemon(int, int, int)),
         this, SLOT(handleSwitchedPokemon(int, int, int)));
 
+    connect(m_battleScene, SIGNAL(requestExperienceSpread()),
+        this, SLOT(handleGettingExperience()));
+
     m_battleScene->setProperty("direction", m_currentDirection);
     m_battleScene->setProperty("pokeMargin", m_pokeMargin);
     m_battleScene->setProperty("debugLines", Globals::DEBUG);
@@ -58,6 +61,20 @@ Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildS
         m_height = height();
     });
 }
+
+void Battle::handleGettingExperience(){
+    std::array<int,6> spread = m_battleMoveHandler->getExperienceSpread();
+
+    QVector<int> qmlSpread;
+    for (int i = 0; i < 6; i++) {
+        qDebug() << spread[i];
+        qmlSpread.append(spread[i]);
+    }
+
+    QMetaObject::invokeMethod(m_battleScene, "showExperienceSpreadSequence",
+                              Q_ARG(QVariant, QVariant::fromValue(qmlSpread)));
+}
+
 void Battle::handleSwitchedPokemon(int partyIndex, int generation, int spriteId){
     updateSprite(spriteId, generation, "player");
     QString label = m_battleMoveHandler.get()->switchPartyMember(partyIndex);

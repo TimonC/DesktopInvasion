@@ -18,6 +18,7 @@ struct Poke {
     const Type types[2];
     const int base_stats[6];  // HP, Atk, Def, SpAtk, SpDef, Spd
     const int catch_rate;
+    const int base_xp;
     const EligibleMove* eligible_moves;
     const int eligible_move_count;
 

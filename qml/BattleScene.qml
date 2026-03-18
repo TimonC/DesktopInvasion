@@ -51,6 +51,7 @@ Item {
     signal _battleEnded(string endState, bool removeWild);
     signal signalToStartActionRound(int actionIndex, string actionState)
     signal switchedPokemon(int partyIndex, int generation, int spriteId)
+    signal requestExperienceSpread();
 
     function setInitialTotalHealth(opponentTotalHealth, playerTotalHealth){
         opponent.statusBar.totalHealth  = opponentTotalHealth
@@ -415,7 +416,7 @@ Item {
                 root.actionSequence = []
                 root.currentActionIndex = 0
                 if(step.role === "opponent"){
-                    root._battleEnded("PlayerWon", true)
+                    root.requestExperienceSpread();
                 }else{
                     if(battleMenu.party.healthRatios.some(ratio => ratio > 0)){
                         battleMenu.forceSwitch();
@@ -427,9 +428,25 @@ Item {
             case "end":
                 endActionChain()
                 break
+            case "player-won":
+                root._battleEnded("PlayerWon", true)
         }
     }
 
+function showExperienceSpreadSequence(spread) {
+    var sequence = []
+    for (var i = 0; i < spread.length; i++) {
+        if (spread[i] > 0) {
+            sequence.push({
+                type: "text",
+                message: battleMenu.party.names[i] + " gained " + spread[i] + " EXP!",
+                delay: 500
+            })
+        }
+    }
+    sequence.push({ type: "player-won", delay: 100})
+    executeActionSequence(sequence)
+}
     // End the action sequence
     function endActionChain() {
         root.actionInProgress = false

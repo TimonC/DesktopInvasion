@@ -41,7 +41,7 @@ def extract_base_stats(stats_list):
 
 def extract_eligible_moves(moves_list):
     eligible_moves = []
-    move_dict = {}  # move_id -> (level, is_level_up)
+    move_dict = {}
 
     for move_entry in moves_list:
         version_details = move_entry.get('version_group_details', [])
@@ -167,6 +167,7 @@ for poke_id in range(1, MAX_POKEMON_ID + 1):
     types = extract_types(poke_data.get('types', []))
     base_stats = extract_base_stats(poke_data.get('stats', []))
     eligible_moves = extract_eligible_moves(poke_data.get('moves', []))
+    base_experience = poke_data.get('base_experience', 0)
 
     species_url = poke_data.get('species', {}).get('url', '')
     catch_rate = 0
@@ -184,6 +185,7 @@ for poke_id in range(1, MAX_POKEMON_ID + 1):
         'types': types,
         'base_stats': base_stats,
         'catch_rate': catch_rate,
+        'base_experience': base_experience,
         'eligible_moves': eligible_moves,
         'eligible_evolves': eligible_evolves
     })
@@ -192,7 +194,7 @@ for poke_id in range(1, MAX_POKEMON_ID + 1):
     evolve_count = len(eligible_evolves)
     evolve_str = f"{evolve_count} evolve" + ("s" if evolve_count != 1 else "")
 
-    print(f"Added Pokémon: {poke_id:03d} - {format_pokemon_name(poke_data.get('name', ''))} ({move_count} moves, {evolve_str}, catch rate: {catch_rate})")
+    print(f"Added Pokémon: {poke_id:03d} - {format_pokemon_name(poke_data.get('name', ''))} ({move_count} moves, {evolve_str}, catch rate: {catch_rate}, base XP: {base_experience})")
 
 def generate_pokemon_data_direct():
     source_content = """#include "data_poke.h"
@@ -238,6 +240,7 @@ namespace {
         stats = pokemon['base_stats']
         stats_str = "{" + f"{stats[0]}, {stats[1]}, {stats[2]}, {stats[3]}, {stats[4]}, {stats[5]}" + "}"
         catch_rate = pokemon['catch_rate']
+        base_experience = pokemon['base_experience']
 
         source_content += f"""    static constexpr Poke poke_{poke_id} = {{
         {poke_id},
@@ -245,6 +248,7 @@ namespace {
         {{{type1}, {type2}}},
         {stats_str},
         {catch_rate},
+        {base_experience},  // ADDED: base_experience field
         eligible_moves_{poke_id},
         {eligible_move_count},
         eligible_evolves_{poke_id},
@@ -274,17 +278,3 @@ with open(output_path, 'w', encoding='utf-8') as f:
 
 print(f"\nGenerated src/data_poke.cpp")
 print(f"Total Pokémon: {len(pokemons)}")
-print(f"Array size: {MAX_POKEMON_ID + 1}")
-
-print("\nSample moves for Bulbasaur (showing level-up vs non-level-up):")
-bulbasaur = pokemons[0]
-level_up_count = sum(1 for m in bulbasaur['eligible_moves'] if m['level'] >= 1)
-tm_count = sum(1 for m in bulbasaur['eligible_moves'] if m['level'] == -1)
-print(f"  Total: {len(bulbasaur['eligible_moves'])}")
-print(f"  Level-up moves: {level_up_count}")
-print(f"  TM/HM/other moves: {tm_count}")
-print(f"  Catch rate: {bulbasaur['catch_rate']}")
-
-for i, move in enumerate(bulbasaur['eligible_moves'][:15]):
-    type_str = "LVL" if move['level'] >= 1 else "TM "
-    print(f"  {type_str}: Move {move['move_id']} at level {move['level']}")
