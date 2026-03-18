@@ -90,13 +90,13 @@ Item {
 
     // ── Root column: party row / pc row ───────────────────────────────────────
     Column {
-        anchors.verticalCenter:   parent.verticalCenter
-        anchors.horizontalCenter: parent.horizontalCenter
-        spacing:                  root.layoutSpacing
+        anchors.centerIn: parent
+        width:            parent.width
+        spacing:          root.layoutSpacing
 
         // ── Party row ─────────────────────────────────────────────────────────
         Item {
-            width:  root.pcRowWidth
+            width:  parent.width
             height: root.partyRows * root.slotHeight
 
             Item {
@@ -180,26 +180,28 @@ Item {
         // The panel is labelHeight taller than the raw grid so the label strip
         // sits inside the border/shadow rather than overflowing above it.
         Item {
-            width:  root.pcRowWidth
+            width:  parent.width
             height: root.labelHeight + root.pcRows * root.slotHeight
 
-            // Left nav — aligned to the grid portion, not the whole panel
-            PcButton {
-                anchors.left: parent.left
-                y:            root.labelHeight + (root.pcRows * root.slotHeight - root.buttonHeight) / 2
-                width:        root.buttonWidth
-                height:       root.buttonHeight
-                label:        "◀"
-                btnColor:     root.buttonColor
-                onClicked:    root._slideLeft()
-            }
+            Row {
+                anchors.centerIn: parent
+                spacing:          root.layoutSpacing
 
-            // PC panel (shadow + border + gradient wrap the full height)
+                // Left nav — vertically centered on the grid portion
+                PcButton {
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.verticalCenterOffset: Math.round(root.labelHeight / 2)
+                    width:     root.buttonWidth
+                    height:    root.buttonHeight
+                    label:     "◀"
+                    btnColor:  root.buttonColor
+                    onClicked: root._slideLeft()
+                }
+
+            // PC panel — sized exactly to label strip + grid, no more
             Item {
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.top:              parent.top
                 width:  root.pcColumns * root.slotWidth
-                height: parent.height
+                height: root.labelHeight + root.pcRows * root.slotHeight
 
                 // Drop shadow
                 Rectangle {
@@ -286,15 +288,16 @@ Item {
                 }
             }
 
-            // Right nav — aligned to the grid portion
-            PcButton {
-                anchors.right: parent.right
-                y:             root.labelHeight + (root.pcRows * root.slotHeight - root.buttonHeight) / 2
-                width:         root.buttonWidth
-                height:        root.buttonHeight
-                label:         "▶"
-                btnColor:      root.buttonColor
-                onClicked:     root._slideRight()
+                // Right nav
+                PcButton {
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.verticalCenterOffset: Math.round(root.labelHeight / 2)
+                    width:     root.buttonWidth
+                    height:    root.buttonHeight
+                    label:     "▶"
+                    btnColor:  root.buttonColor
+                    onClicked: root._slideRight()
+                }
             }
         }
     }
@@ -423,7 +426,17 @@ Item {
 
         color: "transparent"
 
-        // Fill / highlight layer
+        // Always-visible slot background
+        Rectangle {
+            anchors.fill:    parent
+            anchors.margins: 2
+            radius:          6
+            color:           "#00000020"
+            border.color:    "#00000015"
+            border.width:    1
+        }
+
+        // Highlight overlay
         Rectangle {
             anchors.fill:    parent
             anchors.margins: 1
