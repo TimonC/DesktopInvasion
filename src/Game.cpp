@@ -9,7 +9,7 @@
 #include <QDebug>
 #include <cstring>
 #include <form_mapper.h>
-#include <utils/calculatePokeStats.h>
+#include <PokeMath/calculatePokeStats.h>
 
 Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
     : QObject(parent)
@@ -289,7 +289,7 @@ Battler Game::initBattleState(PokemonState state){
     return
     {
         {
-            state._id,
+            state.lvl,
 
             calculatePokeStats(
                     state.lvl,

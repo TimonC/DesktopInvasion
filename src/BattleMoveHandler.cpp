@@ -1,25 +1,54 @@
 #include "data_move.h"
 #include <BattleMoveHandler.h>
+#include <cstring>
 #include <globals.h>
+#include <PokeMath/processCatchAttempt.h>
 
-BattleMoveHandler::BattleMoveHandler(Battler opponent, Battler party[6])
-    : m_opponent(opponent)
+BattleMoveHandler::BattleMoveHandler(Battler battleOpponent, Battler battleParty[6])
+    : m_battleOpponent(battleOpponent)
 {
-    std::copy(party, party + 6, m_party);
+    std::copy(battleParty, battleParty + 6, m_battleParty);
 };
 
-void BattleMoveHandler::startActionRound(int playerMoveIndex){
-   int playerFirst = rand()>0.5;
-   Battler& player = m_party[m_chosenPartyIndex];
+void BattleMoveHandler::startActionRound(int actionIndex, const char* action){
+   assert((!std::strcmp(action, "Switch") || !std::strcmp(action, "Fight") || !std::strcmp(action, "Catch"))
+           && "Action must be 'Switch', 'Fight' or 'Catch'");
+   assert(actionIndex>-1 && actionIndex<6 && "actionIndex must be between 0 and 5 inclusive");
+   assert((!std::strcmp(action,"Switch") || actionIndex<4) && "actionIndex for non-switch action must be between 0 and 3 inclusive");
+
+   const Move* playerMove = nullptr;
+   bool opponentFirst = rand() > 0.5;
+
+   if(action[0]=='S'){
+       m_chosenPartyIndex = actionIndex;
+   }else if(action[0]=='C'){
+
+   }
 
 
+    const Move* opponentMove = m_battleOpponent.pokeState.moves[rand()%4];
+
+    if(!playerMove || opponentFirst){
+        playerMove = m_battleParty[m_chosenPartyIndex].pokeState.moves[actionIndex];
+        applyMove(opponentMove, m_battleOpponent, m_battleParty[m_chosenPartyIndex]);
+    }
 };
 
+int BattleMoveHandler::attemptCatch(int pokeBallId){
+    if(pokeBallId==3){
+        return 3;
+    }else{
+        int shakeCount = 0;
+        do{
+        }while{
+            shakeCount<3;
+        }
+        return 3;
+    }
+};
 void BattleMoveHandler::applyMove(const Move* _move, Battler& caster, Battler& target){
-    int statCategoryId=-1;
-    int atk = caster.pokeStatic.stats[statCategoryId];
-    int def = target.pokeStatic.stats[statCategoryId + 2];
-
+    DamageParams p;
+    p.level = caster.pokeState.lvl;
 };
 
 /* https://bulbapedia.bulbagarden.net/wiki/Damage */
