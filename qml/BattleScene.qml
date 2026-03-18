@@ -9,7 +9,7 @@ Item {
     property int menuWidth: frameSize * 6
     property int menuHeight: frameSize * 2.4
     property int statusBarWidth: frameSize*2.5
-    property int statusBarHeight: 25
+    property int statusBarHeight: frameSize*1.2
     property int buttonWidth: frameSize * 2
     property int buttonHeight: frameSize * 0.75
     property int gridSpacing: frameSize * 0.1

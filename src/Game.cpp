@@ -365,7 +365,7 @@ void Game::createInitialPokemon() {
     duskull.lvl = 10;
     duskull.moves[0] = 14;
     duskull.moves[1] = 86;
-    duskull.moves[2] = 425 ;
+    duskull.moves[2] = 109;
     duskull.moves[3] = 424;
 
     int pokemonId = m_db.createPokemon(duskull);
@@ -389,7 +389,7 @@ void Game::createInitialPokemon() {
     dusclops.lvl = 10;
     dusclops.moves[0] = 14;
     dusclops.moves[1] = 86;
-    dusclops.moves[2] = 425;
+    dusclops.moves[2] = 109;//425;
     dusclops.moves[3] = 53;
 
     int pokemonId2 = m_db.createPokemon(dusclops);

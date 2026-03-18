@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Effects  2.15
 import "Style/PokeColor.js" as PokeColor
+
 Item {
     id: root
     property int scaleFactor: 3
@@ -9,35 +10,85 @@ Item {
     property alias currentHealthRatio: progressBar.value
     property real healthChangeDuration: 500
     property int pokeNameFontSize: 0
+    property int subTextFontSize: pokeNameFontSize*0.9
     property string fontFamily: ""
-    property alias pokeName: textBarText.text
+    property alias pokeName: nameLabel.text
+    property alias levelLabel: levelLabel.text
 
-    Rectangle {
+    component PopoutText: Text{
+        anchors.fill: parent
+        anchors.rightMargin: 2
+        color: "white"
+        font.bold: true
+        font.family: root.fontFamily
+        style: Text.Outline
+        styleColor: "black"
+        renderType: Text.NativeRendering
+        smooth: true
+        antialiasing: true
+    }
+
+    Column{
         anchors.top: parent.top
         anchors.right: parent.right
-        width: root.width
-        height: parent.height * 3/4
-        color: "transparent"
+        width: parent.width
+        height: parent.height
 
-        Text {
-            id: textBarText
-            anchors.fill: parent
-            anchors.rightMargin: 4
+        Rectangle {
+            width: parent.width
+            height: root.height * 2/5
+            color: "transparent"
 
-            color: "white"
-            style: Text.Outline
-            styleColor: "black"
-            renderType: Text.NativeRendering //magic way to make outline nicer
-            smooth: true
-            antialiasing: true
+            PopoutText {
+                id: nameLabel
+                text: "Pokemon"
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignRight
+                font.pixelSize: root.pokeNameFontSize
+            }
+        }
 
-            text: "Pokemon"
-            font.bold: true
-            font.pixelSize: root.pokeNameFontSize
-            font.family: root.fontFamily
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignRight
+        Row {
+            width: parent.width
+            height: root.height * 2/5
 
+            Rectangle {
+                id: statusContainer
+                width: parent.width/2
+                height: parent.height
+                radius: 2
+                color: "transparent"
+                border.width: 1
+                border.color: "transparent"
+
+                gradient: Gradient {
+                    id: statusGradient
+                    GradientStop { id: gradientStop1; position: 0 }
+                    GradientStop { id: gradientStop2; position: 1 }
+                }
+
+                PopoutText {
+                    id: statusText
+                    text: ""
+                    visible: false
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    font.pixelSize: root.subTextFontSize
+                }
+            }
+
+            Rectangle {
+                width: parent.width/2
+                height: root.height * 2/5
+                color: "transparent"
+                PopoutText {
+                    id: levelLabel
+                    text: "Lv10"
+                    verticalAlignment: Text.AlignVCenter
+                    horizontalAlignment: Text.AlignRight
+                    font.pixelSize: root.subTextFontSize
+                }
+            }
         }
     }
 
@@ -45,7 +96,7 @@ Item {
    ProgressBar {
         id: progressBar
         width: parent.width
-        height: parent.height/4
+        height: parent.height * 1/5
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
         value: 1
@@ -78,7 +129,20 @@ Item {
     }
 
     function changeStatusCondition(label, remove){
-
+        console.log(remove)
+        if (remove) {
+            statusText.text = ""
+            statusText.visible = false
+            statusContainer.color = "transparent"
+            statusContainer.border.color = "transparent"
+        } else {
+            statusText.text = label
+            statusText.visible = true
+            var baseColor = PokeColor.statusConditionColor(label)
+            statusContainer.color = baseColor
+            gradientStop1.color = PokeColor.lighter(baseColor)
+            gradientStop2.color = PokeColor.darker(baseColor)
+        }
     }
 
     function changeHealth(healthDelta) {
@@ -96,6 +160,5 @@ Item {
         id: healthAnimation
         target: progressBar
         property: "value"
-        // easing.type: Easing.InOutQuad
     }
 }
