@@ -43,6 +43,3 @@ void SystemTrayIcon::toggleGameActive(){
     emit gameActive(m_gameActive);
 }
 
-void SystemTrayIcon::updateIconAndMenu(){
-    toggleGameActive();
-}
