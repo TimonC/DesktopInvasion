@@ -215,7 +215,7 @@ Item {
             var x1 = sprite.x + (sprite.width / 2) - (32/4);
             var x0 = x1 + 2*(sprite.direction==1 ? -32 : 32);
             // Y positions
-            var y0 = sprite.y - pokeBallOpponent.frameHeight;
+            var y0 = Math.max(0, sprite.y - pokeBallOpponent.frameHeight);
             var y1 = sprite.y + sprite.height - pokeBallOpponent.frameHeight;
             return [x0, x1, y0, y1]
     }
