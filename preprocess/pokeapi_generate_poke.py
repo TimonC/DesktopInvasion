@@ -21,8 +21,10 @@ GEN4_VERSION_GROUPS = [
     'platinum',
     'heartgold-soulsilver'
 ]
-pokemons = []
 
+POKEMON_WITH_VALID_DASH = ["Ho-oh", "Porygon-Z"]
+
+pokemons = []
 def format_type_enum(type_name):
     if not type_name:
         return 'Type::Null'
@@ -161,6 +163,8 @@ def extract_evolution_condition(evolution):
 def format_pokemon_name(name):
     if not name:
         return name
+    if name.lower() not in [p.lower() for p in POKEMON_WITH_VALID_DASH]:
+        name = name.split("-")[0]
     return name.capitalize()
 
 for poke_id in range(1, MAX_POKEMON_ID + 1):
