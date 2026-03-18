@@ -1,0 +1,12 @@
+services:
+  invasionview:
+    build: .
+    container_name: invasionview
+    environment:
+      - DISPLAY=${DISPLAY}
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./src:/app/src
+    stdin_open: true
+    tty: true
+    command: /app/build_and_run.sh
