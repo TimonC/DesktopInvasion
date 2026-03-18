@@ -40,22 +40,24 @@ Item {
         showBox(0)
     }
 
-    // --- Signals ---
     signal preloadBoxRequested(int boxIndex)
-    property color highlightColor: Qt.rgba(0, 0.6, 1, 0.3)
-    property bool inSwapMode: false
-    property var swapSelect: [-2, -1]
-    property color swapColor: "orange"
+
+    // --- Swap state ---
+    property color highlightColor:     Qt.rgba(0, 0.6, 1, 0.3)
+    property color swapColor:          "orange"
     property color highlightSwapColor: Qt.rgba(0.6, 0.6, 0, 0.3)
-    signal activateSwapMode();
-    function toggleSwapMode(){
-        if(inSwapMode){
-            inSwapMode=false;
-            swapButton.color=root.buttonColor;
-        }else{
-            inSwapMode=true;
-            swapButton.color=root.swapColor;
-            activateSwapMode();
+    property bool  inSwapMode:         false
+    property var   swapSource:         null   // null = nothing selected; else [boxIndex, slotIndex]
+
+    signal activateSwapMode()
+
+    function toggleSwapMode() {
+        if (inSwapMode) {
+            inSwapMode  = false
+            swapSource  = null
+        } else {
+            inSwapMode  = true
+            activateSwapMode()
         }
     }
 
@@ -72,7 +74,7 @@ Item {
         columnSpacing: 0
 
         // ----------------------------------------------------------
-        // Row 0 – Party row: [S button] [party grid], centred as a unit
+        // Row 0 – Party row: [party grid] [S button], centred as a unit
         // ----------------------------------------------------------
         GridLayout {
             Layout.row:             0
@@ -80,7 +82,7 @@ Item {
             Layout.alignment:       Qt.AlignHCenter | Qt.AlignTop
             Layout.preferredHeight: root.partyRows * root.slotHeight
 
-            columns:       2   // [party grid] [S button]
+            columns:       2
             rows:          1
             columnSpacing: root.layoutSpacing
             rowSpacing:    0
@@ -112,13 +114,14 @@ Item {
                         model: root.partyRows * root.partyColumns
                         PokemonSlot {
                             iconVisible: root.partyMap[index] !== undefined
-                            frameIndex:  root.partyMap[index] || 0
-                            pcPos: [-1, index]
+                            frameIndex:  root.partyMap[index] !== undefined ? root.partyMap[index] : 0
+                            pcPos:       [-1, index]
                         }
                     }
                 }
             }
 
+            // Swap button – color responds to inSwapMode automatically
             PcButton {
                 id: swapButton
                 Layout.column:          1
@@ -126,14 +129,14 @@ Item {
                 Layout.alignment:       Qt.AlignVCenter
                 Layout.preferredWidth:  root.buttonWidth
                 Layout.preferredHeight: root.buttonHeight
-                label: "S"
-                onClicked: root.toggleSwapMode();
+                label:  "S"
+                color:  root.inSwapMode ? root.swapColor : root.buttonColor
+                onClicked: root.toggleSwapMode()
             }
         }
 
         // ----------------------------------------------------------
         // Row 1 – PC row: [left arrow] [box grid] [right arrow]
-        // fillHeight gives it the larger proportion of vertical space
         // ----------------------------------------------------------
         GridLayout {
             Layout.row:        1
@@ -147,7 +150,6 @@ Item {
             columnSpacing: root.layoutSpacing
             rowSpacing:    0
 
-            // Left arrow
             PcButton {
                 Layout.column:          0
                 Layout.row:             0
@@ -188,13 +190,12 @@ Item {
                             iconVisible: currentBox !== undefined && currentBox[index] !== undefined
                             frameIndex:  (currentBox !== undefined && currentBox[index] !== undefined)
                                          ? currentBox[index] : 0
-                            pcPos: [root.currentBoxIndex, index] //questionable logic
+                            pcPos: [root.currentBoxIndex, index]
                         }
                     }
                 }
             }
 
-            // Right arrow
             PcButton {
                 Layout.column:          2
                 Layout.row:             0
@@ -219,6 +220,7 @@ Item {
         property bool   active: true
         signal clicked()
 
+        // color can be overridden by the parent (e.g. swapButton binds to inSwapMode)
         color: active
                ? (press.pressed ? Qt.darker(root.buttonColor, 1.3) : root.buttonColor)
                : "#444"
@@ -246,8 +248,11 @@ Item {
         height: root.slotHeight
         property bool iconVisible: false
         property int  frameIndex:  0
-        property var pcPos: [-1,-1]
-        color: (hoverArea.containsMouse && iconVisible) ? (root.inSwapMode ? root.highlightSwapColor : root.highlightColor) : "transparent"
+        property var  pcPos:       [-1, -1]
+
+        color: (hoverArea.containsMouse && iconVisible)
+               ? (root.inSwapMode ? root.highlightSwapColor : root.highlightColor)
+               : "transparent"
 
         Image {
             anchors.fill: parent
@@ -256,7 +261,7 @@ Item {
             readonly property int spriteWidth:  40
             readonly property int spriteHeight: 30
             sourceClipRect: Qt.rect(0, parent.frameIndex * spriteHeight, spriteWidth, spriteHeight)
-            smooth: false
+            smooth:       false
             antialiasing: false
         }
 
@@ -266,23 +271,65 @@ Item {
             hoverEnabled: true
             cursorShape:  undefined
             onClicked: {
-                if(pokemonSlot.iconVisible){
-                    if(root.inSwapMode){
-                        if(root.swapSelect[0]>=-1){
-                            console.log("swap!", root.swapSelect, pokemonSlot.pcPos)
-                            root.toggleSwapMode()
-                        }else{
-                            root.swapSelect = pokemonSlot.pcPos
-                            //DISPLAY
-                            console.log("display!")
-                        }
-                    }else{
-                        //DISPLAY
-                        console.log("display!")
-                    }
+                if (!pokemonSlot.iconVisible) return
+
+                if (!root.inSwapMode) {
+                    console.log("display!", pokemonSlot.pcPos)
+                    return
+                }
+
+                // Swap mode: first click picks source, second click executes swap
+                if (root.swapSource === null) {
+                    root.swapSource = pokemonSlot.pcPos
+                    console.log("swap source selected:", root.swapSource)
+                } else {
+                    root._executeSwap(root.swapSource, pokemonSlot.pcPos)
+                    root.toggleSwapMode()   // clears inSwapMode + swapSource
                 }
             }
         }
+    }
+
+    // ---------------------------------------------------------------
+    // Swap implementation
+    // ---------------------------------------------------------------
+    function _executeSwap(posx, posy) {
+        // Same slot – nothing to do
+        if (posx[0] === posy[0] && posx[1] === posy[1]) {
+            console.log("Can't swap a slot with itself")
+            return
+        }
+
+        // Read current values
+        var iconx = posx[0] === -1 ? root.partyMap[posx[1]]
+                                   : root.boxes[posx[0]][posx[1]]
+        var icony = posy[0] === -1 ? root.partyMap[posy[1]]
+                                   : root.boxes[posy[0]][posy[1]]
+
+        // Write swapped values into working copies
+        var newParty = Object.assign({}, root.partyMap)
+        var newBoxes = Object.assign({}, root.boxes)
+
+        if (posx[0] === -1) {
+            newParty[posx[1]] = icony
+        } else {
+            // Shallow-copy the specific box array before mutating
+            var arrX = newBoxes[posx[0]].slice()
+            arrX[posx[1]] = icony
+            newBoxes[posx[0]] = arrX
+        }
+
+        if (posy[0] === -1) {
+            newParty[posy[1]] = iconx
+        } else {
+            var arrY = newBoxes[posy[0]].slice()
+            arrY[posy[1]] = iconx
+            newBoxes[posy[0]] = arrY
+        }
+
+        // Assign back – triggers QML change detection
+        root.partyMap = newParty
+        root.boxes    = newBoxes
     }
 
     // ---------------------------------------------------------------
@@ -310,7 +357,7 @@ Item {
     }
 
     // ---------------------------------------------------------------
-    // Internal
+    // Internal navigation
     // ---------------------------------------------------------------
     function _requestAdjacentPreloads(index) {
         var left  = (index - 1 + maxBoxes) % maxBoxes
@@ -333,4 +380,3 @@ Item {
         _requestAdjacentPreloads(next)
     }
 }
-
