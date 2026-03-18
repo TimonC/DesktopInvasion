@@ -58,6 +58,7 @@ class BattleMoveHandler : public QObject{
     Q_OBJECT
 public:
     BattleMoveHandler(const PokemonState& wildState, const std::array<PokemonState, 6>& partyStates);
+    ~BattleMoveHandler();
 
 signals:
     void actionSequenceReady(QVariantList sequence);

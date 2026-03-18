@@ -7,6 +7,7 @@
 
 class WildPokemon : public DesktopScene{
     Q_OBJECT
+    Q_DISABLE_COPY(WildPokemon)
 
 public:
     explicit WildPokemon(const PokemonInfo* info, QPoint spawnPoint = QPoint(-1,-1), int spawnDirection = -1, QWindow *parent = nullptr);

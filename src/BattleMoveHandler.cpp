@@ -1,4 +1,5 @@
 #include <BattleMoveHandler.h>
+#include "Battle.h"
 #include "PokeMath/calculatePokeStats.h"
 #include "data_move.h"
 #include <cstring>
@@ -16,6 +17,11 @@ BattleMoveHandler::BattleMoveHandler(const PokemonState& wildState, const std::a
     for (int i = 0; i < 6; i++) {
         m_battleParty[i] = createBattler(partyStates[i]);
     }
+}
+
+BattleMoveHandler::~BattleMoveHandler() {
+    delete m_battleOpponent;
+    for (auto& ptr : m_battleParty) delete ptr;
 }
 
 Battler* BattleMoveHandler::createBattler(const PokemonState& state) {

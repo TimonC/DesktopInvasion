@@ -68,11 +68,6 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QPoint spawnPoint, int spawnDi
 
 WildPokemon::~WildPokemon(){
     qDebug() << "WildPokemon destructor called, with info: " << info->name;
-    m_moveTimer->stop();
-    m_decisionTimer->stop();
-    delete m_decisionTimer;
-    delete m_moveTimer;
-
 };
 
 void WildPokemon::roaming(bool active){

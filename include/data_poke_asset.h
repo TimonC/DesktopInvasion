@@ -1,9 +1,6 @@
 #ifndef DATA_POKE_ASSET_H
 #define DATA_POKE_ASSET_H
 
-#include <array>
-#include <string>
-
 struct PokemonInfo {
     const int pokedexId;
     const int spriteId;

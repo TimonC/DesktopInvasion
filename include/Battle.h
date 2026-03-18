@@ -26,8 +26,9 @@ struct Party {
 };
 
 class Battle : public DesktopScene{
-
     Q_OBJECT
+    Q_DISABLE_COPY(Battle)
+
 public:
     explicit Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildState, Party party, std::unique_ptr<BattleMoveHandler> battleMoveHandler, QWindow *parent = nullptr);
     ~Battle() {
