@@ -83,7 +83,7 @@ Item {
     }
 
     function positionSpriteAndStatusBar(sprite) {
-        var horizontalPadding = root.menuWidth/20//left padding is 10%
+        var horizontalPadding = root.menuWidth/15//left padding is 10%
         switch(sprite.direction) {
             case 0:
                 sprite.x = Math.round((root.statusBarWidth + root.width - sprite.width)/2 + (sprite.verticalWidth/2 - sprite.hCenterUp) + horizontalPadding)
