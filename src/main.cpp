@@ -25,7 +25,6 @@ int main(int argc, char *argv[]) {
     /* if (!Globals::DEBUG)  loggingCategory::setFilterRules("*.debug=false"); */
 
     Game game;
-    game.spawnWildPokemon(Globals::getPokemonInfo());
 
     return app.exec();
 }
