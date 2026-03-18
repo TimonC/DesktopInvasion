@@ -5,6 +5,7 @@ Item {
     property color debugColor: "yellow"
     // Sprite properties
     property string spriteSheet: "qrc:/assets/HGSS/PokGen1_transparent_reordered.png"
+    property int partyId: 0
     property int row: 0
     property int direction: 0
     property real scaleFactor: 4
