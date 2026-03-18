@@ -11,8 +11,6 @@ int main(int argc, char *argv[]) {
 
     QQmlApplicationEngine engine;
     app.setApplicationName("DesktopInvasion");
-    /* app.setOrganizationName("DesktopInvasion"); */
-    /* app.setOrganizationDomain(""); */
 
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 

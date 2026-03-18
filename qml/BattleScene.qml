@@ -2,11 +2,11 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 Item {
     id: root
-    width: (direction === 0 || direction === 2) ? frameSize * 6 : frameSize * 8
-    height: (direction === 0 || direction === 2) ? frameSize * 8 : frameSize * 6
+    width: (direction === 0 || direction === 2) ? frameSize * 7 : frameSize * 8
+    height: (direction === 0 || direction === 2) ? frameSize * 8 : frameSize * 7
     // Properties
     property int frameSize: 32
-    property int menuWidth: frameSize * 6
+    property int menuWidth: frameSize * 7
     property int menuHeight: frameSize * 2.4
     property int statusBarWidth: frameSize*2.5
     property int statusBarHeight: frameSize*1.2
