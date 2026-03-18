@@ -203,77 +203,118 @@ Row {
     }
 
     // ── MOVES ─────────────────────────────────────────────────────────────────
-    Item {
-        anchors {
-            top: divider2.bottom; left: parent.left; right: parent.right; bottom: parent.bottom
-            leftMargin: margin; rightMargin: margin; bottomMargin: margin
-        }
+Item {
+    anchors {
+        top: divider2.bottom; left: parent.left; right: parent.right; bottom: parent.bottom
+        leftMargin: margin; rightMargin: margin; bottomMargin: margin
+    }
 
-        Column {
-            anchors.centerIn: parent
-            width:   parent.width
-            spacing: moveCardGap
+    Column {
+        anchors.centerIn: parent
+        width:   parent.width
+        spacing: moveCardGap
 
-            Repeater {
-                model: pokeData ? pokeData.moves : []
-                Rectangle {
-                    width:  parent.width
-                    height: moveInner.implicitHeight + moveCardPad * 2
-                    color:  colorMoveCard
-                    radius: 5
+        Repeater {
+            model: pokeData ? pokeData.moves : []
+            Rectangle {
+                width:  parent.width
+                height: moveInner.implicitHeight + moveCardPad * 2
+                color:  colorMoveCard
+                radius: 5
 
-                    Column {
-                        id: moveInner
-                        anchors {
-                            left:   parent.left
-                            right:  parent.right
-                            top:    parent.top
-                            margins: moveCardPad
-                        }
-                        spacing: 4
+                Column {
+                    id: moveInner
+                    anchors {
+                        left:   parent.left
+                        right:  parent.right
+                        top:    parent.top
+                        margins: moveCardPad
+                    }
+                    spacing: 4
+
+                    // First row: type, name, power stats - all with same height container
+                    Item {
+                        width: parent.width
+                        height: Math.max(
+                            typeContainer.height,
+                            nameContainer.height,
+                            powerContainer.height
+                        )  // All containers same height
 
                         Row {
+                            anchors.verticalCenter: parent.verticalCenter
                             spacing: movePillGap
-                            Rectangle {
-                                width:  typePillW
-                                height: fontSizeMd + 4
-                                radius: 3
-                                color:  PokeColor.typeColor(modelData.type)
-                                anchors.verticalCenter: parent.verticalCenter
-                                Text {
+
+                            // Type pill container
+                            Item {
+                                id: typeContainer
+                                width: typePillW
+                                height: fontSizeMd + 8  // Fixed height for consistency
+
+                                Rectangle {
                                     anchors.centerIn: parent
-                                    text: modelData.type
-                                    font.family: bodyFont; font.pixelSize: fontSizeMd
-                                    color: colorTypePillText
+                                    width: typePillW
+                                    height: fontSizeMd + 4
+                                    radius: 3
+                                    color: PokeColor.typeColor(modelData.type)
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: modelData.type
+                                        font.family: bodyFont; font.pixelSize: fontSizeMd
+                                        color: colorTypePillText
+                                    }
                                 }
                             }
-                            Text {
-                                width: moveNameW
-                                text: modelData.name
-                                font.family: mainFont; font.pixelSize: fontSizeMd
-                                color: colorText
-                            }
-                            Text {
-                                text: "Pow: " + modelData.power + "   Acc: " + modelData.accuracy
-                                font.family: bodyFont; font.pixelSize: fontSizeSm
-                                color: colorSubtext
-                                anchors.verticalCenter: parent.verticalCenter
-                            }
-                        }
 
-                        Text {
-                            height: fontSizeMd * 2.6
-                            width:  parent.width
-                            text:   modelData.flavor
-                            font.family: bodyFont;
-                            font.pixelSize: fontSizeMd
-                            color: colorVeryFaint
-                            wrapMode: Text.WordWrap
+                            // Move name container
+                            Item {
+                                id: nameContainer
+                                width: moveNameW
+                                height: typeContainer.height  // Match type container height
+
+                                Text {
+                                    anchors.centerIn: parent
+                                    width: parent.width
+                                    text: modelData.name
+                                    font.family: mainFont; font.pixelSize: fontSizeMd
+                                    color: colorText
+                                    horizontalAlignment: Text.AlignLeft
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+                            }
+
+                            // Power/accuracy container
+                            Item {
+                                id: powerContainer
+                                width: powerText.implicitWidth  // Use actual text width
+                                height: typeContainer.height  // Match type container height
+
+                                Text {
+                                    id: powerText
+                                    anchors.centerIn: parent
+                                    text: "Pow: " + modelData.power + "   Acc: " + modelData.accuracy
+                                    font.family: bodyFont; font.pixelSize: fontSizeSm
+                                    color: colorSubtext
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+                            }
                         }
+                    }
+
+                    Text {
+                        height: fontSizeMd * 2.6
+                        width:  parent.width
+                        text:   modelData.flavor
+                        font.family: bodyFont;
+                        font.pixelSize: fontSizeMd
+                        color: colorVeryFaint
+                        wrapMode: Text.WordWrap
                     }
                 }
             }
         }
     }
+}
 }
 
