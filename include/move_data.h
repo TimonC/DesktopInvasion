@@ -1,5 +1,5 @@
-#ifndef MOVE_H
-#define MOVE_H
+#ifndef MOVE_DATA_H
+#define MOVE_DATA_H
 
 #include <game_data.h>
 #include <variant>
@@ -14,9 +14,8 @@ struct StatChange{
 };
 
 enum class WeatherCondition{
-    Sandstorm, Rain, Sunny, Hail
+    Clear, Sandstorm, Rain, Sunny, Hail
 };
-
 
 using Effect = std::variant<StatusCondition, StatChange>;
 
@@ -25,11 +24,17 @@ struct SideEffect{
     int probability;
 };
 
+enum class MoveCategory {
+    Physical, Special, Status
+};
+
 struct Move{
     int id;
     const char* name;
     Type type;
-    int power = 0;
+    int power;
+    int accuracy;
+    MoveCategory moveCategory;
     SideEffect* sideEffects;
     StatChange* statChanges;
 };
