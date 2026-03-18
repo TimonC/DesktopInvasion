@@ -67,36 +67,49 @@ Item {
     }
 
     SequentialAnimation {
-            id: opponentHitAnim
-            running: false
-            loops: 1
+        id: opponentHitAnim
+        running: false
+        loops: 1
 
-            property int attackDistance: 10
+        property int attackDistance: 10
 
-            onStopped: {
-                root.attackInProgress = false;
-                buttonGrid.visible = true;
-                textBarText.visible = false;
-                textBar.color = "transparent";
-                root.update_text_bar("What will you do?");
-            }
-
-            SequentialAnimation {
-                loops: 3
-                PropertyAnimation {
-                    target: opponent
-                    property: "opacity"
-                    to: 0
-                    duration: 50
-                }
-                PropertyAnimation {
-                    target: opponent
-                    property: "opacity"
-                    to: 1
-                    duration: 50
-                }
-            }
+        onStopped: {
+            root.attackInProgress = false;
+            buttonGrid.visible = true;
+            textBarText.visible = false;
+            textBar.color = "transparent";
+            root.update_text_bar("What will you do?");
         }
+
+        PropertyAnimation {
+            target: opponent
+            property: "x"
+            to: opponent.originalX + (opponent.direction==1 ? opponentHitAnim.attackDistance : opponent.direction==3 ? -opponentHitAnim.attackDistance : 0)
+            duration: 50
+            easing.type: Easing.InQuad
+        }
+        PropertyAnimation {
+            target: opponent
+            property: "y"
+            to: opponent.originalY + (opponent.direction==0 ? opponentHitAnim.attackDistance : opponent.direction==2 ? -opponentHitAnim.attackDistance : 0)
+            duration: 50
+            easing.type: Easing.InQuad
+        }
+        PropertyAnimation {
+            target: opponent
+            property: "x"
+            to: opponent.originalX
+            duration: 100
+            easing.type: Easing.OutQuad
+        }
+        PropertyAnimation {
+            target: opponent
+            property: "y"
+            to: opponent.originalY
+            duration: 100
+            easing.type: Easing.OutQuad
+        }
+    }
 
         PokemonSprite {
             id: opponent
