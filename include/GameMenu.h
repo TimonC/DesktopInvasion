@@ -1,10 +1,14 @@
 #ifndef GAMEMENU_H
 #define GAMEMENU_H
 
-class GameMenu{
+#include <QQuickView>
 
-    public:
-        GameMenu();
+class GameMenu: QQuickView{
+    Q_OBJECT
+
+public:
+    explicit GameMenu(QWindow *parent = nullptr);
+
 };
 
 #endif
