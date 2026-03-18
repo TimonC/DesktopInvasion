@@ -5,7 +5,6 @@ Rectangle {
     id: root
     color: "transparent"
 
-    // Expose properties from root
     property int frameSize: 32
     property int buttonWidth: frameSize * 2
     property int buttonHeight: frameSize * 0.75
@@ -13,6 +12,8 @@ Rectangle {
     property int gridSpacing: frameSize * 0.1
     property int menuHeight: 50
     property int menuWidth: frameSize * 5
+
+    property string spriteSheet: "qrc:/assets/HGSS/Pokeballs_transparent_reordered.png"
 
     signal attackChosen(int attackId)
     signal runChosen()
@@ -36,54 +37,54 @@ Rectangle {
         initialItem: rootSelection
         anchors.fill: parent
         z: 1
-    pushEnter: Transition {
-        PropertyAnimation {
-            property: "opacity"
-            from: 0
-            to:1
-            duration: 200
+        pushEnter: Transition {
+            PropertyAnimation {
+                property: "opacity"
+                from: 0
+                to:1
+                duration: 200
+            }
         }
-    }
-    pushExit: Transition {
-        PropertyAnimation {
-            property: "opacity"
-            from: 1
-            to:0
-            duration: 200
+        pushExit: Transition {
+            PropertyAnimation {
+                property: "opacity"
+                from: 1
+                to:0
+                duration: 200
+            }
         }
-    }
-    popEnter: Transition {
-        PropertyAnimation {
-            property: "opacity"
-            from: 0
-            to:1
-            duration: 200
+        popEnter: Transition {
+            PropertyAnimation {
+                property: "opacity"
+                from: 0
+                to:1
+                duration: 200
+            }
         }
-    }
-    popExit: Transition {
-        PropertyAnimation {
-            property: "opacity"
-            from: 1
-            to:0
-            duration: 200
+        popExit: Transition {
+            PropertyAnimation {
+                property: "opacity"
+                from: 1
+                to:0
+                duration: 200
+            }
         }
-    }
-    replaceEnter: Transition {
-        PropertyAnimation {
-            property: "opacity"
-            from: 0
-            to:1
-            duration: 10
+        replaceEnter: Transition {
+            PropertyAnimation {
+                property: "opacity"
+                from: 0
+                to:1
+                duration: 10
+            }
         }
-    }
-    replaceExit: Transition {
-        PropertyAnimation {
-            property: "opacity"
-            from: 1
-            to:0
-            duration: 10
+        replaceExit: Transition {
+            PropertyAnimation {
+                property: "opacity"
+                from: 1
+                to:0
+                duration: 10
+            }
         }
-    }
     }
 
     Component {
@@ -135,6 +136,7 @@ Rectangle {
                     font.pixelSize: root.buttonFontSize
                     width: root.buttonWidth
                     height: root.buttonHeight
+                    onClicked: stack.push(catchSelection)
                 }
                 RoundButton {
                     text: "Run"
@@ -177,6 +179,47 @@ Rectangle {
                             anchors.fill: parent
                             onClicked: root.attackChosen(0)
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    Component {
+        id: catchSelection
+        Item {
+            anchors.fill: parent
+            Rectangle {
+                anchors.centerIn: parent
+                width: root.buttonWidth
+                height: root.buttonHeight
+                color: "white"
+                border.color: "black"
+                border.width: 2
+                radius: 3
+
+                Row {
+                    anchors.centerIn: parent
+                    spacing: 4
+
+                    Image {
+                        source: root.spriteSheet
+                        width: 16
+                        height: 23
+                        sourceClipRect: Qt.rect(0, 23 * 3, 16, 23)
+                    }
+
+                    Text {
+                        text: "Pokeball"
+                        font.pixelSize: root.buttonFontSize
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        // Handle pokeball selection
                     }
                 }
             }
