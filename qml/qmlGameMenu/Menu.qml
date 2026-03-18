@@ -225,6 +225,7 @@ Rectangle {
                 font.family: root.p2pFont
                 color: root.textColor
                 font.pixelSize: 16
+                visible: false
             }
         }
     }
