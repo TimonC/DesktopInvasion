@@ -14,7 +14,11 @@ public:
 
     void updateTextbar(const std::string& text); // Make sure this signal exists
 
+private slots:
+    void systemMove();
 private:
+    Pokemon* m_opp;
+    Pokemon* m_chosen;
     QPoint m_origin;
     int m_direction;
     QQuickItem *m_ui = nullptr;

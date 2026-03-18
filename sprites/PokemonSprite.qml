@@ -28,8 +28,6 @@ Item {
     layer.enabled: true
     z: 1
 
-signal mouseDrag(int deltaX, int deltaY)
-
     MouseArea {
         id: mouseArea
         anchors.fill: parent
