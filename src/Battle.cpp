@@ -72,7 +72,7 @@ void Battle::setupPokemon(const PokemonInfo* info, const char* role) {
 void Battle::initPosition() {
     QQuickItem* rootItem = qobject_cast<QQuickItem*>(m_battleScene);
     QQuickItem* opponentItem = m_battleScene->findChild<QQuickItem*>("opponent");
-
+        //has to be QPointF for the method, but since we set offets as integer in qml it gives smooth transition
     QPointF spriteOffset = opponentItem->mapToItem(rootItem, QPointF(0, 0));
 
     m_origin = m_initialOppPos + QPoint(-spriteOffset.x(), -spriteOffset.y());
