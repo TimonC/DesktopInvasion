@@ -1,5 +1,8 @@
 #include "PokemonDatabase.h"
-#include "sqlite3.h"
+#include <QSqlDatabase>
+#include <QSqlQuery>
+#include <QSqlError>
+#include <QVariant>
 #include <iostream>
 #include <sstream>
 #include <unordered_map>
@@ -14,26 +17,32 @@ PokemonDatabase::~PokemonDatabase() {
 }
 
 bool PokemonDatabase::initialize(const std::string& dbPath) {
-    if (m_db) return true;
+    if (m_initialized) return true;
 
     m_dbPath = dbPath;
 
-    if (sqlite3_open(dbPath.c_str(), &m_db) != SQLITE_OK) {
-        std::cerr << "Database error: " << sqlite3_errmsg(m_db) << std::endl;
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    db.setDatabaseName(QString::fromStdString(dbPath));
+
+    if (!db.open()) {
+        std::cerr << "Database error: " << db.lastError().text().toStdString() << std::endl;
         return false;
     }
 
-    sqlite3_exec(m_db, "PRAGMA foreign_keys = ON", nullptr, nullptr, nullptr);
+    QSqlQuery query;
+    query.exec("PRAGMA foreign_keys = ON");
     createTables();
     ensureWildSlotExists();
 
+    m_initialized = true;
     return true;
 }
 
 void PokemonDatabase::shutdown() {
-    if (m_db) {
-        sqlite3_close(m_db);
-        m_db = nullptr;
+    if (m_initialized) {
+        QSqlDatabase::database().close();
+        QSqlDatabase::removeDatabase(QSqlDatabase::defaultConnection);
+        m_initialized = false;
     }
 }
 
@@ -67,8 +76,9 @@ void PokemonDatabase::createTables() {
         )
     )";
 
-    sqlite3_exec(m_db, pokemonTable, nullptr, nullptr, nullptr);
-    sqlite3_exec(m_db, gameStateTable, nullptr, nullptr, nullptr);
+    QSqlQuery query;
+    query.exec(pokemonTable);
+    query.exec(gameStateTable);
 }
 
 void PokemonDatabase::ensureWildSlotExists() {
@@ -76,40 +86,32 @@ void PokemonDatabase::ensureWildSlotExists() {
         INSERT OR IGNORE INTO pokemon (_id, pokedex_id, name)
         VALUES (0, 0, 'WILD_SLOT')
     )";
-    sqlite3_exec(m_db, sql, nullptr, nullptr, nullptr);
+    QSqlQuery query;
+    query.exec(sql);
 }
 
 PokemonState PokemonDatabase::getPokemon(int id) {
-    if (!m_db) return PokemonState{};
+    if (!m_initialized) return PokemonState{};
 
-    const char* sql = "SELECT * FROM pokemon WHERE _id = ?";
-    sqlite3_stmt* stmt = nullptr;
-
-    if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK) {
-        return PokemonState{};
-    }
-
-    sqlite3_bind_int(stmt, 1, id);
+    QSqlQuery query;
+    query.prepare("SELECT * FROM pokemon WHERE _id = ?");
+    query.addBindValue(id);
 
     PokemonState result{};
-    if (sqlite3_step(stmt) == SQLITE_ROW) {
-        result = queryToPokemon(stmt);
+    if (query.exec() && query.next()) {
+        result = queryToPokemon(query);
     }
 
-    sqlite3_finalize(stmt);
     return result;
 }
 
-
 std::vector<PokemonState> PokemonDatabase::getPokemonBatch(const std::vector<int>& ids) {
     std::vector<PokemonState> results;
-    if (!m_db || ids.empty()) return results;
+    if (!m_initialized || ids.empty()) return results;
 
-    // Pre-allocate results with empty PokemonStates
     results.resize(ids.size());
 
-    // Collect valid IDs and their original indices
-    std::vector<std::pair<int, size_t>> validIdsWithIndex; // {id, original_index}
+    std::vector<std::pair<int, size_t>> validIdsWithIndex;
     for (size_t i = 0; i < ids.size(); i++) {
         if (ids[i] >= 0) {
             validIdsWithIndex.push_back({ids[i], i});
@@ -118,12 +120,11 @@ std::vector<PokemonState> PokemonDatabase::getPokemonBatch(const std::vector<int
 
     if (validIdsWithIndex.empty()) return results;
 
-    const size_t BATCH_SIZE = 56; //party + box
+    const size_t BATCH_SIZE = 56;
 
     for (size_t offset = 0; offset < validIdsWithIndex.size(); offset += BATCH_SIZE) {
         size_t count = std::min(BATCH_SIZE, validIdsWithIndex.size() - offset);
 
-        // Build query with placeholders
         std::string sql = "SELECT * FROM pokemon WHERE _id IN (";
         for (size_t i = 0; i < count; i++) {
             sql += "?";
@@ -131,136 +132,119 @@ std::vector<PokemonState> PokemonDatabase::getPokemonBatch(const std::vector<int
         }
         sql += ")";
 
-        sqlite3_stmt* stmt = nullptr;
-        if (sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
-            continue;
-        }
+        QSqlQuery query;
+        query.prepare(QString::fromStdString(sql));
 
-        // Bind this chunk's IDs
         for (size_t i = 0; i < count; i++) {
-            sqlite3_bind_int(stmt, i + 1, validIdsWithIndex[offset + i].first);
+            query.addBindValue(validIdsWithIndex[offset + i].first);
         }
 
-        // Create hash map for O(1) lookups of fetched Pokemon
+        if (!query.exec()) continue;
+
         std::unordered_map<int, PokemonState> fetchedMap;
-        while (sqlite3_step(stmt) == SQLITE_ROW) {
-            PokemonState poke = queryToPokemon(stmt);
+        while (query.next()) {
+            PokemonState poke = queryToPokemon(query);
             fetchedMap[poke._id] = poke;
         }
 
-        // Map back to original indices using O(1) lookups
         for (size_t i = offset; i < offset + count; i++) {
             auto it = fetchedMap.find(validIdsWithIndex[i].first);
             if (it != fetchedMap.end()) {
                 results[validIdsWithIndex[i].second] = it->second;
             }
         }
-
-        sqlite3_finalize(stmt);
     }
 
     return results;
 }
 
-PokemonState PokemonDatabase::queryToPokemon(sqlite3_stmt* stmt) {
+PokemonState PokemonDatabase::queryToPokemon(const QSqlQuery& query) {
     PokemonState pokemon;
 
-    pokemon._id = sqlite3_column_int(stmt, 0);
-    pokemon.pokedex_id = sqlite3_column_int(stmt, 1);
-    pokemon.variant_id = sqlite3_column_int(stmt, 2);
-    pokemon.pokeball_id = sqlite3_column_int(stmt, 3);
+    pokemon._id = query.value(0).toInt();
+    pokemon.pokedex_id = query.value(1).toInt();
+    pokemon.variant_id = query.value(2).toInt();
+    pokemon.pokeball_id = query.value(3).toInt();
+    pokemon.name = query.value(4).toString().toStdString();
+    pokemon.lvl = query.value(5).toInt();
+    pokemon.currentXP = query.value(6).toInt();
 
-    const unsigned char* nameText = sqlite3_column_text(stmt, 4);
-    if (nameText) {
-        pokemon.name = reinterpret_cast<const char*>(nameText);
-    }
+    pokemon.ivs[0] = query.value(7).toInt();
+    pokemon.ivs[1] = query.value(8).toInt();
+    pokemon.ivs[2] = query.value(9).toInt();
+    pokemon.ivs[3] = query.value(10).toInt();
+    pokemon.ivs[4] = query.value(11).toInt();
+    pokemon.ivs[5] = query.value(12).toInt();
 
-    pokemon.lvl = sqlite3_column_int(stmt, 5);
-    pokemon.currentXP = sqlite3_column_int(stmt, 6);
+    pokemon.evs[0] = query.value(13).toInt();
+    pokemon.evs[1] = query.value(14).toInt();
+    pokemon.evs[2] = query.value(15).toInt();
+    pokemon.evs[3] = query.value(16).toInt();
+    pokemon.evs[4] = query.value(17).toInt();
+    pokemon.evs[5] = query.value(18).toInt();
 
-    pokemon.ivs[0] = sqlite3_column_int(stmt, 7);
-    pokemon.ivs[1] = sqlite3_column_int(stmt, 8);
-    pokemon.ivs[2] = sqlite3_column_int(stmt, 9);
-    pokemon.ivs[3] = sqlite3_column_int(stmt, 10);
-    pokemon.ivs[4] = sqlite3_column_int(stmt, 11);
-    pokemon.ivs[5] = sqlite3_column_int(stmt, 12);
+    pokemon.nature = static_cast<Nature>(query.value(19).toInt());
 
-    pokemon.evs[0] = sqlite3_column_int(stmt, 13);
-    pokemon.evs[1] = sqlite3_column_int(stmt, 14);
-    pokemon.evs[2] = sqlite3_column_int(stmt, 15);
-    pokemon.evs[3] = sqlite3_column_int(stmt, 16);
-    pokemon.evs[4] = sqlite3_column_int(stmt, 17);
-    pokemon.evs[5] = sqlite3_column_int(stmt, 18);
-
-    pokemon.nature = static_cast<Nature>(sqlite3_column_int(stmt, 19));
-
-    pokemon.moves[0] = sqlite3_column_int(stmt, 20);
-    pokemon.moves[1] = sqlite3_column_int(stmt, 21);
-    pokemon.moves[2] = sqlite3_column_int(stmt, 22);
-    pokemon.moves[3] = sqlite3_column_int(stmt, 23);
+    pokemon.moves[0] = query.value(20).toInt();
+    pokemon.moves[1] = query.value(21).toInt();
+    pokemon.moves[2] = query.value(22).toInt();
+    pokemon.moves[3] = query.value(23).toInt();
 
     return pokemon;
 }
 
-void PokemonDatabase::bindPokemonParams(sqlite3_stmt* stmt, const PokemonState& pokemon, int startCol) {
-    int col = startCol;
-    sqlite3_bind_int(stmt, col++, pokemon.pokedex_id);
-    sqlite3_bind_int(stmt, col++, pokemon.variant_id);
-    sqlite3_bind_int(stmt, col++, pokemon.pokeball_id);
-    sqlite3_bind_text(stmt, col++, pokemon.name.c_str(), -1, SQLITE_STATIC);
-
-    sqlite3_bind_int(stmt, col++, pokemon.lvl);
-    sqlite3_bind_int(stmt, col++, pokemon.currentXP);
+void PokemonDatabase::bindPokemonParams(QSqlQuery& query, const PokemonState& pokemon) {
+    query.addBindValue(pokemon.pokedex_id);
+    query.addBindValue(pokemon.variant_id);
+    query.addBindValue(pokemon.pokeball_id);
+    query.addBindValue(QString::fromStdString(pokemon.name));
+    query.addBindValue(pokemon.lvl);
+    query.addBindValue(pokemon.currentXP);
 
     for (int i = 0; i < 6; i++) {
-        sqlite3_bind_int(stmt, col++, static_cast<int>(pokemon.ivs[i]));
+        query.addBindValue(static_cast<int>(pokemon.ivs[i]));
     }
 
     for (int i = 0; i < 6; i++) {
-        sqlite3_bind_int(stmt, col++, static_cast<int>(pokemon.evs[i]));
+        query.addBindValue(static_cast<int>(pokemon.evs[i]));
     }
 
-    sqlite3_bind_int(stmt, col++, static_cast<int>(pokemon.nature));
+    query.addBindValue(static_cast<int>(pokemon.nature));
 
     for (int i = 0; i < 4; i++) {
-        sqlite3_bind_int(stmt, col++, pokemon.moves[i]);
+        query.addBindValue(pokemon.moves[i]);
     }
 }
 
 int PokemonDatabase::createPokemon(const PokemonState& pokemon) {
-    if (!m_db) return -1;
+    if (!m_initialized) return -1;
 
-    const char* maxIdSql = "SELECT COALESCE(MAX(_id), 0) FROM pokemon WHERE _id > 0";
-    sqlite3_stmt* stmt = nullptr;
+    QSqlQuery query;
+    query.prepare("SELECT COALESCE(MAX(_id), 0) FROM pokemon WHERE _id > 0");
+    query.exec();
+    query.next();
+    int newId = query.value(0).toInt() + 1;
 
-    sqlite3_prepare_v2(m_db, maxIdSql, -1, &stmt, nullptr);
-    sqlite3_step(stmt);
-    int newId = sqlite3_column_int(stmt, 0) + 1;
-    sqlite3_finalize(stmt);
-
-    const char* insertSql = R"(
+    query.prepare(R"(
         INSERT INTO pokemon VALUES (
             ?, ?, ?, ?, ?, ?, ?, ?,
             ?, ?, ?, ?, ?, ?, ?, ?,
             ?, ?, ?, ?, ?, ?, ?, ?
         )
-    )";
+    )");
 
-    sqlite3_prepare_v2(m_db, insertSql, -1, &stmt, nullptr);
+    query.addBindValue(newId);
+    bindPokemonParams(query, pokemon);
 
-    sqlite3_bind_int(stmt, 1, newId);
-    bindPokemonParams(stmt, pokemon, 2);
-
-    bool success = (sqlite3_step(stmt) == SQLITE_DONE);
-    sqlite3_finalize(stmt);
-
+    bool success = query.exec();
     return success ? newId : -1;
 }
 
 bool PokemonDatabase::updatePokemon(const PokemonState& pokemon) {
-    if (!m_db || pokemon._id < 0) return false;
+    if (!m_initialized || pokemon._id < 0) return false;
 
-    const char* updateSql = R"(
+    QSqlQuery query;
+    query.prepare(R"(
         UPDATE pokemon SET
             pokedex_id = ?, variant_id = ?, pokeball_id = ?, name = ?,
             lvl = ?, current_xp = ?,
@@ -270,18 +254,12 @@ bool PokemonDatabase::updatePokemon(const PokemonState& pokemon) {
             ev_spattack = ?, ev_spdefense = ?, ev_speed = ?,
             nature = ?, move1 = ?, move2 = ?, move3 = ?, move4 = ?
         WHERE _id = ?
-    )";
+    )");
 
-    sqlite3_stmt* stmt = nullptr;
-    sqlite3_prepare_v2(m_db, updateSql, -1, &stmt, nullptr);
+    bindPokemonParams(query, pokemon);
+    query.addBindValue(pokemon._id);
 
-    bindPokemonParams(stmt, pokemon, 1);
-    sqlite3_bind_int(stmt, 24, pokemon._id);
-
-    bool success = (sqlite3_step(stmt) == SQLITE_DONE);
-    sqlite3_finalize(stmt);
-
-    return success;
+    return query.exec();
 }
 
 PokemonState PokemonDatabase::getWildPokemon() {
@@ -289,7 +267,7 @@ PokemonState PokemonDatabase::getWildPokemon() {
 }
 
 void PokemonDatabase::spawnWildPokemon(const PokemonState& templatePokemon) {
-    if (!m_db) return;
+    if (!m_initialized) return;
 
     PokemonState wild = templatePokemon;
     wild._id = 0;
@@ -297,7 +275,7 @@ void PokemonDatabase::spawnWildPokemon(const PokemonState& templatePokemon) {
 }
 
 int PokemonDatabase::catchWildPokemon(int pokeball_id) {
-    if (!m_db) return -1;
+    if (!m_initialized) return -1;
 
     PokemonState wild = getPokemon(0);
 
@@ -309,9 +287,10 @@ int PokemonDatabase::catchWildPokemon(int pokeball_id) {
 }
 
 bool PokemonDatabase::clearWild() {
-    if (!m_db) return false;
+    if (!m_initialized) return false;
 
-    const char* clearWild = R"(
+    QSqlQuery query;
+    query.prepare(R"(
         UPDATE pokemon SET
             pokedex_id = 0, name = 'WILD_SLOT',
             lvl = 1, current_xp = 0,
@@ -321,62 +300,47 @@ bool PokemonDatabase::clearWild() {
             ev_spattack = 0, ev_spdefense = 0, ev_speed = 0,
             nature = 0, move1 = 0, move2 = 0, move3 = 0, move4 = 0
         WHERE _id = 0
-    )";
+    )");
 
-    sqlite3_stmt* stmt = nullptr;
-    if (sqlite3_prepare_v2(m_db, clearWild, -1, &stmt, nullptr) != SQLITE_OK) {
-        std::cerr << "Failed to prepare statement: " << sqlite3_errmsg(m_db) << std::endl;
-        return false;
-    }
-
-    bool success = (sqlite3_step(stmt) == SQLITE_DONE);
+    bool success = query.exec();
 
     if (!success) {
-        std::cerr << "Failed to execute statement: " << sqlite3_errmsg(m_db) << std::endl;
+        std::cerr << "Failed to execute statement: " << query.lastError().text().toStdString() << std::endl;
     }
 
-    sqlite3_finalize(stmt);
     return success;
 }
 
 GameState PokemonDatabase::loadGameState() {
     GameState state;
 
-    if (!m_db) return state;
+    if (!m_initialized) return state;
 
-    const char* sql = "SELECT * FROM game_state WHERE _id = 1";
-    sqlite3_stmt* stmt = nullptr;
+    QSqlQuery query;
+    query.prepare("SELECT * FROM game_state WHERE _id = 1");
 
-    if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK) {
+    if (!query.exec()) {
         return state;
     }
 
-    if (sqlite3_step(stmt) == SQLITE_ROW) {
-        state.player_sprite_id = sqlite3_column_int(stmt, 1);
+    if (query.next()) {
+        state.player_sprite_id = query.value(1).toInt();
+        state.name = query.value(2).toString().toStdString();
 
-        const unsigned char* nameText = sqlite3_column_text(stmt, 2);
-        if (nameText) {
-            state.name = reinterpret_cast<const char*>(nameText);
-        }
-
-        const unsigned char* partyText = sqlite3_column_text(stmt, 3);
-        if (partyText) {
-            std::string partyStr(reinterpret_cast<const char*>(partyText));
-            std::stringstream ss(partyStr);
-            std::string token;
-            int i = 0;
-            while (std::getline(ss, token, ',') && i < 6) {
-                state.party_id[i++] = std::stoi(token);
-            }
+        QString partyStr = query.value(3).toString();
+        std::stringstream ss(partyStr.toStdString());
+        std::string token;
+        int i = 0;
+        while (std::getline(ss, token, ',') && i < 6) {
+            state.party_id[i++] = std::stoi(token);
         }
     }
 
-    sqlite3_finalize(stmt);
     return state;
 }
 
 bool PokemonDatabase::saveGameState(const GameState& state) {
-    if (!m_db) return false;
+    if (!m_initialized) return false;
 
     std::string partyStr;
     for (int i = 0; i < 6; i++) {
@@ -384,22 +348,17 @@ bool PokemonDatabase::saveGameState(const GameState& state) {
         if (i < 5) partyStr += ",";
     }
 
-    const char* sql = R"(
+    QSqlQuery query;
+    query.prepare(R"(
         INSERT OR REPLACE INTO game_state (_id, player_sprite_id, name, party_ids)
         VALUES (1, ?, ?, ?)
-    )";
+    )");
 
-    sqlite3_stmt* stmt = nullptr;
-    sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr);
+    query.addBindValue(state.player_sprite_id);
+    query.addBindValue(QString::fromStdString(state.name));
+    query.addBindValue(QString::fromStdString(partyStr));
 
-    sqlite3_bind_int(stmt, 1, state.player_sprite_id);
-    sqlite3_bind_text(stmt, 2, state.name.c_str(), -1, SQLITE_STATIC);
-    sqlite3_bind_text(stmt, 3, partyStr.c_str(), -1, SQLITE_TRANSIENT);
-
-    bool success = (sqlite3_step(stmt) == SQLITE_DONE);
-    sqlite3_finalize(stmt);
-
-    return success;
+    return query.exec();
 }
 
 bool PokemonDatabase::setPartyPokemon(int slot, int pokemonId) {
@@ -411,18 +370,13 @@ bool PokemonDatabase::setPartyPokemon(int slot, int pokemonId) {
 }
 
 bool PokemonDatabase::batchUpdatePokemon(const std::vector<PokemonState>& updates) {
-    if (!m_db || updates.empty()) return false;
+    if (!m_initialized || updates.empty()) return false;
 
-    // Start transaction
-    char* errMsg = nullptr;
-    if (sqlite3_exec(m_db, "BEGIN TRANSACTION", nullptr, nullptr, &errMsg) != SQLITE_OK) {
-        std::cerr << "Failed to begin transaction: " << errMsg << std::endl;
-        sqlite3_free(errMsg);
-        return false;
-    }
+    QSqlDatabase::database().transaction();
 
     bool success = true;
-    const char* updateSql = R"(
+    QSqlQuery query;
+    query.prepare(R"(
         UPDATE pokemon SET
             pokedex_id = ?, variant_id = ?, pokeball_id = ?, name = ?,
             lvl = ?, current_xp = ?,
@@ -432,39 +386,24 @@ bool PokemonDatabase::batchUpdatePokemon(const std::vector<PokemonState>& update
             ev_spattack = ?, ev_spdefense = ?, ev_speed = ?,
             nature = ?, move1 = ?, move2 = ?, move3 = ?, move4 = ?
         WHERE _id = ?
-    )";
+    )");
 
-    sqlite3_stmt* stmt = nullptr;
-    if (sqlite3_prepare_v2(m_db, updateSql, -1, &stmt, nullptr) != SQLITE_OK) {
-        sqlite3_exec(m_db, "ROLLBACK", nullptr, nullptr, nullptr);
-        return false;
-    }
-
-    // Update all Pokémon in the batch
     for (const auto& pokemon : updates) {
         if (pokemon._id < 0) continue;
 
-        bindPokemonParams(stmt, pokemon, 1);
-        sqlite3_bind_int(stmt, 24, pokemon._id);
+        bindPokemonParams(query, pokemon);
+        query.addBindValue(pokemon._id);
 
-        if (sqlite3_step(stmt) != SQLITE_DONE) {
+        if (!query.exec()) {
             success = false;
             break;
         }
-
-        sqlite3_reset(stmt);
     }
 
-    sqlite3_finalize(stmt);
-
     if (success) {
-        if (sqlite3_exec(m_db, "COMMIT", nullptr, nullptr, &errMsg) != SQLITE_OK) {
-            std::cerr << "Failed to commit transaction: " << errMsg << std::endl;
-            sqlite3_free(errMsg);
-            success = false;
-        }
+        QSqlDatabase::database().commit();
     } else {
-        sqlite3_exec(m_db, "ROLLBACK", nullptr, nullptr, nullptr);
+        QSqlDatabase::database().rollback();
     }
 
     return success;
