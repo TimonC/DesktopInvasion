@@ -25,8 +25,8 @@ Item {
     property  alias opponentName: statusBarOpponent.pokeName
     property  alias playerName: statusBarPlayer.pokeName
 
-    property alias textBar: textBar
-    property alias buttonGrid: buttonGrid
+    // property alias textBar: textBar
+    // property alias rootSelection: rootSelection
 
     // Attack chain state
     property bool attackInProgress: false
@@ -76,101 +76,89 @@ Item {
     }
 
    // UI
-   Rectangle {
-        id: menuContainer
-        color: "transparent"
-        anchors.bottom: parent.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
-        height: root.menuHeight
-        width:  root.menuWidth
-        property alias child: child
+Rectangle {
+    id: menuContainer
+    color: "white"
+    anchors.bottom: parent.bottom
+    anchors.horizontalCenter: parent.horizontalCenter
+    height: root.menuHeight
+    width:  root.menuWidth
 
+    StackView {
+        id: stack
+        initialItem: rootSelectionComponent
+        anchors.fill: parent
+        z: 1
+    }
+
+    Component {
+        id: textBarComponent
+        Rectangle {
+            id: textBar
+            color: "darkgrey"
+            property string text: ""
+            height: root.menuHeight
+            width: root.menuWidth
+            radius: 5
+            Text {
+                id: textBarText
+                anchors.fill: parent
+                anchors.margins: 6
+                text: "UNINITIALIZED TEXT!!!"
+                font.pixelSize: 13
+                verticalAlignment: Text.AlignVCenter
+            }
+        }
+    }
+
+    Component {
+        id: rootSelectionComponent
         Item{
-         id: child
-        }
-
-        states: [
-            State{
-                name: "root-selection"
-                PropertyChanges{
-                    target: menuContainer;
-                    child:  buttonGrid;
-                }
-            },
-            State{
-                name: "display-text"
-                PropertyChanges{
-                    target: menuContainer;
-                    child:  textBar;
-                }
-            }
-        ]
-
-
-
-   }
-   Rectangle {
-        id: textBar
-        color: "transparent"
-        property string text: ""
-        anchors.bottom: parent.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
-        height: root.menuHeight
-        width: root.menuWidth
-        radius: 5
-        Text {
-            id: textBarText
             anchors.fill: parent
-            anchors.margins: 6
-            text: textBar.text
-            font.pixelSize: 13
-            verticalAlignment: Text.AlignVCenter
-            visible: false
+            Grid {
+                anchors.centerIn: parent
+                columns: 2
+                spacing: gridSpacing
+                // x: (parent.width - width) / 2
+                // y: (parent.height - height) / 2
+                RoundButton {
+                    text: "Attack"
+                    palette.button: "red"
+                    font.pixelSize: buttonFontSize
+                    width: buttonWidth
+                    height: buttonHeight
+                    onClicked: root.onAttackButtonClicked()
+                }
+                RoundButton {
+                    text: "Switch"
+                    palette.button: "green"
+                    font.pixelSize: buttonFontSize
+                    width: buttonWidth
+                    height: buttonHeight
+                }
+                RoundButton {
+                    text: "Catch"
+                    palette.button: "yellow"
+                    font.pixelSize: buttonFontSize
+                    width: buttonWidth
+                    height: buttonHeight
+                }
+                RoundButton {
+                    text: "Run"
+                    palette.button: "blue"
+                    font.pixelSize: buttonFontSize
+                    width: buttonWidth
+                    height: buttonHeight
+                    onClicked: root.runClicked()
+                }
+            }
         }
-
-        Grid {
-            id: buttonGrid
-            columns: 2
-            spacing: gridSpacing
-            x: (parent.width - width) / 2
-            y: (parent.height - height) / 2
-
-            RoundButton {
-                text: "Attack"
-                palette.button: "red"
-                font.pixelSize: buttonFontSize
-                width: buttonWidth
-                height: buttonHeight
-                onClicked: root.onAttackButtonClicked()
-            }
-            RoundButton {
-                text: "Switch"
-                palette.button: "green"
-                font.pixelSize: buttonFontSize
-                width: buttonWidth
-                height: buttonHeight
-            }
-            RoundButton {
-                text: "Catch"
-                palette.button: "yellow"
-                font.pixelSize: buttonFontSize
-                width: buttonWidth
-                height: buttonHeight
-            }
-            RoundButton {
-                text: "Run"
-                palette.button: "blue"
-                font.pixelSize: buttonFontSize
-                width: buttonWidth
-                height: buttonHeight
-                onClicked: root.runClicked()
-            } } }
-
+    }
+}
 
 
 
     //Relative positioning of elements
-
     function positionSpriteAndStatusBar(sprite) {
         var margin = root.pokeMargin;
 
@@ -279,11 +267,6 @@ Item {
             // End
             { type: "end" }
         ];
-
-        buttonGrid.visible = false;
-        textBar.color = "darkgrey";
-        textBarText.visible = true;
-
         executeNextStep();
     }
 
@@ -356,8 +339,7 @@ Item {
         root.attackInProgress = false;
         root.attackSequence = [];
         root.currentAttackIndex = 0;
-        buttonGrid.visible = true;
-        textBarText.visible = false;
-        textBar.color = "transparent";
+        // rootSelection.visible = true;
+        // textBarText.visible = false;
     }
 }
