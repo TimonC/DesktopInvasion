@@ -80,6 +80,8 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
         } else {
            playerFirst = opponentMove->priority < playerMove->priority;
         }
+        m_battleOpponent->delta.isFirst = !playerFirst;
+        m_battleParty[m_chosenPartyIndex]->delta.isFirst = playerFirst;
 
         if(playerFirst){
             applyMove(playerMove, m_battleParty[m_chosenPartyIndex], m_battleOpponent);
@@ -204,8 +206,8 @@ void BattleMoveHandler::applyMove(const Move* _move, Battler* caster, Battler* t
             }
         }
 
-        int atkModifier = caster->battleState.statModifiers[attackStatIndex];
-        int defModifier = target->battleState.statModifiers[attackStatIndex + 2];
+        int atkModifier = caster->battleState.statModifiers[attackStatIndex - 1];
+        int defModifier = target->battleState.statModifiers[attackStatIndex + 1];
 
         if(crit){
             params.critical = 150;
@@ -261,12 +263,8 @@ void BattleMoveHandler::applyMove(const Move* _move, Battler* caster, Battler* t
             caster->delta.heal = healAmount;
             caster->battleState.currentHealth = std::min(100, caster->battleState.currentHealth + healAmount);
         }
-
-        applySecondaryEffects(_move, target);
-
-    } else {
-        applySecondaryEffects(_move, target);
     }
+    applySecondaryEffects(_move, target);
 }
 
 void BattleMoveHandler::applySecondaryEffects(const Move* _move, Battler* target) {
@@ -279,9 +277,20 @@ void BattleMoveHandler::applySecondaryEffects(const Move* _move, Battler* target
     }
 
     if (ailmentApplied && _move->ailment != Ailment::Null) {
-        if (target->battleState.statusCondition == Ailment::Null) {
-            target->delta.addStatusCondition = _move->ailment;
-            target->battleState.statusCondition = _move->ailment;
+        if(_move->ailment==Ailment::Confusion){
+            if(target->battleState.confused == Ailment::Confusion) {
+                target->delta.failedConfusion = true;
+            } else {
+                target->delta.addConfusion = true;
+                target->battleState.confused = Ailment::Confusion;
+            }
+        }else{
+            if(target->battleState.statusCondition != Ailment::Null) {
+                target->delta.failedStatusCondition = true;
+            } else {
+                target->delta.addStatusCondition = _move->ailment;
+                target->battleState.statusCondition = _move->ailment;
+            }
         }
     }
 
@@ -295,9 +304,21 @@ void BattleMoveHandler::applySecondaryEffects(const Move* _move, Battler* target
     if (statApplied) {
         for (int i = 0; i < 5; ++i) {
             if (_move->stat_changes[i] != 0) {
-                target->delta.deltaStatModifiers[i] = _move->stat_changes[i];
-                target->battleState.statModifiers[i] = std::max(-6, std::min(6,
-                    target->battleState.statModifiers[i] + _move->stat_changes[i]));
+                int newModifier = target->battleState.statModifiers[i] + _move->stat_changes[i];
+                int clampedModifier = std::max(-6, std::min(6, newModifier));
+
+                int actualChange = clampedModifier - target->battleState.statModifiers[i];
+
+                if(actualChange == 0) {
+                    if(_move->stat_changes[i] > 0) {
+                        target->delta.statMaxed[i] = true;
+                    } else {
+                        target->delta.statMinned[i] = true;
+                    }
+                } else {
+                    target->delta.deltaStatModifiers[i] = actualChange;
+                    target->battleState.statModifiers[i] = clampedModifier;
+                }
             }
         }
     }
@@ -333,36 +354,43 @@ void BattleMoveHandler::generateMoveSequence(QVariantList& sequence, Battler& at
         sequence.append(createTextAction(attackerName + " is frozen solid!", ms_statusConditionText));
     } else if(attacker.delta.paralyzed) {
         sequence.append(createTextAction(attackerName + " is paralyzed! It can't move!", ms_statusConditionText));
-    } else if(attacker.delta.confusedDamage > 0) {
-        sequence.append(createTextAction(attackerName + " hurt itself in its confusion!", ms_ailmentText));
-        sequence.append(createDamageAction(attackerRole, ms_damageAnimation));
-        sequence.append(createHealthChangeAction(attackerRole, -attacker.delta.confusedDamage, ms_healthChange));
-    } else if(attacker.delta.miss) {
-        sequence.append(createTextAction(attackerName + " used " + moveName + "!", ms_moveUsedText));
-        sequence.append(createTextAction(attackerName + "'s attack missed!", ms_statusConditionText));
-    } else if(attacker.delta.damage > 0) {
-        sequence.append(createTextAction(attackerName + " used " + moveName + "!", ms_moveUsedText));
-        sequence.append(createAttackAction(attackerRole, ms_attackAnimation));
-        sequence.append(createDamageAction(defenderRole, ms_damageAnimation));
-        sequence.append(createHealthChangeAction(defenderRole, -attacker.delta.damage, ms_healthChange));
+    }
 
-        if(attacker.delta.critical) {
-            sequence.append(createTextAction("A critical hit!", ms_criticalHitText));
+    else{
+        if(attacker.battleState.confused==Ailment::Confusion && !(attacker.delta.addConfusion && attacker.delta.isFirst)){
+            sequence.append(createTextAction(attackerName + " is confused!", ms_ailmentText));
         }
-        if(attacker.delta.superEffective) {
-            sequence.append(createTextAction("It's super effective!", ms_effectivenessText));
-        } else if (attacker.delta.notVeryEffective) {
-            sequence.append(createTextAction("It's not very effective...", ms_effectivenessText));
-        }
-        if(attacker.delta.drain > 0) {
-            sequence.append(createTextAction(attackerName + " drained health!", ms_drainEffectText));
-            sequence.append(createHealthChangeAction(attackerRole, attacker.delta.drain, ms_healthChange));
-        }
-    }else if(attacker.delta.noEffect){
+        if(attacker.delta.confusedDamage > 0) {
+            sequence.append(createTextAction("It hurt itself in its confusion!", ms_ailmentText));
+            sequence.append(createDamageAction(attackerRole, ms_damageAnimation));
+            sequence.append(createHealthChangeAction(attackerRole, -attacker.delta.confusedDamage, ms_healthChange));
+        } else if(attacker.delta.miss) {
             sequence.append(createTextAction(attackerName + " used " + moveName + "!", ms_moveUsedText));
-            sequence.append(createTextAction("It doesn't affect " + defenderName + "...", ms_effectivenessText));
-    }else{
+            sequence.append(createTextAction(attackerName + "'s attack missed!", ms_statusConditionText));
+        } else if(attacker.delta.damage > 0) {
             sequence.append(createTextAction(attackerName + " used " + moveName + "!", ms_moveUsedText));
+            sequence.append(createAttackAction(attackerRole, ms_attackAnimation));
+            sequence.append(createDamageAction(defenderRole, ms_damageAnimation));
+            sequence.append(createHealthChangeAction(defenderRole, -attacker.delta.damage, ms_healthChange));
+
+            if(attacker.delta.critical) {
+                sequence.append(createTextAction("A critical hit!", ms_criticalHitText));
+            }
+            if(attacker.delta.superEffective) {
+                sequence.append(createTextAction("It's super effective!", ms_effectivenessText));
+            } else if (attacker.delta.notVeryEffective) {
+                sequence.append(createTextAction("It's not very effective...", ms_effectivenessText));
+            }
+            if(attacker.delta.drain > 0) {
+                sequence.append(createTextAction(attackerName + " drained health!", ms_drainEffectText));
+                sequence.append(createHealthChangeAction(attackerRole, attacker.delta.drain, ms_healthChange));
+            }
+        }else if(attacker.delta.noEffect){
+                sequence.append(createTextAction(attackerName + " used " + moveName + "!", ms_moveUsedText));
+                sequence.append(createTextAction("It doesn't affect " + defenderName + "...", ms_effectivenessText));
+        }else{
+                sequence.append(createTextAction(attackerName + " used " + moveName + "!", ms_moveUsedText));
+        }
     }
 
     addPostMoveEffects(sequence, defender, defenderName, !isAttackerPlayer);
@@ -501,8 +529,16 @@ void BattleMoveHandler::addPostMoveEffects(QVariantList& sequence, Battler& batt
         sequence.append(createTextAction(name + " " + ailmentText, ms_statusConditionText));
     }
 
+    if(battler.delta.failedStatusCondition) {
+        sequence.append(createTextAction("But it failed!", ms_statusConditionText));
+    }
+
     if(battler.delta.addConfusion) {
         sequence.append(createTextAction(name + " became confused!", ms_statusConditionText));
+    }
+
+    if(battler.delta.failedConfusion) {
+        sequence.append(createTextAction("But it failed!", ms_statusConditionText));
     }
 
     if(battler.delta.removeStatusCondition != Ailment::Null) {
@@ -516,12 +552,29 @@ void BattleMoveHandler::addPostMoveEffects(QVariantList& sequence, Battler& batt
     }
 
     for (int i = 0; i < 5; ++i) {
-        if (battler.delta.deltaStatModifiers[i] > 0) {
+        if (battler.delta.deltaStatModifiers[i] != 0) {
             QString statName = getStatName(i);
-            sequence.append(createTextAction(name + "'s " + statName + " rose!", ms_statusConditionText));
-        } else if (battler.delta.deltaStatModifiers[i] < 0) {
+            int change = battler.delta.deltaStatModifiers[i];
+
+            if(change == 1) {
+                sequence.append(createTextAction(name + "'s " + statName + " rose!", ms_statusConditionText));
+            } else if(change >= 2) {
+                sequence.append(createTextAction(name + "'s " + statName + " rose sharply!", ms_statusConditionText));
+            } else if(change == -1) {
+                sequence.append(createTextAction(name + "'s " + statName + " fell!", ms_statusConditionText));
+            } else if(change <= -2) {
+                sequence.append(createTextAction(name + "'s " + statName + " harshly fell!", ms_statusConditionText));
+            }
+        }
+
+        if(battler.delta.statMaxed[i]) {
             QString statName = getStatName(i);
-            sequence.append(createTextAction(name + "'s " + statName + " fell!", ms_statusConditionText));
+            sequence.append(createTextAction(name + "'s " + statName + " won't go any higher!", ms_statusConditionText));
+        }
+
+        if(battler.delta.statMinned[i]) {
+            QString statName = getStatName(i);
+            sequence.append(createTextAction(name + "'s " + statName + " won't go any lower!", ms_statusConditionText));
         }
     }
 }
@@ -542,6 +595,30 @@ QString BattleMoveHandler::getStatName(int statIndex) {
         "Attack", "Defense", "Special Attack", "Special Defense", "Speed"
     };
     return (statIndex >= 0 && statIndex < 5) ? statNames[statIndex] : "Stat";
+}
+
+QVariantMap BattleMoveHandler::createStatusCondition(const QString& role, Ailment ailment){
+    QVariantMap action;
+    action["type"] = "status-condition";
+    action["role"] = role;
+    action["remove"] = false;
+    switch(ailment){
+        case Ailment::Burn: action["label"] = "BRN"; break;
+        case Ailment::Freeze: action["label"] = "FRZ"; break;
+        case Ailment::Paralysis: action["label"] = "PAR"; break;
+        case Ailment::Sleep: action["label"] = "SLP"; break;
+        case Ailment::Poison: action["label"] = "PSN"; break;
+        case Ailment::Null: action["remove"] = true; break;
+        default: action["label"] = ""; break;
+    }
+    return action;
+};
+
+
+QVariantMap BattleMoveHandler::createEndAction() {
+    QVariantMap action;
+    action["type"] = "end";
+    return action;
 }
 
 QVariantMap BattleMoveHandler::createTextAction(const QString& message, int delay) {
@@ -582,29 +659,5 @@ QVariantMap BattleMoveHandler::createCatchAction(int shakes, int delay) {
     action["type"] = "attempt-catch";
     action["shakes"] = shakes;
     action["delay"] = delay;
-    return action;
-}
-
-QVariantMap BattleMoveHandler::createStatusCondition(const QString& role, Ailment ailment){
-    QVariantMap action;
-    action["type"] = "status-condition";
-    action["role"] = role;
-    action["remove"] = false;
-    switch(ailment){
-        case Ailment::Burn: action["label"] = "BRN"; break;
-        case Ailment::Freeze: action["label"] = "FRZ"; break;
-        case Ailment::Paralysis: action["label"] = "PAR"; break;
-        case Ailment::Sleep: action["label"] = "SLP"; break;
-        case Ailment::Poison: action["label"] = "PSN"; break;
-        case Ailment::Null: action["remove"] = true; break;
-        default: action["label"] = ""; break;
-    }
-    return action;
-};
-
-
-QVariantMap BattleMoveHandler::createEndAction() {
-    QVariantMap action;
-    action["type"] = "end";
     return action;
 }

@@ -15,6 +15,8 @@ struct BattleStateDelta{
     int drain = 0;
     int heal = 0;
     std::array<int, 5> deltaStatModifiers = {0, 0, 0, 0, 0};
+    std::array<bool, 5> statMaxed = {false, false, false, false, false};
+    std::array<bool, 5> statMinned = {false, false, false, false, false};
     bool miss = false;
     bool superEffective = false;
     bool notVeryEffective = false;
@@ -30,6 +32,9 @@ struct BattleStateDelta{
     Ailment removeStatusCondition = Ailment::Null;
     bool addConfusion = false;
     bool removeConfusion = false;
+    bool failedStatusCondition = false;
+    bool failedConfusion = false;
+    bool isFirst = false;
 };
 
 struct PokeState{

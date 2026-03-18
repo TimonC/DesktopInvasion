@@ -202,7 +202,7 @@ void Game::spawnPokemon() {
         m_wildPokemon->show();
         m_spawnTimer->stop();
     }
-    m_wildPokemon->startABattle();
+    /* m_wildPokemon->startABattle(); */
 }
 
 Party Game::getParty() {
@@ -364,7 +364,7 @@ void Game::createInitialPokemon() {
 
     duskull.nature = Nature::Hardy;
     duskull.lvl = 10;
-    duskull.moves[0] = 14;
+    duskull.moves[0] = 45;
     duskull.moves[1] = 86;
     duskull.moves[2] = 109;
     duskull.moves[3] = 424;
@@ -388,7 +388,7 @@ void Game::createInitialPokemon() {
 
     dusclops.nature = Nature::Hardy;
     dusclops.lvl = 10;
-    dusclops.moves[0] = 14;
+    dusclops.moves[0] = 45;
     dusclops.moves[1] = 86;
     dusclops.moves[2] = 109;//425;
     dusclops.moves[3] = 53;
