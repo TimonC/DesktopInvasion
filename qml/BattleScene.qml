@@ -14,8 +14,8 @@ Item {
     property int gridSpacing: frameSize * 0.1
     property int pokeMargin: frameSize * 0.25
     property bool debugLines: false
-    property int textBoxHeight: 50
-    property int textBoxWidth: frameSize * 5
+    property int menuHeight: 50
+    property int menuWidth: frameSize * 5
     property int direction: 0
 
     property alias opponent: opponent
@@ -76,14 +76,47 @@ Item {
     }
 
    // UI
-    Rectangle {
+   Rectangle {
+        id: menuContainer
+        color: "transparent"
+        anchors.bottom: parent.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+        height: root.menuHeight
+        width:  root.menuWidth
+        property alias child: child
+
+        Item{
+         id: child
+        }
+
+        states: [
+            State{
+                name: "root-selection"
+                PropertyChanges{
+                    target: menuContainer;
+                    child:  buttonGrid;
+                }
+            },
+            State{
+                name: "display-text"
+                PropertyChanges{
+                    target: menuContainer;
+                    child:  textBar;
+                }
+            }
+        ]
+
+
+
+   }
+   Rectangle {
         id: textBar
         color: "transparent"
         property string text: ""
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
-        height: root.textBoxHeight
-        width: root.textBoxWidth
+        height: root.menuHeight
+        width: root.menuWidth
         radius: 5
         Text {
             id: textBarText
@@ -134,6 +167,10 @@ Item {
             } } }
 
 
+
+
+    //Relative positioning of elements
+
     function positionSpriteAndStatusBar(sprite) {
         var margin = root.pokeMargin;
 
@@ -146,17 +183,17 @@ Item {
         switch(sprite.direction) {
             case 0:
                 sprite.x = margin + sprite.containerOffsetX;
-                sprite.y = root.height - (textBoxHeight + margin + sprite.containerOffsetY + sprite.height);
+                sprite.y = root.height - (menuHeight + margin + sprite.containerOffsetY + sprite.height);
 
                 sprite.statusBar.x = 3*32 - margin
                 sprite.statusBar.y = sprite.y
                 break;
             case 1:
                 sprite.x = root.width - (margin + sprite.containerOffsetX + sprite.width);
-                sprite.y = root.height - (textBoxHeight + margin + sprite.height);
+                sprite.y = root.height - (menuHeight + margin + sprite.height);
 
                 sprite.statusBar.x = root.width - 32*2.5 - margin
-                sprite.statusBar.y = (root.height - textBoxHeight  - 3*32)/2
+                sprite.statusBar.y = (root.height - menuHeight  - 3*32)/2
                 break;
             case 2:
                 sprite.x = margin + sprite.containerOffsetX;
@@ -167,10 +204,10 @@ Item {
                 break;
             case 3:
                 sprite.x = margin + sprite.containerOffsetX;
-                sprite.y = root.height - (textBoxHeight + margin + sprite.height);
+                sprite.y = root.height - (menuHeight + margin + sprite.height);
 
                 sprite.statusBar.x = 32/2 + margin
-                sprite.statusBar.y = (root.height - textBoxHeight  - 3*32)/2
+                sprite.statusBar.y = (root.height - menuHeight  - 3*32)/2
                 break;
         }
         sprite.startingX = sprite.x;
@@ -300,6 +337,7 @@ Item {
                 sequenceTimer.interval = step.delay;
                 sequenceTimer.start();
                 break;
+
             case "battle-over":
                 if(step.defender==root.opponent){
                     root.playerWon()

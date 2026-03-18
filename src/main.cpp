@@ -9,6 +9,10 @@
 #include <QOpenGLContext>
 
 int main(int argc, char *argv[]) {
+    /* Globals::DEBUG = true; */
+    const int num_wild        = 1;
+    const int start_pokedexid = 400;
+
     QGuiApplication app(argc, argv);
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 
@@ -21,14 +25,10 @@ int main(int argc, char *argv[]) {
     } else {
         qDebug() << "OpenGL FAILED - using software rendering";
     }
-
-    /* Globals::DEBUG = true; */
     /* if (!Globals::DEBUG) { */
         /* QLoggingCategory::setFilterRules("*.debug=false"); */
     /* } */
 
-    const int start_pokedexid = 400;
-    const int num_wild        = 1;
     std::vector<std::unique_ptr<WildPokemon>> wildPokemon;
 
     /* const PokemonInfo* pokemonInfo1 = Globals::getPokemonByPokedexId(354); */
