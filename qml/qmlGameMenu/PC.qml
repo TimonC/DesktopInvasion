@@ -254,21 +254,27 @@ Item {
 
         property bool iconVisible: false
         property bool swappable:{
-            if (root.inSwapMode && root.swapSource !== null){
-                if(root.swapSource === pcPos) return false
-                if(root.swapSource[0] === -1){
-                    if(pcPos[0]===-1 && (pcPos[1]>=root.freePartySlot)){
-                       return false
-                    }
-                    return true
-                }else{
-                    if(pcPos[0]===-1 && pcPos[1]>root.freePartySlot){
-                       return false
-                    }
-                    return true
-                }
+            if (!root.inSwapMode || root.swapSource === null || root.swapSource  === pcPos){
+                return false
             }
-            return false
+
+            if(root.swapSource[0] === -1){
+                if(pcPos[0]===-1){
+                   if(pcPos[1]>=root.freePartySlot){
+                       return false
+                   }
+                }else{
+                   if(root.freePartySlot<=1 && !iconVisible){
+                       return false
+                   }
+                }
+                return true
+            }else{
+                if(pcPos[0]===-1 && pcPos[1]>root.freePartySlot){
+                   return false
+                }
+                return true
+            }
         }
 
         color: {
