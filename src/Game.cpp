@@ -258,18 +258,13 @@ void Game::handleBattleStart() {
     m_spawnPoint = m_wildPokemon->position();
     m_spawnDirection = m_wildPokemon->m_currentDirection;
 
-    safelyRemoveWildPokemon();
 
     std::vector<int> idsToFetch = {0};
     for(int i = 0; i < 6; i++){
         idsToFetch.push_back(m_partyIds[i]);
     }
 
-    auto startTime = std::chrono::steady_clock::now();
     std::vector<PokemonState> pokemonStates = m_db.getPokemonBatch(idsToFetch);
-    auto endTime = std::chrono::steady_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
-    qDebug() << "Database batch fetch took:" << duration.count() << "ms";
 
     PokemonState wildState = pokemonStates[0];
     std::array<PokemonState, 6> partyStates;
@@ -286,6 +281,10 @@ void Game::handleBattleStart() {
             this, &Game::handleBattleEnd);
     connect(m_activeBattle, &Battle::_updatePartyXP,
             this, &Game::updatePartyXP);
+
+    QTimer::singleShot(40, this, [this]() {
+        safelyRemoveWildPokemon();
+    });
 
     qDebug() << "Starting battle...";
 }

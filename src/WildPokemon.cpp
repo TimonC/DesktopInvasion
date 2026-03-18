@@ -23,6 +23,7 @@ WildPokemon::WildPokemon(int pokedexId, QPoint spawnPoint, int spawnDirection,  
         setPosition(QPoint(screen.width()/2, screen.height()/2));
     }
 
+
     bool isBig = info->spriteSheet==SpriteSheet::Big;
     /* setSource(QUrl("qrc:/qml/PokemonSprite.qml")); */
     setSource(QUrl("../qml/PokemonSprite.qml"));
@@ -55,7 +56,7 @@ WildPokemon::WildPokemon(int pokedexId, QPoint spawnPoint, int spawnDirection,  
     }
 
     m_decisionTimer->setInterval(2000 + std::rand()%2000);
-    m_moveTimer->setInterval(50);
+    m_moveTimer->setInterval(50); // 20fps
 
     roaming(true);
     show();
@@ -110,7 +111,7 @@ void WildPokemon::startBattle(){
     m_moveTimer->disconnect();
     m_decisionTimer->disconnect();
 
-    int BOUNDARY_MARGIN = 16*Globals::scale();
+    const int BOUNDARY_MARGIN = 16;
     const QRect& screen = Globals::screenGeometry();
 
     bool intop = y() < screen.y() + BOUNDARY_MARGIN;
@@ -141,7 +142,6 @@ void WildPokemon::makeRandomDecision(){
         m_moveTimer->stop();
     }
 }
-
 
 void WildPokemon::moveStep(){
     QPoint delta;
