@@ -72,13 +72,13 @@ Item {
         switch(sprite.direction) {
             case 0:
                 sprite.x = (root.width - root.statusBarWidth - sprite.width)/2
-                sprite.y = root.height - root.menuHeight - sprite.height
+                sprite.y = root.height - root.menuHeight - sprite.height - root.frameSize/4
                 sprite.statusBar.x = root.width - root.statusBarWidth
                 sprite.statusBar.y = sprite.y
                 break
             case 1:
                 sprite.x = root.width - root.frameSize/2 - root.statusBarWidth/2 - sprite.width/2
-                sprite.y = root.height - sprite.horizontalHeight - root.menuHeight - root.frameSize/3
+                sprite.y = root.height - sprite.horizontalHeight - root.menuHeight - root.frameSize/4
                 sprite.statusBar.x = root.width - root.frameSize/2 - root.statusBarWidth
                 sprite.statusBar.y = 0
                 break
@@ -90,7 +90,7 @@ Item {
                 break
             case 3:
                 sprite.x = root.frameSize/2 + root.statusBarWidth/2 - sprite.width/2
-                sprite.y = root.height - sprite.horizontalHeight - root.menuHeight - root.frameSize/3
+                sprite.y = root.height - sprite.horizontalHeight - root.menuHeight - root.frameSize/4
                 sprite.statusBar.x = root.frameSize/2
                 sprite.statusBar.y = 0
                 break
