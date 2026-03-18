@@ -1,0 +1,70 @@
+name: Build Windows
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '6.8.0'
+        host: 'windows'
+        target: 'desktop'
+        arch: 'win64_mingw'
+        cache: true
+    
+    - name: Configure CMake
+      run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+    
+    - name: Build
+      run: cmake --build build --config Release --parallel
+    
+    - name: Package
+      shell: powershell
+      run: |
+        # Create output directory
+        New-Item -ItemType Directory -Force -Path output/DesktopInvasion-Windows
+        
+        # Copy executable
+        Copy-Item build/DesktopInvasion.exe output/DesktopInvasion-Windows/
+        
+        # Run windeployqt
+        & windeployqt.exe --release --qmldir qml output/DesktopInvasion-Windows/DesktopInvasion.exe
+        
+        # Find and copy MinGW DLLs
+        $mingwPath = "${{ env.Qt6_Dir }}\..\..\..\Tools\*\bin"
+        $mingwDlls = @("libstdc++-6.dll", "libgcc_s_seh-1.dll", "libwinpthread-1.dll")
+        
+        foreach ($dll in $mingwDlls) {
+          $dllPath = Get-ChildItem $mingwPath -Filter $dll -Recurse | Select-Object -First 1
+          if ($dllPath) {
+            Copy-Item $dllPath.FullName output/DesktopInvasion-Windows/
+            Write-Host "Copied $dll"
+          }
+        }
+        
+        # Create README
+        @"
+        Desktop Invasion - Windows Version
+        To play: Double-click DesktopInvasion.exe
+        "@ | Out-File -FilePath output/DesktopInvasion-Windows/README.txt -Encoding UTF8
+        
+        # Create zip
+        Compress-Archive -Path output/DesktopInvasion-Windows -DestinationPath DesktopInvasion-Windows.zip
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: DesktopInvasion-Windows
+        path: DesktopInvasion-Windows.zip
