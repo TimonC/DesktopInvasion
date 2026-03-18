@@ -5,7 +5,6 @@
 #include <Game.h>
 #include <tests.h>
 #include <QQmlApplicationEngine>
-#include <variant_mapper.h>
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);

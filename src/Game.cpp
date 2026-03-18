@@ -6,7 +6,7 @@
 #include <QTimer>
 #include <QDebug>
 #include <cstring>
-#include <variant_mapper.h>
+#include <form_mapper.h>
 
 Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
     : QObject(parent)
@@ -225,7 +225,7 @@ Party Game::getParty() {
 
         party.pokedexIds[i] = info->pokedexId;
         party.spriteIds[i] = info->spriteId;
-        party.iconIds[i] = VariantMapper::pokedexID2IconID(pokemon.pokedex_id, 0);
+        party.iconIds[i] = FormMapper::toIconId(pokemon.pokedex_id, 0);
         party.names[i] = pokemon.name;
         party.gens[i] = info->generation;
         party.ballIds[i] = 3;
