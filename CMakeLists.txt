@@ -15,7 +15,7 @@ qt6_add_resources(RESOURCES_RCC resources.qrc)
 
 # Automatically find all source and header files
 file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS src/*.cpp)
-file(GLOB_RECURSE HEADER_FILES CONFIGURE_DEPENDS include/*.h include/*.hpp)
+file(GLOB_RECURSE HEADER_FILES CONFIGURE_DEPENDS include/*.h)
 
 # Create the executable target
 add_executable(DesktopInvasion

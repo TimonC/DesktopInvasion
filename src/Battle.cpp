@@ -1,7 +1,7 @@
 #include <Battle.h>
-#include <algorithm>
 #include <globals.h>
 #include <QTimer>
+#include <utils/connectWithQML.h>
 
 Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent)
     : DesktopScene(parent)
@@ -24,19 +24,19 @@ Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent
     });
 
     // Use connectWithQML for clean signal handling
-    connectWithQML(SIGNAL(runChosen()), [this]() {
+    connectWithQML(m_battleScene, SIGNAL(runChosen()), [this]() {
         handleRunChosen();
     });
 
-    connectWithQML(SIGNAL(opponentWon()), [this]() {
+    connectWithQML(m_battleScene, SIGNAL(opponentWon()), [this]() {
         handleOpponentWon();
     });
 
-    connectWithQML(SIGNAL(playerWon()), [this]() {
+    connectWithQML(m_battleScene, SIGNAL(playerWon()), [this]() {
         handlePlayerWon();
     });
 
-    connectWithQML(SIGNAL(pokemonCaught()), [this]() {
+    connectWithQML(m_battleScene, SIGNAL(pokemonCaught()), [this]() {
         handlePokemonCaught();
     });
 

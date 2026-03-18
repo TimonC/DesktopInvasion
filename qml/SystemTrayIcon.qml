@@ -8,7 +8,7 @@ SystemTrayIcon {
     property alias iconRoot: root.icon
     property alias hideText: hideItem.text
 
-    signal gameVisible(bool visible);
+    signal gameActive(bool active);
 
     onActivated: function(reason) {
         if (reason === SystemTrayIcon.DoubleClick) {
@@ -53,7 +53,7 @@ SystemTrayIcon {
             root.hideText = "Hide"
         }
 
-        root.gameVisible(!currentlyVisible);
+        root.gameActive(!currentlyVisible);
     }
 }
 

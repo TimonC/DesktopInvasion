@@ -1,14 +1,15 @@
 #include <QApplication>
-#include <QQmlApplicationEngine>
 #include <QLoggingCategory>
 #include <QOpenGLContext>
 #include <globals.h>
 #include <Game.h>
 #include <tests.h>
+#include <QQmlApplicationEngine>
 
 int main(int argc, char *argv[]) {
 
     QApplication app(argc, argv);
+
     QQmlApplicationEngine engine;
     engine.load(QUrl(QStringLiteral("qrc:/qml/SystemTrayIcon.qml")));
 
@@ -30,7 +31,7 @@ int main(int argc, char *argv[]) {
 
     runAllTests();
 
-    Game game;
+    Game game(&engine, nullptr);
 
 
     return app.exec();

@@ -3,12 +3,20 @@
 #include <globals.h>
 #include <Player.h>
 #include <QTimer>
+#include <utils/connectWithQML.h>
 
-Game::Game(QObject* parent) : QObject(parent){
+Game::Game(QQmlApplicationEngine* engine, QObject* parent) : QObject(parent){
+
     m_menu = new GameMenu();
+
     spawnWildPokemon(Globals::getPokemonInfo());
     connect(&Globals::getPlayer(), &Player::startABattle,
             this, &Game::handleBattleStart);
+
+    QObject* systemTrayIcon = engine->rootObjects()[0];
+    connectWithQML(systemTrayIcon, SIGNAL(gameActive()), [this](){
+                setGameActive();
+            });
 }
 
 Game::~Game() {
@@ -21,8 +29,18 @@ Game::~Game() {
     delete m_menu;
 }
 
-void Game::enableSpawn(bool enable) {
+void Game::setSpawnActive(bool active) {
     // Implementation
+}
+
+void Game::setGameActive(bool active){
+    if(active){
+        m_activeBattle->close();
+        m_wildPokemon->close();
+    }else{
+        m_activeBattle->show();
+        m_wildPokemon->show();
+    }
 }
 
 void Game::spawnWildPokemon(const PokemonInfo* info){
@@ -45,9 +63,11 @@ void Game::handleBattleEnd(Battle* battle, WildPokemon* opp, bool removeWild) {
     assert(battle == m_activeBattle && "Battle mismatch in handleBattleEnd");
 
     disconnect(battle, nullptr, this, nullptr);
-    battle->setProperty("visible", false);
-    battle->deleteLater();
-    m_activeBattle = nullptr;
+        QTimer::singleShot(10, this, [this,battle]() {
+            battle->setProperty("visible", false);
+            battle->deleteLater();
+            m_activeBattle = nullptr;
+        });
 
     if (removeWild) {
         assert(m_wildPokemon == opp && "WildPokemon mismatch in handleBattleEnd");
