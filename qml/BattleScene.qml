@@ -439,18 +439,18 @@ Item {
             if (lvlups[i] >0){
                 sequence.push({
                     type: "text",
-                    message: battleMenu.party.names[i] + " leveled up to " + lvlups[i] + "!",
-                    delay: 800
+                    message: battleMenu.party.names[i] + " grew to Lv." + lvlups[i] + "!",
+                    delay: 1500
                 })
             }else if (spread[i] > 0){
                 sequence.push({
                     type: "text",
-                    message: battleMenu.party.names[i] + " gained " + spread[i] + " EXP!",
-                    delay: 800
+                    message: battleMenu.party.names[i] + " gained " + spread[i] + " Exp. Points!",
+                    delay: 1500
                 })
             }
         }
-        sequence.push({ type: "player-won", delay: 200})
+        sequence.push({ type: "player-won", delay: 500})
         executeActionSequence(sequence)
     }
 

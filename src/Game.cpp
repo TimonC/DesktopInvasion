@@ -357,7 +357,7 @@ void Game::createInitialPokemon() {
     }
 
     duskull.nature = Nature::Hardy;
-    duskull.lvl = 10;
+    duskull.lvl = 1;
     duskull.moves[0] = 261;
     duskull.moves[1] = 425;
     duskull.moves[2] = 181;
