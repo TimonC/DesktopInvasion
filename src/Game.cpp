@@ -68,6 +68,8 @@ void Game::setGameActive(bool active) {
     } else {
         if (m_activeBattle) {
             updateWildPokemonPosToBattlePos();
+            m_activeBattle->disconnect(); //this might not be secure with deleteLater, could potentially be the cause of freezes
+                                          //but i do it here to avoid a bug where all all the battleended signals are triggered
             m_activeBattle->deleteLater();
             m_activeBattle = nullptr;
         }
@@ -221,7 +223,8 @@ void Game::handleBattleEnd(const char* endState) {
 
     bool playerWon = (strcmp(endState, "PlayerWon") == 0);
     bool opponentCaught = (strcmp(endState, "OpponentCaught") == 0);
-    bool removeWild = playerWon || opponentCaught || (strcmp(endState, "opponentWon") == 0);
+    bool opponentWon = strcmp(endState, "OpponentWon") == 0;
+    bool removeWild = playerWon || opponentCaught || opponentWon;
 
     if (removeWild) {
         // Player won the battle - add XP
