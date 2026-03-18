@@ -47,11 +47,12 @@ RUN ln -sf /opt/linuxdeploy/AppRun /usr/local/bin/linuxdeploy && \
 # Copy project files
 WORKDIR /app
 COPY CMakeLists.txt ./CMakeLists.txt
+COPY resources.qrc ./resources.qrc
+COPY resources.dev.qrc ./resources.dev.qrc
 COPY assets ./assets
 COPY qml ./qml
 COPY include ./include
 COPY src ./src
-COPY resources.qrc ./resources.qrc
 COPY build_dev.sh ./build_dev.sh
 COPY build_prod.sh ./build_prod.sh
 

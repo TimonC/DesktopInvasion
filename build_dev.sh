@@ -1,10 +1,14 @@
 #!/bin/bash
-# build_dev.sh
+
 set -e
 
 : "${XDG_RUNTIME_DIR:=/tmp/xdg}"
 mkdir -p "$XDG_RUNTIME_DIR"
 chmod 0700 "$XDG_RUNTIME_DIR"
+
+if [ -f "resources.dev.qrc" ]; then
+    cp resources.dev.qrc resources.qrc
+fi
 
 echo "First script execution - wiping volume"
 rm -rf /app/data/* 2>/dev/null || true

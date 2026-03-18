@@ -8,8 +8,11 @@ GameMenu::GameMenu()
     qDebug() << "GameMenu constructor called!";
 
     setFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    setSource(QUrl("qrc:/qml/qmlGameMenu/Menu.qml"));
-    /* setSource(QUrl("../qml/qmlGameMenu/Menu.qml")); */
+    if(strcmp(std::getenv("DOCKER_ENV"), "dev") == 0){
+        setSource(QUrl("../qml/qmlGameMenu/Menu.qml"));
+    }else{
+        setSource(QUrl("qrc:/qml/qmlGameMenu/Menu.qml"));
+    }
     setTitle("DesktopInvasion");
     hide();
 }
