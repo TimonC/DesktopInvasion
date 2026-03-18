@@ -185,8 +185,10 @@ void BattleMoveHandler::applyEndOfTurnEffects(Battler* battler) {
         battler->battleState.currentHealth = std::max(0, battler->battleState.currentHealth - burnDamage);
     }
 
-    if (battler->battleState.statusCondition == Ailment::Poison) {
-        int poisonDamage = PokeMath::calculatePoisonDamage(battler->pokeState.stats[0]);
+    if (battler->battleState.statusCondition == Ailment::Poison ||  battler->battleState.statusCondition == Ailment::Toxic) {
+        int counter = -1;
+        if(battler->battleState.statusCondition == Ailment::Toxic) counter = battler->battleState.statusConditionCounter;
+        int poisonDamage = PokeMath::calculatePoisonDamage(battler->pokeState.stats[0], counter);
         battler->delta.ailmentDamage = poisonDamage;
         battler->battleState.currentHealth = std::max(0, battler->battleState.currentHealth - poisonDamage);
     }
@@ -510,6 +512,7 @@ QString BattleMoveHandler::ailmentToApplicationText(Ailment ailment){
         case Ailment::Freeze: return "was frozen solid!";
         case Ailment::Paralysis: return "is paralyzed!";
         case Ailment::Poison: return "was poisoned!";
+        case Ailment::Toxic: return "was badly poisoned!";
         case Ailment::Sleep: return "fell asleep!";
         case Ailment::Confusion: return "became confused!";
         default: return "";
@@ -520,6 +523,7 @@ QString BattleMoveHandler::ailmentToHurtText(Ailment ailment){
     switch(ailment) {
         case Ailment::Burn: return "burn";
         case Ailment::Poison: return "poison";
+        case Ailment::Toxic: return "poison";
         default: return "";
     }
 };
@@ -530,6 +534,7 @@ QString BattleMoveHandler::ailmentToRemovalText(Ailment ailment){
         case Ailment::Freeze: return "freeze";
         case Ailment::Paralysis: return "paralysis";
         case Ailment::Poison: return "poison";
+        case Ailment::Toxic: return "poison";
         case Ailment::Sleep: return "sleep";
         default: return "";
     }
@@ -628,6 +633,7 @@ QVariantMap BattleMoveHandler::createStatusCondition(const QString& role, Ailmen
         case Ailment::Paralysis: action["label"] = "PAR"; break;
         case Ailment::Sleep: action["label"] = "SLP"; break;
         case Ailment::Poison: action["label"] = "PSN"; break;
+        case Ailment::Toxic: action["label"] = "PSN"; break;
         case Ailment::Null: action["remove"] = true; break;
         default: action["label"] = ""; break;
     }

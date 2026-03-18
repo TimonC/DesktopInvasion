@@ -5,7 +5,7 @@
 #include <PokeTypes.h>
 
 enum class Ailment{
-    Burn, Freeze, Paralysis, Poison, Sleep, Confusion, Null
+    Burn, Freeze, Paralysis, Poison, Toxic, Sleep, Confusion, Null
 };
 
 enum class MoveCategory{
