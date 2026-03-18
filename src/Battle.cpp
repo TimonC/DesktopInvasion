@@ -48,6 +48,10 @@ Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent
 
     show();
 
+    QTimer::singleShot(20, this, [this]() {
+        m_width  = width();
+        m_height = height();
+    });
 }
 
 void Battle::handleRunChosen() {

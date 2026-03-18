@@ -17,10 +17,6 @@ DesktopScene::DesktopScene(QWindow *parent)
         );
      setColor(Qt::transparent);
     //Short delay to ensure proper window size
-    QTimer::singleShot(2, this, [this]() {
-        m_width  = width();
-        m_height = height();
-    });
 }
 
 

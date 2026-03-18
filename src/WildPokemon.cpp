@@ -50,6 +50,11 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
 
     startRoaming();
     show();
+
+    QTimer::singleShot(20, this, [this]() {
+        m_width  = this->width();
+        m_height = this->height();
+    });
 }
 
 
