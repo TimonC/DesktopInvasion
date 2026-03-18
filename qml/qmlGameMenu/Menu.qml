@@ -21,55 +21,13 @@ Rectangle {
 
     property string currentMenu: "Party"
 
-    ColumnLayout {
-        anchors.fill: parent
-        spacing: 0
-
-        // Header with menu buttons
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: root.headerHeight
-            color: root.backgroundColor
-
-            RowLayout {
-                anchors.fill: parent
-                spacing: 0
-
-                Repeater {
-                    model: ["Player", "Party", "PC", "Settings"]
-
-                    Rectangle {
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        color: root.currentMenu === modelData ? root.buttonSelectedColor : root.buttonColor
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: modelData
-                            font.pixelSize: root.headerFontSize
-                            font.family: root.fontFamily
-                            color: root.textColor
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: root.currentMenu = modelData
-                        }
-                    }
-                }
-            }
-        }
-
-        // Content area
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            color: root.backgroundColor
-
-            Loader {
-                anchors.fill: parent
-                source: root.currentMenu + ".qml"
-            }
+    Rectangle{
+        Layout.fillWidth: true
+        Layout.fillHeight: true
+        color: root.backgroundColor
+        RowLayout {
+            anchors.fill: parent
+            spacing: 0
         }
     }
 }

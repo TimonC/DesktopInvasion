@@ -29,16 +29,18 @@ Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
 
     initializeGame();
 
-    connect(m_trayIcon, &SystemTrayIcon::gameActive, this, &Game::setGameActive);
+    /* connect(m_trayIcon, &SystemTrayIcon::gameActive, this, &Game::setGameActive); */
 
-    connect(m_trayIcon, &SystemTrayIcon::menuButtonPressed, this, &Game::handleMenuOpen);
+    /* connect(m_trayIcon, &SystemTrayIcon::menuButtonPressed, this, &Game::handleMenuOpen); */
 
-    connect(m_menu, &GameMenu::menuClosed, this, &Game::handleMenuClosed);
+    /* connect(m_menu, &GameMenu::menuClosed, this, &Game::handleMenuClosed); */
 
 
-    m_spawnTimer->setInterval(m_spawnDelay_ms);
-    connect(m_spawnTimer, &QTimer::timeout, this, &Game::spawnPokemon);
-    m_spawnTimer->start();
+    /* m_spawnTimer->setInterval(m_spawnDelay_ms); */
+    /* connect(m_spawnTimer, &QTimer::timeout, this, &Game::spawnPokemon); */
+    /* m_spawnTimer->start(); */
+
+    handleMenuOpen();
 }
 
 Game::~Game() {
