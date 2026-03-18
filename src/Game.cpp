@@ -5,18 +5,19 @@
 #include <QTimer>
 #include <utils/connectWithQML.h>
 
-Game::Game(QQmlApplicationEngine* engine, QObject* parent) : QObject(parent){
-
+Game::Game(QQmlApplicationEngine* engine, QObject* parent) : QObject(parent) {
     m_menu = new GameMenu();
 
     spawnWildPokemon(Globals::getPokemonInfo());
     connect(&Globals::getPlayer(), &Player::startABattle,
             this, &Game::handleBattleStart);
 
-    QObject* systemTrayIcon = engine->rootObjects()[0];
-    connectWithQML(systemTrayIcon, SIGNAL(gameActive()), [this](){
-                setGameActive();
-            });
+    // Create C++ SystemTrayIcon instead of using QML
+    m_trayIcon = new SystemTrayIcon(this);
+
+    // Connect to C++ signal instead of QML
+    connect(m_trayIcon, &SystemTrayIcon::gameActive,
+            this, &Game::setGameActive);
 }
 
 Game::~Game() {

@@ -5,7 +5,6 @@
         <file>qml/BattleMenu.qml</file>
         <file>qml/StatusBar.qml</file>
         <file>qml/Pokeball.qml</file>
-        <file>qml/SystemTrayIcon.qml</file>
 
         <file>assets/HGSS/PokeballIcon.png</file>
         <file>assets/HGSS/PokeballIcon_grayscale.png</file>

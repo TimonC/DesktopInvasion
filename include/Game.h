@@ -6,6 +6,8 @@
 #include <WildPokemon.h>
 #include <QObject>
 #include <QQmlApplicationEngine>
+#include <SystemTrayIcon.h>
+
 class Game : public QObject{
     Q_OBJECT
 public:
@@ -13,6 +15,7 @@ public:
     ~Game();
 private:
     GameMenu* m_menu;
+    SystemTrayIcon* m_trayIcon;
     WildPokemon* m_wildPokemon = nullptr;
     Battle* m_activeBattle = nullptr;
     const int m_spawnDelay_ms = 5000;
