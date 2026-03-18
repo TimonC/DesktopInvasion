@@ -1,5 +1,4 @@
 import QtQuick 2.15
-import "./SpriteMovement" as SpriteMovement
 
 Item {
     id: root
@@ -71,13 +70,6 @@ Item {
         frameY: row * frameHeight
     }
 
-    //Sprite Movements
-    SpriteMovement.ActionForward{
-        id: actionForward
-        objectName: "ActionForward"
-        pokemon: root
-    }
-
     SequentialAnimation {
         id: takeDamage
         running: false
@@ -100,6 +92,41 @@ Item {
         }
     }
 
+SequentialAnimation {
+    id: actionForward
+    loops: 1
+    running: false
+    property int attackDistance: 20
+
+    PropertyAnimation {
+        target: root
+        property: "x"
+        to: root.startingX + (root.direction==1 ? -root.attackDistance : root.direction==3 ? root.attackDistance : 0)
+        duration: 50
+        easing.type: Easing.InQuad
+    }
+    PropertyAnimation {
+        target: root
+        property: "y"
+        to: root.startingY + (root.direction==0 ? -root.attackDistance : root.direction==2 ? root.attackDistance : 0)
+        duration: 50
+        easing.type: Easing.InQuad
+    }
+    PropertyAnimation {
+        target: root
+        property: "x"
+        to: root.startingX
+        duration: 100
+        easing.type: Easing.OutQuad
+    }
+    PropertyAnimation {
+        target: root
+        property: "y"
+        to: root.startingY
+        duration: 100
+        easing.type: Easing.OutQuad
+    }
+}
 
     // Debug rectangle
     Rectangle {

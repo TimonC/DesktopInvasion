@@ -12,7 +12,7 @@ Item {
     property int buttonHeight: frameSize * 0.75
     property int buttonFontSize: frameSize * 0.4
     property int gridSpacing: frameSize * 0.1
-    property int pokeMargin: frameSize*0.25
+    property int pokeMargin: frameSize * 0.25
     property bool debugLines: false
     property int textBoxHeight: 50
     property int textBoxWidth: frameSize * 5
@@ -25,10 +25,8 @@ Item {
 
     // Attack chain state
     property bool attackInProgress: false
-    property bool isPlayerFirst: true
+    property bool isPlayerTurn: true
     property int turnsCompleted: 0
-    property var currentAttackAnim: null
-    property var currentDefender: null
 
     signal runClicked()
 
@@ -109,6 +107,7 @@ Item {
         }
     }
 
+    // Position sprites on the battle field
     function positionSprite(sprite) {
         var margin = root.pokeMargin;
         switch(sprite.direction) {
@@ -142,7 +141,7 @@ Item {
         textBar.text = newText;
     }
 
-   //attack chain
+    // Delay timer for sequencing
     Timer {
         id: delayTimer
         repeat: false
@@ -158,83 +157,104 @@ Item {
         delayTimer.start();
     }
 
+    // Attack button handler
     function onAttackButtonClicked() {
         var playerFirst = Math.random() < 0.5;
-        startAttackChain(playerFirst, "actionForward");
+        startAttackChain(playerFirst);
     }
 
-    function startAttackChain(playerFirst, actionId) {
+    // Start the attack sequence
+    function startAttackChain(playerFirst) {
         if (root.attackInProgress) return;
 
-        var attacker = playerFirst ? player : opponent;
-        var attackAnim = attacker[actionId];
-
-        if (!attackAnim) {
-            console.error("Action ID not recognized:", actionId);
-            return;
-        }
-
         root.attackInProgress = true;
-        root.isPlayerFirst = playerFirst;
+        root.isPlayerTurn = playerFirst;
         root.turnsCompleted = 0;
-        root.currentAttackAnim = attackAnim;
 
         buttonGrid.visible = false;
         textBar.color = "darkgrey";
         textBarText.visible = true;
 
-        executeAttackTurn(attackAnim);
+        executeAttackTurn();
     }
 
-    function executeAttackTurn(attackAnim) {
-        var attacker = root.isPlayerFirst ? player : opponent;
-        var defender = root.isPlayerFirst ? opponent : player;
-        var attackerName = root.isPlayerFirst ? "Player" : "Opponent";
-
-        root.currentAttackAnim = attackAnim;
-        root.currentDefender = defender;
+    // Execute one turn of attack
+    function executeAttackTurn() {
+        var attacker = root.isPlayerTurn ? player : opponent;
+        var defender = root.isPlayerTurn ? opponent : player;
+        var attackerName = root.isPlayerTurn ? "Player" : "Opponent";
 
         update_text_bar(attackerName + " used Tackle!");
 
-        delayedCall(200, () => {
-            attackAnim.pokemon = attacker;
-            attackAnim.animationRunning = true;
+        // Start attack animation after brief delay
+        delayedCall(200, function() {
+            attacker.actionForward.running = true;
         });
     }
 
+    // Monitor player attack animation
     Connections {
-        target: root.currentAttackAnim
-        enabled: root.attackInProgress
+        target: player.actionForward
+        enabled: root.attackInProgress && root.isPlayerTurn
 
-        function onStopped() {
-            delayedCall(200, () => {
-                root.currentDefender.takeDamage.running = true;
+        function onRunningChanged() {
+            delayedCall(200, function() {
+                opponent.takeDamage.running = true;
             });
         }
     }
 
+    // Monitor opponent attack animation
     Connections {
-        target: root.currentDefender ? root.currentDefender.takeDamage : null
-        enabled: root.attackInProgress
+        target: opponent.actionForward
+        enabled: root.attackInProgress && !root.isPlayerTurn
 
-        function onStopped() {
-            update_text_bar("It's super effective!");
-
-            delayedCall(1200, () => {
-                root.turnsCompleted++;
-
-                if (root.turnsCompleted < 2) {
-                    root.isPlayerFirst = !root.isPlayerFirst;
-                    var nextAttacker = root.isPlayerFirst ? player : opponent;
-                    var nextAttackAnim = nextAttacker["actionForward"];
-                    executeAttackTurn(nextAttackAnim);
-                } else {
-                    endAttackChain();
-                }
+        function onRunningChanged() {
+            delayedCall(200, function() {
+                player.takeDamage.running = true;
             });
         }
     }
 
+    // Monitor player taking damage
+    Connections {
+        target: player.takeDamage
+        enabled: root.attackInProgress && !root.isPlayerTurn
+
+        function onRunningChanged() {
+            handleTurnComplete();
+        }
+    }
+
+    // Monitor opponent taking damage
+    Connections {
+        target: opponent.takeDamage
+        enabled: root.attackInProgress && root.isPlayerTurn
+
+        function onRunningChanged() {
+            handleTurnComplete();
+        }
+    }
+
+    // Handle completion of one turn
+    function handleTurnComplete() {
+        update_text_bar("It's super effective!");
+
+        delayedCall(1200, function() {
+            root.turnsCompleted++;
+
+            if (root.turnsCompleted < 2) {
+                // Switch turns and execute next attack
+                root.isPlayerTurn = !root.isPlayerTurn;
+                executeAttackTurn();
+            } else {
+                // Both turns complete, end battle
+                endAttackChain();
+            }
+        });
+    }
+
+    // End the attack sequence
     function endAttackChain() {
         root.attackInProgress = false;
         root.turnsCompleted = 0;
@@ -242,5 +262,4 @@ Item {
         textBarText.visible = false;
         textBar.color = "transparent";
     }
-
 }
