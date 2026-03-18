@@ -4,7 +4,7 @@
 #include <string>
 #include <array>
 
-enum class Type {
+enum Type {
     Null,
     Normal, Fighting, Flying, Poison, Ground,
     Rock, Bug, Ghost, Steel, Fire,
@@ -12,7 +12,7 @@ enum class Type {
     Dragon, Dark
 };
 
-enum class Nature {
+enum Nature {
     Hardy, Docile, Serious, Bashful, Quirky,
     Lonely, Adamant, Naughty, Brave,
     Bold, Impish, Lax, Relaxed,
@@ -21,7 +21,7 @@ enum class Nature {
     Timid, Hasty, Jolly, Naive
 };
 
-constexpr const char* TYPE_NAMES[] = {
+inline const char* TYPE_NAMES[] = {
     "Null",
     "Normal", "Fighting", "Flying", "Poison", "Ground",
     "Rock", "Bug", "Ghost", "Steel", "Fire",
@@ -29,7 +29,7 @@ constexpr const char* TYPE_NAMES[] = {
     "Dragon", "Dark"
 };
 
-constexpr const char* NATURE_NAMES[] = {
+inline const char* NATURE_NAMES[] = {
     "Hardy", "Docile", "Serious", "Bashful", "Quirky",
     "Lonely", "Adamant", "Naughty", "Brave",
     "Bold", "Impish", "Lax", "Relaxed",
@@ -39,89 +39,107 @@ constexpr const char* NATURE_NAMES[] = {
 };
 
 inline std::string typeToString(Type type) {
-    int idx = static_cast<int>(type);
+    int idx = type;
     if (idx >= 0 && idx < 18) return TYPE_NAMES[idx];
     return "Unknown";
 }
 
 inline std::string natureToString(Nature nature) {
-    int idx = static_cast<int>(nature);
+    int idx = nature;
     if (idx >= 0 && idx < 25) return NATURE_NAMES[idx];
     return "Unknown";
 }
 
-inline std::array<float, 5> getNatureMultipliers(Nature nature) {
-    static constexpr float NATURE_MODS[25][5] = {
-        {1.0f, 1.0f, 1.0f, 1.0f, 1.0f},
-        {1.0f, 1.0f, 1.0f, 1.0f, 1.0f},
-        {1.0f, 1.0f, 1.0f, 1.0f, 1.0f},
-        {1.0f, 1.0f, 1.0f, 1.0f, 1.0f},
-        {1.0f, 1.0f, 1.0f, 1.0f, 1.0f},
-        {1.1f, 0.9f, 1.0f, 1.0f, 1.0f},
-        {1.1f, 1.0f, 0.9f, 1.0f, 1.0f},
-        {1.1f, 1.0f, 1.0f, 0.9f, 1.0f},
-        {1.1f, 1.0f, 1.0f, 1.0f, 0.9f},
-        {0.9f, 1.0f, 1.1f, 1.0f, 1.0f},
-        {1.0f, 0.9f, 1.1f, 1.0f, 1.0f},
-        {1.0f, 1.0f, 1.1f, 0.9f, 1.0f},
-        {1.0f, 1.0f, 1.1f, 1.0f, 0.9f},
-        {0.9f, 1.1f, 1.0f, 1.0f, 1.0f},
-        {1.0f, 1.1f, 0.9f, 1.0f, 1.0f},
-        {1.0f, 1.1f, 1.0f, 0.9f, 1.0f},
-        {1.0f, 1.1f, 1.0f, 1.0f, 0.9f},
-        {0.9f, 1.0f, 1.0f, 1.1f, 1.0f},
-        {1.0f, 0.9f, 1.0f, 1.1f, 1.0f},
-        {1.0f, 1.0f, 0.9f, 1.1f, 1.0f},
-        {1.0f, 1.0f, 1.0f, 1.1f, 0.9f},
-        {0.9f, 1.0f, 1.0f, 1.0f, 1.1f},
-        {1.0f, 0.9f, 1.0f, 1.0f, 1.1f},
-        {1.0f, 1.0f, 0.9f, 1.0f, 1.1f},
-        {1.0f, 1.0f, 1.0f, 0.9f, 1.1f}
+inline std::array<int, 5> getNatureMultipliers(Nature nature) {
+    // 90 = 0.9x, 100 = 1.0x, 110 = 1.1x
+    static const int NATURE_MODS[25][5] = {
+        {100, 100, 100, 100, 100},
+        {100, 100, 100, 100, 100},
+        {100, 100, 100, 100, 100},
+        {100, 100, 100, 100, 100},
+        {100, 100, 100, 100, 100},
+        {110,  90, 100, 100, 100}, // Lonely
+        {110, 100,  90, 100, 100}, // Adamant
+        {110, 100, 100,  90, 100}, // Naughty
+        {110, 100, 100, 100,  90}, // Brave
+        { 90, 100, 110, 100, 100}, // Bold
+        {100,  90, 110, 100, 100}, // Impish
+        {100, 100, 110,  90, 100}, // Lax
+        {100, 100, 110, 100,  90}, // Relaxed
+        { 90, 110, 100, 100, 100}, // Modest
+        {100, 110,  90, 100, 100}, // Mild
+        {100, 110, 100,  90, 100}, // Rash
+        {100, 110, 100, 100,  90}, // Quiet
+        { 90, 100, 100, 110, 100}, // Calm
+        {100,  90, 100, 110, 100}, // Gentle
+        {100, 100,  90, 110, 100}, // Careful
+        {100, 100, 100, 110,  90}, // Sassy
+        { 90, 100, 100, 100, 110}, // Timid
+        {100,  90, 100, 100, 110}, // Hasty
+        {100, 100,  90, 100, 110}, // Jolly
+        {100, 100, 100,  90, 110}  // Naive
     };
 
-    int idx = static_cast<int>(nature);
+    int idx = nature;
     if (idx >= 0 && idx < 25) {
         return {NATURE_MODS[idx][0], NATURE_MODS[idx][1], NATURE_MODS[idx][2],
                 NATURE_MODS[idx][3], NATURE_MODS[idx][4]};
     }
-    return {1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+    return {100, 100, 100, 100, 100};
 }
 
-inline float getTypeEffectiveness(Type moveType, Type targetTypes[2]) { //gotta trust the LLMs on this one
-    static constexpr float EFFECTIVENESS[18][18] = {
-        // Attacking type → Defending type (rows = attacker, columns = defender)
-        // Order: Null, Normal, Fighting, Flying, Poison, Ground, Rock, Bug, Ghost, Steel, Fire, Water, Grass, Electric, Psychic, Ice, Dragon, Dark
-        {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f}, // Null (shouldn't be used)
-        {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.5f, 1.0f, 0.0f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f}, // Normal
-        {1.0f, 2.0f, 1.0f, 0.5f, 0.5f, 1.0f, 2.0f, 0.5f, 0.0f, 2.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.5f, 2.0f, 1.0f, 2.0f}, // Fighting
-        {1.0f, 1.0f, 2.0f, 1.0f, 1.0f, 1.0f, 0.5f, 2.0f, 1.0f, 0.5f, 1.0f, 1.0f, 2.0f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f}, // Flying
-        {1.0f, 1.0f, 1.0f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 0.5f, 0.0f, 1.0f, 1.0f, 2.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f}, // Poison
-        {1.0f, 1.0f, 1.0f, 0.0f, 2.0f, 1.0f, 2.0f, 0.5f, 1.0f, 2.0f, 2.0f, 1.0f, 0.5f, 2.0f, 1.0f, 1.0f, 1.0f, 1.0f}, // Ground
-        {1.0f, 1.0f, 0.5f, 2.0f, 1.0f, 0.5f, 1.0f, 2.0f, 1.0f, 0.5f, 2.0f, 1.0f, 1.0f, 1.0f, 1.0f, 2.0f, 1.0f, 1.0f}, // Rock
-        {1.0f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 2.0f, 1.0f, 2.0f, 1.0f, 1.0f, 2.0f}, // Bug
-        {1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 2.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 2.0f, 1.0f, 1.0f, 0.5f}, // Ghost
-        {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 2.0f, 1.0f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 0.5f, 1.0f, 2.0f, 1.0f, 1.0f}, // Steel
-        {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.5f, 2.0f, 1.0f, 2.0f, 0.5f, 0.5f, 2.0f, 1.0f, 1.0f, 2.0f, 0.5f, 1.0f}, // Fire
-        {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 2.0f, 2.0f, 1.0f, 1.0f, 1.0f, 2.0f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 0.5f, 1.0f}, // Water
-        {1.0f, 1.0f, 1.0f, 0.5f, 0.5f, 2.0f, 2.0f, 0.5f, 1.0f, 0.5f, 0.5f, 2.0f, 0.5f, 1.0f, 1.0f, 1.0f, 0.5f, 1.0f}, // Grass
-        {1.0f, 1.0f, 1.0f, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 2.0f, 0.5f, 0.5f, 1.0f, 1.0f, 0.5f, 1.0f}, // Electric
-        {1.0f, 1.0f, 2.0f, 1.0f, 2.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.5f, 1.0f, 1.0f, 0.0f}, // Psychic
-        {1.0f, 1.0f, 1.0f, 2.0f, 1.0f, 2.0f, 1.0f, 1.0f, 1.0f, 0.5f, 0.5f, 0.5f, 2.0f, 1.0f, 1.0f, 0.5f, 2.0f, 1.0f}, // Ice
-        {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 2.0f, 1.0f}, // Dragon
-        {1.0f, 1.0f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 2.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 2.0f, 1.0f, 1.0f, 0.5f}  // Dark
+inline int getTypeEffectiveness(Type moveType, Type targetTypes[2]) {
+    // Effectiveness × 100: 0, 50, 100, 200
+    static const int EFFECTIVENESS[18][18] = {
+        // Null row
+        {100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100},
+        // Normal
+        {100, 100, 100, 100, 100, 100,  50, 100,   0,  50, 100, 100, 100, 100, 100, 100, 100, 100},
+        // Fighting
+        {100, 200, 100,  50,  50, 100, 200,  50,   0, 200, 100, 100, 100, 100,  50, 200, 100, 200},
+        // Flying
+        {100, 100, 200, 100, 100, 100,  50, 200, 100,  50, 100, 100, 200,  50, 100, 100, 100, 100},
+        // Poison
+        {100, 100, 100, 100,  50,  50,  50, 100,  50,   0, 100, 100, 200, 100, 100, 100, 100, 100},
+        // Ground
+        {100, 100, 100,   0, 200, 100, 200,  50, 100, 200, 200, 100,  50, 200, 100, 100, 100, 100},
+        // Rock
+        {100, 100,  50, 200, 100,  50, 100, 200, 100,  50, 200, 100, 100, 100, 100, 200, 100, 100},
+        // Bug
+        {100, 100,  50,  50,  50, 100, 100, 100,  50,  50,  50, 100, 200, 100, 200, 100, 100, 200},
+        // Ghost
+        {100,   0, 100, 100, 100, 100, 100, 100, 200, 100, 100, 100, 100, 100, 200, 100, 100,  50},
+        // Steel
+        {100, 100, 100, 100, 100, 100, 200, 100, 100,  50,  50,  50, 100,  50, 100, 200, 100, 100},
+        // Fire
+        {100, 100, 100, 100, 100, 100,  50, 200, 100, 200,  50,  50, 200, 100, 100, 200,  50, 100},
+        // Water
+        {100, 100, 100, 100, 100, 200, 200, 100, 100, 100, 200,  50,  50, 100, 100, 100,  50, 100},
+        // Grass
+        {100, 100, 100,  50,  50, 200, 200,  50, 100,  50,  50, 200,  50, 100, 100, 100,  50, 100},
+        // Electric
+        {100, 100, 100, 200, 100,   0, 100, 100, 100, 100, 100, 200,  50,  50, 100, 100,  50, 100},
+        // Psychic
+        {100, 100, 200, 100, 200, 100, 100, 100, 100,  50, 100, 100, 100, 100,  50, 100, 100,   0},
+        // Ice
+        {100, 100, 100, 200, 100, 200, 100, 100, 100,  50,  50,  50, 200, 100, 100,  50, 200, 100},
+        // Dragon
+        {100, 100, 100, 100, 100, 100, 100, 100, 100,  50, 100, 100, 100, 100, 100, 100, 200, 100},
+        // Dark
+        {100, 100,  50, 100, 100, 100, 100, 100, 200, 100, 100, 100, 100, 100, 200, 100, 100,  50}
     };
 
-    float multiplier = 1.0f;
-    int moveIdx = static_cast<int>(moveType);
+    int multiplier = 100;
+    int moveIdx = moveType;
 
-    if (targetTypes[0] != Type::Null) {
-        int targetIdx = static_cast<int>(targetTypes[0]);
-        multiplier *= EFFECTIVENESS[moveIdx][targetIdx];
+    if (targetTypes[0] != Null) {
+        int targetIdx = targetTypes[0];
+        multiplier = multiplier * EFFECTIVENESS[moveIdx][targetIdx] / 100;
     }
 
-    if (targetTypes[1] != Type::Null) {
-        int targetIdx = static_cast<int>(targetTypes[1]);
-        multiplier *= EFFECTIVENESS[moveIdx][targetIdx];
+    if (targetTypes[1] != Null) {
+        int targetIdx = targetTypes[1];
+        multiplier = multiplier * EFFECTIVENESS[moveIdx][targetIdx] / 100;
     }
 
     return multiplier;
