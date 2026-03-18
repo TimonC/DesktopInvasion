@@ -39,21 +39,17 @@ namespace PokeMath{
         return static_cast<int>(damage);
     }
 
-// https://bulbapedia.bulbagarden.net/wiki/Stat#Formula
+// https://bulbapedia.bulbagarden.net/wiki/Stat_modifier#Stage_multipliers
     inline int applyStatModifier(int stat, int modifier) {
-        // Precomputed lookup tables for stat modifiers (0 to 6, -6 to 0)
-        static constexpr int positiveModifiers[7] = {2, 3, 4, 5, 6, 7, 8}; // numerator values for (2 + modifier)/2
-        static constexpr int negativeModifiers[7] = {2, 2, 2, 2, 2, 2, 2}; // numerator values for 2/(2 - modifier)
-        static constexpr int negativeDenominators[7] = {2, 3, 4, 5, 6, 7, 8}; // denominator values for 2/(2 - modifier)
+        static constexpr int numerators[13] = {
+            2, 2, 2, 2, 2, 2, 2, 3, 4, 5, 6, 7, 8
+        };
+        static constexpr int denominators[13] = {
+            8, 7, 6, 5, 4, 3, 2, 2, 2, 2, 2, 2, 2
+        };
 
-        if(modifier >= 0) {
-            // Clamp to valid range
-            int idx = modifier > 6 ? 6 : modifier;
-            return (stat * positiveModifiers[idx]) / 2;
-        } else {
-            int idx = -modifier > 6 ? 6 : -modifier;
-            return (stat * negativeModifiers[idx]) / negativeDenominators[idx];
-        }
+        int idx = modifier + 6;
+        return (stat * numerators[idx]) / denominators[idx];
     }
 
 // https://bulbapedia.bulbagarden.net/wiki/Poison_(status_condition)#Effect
@@ -229,6 +225,16 @@ namespace PokeMath{
         // Use integer arithmetic where possible
         return static_cast<int>((baseXP * defeatedLevel * TRAINER_MULTIPLIER) /
                                 (PARTICIPANT_DIVISOR * nrParticipated));
+    }
+
+// https://bulbapedia.bulbagarden.net/wiki/Accuracy#Accuracy_check
+// https://bulbapedia.bulbagarden.net/wiki/Stat_modifier#Stage_multipliers
+    inline int calculateModifiedAccuracy(int accuracy, int modifier){
+        static constexpr int numerators[13] = {
+            33, 36, 43, 50, 60, 75, 100, 133, 166, 200, 233, 266, 300
+        };
+        int idx = modifier + 6;
+        return (accuracy*numerators[idx])/100;
     }
 }
 
