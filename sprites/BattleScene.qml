@@ -35,7 +35,10 @@ Item {
         objectName: "opponent"
         direction: root.direction
 
-        Component.onCompleted: console.log("opponent poke loaded")
+        Component.onCompleted: {
+            console.log("opponent poke loaded")
+            opponent.containerLines.border.color = "red"
+        }
 
         Connections {
             target: root
@@ -48,7 +51,10 @@ Item {
         objectName: "player"
         direction: (root.direction + 2) % 4
 
-        Component.onCompleted: console.log("player poke loaded")
+        Component.onCompleted: {
+            console.log("player poke loaded")
+            player.containerLines.border.color = "blue"
+        }
 
         Connections {
             target: root

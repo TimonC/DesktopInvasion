@@ -17,7 +17,7 @@ Item {
     // Animation triggers
     property alias tackle: pokemonSprite.tackle
     property alias attacked: pokemonSprite.attacked
-
+    property alias containerLines: containerDebugLines
     // Container properties
     property int itemWidth: 0
     property int itemHeight: 0
@@ -55,6 +55,7 @@ Item {
 
     // Debug rectangle
     Rectangle {
+        id: containerDebugLines
         anchors.fill: parent
         color: "transparent"
         border.color: "yellow"
