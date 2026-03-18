@@ -12,10 +12,8 @@ services:
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ./src:/app/src
-      - ./resources.qrc:/app/resources.qrc
-      - ./InvasionCanvas.qml:/app/InvasionCanvas.qml
-      - ./assets:/app/assets:ro
-      - ./sprites:/app/sprites:ro
+      - ./sprites:/app/sprites  # For new QML files
+      - ./assets:/app/assets
     stdin_open: true
     tty: true
 

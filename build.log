@@ -1,0 +1,101 @@
+--progress is a global compose flag, better use `docker compose --progress xx build ...
+time="2025-10-06T20:44:13+02:00" level=warning msg="The \"UID\" variable is not set. Defaulting to a blank string."
+time="2025-10-06T20:44:13+02:00" level=warning msg="The \"GID\" variable is not set. Defaulting to a blank string."
+#1 [internal] load local bake definitions
+#1 reading from stdin 547B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 1.07kB done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/julrich/docker_qt:latest
+#3 DONE 0.2s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 94B done
+#4 DONE 0.0s
+
+#5 [ 1/11] FROM docker.io/julrich/docker_qt:latest@sha256:92c77cedecb0aa1b96d9a62c6acfeb6dd8ed7daaa9f513b0f35c1f6d262af70e
+#5 CACHED
+
+#6 [internal] load build context
+#6 transferring context: 496B done
+#6 DONE 0.0s
+
+#7 [ 2/11] RUN apt-get update && apt-get install -y     build-essential     cmake     git     libx11-xcb-dev     libxcb-icccm4-dev     libxcb-image0-dev     libxcb-keysyms1-dev     libxcb-render-util0-dev     libxcb-xinerama0-dev     libgl1-mesa-dev     libxkbcommon-dev     libvulkan-dev     vulkan-tools     inotify-tools     && rm -rf /var/lib/apt/lists/*
+#7 0.315 Ign:1 http://security.ubuntu.com/ubuntu oracular-security InRelease
+#7 0.321 Ign:2 http://archive.ubuntu.com/ubuntu oracular InRelease
+#7 0.399 Err:3 http://security.ubuntu.com/ubuntu oracular-security Release
+#7 0.399   404  Not Found [IP: 91.189.91.82 80]
+#7 0.408 Ign:4 http://archive.ubuntu.com/ubuntu oracular-updates InRelease
+#7 0.496 Ign:5 http://archive.ubuntu.com/ubuntu oracular-backports InRelease
+#7 0.583 Err:6 http://archive.ubuntu.com/ubuntu oracular Release
+#7 0.583   404  Not Found [IP: 91.189.91.81 80]
+#7 0.670 Err:7 http://archive.ubuntu.com/ubuntu oracular-updates Release
+#7 0.670   404  Not Found [IP: 91.189.91.81 80]
+#7 0.760 Err:8 http://archive.ubuntu.com/ubuntu oracular-backports Release
+#7 0.760   404  Not Found [IP: 91.189.91.81 80]
+#7 0.764 Reading package lists...
+#7 0.772 E: The repository 'http://security.ubuntu.com/ubuntu oracular-security Release' does not have a Release file.
+#7 0.772 E: The repository 'http://archive.ubuntu.com/ubuntu oracular Release' does not have a Release file.
+#7 0.772 E: The repository 'http://archive.ubuntu.com/ubuntu oracular-updates Release' does not have a Release file.
+#7 0.772 E: The repository 'http://archive.ubuntu.com/ubuntu oracular-backports Release' does not have a Release file.
+#7 ERROR: process "/bin/sh -c apt-get update && apt-get install -y     build-essential     cmake     git     libx11-xcb-dev     libxcb-icccm4-dev     libxcb-image0-dev     libxcb-keysyms1-dev     libxcb-render-util0-dev     libxcb-xinerama0-dev     libgl1-mesa-dev     libxkbcommon-dev     libvulkan-dev     vulkan-tools     inotify-tools     && rm -rf /var/lib/apt/lists/*" did not complete successfully: exit code: 100
+------
+ > [ 2/11] RUN apt-get update && apt-get install -y     build-essential     cmake     git     libx11-xcb-dev     libxcb-icccm4-dev     libxcb-image0-dev     libxcb-keysyms1-dev     libxcb-render-util0-dev     libxcb-xinerama0-dev     libgl1-mesa-dev     libxkbcommon-dev     libvulkan-dev     vulkan-tools     inotify-tools     && rm -rf /var/lib/apt/lists/*:
+0.583   404  Not Found [IP: 91.189.91.81 80]
+0.670 Err:7 http://archive.ubuntu.com/ubuntu oracular-updates Release
+0.670   404  Not Found [IP: 91.189.91.81 80]
+0.760 Err:8 http://archive.ubuntu.com/ubuntu oracular-backports Release
+0.760   404  Not Found [IP: 91.189.91.81 80]
+0.764 Reading package lists...
+0.772 E: The repository 'http://security.ubuntu.com/ubuntu oracular-security Release' does not have a Release file.
+0.772 E: The repository 'http://archive.ubuntu.com/ubuntu oracular Release' does not have a Release file.
+0.772 E: The repository 'http://archive.ubuntu.com/ubuntu oracular-updates Release' does not have a Release file.
+0.772 E: The repository 'http://archive.ubuntu.com/ubuntu oracular-backports Release' does not have a Release file.
+------
+Dockerfile:8
+
+--------------------
+
+   7 |     # Install build tools, X11, OpenGL, Vulkan, inotifywait
+
+   8 | >>> RUN apt-get update && apt-get install -y \
+
+   9 | >>>     build-essential \
+
+  10 | >>>     cmake \
+
+  11 | >>>     git \
+
+  12 | >>>     libx11-xcb-dev \
+
+  13 | >>>     libxcb-icccm4-dev \
+
+  14 | >>>     libxcb-image0-dev \
+
+  15 | >>>     libxcb-keysyms1-dev \
+
+  16 | >>>     libxcb-render-util0-dev \
+
+  17 | >>>     libxcb-xinerama0-dev \
+
+  18 | >>>     libgl1-mesa-dev \
+
+  19 | >>>     libxkbcommon-dev \
+
+  20 | >>>     libvulkan-dev \
+
+  21 | >>>     vulkan-tools \
+
+  22 | >>>     inotify-tools \
+
+  23 | >>>     && rm -rf /var/lib/apt/lists/*
+
+  24 |     # Set working directory
+
+--------------------
+
+failed to solve: process "/bin/sh -c apt-get update && apt-get install -y     build-essential     cmake     git     libx11-xcb-dev     libxcb-icccm4-dev     libxcb-image0-dev     libxcb-keysyms1-dev     libxcb-render-util0-dev     libxcb-xinerama0-dev     libgl1-mesa-dev     libxkbcommon-dev     libvulkan-dev     vulkan-tools     inotify-tools     && rm -rf /var/lib/apt/lists/*" did not complete successfully: exit code: 100
+

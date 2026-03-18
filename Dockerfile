@@ -1,54 +1,46 @@
-FROM ubuntu:24.04
+# Use a prebuilt Qt6 image with QML modules
+FROM stateoftheartio/qt6:6.6-gcc-aqt
 
+# Use root to install build dependencies
+USER root
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && \
-    apt-get install -y \
-        build-essential \
-        cmake \
-        ninja-build \
-        wget \
-        inotify-tools \
-        # --- Qt 6 ---
-        qt6-base-dev \
-        qt6-declarative-dev \
-        qt6-quick3d-dev \
-        qt6-l10n-tools \
-        qml6-module-qtqml \
-        qml6-module-qtquick \
-        qml6-module-qtquick-window \
-        qml6-module-qtqml-workerscript \
-        # --- X11 support ---
-        libx11-dev \
-        libx11-xcb-dev \
-        libxcb1-dev \
-        libxcb-keysyms1-dev \
-        libxcb-image0-dev \
-        libxcb-shm0-dev \
-        libxcb-icccm4-dev \
-        libxcb-render-util0-dev \
-        libxcb-randr0-dev \
-        libxcb-shape0-dev \
-        libxcb-sync-dev \
-        libxcb-xfixes0-dev \
-        libxcb-xinerama0-dev \
-        libxcb-xkb-dev \
-        libxkbcommon-dev \
-        libxkbcommon-x11-0 \
-    && apt-get clean \
+# Install build tools, CMake, git, X11/OpenGL/Vulkan support, inotify
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    git \
+    libx11-xcb-dev \
+    libxcb-icccm4-dev \
+    libxcb-image0-dev \
+    libxcb-keysyms1-dev \
+    libxcb-render-util0-dev \
+    libxcb-xinerama0-dev \
+    libgl1-mesa-dev \
+    libxkbcommon-dev \
+    libvulkan-dev \
+    vulkan-tools \
+    inotify-tools \
     && rm -rf /var/lib/apt/lists/*
 
+# Set working directory
 WORKDIR /app
 
-COPY build_and_run.sh /app/build_and_run.sh
-COPY CMakeLists.txt /app/CMakeLists.txt
-COPY resources.qrc /app/resources.qrc
-COPY assets /app/assets
-COPY sprites /app/sprites
-COPY InvasionCanvas.qml /app/InvasionCanvas.qml
-COPY src /app/src
+# Copy your project files
+COPY build_and_run.sh ./build_and_run.sh
+COPY CMakeLists.txt ./CMakeLists.txt
+COPY assets ./assets
+COPY sprites ./sprites
+COPY InvasionCanvas.qml ./InvasionCanvas.qml
+COPY src ./src
+COPY resources.qrc ./resources.qrc
 
-RUN chmod +x /app/build_and_run.sh
+# Make build script executable
+RUN chmod +x ./build_and_run.sh
 
-ENTRYPOINT ["/app/build_and_run.sh"]
+# Use root for development / X11 forwarding
+USER root
+
+# Entrypoint
+ENTRYPOINT ["./build_and_run.sh"]
 

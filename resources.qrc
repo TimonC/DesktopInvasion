@@ -1,9 +1,12 @@
 <RCC>
     <qresource prefix="/">
+        <!-- QML files -->
         <file>InvasionCanvas.qml</file>
-    </qresource>
-    <qresource prefix="/assets">
-        <file>assets/HGSS/PokGen1.png</file>
+        <file>sprites/PokemonSprite.qml</file>
+
+        <!-- Image assets -->
+        <file>assets/HGSS/PokGen1_transparent_reordered.png</file>
         <file>assets/HGSS/trainers.png</file>
     </qresource>
 </RCC>
+

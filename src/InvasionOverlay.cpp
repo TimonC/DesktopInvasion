@@ -1,9 +1,10 @@
 #include "InvasionOverlay.h"
-#include <QGuiApplication>
-#include <QScreen>
 #include <QQmlComponent>
 #include <QQuickItem>
-#include <qnamespace.h>
+#include <QGuiApplication>
+#include <QScreen>
+#include <QDebug>
+
 InvasionOverlay::InvasionOverlay(QWindow *parent)
     : QQuickView(parent)
 {
@@ -13,33 +14,47 @@ InvasionOverlay::InvasionOverlay(QWindow *parent)
              Qt::Tool |
              Qt::WindowDoesNotAcceptFocus);
 
-    setColor(Qt::transparent);  // makes QQuickView background transparent
+    setColor(Qt::transparent);
     setResizeMode(SizeViewToRootObject);
+    setSource(QUrl("qrc:/InvasionCanvas.qml"));
 
-    setSource(QUrl("InvasionCanvas.qml"));
-    // Fullscreen on primary screen
+    if (!rootObject()) {
+        qDebug() << "Failed to load InvasionCanvas.qml!";
+    }
+
     setGeometry(QGuiApplication::primaryScreen()->geometry());
 }
 
-void InvasionOverlay::addSprite(const QString& qmlFile, int x, int y){
+void InvasionOverlay::addSprite(const QString &qmlFile, int x, int y){
     QQmlComponent component(engine(), QUrl(qmlFile));
-    if (!component.isReady()) return;
-
-    QQuickItem* sprite = qobject_cast<QQuickItem*>(component.create());
-    if (!sprite) return;
-
-    sprite->setParentItem(rootObject());  // Just use root directly
-    sprite->setX(x);
-    sprite->setY(y);
-}
-
-
-void InvasionOverlay::clearSprites(){
-    QQuickItem* root = rootObject();
-    if (!root) return;
-
-    QList<QQuickItem*> children = root->childItems();
-    for (QQuickItem* child : children) {
-        child->deleteLater();
+    if (component.isError()) {
+        qDebug() << "Error loading QML:" << component.errors();
+        return;
     }
+
+    QObject *obj = component.create();
+    if (!obj) {
+        qDebug() << "Failed to create QML object";
+        return;
+    }
+
+    QQuickItem *item = qobject_cast<QQuickItem *>(obj);
+    if (!item) {
+        qDebug() << "Failed to cast to QQuickItem";
+        return;
+    }
+
+    // Find the container
+    QQuickItem *container = rootObject()->findChild<QQuickItem*>("spriteContainer");
+    if (!container) {
+        qDebug() << "spriteContainer not found!";
+        return;
+    }
+
+    // Attach the sprite
+    item->setParentItem(container);
+    item->setX(x);
+    item->setY(y);
+
+    qDebug() << "Sprite added at" << x << y;
 }
