@@ -1,14 +1,18 @@
 #include "Battlescene.h"
 #include <QQuickItem>
+#include <qnamespace.h>
 
 Battlescene::Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent)
     : QQuickView(parent)
 {
     setFlags(     Qt::WindowStaysOnTopHint
                 | Qt::Tool
-                | Qt::WindowDoesNotAcceptFocus
-                | Qt::FramelessWindowHint);
+                | Qt::WindowDoesNotAcceptFocus);
+                /* | Qt::FramelessWindowHint); */
     setColor(Qt::transparent);
+
+    opp->setFlag(Qt::WindowTransparentForInput);
+    chosen->setFlag(Qt::WindowTransparentForInput);
 
     setSource(QUrl("qrc:/sprites/BattleScene.qml"));
 
@@ -16,25 +20,26 @@ Battlescene::Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent)
     m_ui = ui;
 
     // Position calculation
-    int distance = 100;
+    /* int distance = opp->direction()%2==0 ? 3*32 : 4*32; */
+    int distance = 3*32;
     switch(opp->direction()) {
         case 0:
-            m_origin = opp->position() + QPoint(-ui->width()/2+32*2, -ui->height()+32);
+            m_origin = opp->position() + QPoint(0, -ui->height()/2-14);
             chosen->setPosition(opp->position() + QPoint(0, -distance));
             chosen->direction(2);
             break;
         case 1:
-            m_origin = opp->position() + QPoint(-ui->width()/2 , -16);
+            m_origin = opp->position() + QPoint(-ui->width()/2-16, -16);
             chosen->setPosition(opp->position() + QPoint(-distance, 0));
             chosen->direction(3);
             break;
         case 2:
-            m_origin = opp->position() + QPoint(-ui->width()/2+32*2, 0);
+            m_origin = opp->position() + QPoint(0, 0);
             chosen->setPosition(opp->position() + QPoint(0, distance));
             chosen->direction(0);
             break;
         case 3:
-            m_origin = opp->position() + QPoint(-32*1.25, -16);
+            m_origin = opp->position() + QPoint(0, -30);
             chosen->setPosition(opp->position() + QPoint(distance, 0));
             chosen->direction(1);
             break;

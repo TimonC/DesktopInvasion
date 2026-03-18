@@ -1,7 +1,6 @@
 #include <QRandomGenerator>
 #include <QGuiApplication>
 #include <QQuickItem>
-#include "globals.h"
 #include "Pokemon.h"
 
 Pokemon::Pokemon(QWindow *parent, int row)
