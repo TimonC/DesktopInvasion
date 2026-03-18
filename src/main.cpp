@@ -11,13 +11,10 @@ int main(int argc, char *argv[]) {
     QGuiApplication app(argc, argv);
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 
-    // Pick 3 random spriteIds
-
     const PokemonInfo* p1 = getRandomPokemon();
     const PokemonInfo* p2 = getRandomPokemon();
     const PokemonInfo* p3 = getRandomPokemon();
 
-    // Create WildPokemon objects using the spriteId directly
     std::unique_ptr<WildPokemon> pok1 = std::make_unique<WildPokemon>(p1);
     std::unique_ptr<WildPokemon> pok2 = std::make_unique<WildPokemon>(p2);
     std::unique_ptr<WildPokemon> pok3 = std::make_unique<WildPokemon>(p3);
