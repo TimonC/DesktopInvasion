@@ -39,85 +39,15 @@ jobs:
           find build -name "DesktopInvasion" -type f
           exit 1
         fi
-
         if [ -f "assets/icon/icon.icns" ] && [ ! -f "build/DesktopInvasion.app/Contents/Resources/icon.icns" ]; then
           mkdir -p build/DesktopInvasion.app/Contents/Resources/
           cp assets/icon/icon.icns build/DesktopInvasion.app/Contents/Resources/
         fi
-
         macdeployqt build/DesktopInvasion.app -qmldir=qml
-
         hdiutil create -volname "DesktopInvasion" \
           -srcfolder build/DesktopInvasion.app \
           -ov -format UDZO \
           DesktopInvasion-macOS.dmg
-
-        zip -r DesktopInvasion-macOS.zip build/DesktopInvasion.app
-
-    - name: Upload DMG
-      uses: actions/upload-artifact@v4
-      with:
-        name: DesktopInvasion-macOS-DMG
-        path: DesktopInvasion-macOS.dmg
-
-    - name: Upload ZIP
-      uses: actions/upload-artifact@v4
-      with:
-        name: DesktopInvasion-macOS-ZIP
-        path: DesktopInvasion-macOS.zipname: Build macOS
-
-on:
-  push:
-    branches: [ "main", "master" ]
-  pull_request:
-    branches: [ "main", "master" ]
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: macos-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Install Qt (macOS)
-      uses: jurplel/install-qt-action@v3
-      with:
-        version: '6.8.0'
-        host: 'mac'
-        target: 'desktop'
-        arch: 'clang_64'
-        cache: true
-
-    - name: Configure CMake
-      run: cmake -B build -DCMAKE_BUILD_TYPE=Release
-      shell: bash
-
-    - name: Build
-      run: cmake --build build --parallel
-      shell: bash
-
-    - name: Package
-      run: |
-        if [ ! -f "build/bin/DesktopInvasion" ]; then
-          echo "Error: Executable not found"
-          find build -name "DesktopInvasion" -type f
-          exit 1
-        fi
-
-        if [ -f "assets/icon/icon.icns" ] && [ ! -f "build/DesktopInvasion.app/Contents/Resources/icon.icns" ]; then
-          mkdir -p build/DesktopInvasion.app/Contents/Resources/
-          cp assets/icon/icon.icns build/DesktopInvasion.app/Contents/Resources/
-        fi
-
-        macdeployqt build/DesktopInvasion.app -qmldir=qml
-
-        hdiutil create -volname "DesktopInvasion" \
-          -srcfolder build/DesktopInvasion.app \
-          -ov -format UDZO \
-          DesktopInvasion-macOS.dmg
-
         zip -r DesktopInvasion-macOS.zip build/DesktopInvasion.app
 
     - name: Upload DMG
