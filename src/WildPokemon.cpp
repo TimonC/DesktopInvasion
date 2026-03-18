@@ -68,11 +68,11 @@ void WildPokemon::mouseDoubleClickEvent(QMouseEvent* event){
 void WildPokemon::handleDrag(bool isDragged){
     m_isDragged = isDragged;
     if(isDragged){
-        m_sprite->setProperty("frameRate", 6);
+        m_sprite->setProperty("frameRate", 8);
         m_moveTimer->stop();
         m_decisionTimer->stop();
     }else{
-        m_sprite->setProperty("frameRate", 3);
+        m_sprite->setProperty("frameRate", 4);
         m_decisionTimer->start();
     }
 }

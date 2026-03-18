@@ -15,7 +15,6 @@ protected:
     bool m_isDragged = false;
     QPoint m_oldMousePos;
 
-    // Make these virtual so derived classes can override
     virtual void mousePressEvent(QMouseEvent* event) override;
     virtual void mouseReleaseEvent(QMouseEvent* event) override;
     virtual void mouseMoveEvent(QMouseEvent* event) override;
