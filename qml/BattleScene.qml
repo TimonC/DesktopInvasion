@@ -195,14 +195,14 @@ Item {
             { type: "text", message: firstAttackerName + " used Tackle!", delay: 300 },
             { type: "attack", attacker: firstAttacker, delay: 500 },
             { type: "damage", defender: firstDefender, delay: 200 },
-            { type: "change-health", defender: firstDefender, delay: 500 },
+            { type: "change-health", defender: firstDefender, delay: 1000 },
             { type: "text", message: "It's super effective!", delay: 1200 },
 
             // Second turn
             { type: "text", message: secondAttackerName + " used Tackle!", delay: 300 },
             { type: "attack", attacker: secondAttacker, delay: 500 },
             { type: "damage", defender: secondDefender, delay: 200 },
-            { type: "change-health", defender: secondDefender, delay: 500 },
+            { type: "change-health", defender: secondDefender, delay: 1000 },
             { type: "text", message: "It's super effective!", delay: 1200 },
 
             // End
