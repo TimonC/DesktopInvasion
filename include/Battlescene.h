@@ -14,8 +14,6 @@ public:
 
     void updateTextbar(const std::string& text); // Make sure this signal exists
 
-private slots:
-    void systemMove();
 private:
     Pokemon* m_opp;
     Pokemon* m_chosen;
