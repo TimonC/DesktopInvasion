@@ -13,7 +13,7 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QPoint spawnPoint, int spawnDi
     , m_moveTimer(new QTimer(this))
     , m_moveSpeed(1 + std::rand()%2000/1000)
 {
-    qDebug() << "WildPokemon constructor called!";
+    qDebug() << "WildPokemon constructor called, with name: " << info->name;
 
     if(spawnPoint.x()>=0  && spawnPoint.y()>=0){
         setPosition(spawnPoint);
@@ -53,10 +53,6 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QPoint spawnPoint, int spawnDi
     m_decisionTimer->setInterval(2000 + std::rand()%2000);
     m_moveTimer->setInterval(50); // 20fps
 
-
-    qDebug() << "A wild" << info->name << "(#" <<info->pokedexId << ") appeared!"
-             << "width:" << spriteInfo->max_width << "height:" << spriteInfo->max_height ;
-
     roaming(true);
     show();
 
@@ -67,7 +63,7 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QPoint spawnPoint, int spawnDi
 }
 
 WildPokemon::~WildPokemon(){
-    qDebug() << "WildPokemon destructor called, with info: " << info->name;
+    qDebug() << "WildPokemon destructor called, with name: " << info->name;
 };
 
 void WildPokemon::roaming(bool active){

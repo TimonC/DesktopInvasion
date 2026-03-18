@@ -10,6 +10,7 @@
 BattleMoveHandler::BattleMoveHandler(const PokemonState& wildState, const std::array<PokemonState, 6>& partyStates)
     : m_rng(std::random_device{}())
 {
+    qDebug() << "BattleMoveHandler constructor called!";
     m_battleOpponent = createBattler(wildState);
     for (int i = 0; i < 6; i++) {
         m_battleParty[i] = createBattler(partyStates[i]);
@@ -18,6 +19,7 @@ BattleMoveHandler::BattleMoveHandler(const PokemonState& wildState, const std::a
 }
 
 BattleMoveHandler::~BattleMoveHandler() {
+    qDebug() << "BattleMoveHandler destructor called!";
     delete m_battleOpponent;
     for (auto& ptr : m_battleParty) delete ptr;
 }
