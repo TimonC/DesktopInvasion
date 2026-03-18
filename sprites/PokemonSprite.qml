@@ -161,5 +161,13 @@ Item {
             easing.type: Easing.InQuad
         }
     }
+    Rectangle {
+        // optional visual debugging
+        anchors.fill: parent
+        color: "transparent"
+        border.color: "yellow"
+        border.width: 1
+        // visible: false
+    }
 }
 

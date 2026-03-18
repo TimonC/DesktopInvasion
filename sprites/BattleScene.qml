@@ -138,4 +138,12 @@ Item {
             }
         }
     }
+    Rectangle {
+        // optional visual debugging
+        anchors.fill: parent
+        color: "transparent"
+        border.color: "blue"
+        border.width: 1
+        // visible: false
+    }
 }

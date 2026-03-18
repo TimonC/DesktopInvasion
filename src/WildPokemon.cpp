@@ -18,7 +18,7 @@ WildPokemon::WildPokemon(QWindow *parent, int row)
     , m_moveSpeed(1 + QRandomGenerator::global()->bounded(2))
 {
 
-    m_hitbox->offset =QPoint(width()/5, height()/4);
+    m_hitbox->offset =QPoint(width()/3.5, height()/3);
     move(QPoint(getScreenGeometry().width()/2, getScreenGeometry().height()/2));
 
     connect(m_hitbox, &Hitbox::drag, this, &WildPokemon::move);

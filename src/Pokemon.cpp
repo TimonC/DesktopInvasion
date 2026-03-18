@@ -23,7 +23,7 @@ Pokemon::Pokemon(QWindow *parent, int row)
     m_sprite->setProperty("scaleFactor", m_scaleFactor);
     m_sprite->setProperty("row", m_row);
 
-    setSize(40);
+    setSize(50);
 
 
 }
@@ -38,8 +38,8 @@ void Pokemon::setSize(int size){
     setWidth(width);
     setHeight(height);
 
-    m_sprite->setProperty("spriteOffsetX", width/3);
-    m_sprite->setProperty("spriteOffsetY", height/4);
+    m_sprite->setProperty("spriteOffsetX", width/2.5);
+    m_sprite->setProperty("spriteOffsetY", height/2.8);
 }
 void Pokemon::useMove(){
     m_sprite->setProperty("tackle", true);

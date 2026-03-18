@@ -32,24 +32,24 @@ Battlescene::Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent)
     QQuickItem* mouseArea = ui->property("mouseArea").value<QQuickItem*>();
 
     int distance = m_opp->direction()%2==0 ? 3*33 : 4*33;
-    switch(m_opp->direction()) {
+    switch(m_opp->direction()) { //Very bad no good ugly manually-tuned positioning for the Battlescene
         case 0:
-            m_origin = m_opp->position() + QPoint(0, -ui->height()/2-14);
+            m_origin = m_opp->position() + QPoint(25, -ui->height()/2 + 30);
             m_chosen->setPosition(m_opp->position() + QPoint(0, -distance));
             m_chosen->direction(2);
             break;
         case 1:
-            m_origin = m_opp->position() + QPoint(-ui->width()/2-16, -16);
+            m_origin = m_opp->position() + QPoint(-ui->width()/2+8, 16);
             m_chosen->setPosition(m_opp->position() + QPoint(-distance, 0));
             m_chosen->direction(3);
             break;
         case 2:
-            m_origin = m_opp->position() + QPoint(0, 0);
+            m_origin = m_opp->position() + QPoint(+25, 50);
             m_chosen->setPosition(m_opp->position() + QPoint(0, distance));
             m_chosen->direction(0);
             break;
         case 3:
-            m_origin = m_opp->position() + QPoint(0, -30);
+            m_origin = m_opp->position() + QPoint(28, 16);
             m_chosen->setPosition(m_opp->position() + QPoint(distance, 0));
             m_chosen->direction(1);
             break;
