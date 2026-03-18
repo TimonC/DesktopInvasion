@@ -26,6 +26,8 @@ Item {
     signal pokemonInsideBall()
     signal ballOpened()
 
+    // Extra delay, is set for player intro
+    property int delayReveal: 1
     width: frameWidth
     height: frameHeight
     z: 100
@@ -454,12 +456,10 @@ Item {
             value: root.frameWidth * 9
         }
         ScriptAction{
-            script: {
-                root.pokemonInsideBall()
-            }
+            script: root.pokemonInsideBall()
         }
         PauseAnimation {
-            duration: root.catchDuration
+            duration: root.catchDuration*root.delayReveal
         }
         ScriptAction{
             script: root.ballOpened()
@@ -474,6 +474,7 @@ Item {
         PauseAnimation {
             duration: root.catchDuration
         }
+
 
         // === PHASE 4: Drop to final position ===
         PropertyAnimation {

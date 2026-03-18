@@ -96,7 +96,6 @@ Item {
 
         // Configure circle properties
         circleBaseRadius: Math.max(opponent.width/2, opponent.height/2)
-        circleAnimationDuration: root.ballTransitionDuration
         circleX: opponent.x + opponent.width/2  // Center on opponent
         circleY: opponent.y + opponent.height/2
 
@@ -116,8 +115,8 @@ Item {
 
         // Configure circle properties
         circleBaseRadius: Math.max(player.width/2, player.height/2)
-        circleShrinkScale: 0.7
-        circleAnimationDuration: root.ballTransitionDuration
+        circleAnimationDuration: 1000
+        delayReveal: 2 //longer animation for player reveal
         circleX: player.x + player.width/2  // Center on player
         circleY: player.y + player.height/2
 
@@ -125,8 +124,8 @@ Item {
             pokeBallPlayer.circleExpand();
         }
         onBallOpened:{
-            player.visible=true
             pokeBallPlayer.visible=false
+            player.visible=true
         }
     }
 
