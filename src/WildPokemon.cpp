@@ -31,9 +31,8 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
 
     const SpriteInfo* spriteInfo = Globals::getSpriteInfo(info->spriteId, info->generation);
 
-    int padding = 2;
-    int width = Globals::SCALE* (spriteInfo->width + padding);
-    int height = Globals::SCALE * (spriteInfo->height + padding);
+    int width = Globals::SCALE* (spriteInfo->width + m_padding);
+    int height = Globals::SCALE * (spriteInfo->height + m_padding);
 
     m_sprite->setProperty("itemWidth", width);
     m_sprite->setProperty("itemHeight", height);
@@ -41,8 +40,8 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
     setWidth(width);
     setHeight(height);
 
-    m_sprite->setProperty("offsetX" , padding/2);
-    m_sprite->setProperty("offsetY", padding/2);
+    m_sprite->setProperty("offsetX" , m_padding/2);
+    m_sprite->setProperty("offsetY", m_padding/2);
     /* if (auto mouseArea = m_sprite->property("mouseArea").value<QQuickItem*>()) */
         /* connect(mouseArea, SIGNAL(doubleClicked(QQuickMouseEvent*)), this, SLOT(handleDoubleClick())); */
 

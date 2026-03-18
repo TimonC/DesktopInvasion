@@ -24,6 +24,7 @@ Battle::Battle(int opp_direction, QPoint opp_pos, const PokemonInfo* opp_info, c
     m_battleScene->setProperty("scaleFactor", Globals::SCALE);
     m_battleScene->setProperty("direction",m_currentDirection);
     m_battleScene->setProperty("pokeMargin", m_pokeMargin);
+    m_battleScene->setProperty("debugLines", Globals::DEBUG);
     setupPokemon(m_opp_info, m_chosen_info);
 
 
@@ -41,43 +42,44 @@ void Battle::onBattleSceneLoaded(QVariant battleSceneItem) {
 }
 
 void Battle::setupPokemon(const PokemonInfo* opp_info, const PokemonInfo* chosen_info) {
-    if (!m_battleScene) return;
+    Q_ASSERT_X(m_battleScene, "Battle::setupPokemon", "Battle scene is null");
 
-    // Set top-level properties directly
-    m_battleScene->setProperty("opponentSpriteSheet",
-        QString("qrc:/assets/HGSS/PokGen%1_transparent_reordered.png").arg(opp_info->generation));
-    m_battleScene->setProperty("opponentRow", opp_info->spriteId);
+    QObject* opponentSprite = m_battleScene->property("opponentSprite").value<QObject*>();
+    QObject* playerSprite = m_battleScene->property("playerSprite").value<QObject*>();
 
-    m_battleScene->setProperty("playerSpriteSheet",
-        QString("qrc:/assets/HGSS/PokGen%1_transparent_reordered.png").arg(chosen_info->generation));
-    m_battleScene->setProperty("playerRow", chosen_info->spriteId);
+    Q_ASSERT_X(opponentSprite, "Battle::setupPokemon", "Opponent sprite is null");
+    Q_ASSERT_X(playerSprite, "Battle::setupPokemon", "Player sprite is null");
 
-    m_battleScene->setProperty("pokemonScale", Globals::SCALE);
-    m_battleScene->setProperty("debugLines", Globals::DEBUG);
+    opponentSprite->setProperty("spriteSheet", QString("qrc:/assets/HGSS/PokGen%1_transparent_reordered.png").arg(opp_info->generation));
+    opponentSprite->setProperty("row", opp_info->spriteId);
+    opponentSprite->setProperty("scaleFactor", Globals::SCALE);
+    opponentSprite->setProperty("debugLines", Globals::DEBUG);
+
+    playerSprite->setProperty("spriteSheet", QString("qrc:/assets/HGSS/PokGen%1_transparent_reordered.png").arg(chosen_info->generation));
+    playerSprite->setProperty("row", chosen_info->spriteId);
+    playerSprite->setProperty("scaleFactor", Globals::SCALE);
+    playerSprite->setProperty("debugLines", Globals::DEBUG);
 }
-
 void Battle::handleDrag(bool isDragged){m_isDragged = isDragged;};
 
 void Battle::initPosition(){
-    int distance = m_currentDirection%2==0 ? 3*33 : 4*33;
+    int textBoxHeight = 32 * 1.6 * Globals::SCALE;
+    int padding = 2 * Globals::SCALE;
+
     switch(m_currentDirection) {
-        case 0:
-            m_origin = m_initialOppPos + QPoint(0, m_pokeMargin*Globals::SCALE);
+        case 0: //opp look up
+            m_origin = m_initialOppPos + QPoint(-m_pokeMargin, -height() + textBoxHeight - m_pokeMargin - padding);
             break;
-        case 1:
-            m_origin = m_initialOppPos + QPoint(0,0);
+        case 1: //opp look left
+            m_origin = m_initialOppPos + QPoint(m_pokeMargin - width(),height()/2 - textBoxHeight + padding);
             break;
-        case 2:
-            m_origin = m_initialOppPos + QPoint(0, -m_pokeMargin);
+        case 2: //opp look down
+            m_origin = m_initialOppPos + QPoint(-m_pokeMargin, -m_pokeMargin - padding);
             break;
-        case 3:
-            m_origin = m_initialOppPos + QPoint(0,0);
+        case 3: //opp look right
+            m_origin = m_initialOppPos + QPoint(-m_pokeMargin,height()/2 -textBoxHeight + padding);
             break;
     }
-
-
     setPosition(m_origin);
-    /* QMetaObject::invokeMethod(m_battleScene, "swap_visibility"); */
-    /* QMetaObject::invokeMethod(m_battleScene, "swap_visibility"); */
 }
 void Battle::direction(int direction){};

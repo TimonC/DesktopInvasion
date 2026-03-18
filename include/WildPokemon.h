@@ -14,6 +14,7 @@ public:
     void direction(int direction) override;
     const PokemonInfo* info;
     QQuickItem* m_sprite;
+    int m_padding = 2;
 private slots:
     void handleDrag(bool isDragged) override;
 

@@ -24,6 +24,8 @@ Item {
     property int playerRow: 0
     property real scaleFactor: 4.0  // Shared scale for both Pokemon
 
+    property alias opponentSprite: opponentSprite
+    property alias playerSprite: playerSprite
     // Aliases for external access
     property alias textBar: textBar
     property alias buttonGrid: buttonGrid
@@ -31,7 +33,6 @@ Item {
     property alias switchButton: switchButton
     property alias catchButton: catchButton
     property alias runButton: runButton
-
 
     // Opponent Pokemon (wild) - positioned opposite to player
     PokemonSprite {
@@ -75,7 +76,6 @@ Item {
         }
     }
 
-
     // Position sprite based on side
     function positionSprite(sprite) {
         // Reset all anchors first
@@ -98,8 +98,8 @@ Item {
             case 1: // East - position at right
                 sprite.anchors.right = root.right;
                 sprite.anchors.rightMargin = margin;
-                sprite.anchors.top = root.top;
-                sprite.anchors.topMargin = textBar.height/2;
+                sprite.anchors.bottom = root.bottom;
+                sprite.anchors.bottomMargin = textBar.height;
                 break;
             case 2: // South - position at top
                 sprite.anchors.top = root.top;
@@ -110,8 +110,8 @@ Item {
             case 3: // West - position at left
                 sprite.anchors.left = root.left;
                 sprite.anchors.leftMargin = margin;
-                sprite.anchors.top = root.top;
-                sprite.anchors.topMargin = textBar.height/2;
+                sprite.anchors.bottom = root.bottom;
+                sprite.anchors.bottomMargin = textBar.height;
                 break;
         }
     }
