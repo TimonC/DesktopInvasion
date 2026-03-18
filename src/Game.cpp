@@ -1,7 +1,6 @@
-#include "BattleMoveHandler.h"
+#include "Game.h"
 #include "PokemonTypes.h"
 #include "SystemTrayIcon.h"
-#include "Game.h"
 #include "WildPokemon.h"
 #include "gamestate.h"
 #include "globals.h"
@@ -10,6 +9,7 @@
 #include <cstring>
 #include <form_mapper.h>
 #include <PokeMath/calculatePokeStats.h>
+#include "BattleMoveHandler.h"
 
 Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
     : QObject(parent)
@@ -180,6 +180,7 @@ const PokemonInfo* Game::getPartyPokemonInfo(int slot) const {
 
 void Game::spawnPokemon() {
     if (m_wildPokemon) {
+        qDebug() << "Removing existing WildPokemon instance with name: " << m_wildPokemon->info->name;
         m_wildPokemon->deleteLater();
         m_wildPokemon = nullptr;
     }
@@ -268,15 +269,18 @@ void Game::handleBattleStart() {
 
     std::vector<PokemonState> pokemonStates = m_db.getPokemonBatch(idsToFetch);
 
-    // Wild is at index 0, party is at indices 1-6
-    Battler wildBattler = initBattleState(pokemonStates[0]);
-    Battler partyBattleState[6] = {};
+    // Store states
+    PokemonState wildState = pokemonStates[0];
+    std::array<PokemonState, 6> partyStates;
     for(int i = 0; i < 6; i++){
-        partyBattleState[i] = initBattleState(pokemonStates[i + 1]);
+        partyStates[i] = pokemonStates[i + 1];
     }
 
-    auto battleMoveHandler = std::make_unique<BattleMoveHandler>(wildBattler, std::move(partyBattleState));
-    m_activeBattle = new Battle(m_wildPokemon, getParty(), std::move(battleMoveHandler));
+    // Initialize battle handler with just the states
+    auto battleMoveHandler = std::make_unique<BattleMoveHandler>(wildState, partyStates);
+    const Party party = getParty();
+
+    m_activeBattle = new Battle(m_wildPokemon, party, std::move(battleMoveHandler));
 
     connect(m_activeBattle, &Battle::battleEnded,
             this, &Game::handleBattleEnd);
@@ -284,47 +288,23 @@ void Game::handleBattleStart() {
     qDebug() << "Starting battle...";
 }
 
-Battler Game::initBattleState(PokemonState state){
-    const Poke* poke = Globals::getPoke(state.pokedex_id);
-    return
-    {
-        {
-            state.lvl,
-
-            calculatePokeStats(
-                    state.lvl,
-                    poke->base_stats,
-                    state.ivs,
-                    state.evs,
-                    getNatureMultipliers(state.nature)
-            ),
-
-            {&poke->types[0], &poke->types[1]},
-
-            {
-                Globals::getMove(state.moves[0]),
-                Globals::getMove(state.moves[1]),
-                Globals::getMove(state.moves[2]),
-                Globals::getMove(state.moves[3])
-            }
-        },
-        {}
-    };
-};
-
-
-
 void Game::handleBattleEnd(const char* endState) {
     if (!endState) {
         qWarning() << "handleBattleEnd called with null endState";
         return;
     }
+    assert((   !std::strcmp(endState, "PlayerWon")
+            || !std::strcmp(endState, "PlayerRun")
+            || !std::strcmp(endState, "OpponentWon")
+            || !std::strcmp(endState, "OpponentCaught"))
+           && "Action must be 'Switch', 'Fight' or 'Catch'");
 
     qDebug() << endState;
+
     bool playerWon = (strcmp(endState, "PlayerWon") == 0);
-    bool opponentCaught = (strcmp(endState, "OpponentCaught") == 0);
     bool opponentWon = strcmp(endState, "OpponentWon") == 0;
-    bool removeWild = playerWon || opponentCaught || opponentWon;
+    bool opponentCaught = (strcmp(endState, "OpponentCaught") == 0);
+    bool removeWild = playerWon || opponentWon || opponentCaught;
 
     if (removeWild) {
         if (opponentCaught) {
