@@ -55,7 +55,16 @@ Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent
     });
 }
 
+void Battle::setupParty(const std::vector<std::pair<int, std::string>>& party){
+    assert(party.size() >= 1 && party.size() <= 6);
 
+    for(size_t i = 0; i < party.size(); ++i){
+        QMetaObject::invokeMethod(m_battleScene, "setPartyMember",
+            Q_ARG(int, static_cast<int>(i)),
+            Q_ARG(int, party[i].first),
+            Q_ARG(QString, QString::fromStdString(party[i].second)));
+    }
+}
 QQuickItem* Battle::setupPokemon(const PokemonInfo* info, const char* role) {
     QQuickItem* pokemonSprite = m_battleScene->property(role).value<QQuickItem*>();
     m_battleScene->setProperty((QString(role) + "Name").toUtf8(), info->name);

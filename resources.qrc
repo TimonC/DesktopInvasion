@@ -3,6 +3,7 @@
         <file>qml/PokemonSprite.qml</file>
         <file>qml/BattleScene.qml</file>
         <file>qml/BattleMenu.qml</file>
+        <file>qml/PokemonIcon.qml</file>
         <file>qml/StatusBar.qml</file>
         <file>qml/Pokeball.qml</file>
 
@@ -14,6 +15,8 @@
 
         <file>assets/HGSS/PokeballIcon.png</file>
         <file>assets/HGSS/PokeballIcon_grayscale.png</file>
+        <file>assets/HGSS/PokemonIcons_filtered_reordered.png</file>
+
         <file>assets/HGSS/PokGen1_transparent_reordered.png</file>
         <file>assets/HGSS/PokGen2_transparent_reordered.png</file>
         <file>assets/HGSS/PokGen3_transparent_reordered.png</file>

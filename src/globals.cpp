@@ -1,3 +1,4 @@
+#include "pokemon_data.h"
 #include <globals.h>
 #include <QGuiApplication>
 #include <QScreen>
@@ -16,6 +17,7 @@ namespace Globals {
         static const QRect geometry = QGuiApplication::primaryScreen()->geometry();
         return geometry;
     }
+
 
     const PokemonInfo* getPokemonInfo(int pokedexId) {
         static const PokemonInfo* pokeLookup[MAX_POKEDEX_ID + 1] = {};

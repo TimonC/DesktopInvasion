@@ -236,6 +236,9 @@ Item {
         sprite.startingY = sprite.y
         sprite.statusBar.visible = true
     }
+    function setPartyMember(partyIdx, iconId, pokemonName) {
+       battleMenu.setPartyMember(partyIdx, iconId, pokemonName);
+    }
 
 
     // Action sequence

@@ -3,6 +3,7 @@
 
 void runAllTests();
 void testPokespawnRandomness();
+void testVariantMapper();
 
 
 #endif

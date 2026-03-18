@@ -20,6 +20,7 @@ public:
     QQuickView *m_corners = nullptr;
     void direction(int direction) override;
     QPoint m_origin;
+    void setupParty(const std::vector<std::pair<int, std::string>>& party);
 
 signals:
     void battleEnded(const char* endState);

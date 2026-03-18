@@ -15,7 +15,8 @@ struct SpriteInfo{
     const int max_height;
 };
 
-extern const int pokedexId2VariantId[][2];
+extern const int kVariantList[][2];
+extern const int kVariantCount;
 
 extern const PokemonInfo kPokemonList[];
 extern const int kPokemonCount;

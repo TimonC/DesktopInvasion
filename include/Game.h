@@ -41,7 +41,7 @@ private:
     void loadParty();
     const PokemonInfo* getPartyPokemonInfo(int slot) const;
     void spawnPokemon();
-
+    std::vector<std::pair<int, std::string>> getParty();
     void updateWildPokemonPosToBattlePos();
 
 private slots:

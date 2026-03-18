@@ -5,6 +5,7 @@
 #include <QTimer>
 #include <QDebug>
 #include <cstring>
+#include <variant_mapper.h>
 
 Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
     : QObject(parent)
@@ -197,22 +198,43 @@ void Game::spawnPokemon() {
     }
 }
 
+std::vector<std::pair<int, std::string>> Game::getParty() {
+    std::vector<std::pair<int, std::string>> party;
+    GameState state = m_db.loadGameState();
+
+    for(int i = 0; i < 6; ++i) {
+        int pokemonId = state.party_id[i];
+        if(pokemonId > 0) {
+            PokemonState pokemon = m_db.getPokemon(pokemonId);
+            const PokemonInfo* info = Globals::getPokemonInfo(pokemon.pokedex_id);
+            if(info) {
+                party.push_back({VariantMapper::pokedexID2IconID(pokemon.pokedex_id,0), pokemon.name});
+            }
+        }
+    }
+
+    return party;
+}
+
 void Game::handleBattleStart() {
     if (!m_wildPokemon || m_activeBattle) {
         qWarning() << "Cannot start battle - invalid state";
         return;
     }
-
     const PokemonInfo* partyPokemon = getPartyPokemonInfo(0);
     if (!partyPokemon) {
         qWarning() << "Cannot start battle - no party Pokemon";
         return;
     }
-
     qDebug() << "Starting battle...";
     m_activeBattle = new Battle(m_wildPokemon, partyPokemon);
     connect(m_activeBattle, &Battle::battleEnded,
             this, &Game::handleBattleEnd);
+
+    std::vector<std::pair<int, std::string>> party = getParty();
+    if(!party.empty()) {
+        m_activeBattle->setupParty(party);
+    }
 }
 
 void Game::handleBattleEnd(const char* endState) {

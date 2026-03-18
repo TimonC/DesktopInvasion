@@ -1,10 +1,8 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-
 Rectangle {
     id: root
     color: "transparent"
-
     property int frameSize: 32
     property int buttonWidth: frameSize * 2
     property int buttonHeight: frameSize * 0.75
@@ -18,39 +16,48 @@ Rectangle {
     property int pokeSpriteWidth: 16
     property int pokeSpriteHeight: 23
     property string spriteSheet: "qrc:/assets/HGSS/Pokeballs_transparent_reordered.png"
-
     signal attackChosen(int attackId)
     signal runChosen()
     signal catchChosen(int pokeId)
-
+    signal switchChosen(int partyIdx)
     property alias stack: stack
+
+    property var partyMembers: [
+        {iconId: -1, name: ""},
+        {iconId: -1, name: ""},
+        {iconId: -1, name: ""},
+        {iconId: -1, name: ""},
+        {iconId: -1, name: ""},
+        {iconId: -1, name: ""}
+    ]
+
+    function _setPartyMember(partyIdx, iconId, pokemonName) {
+        var temp = partyMembers
+        temp[partyIdx] = {iconId: iconId, name: pokemonName}
+        partyMembers = temp
+    }
 
     function showTextBar() {
         stack.replace(textBarComponent)
     }
-
     function updateText(text) {
         if (stack.currentItem && stack.currentItem.hasOwnProperty("text")) {
             stack.currentItem.text = text
         }
     }
-
     function getText(){
         if (stack.currentItem && stack.currentItem.hasOwnProperty("text")) {
             return stack.currentItem.text
         }
     }
-
     function resetToRoot() {
         stack.replace(rootSelection)
     }
-
     StackView {
         id: stack
         initialItem: textBarComponent
         anchors.fill: parent
         z: 1
-
         pushEnter: Transition {
             PropertyAnimation {
                 property: "opacity"
@@ -100,7 +107,6 @@ Rectangle {
             }
         }
     }
-
     Component {
         id: textBarComponent
         Rectangle {
@@ -112,7 +118,6 @@ Rectangle {
             height: root.menuHeight
             width: root.menuWidth
             radius: 5
-
             Text {
                 id: textBarText
                 anchors.left: parent.left
@@ -130,7 +135,6 @@ Rectangle {
             }
         }
     }
-
     Component {
         id: rootSelection
         Item {
@@ -138,7 +142,6 @@ Rectangle {
                 anchors.centerIn: parent
                 columns: 2
                 spacing: root.gridSpacing
-
                 RoundButton {
                     text: "Attack"
                     palette.button: "red"
@@ -153,6 +156,7 @@ Rectangle {
                     font.pixelSize: root.buttonFontSize
                     width: root.buttonWidth
                     height: root.buttonHeight
+                    onClicked: stack.push(switchSelection)
                 }
                 RoundButton {
                     text: "Catch"
@@ -173,18 +177,15 @@ Rectangle {
             }
         }
     }
-
     Component {
         id: attackSelection
         Item {
             Row {
                 anchors.centerIn: parent
                 spacing: root.gridSpacing
-
                 Grid {
                     columns: 2
                     spacing: root.gridSpacing
-
                     Repeater {
                         model: 4
                         Rectangle {
@@ -194,13 +195,11 @@ Rectangle {
                             border.color: "black"
                             border.width: 2
                             radius: 3
-
                             Text {
                                 anchors.centerIn: parent
                                 text: "Tackle"
                                 font.pixelSize: root.buttonFontSize
                             }
-
                             MouseArea {
                                 anchors.fill: parent
                                 onClicked: root.attackChosen(0)
@@ -208,7 +207,6 @@ Rectangle {
                         }
                     }
                 }
-
                 Loader {
                     anchors.verticalCenter: parent.verticalCenter
                     sourceComponent: backButton
@@ -216,7 +214,58 @@ Rectangle {
             }
         }
     }
-
+    Component {
+        id: switchSelection
+        Item {
+            Row {
+                anchors.centerIn: parent
+                spacing: root.gridSpacing
+                Grid {
+                    columns: 3
+                    rows: 2
+                    spacing: root.gridSpacing
+                    Repeater {
+                        model: 6
+                        Item {
+                            width: root.buttonWidth * 1.3
+                            height: root.buttonHeight * 0.9
+                            visible: root.partyMembers[index].iconId >= 0
+                            RoundButton {
+                                anchors.fill: parent
+                                radius: height / 2
+                                background: Rectangle {
+                                    radius: parent.radius
+                                    color: parent.pressed ? "#f0f0f0" : "white"
+                                    border.color: "black"
+                                    border.width: 2
+                                }
+                                contentItem: Item {
+                                    PokemonIcon {
+                                        id: pokeIcon
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        anchors.left: parent.left
+                                        frameIndex: root.partyMembers[index].iconId
+                                    }
+                                    Text {
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        anchors.left: pokeIcon.right
+                                        anchors.leftMargin: 4
+                                        text: root.partyMembers[index].name
+                                        font.pixelSize: root.buttonFontSize
+                                    }
+                                }
+                                onClicked: root.switchChosen(index)
+                            }
+                        }
+                    }
+                }
+                Loader {
+                    anchors.verticalCenter: parent.verticalCenter
+                    sourceComponent: backButton
+                }
+            }
+        }
+    }
     Component {
         id: catchSelection
         Item {
@@ -226,14 +275,12 @@ Rectangle {
                 width: root.buttonWidth * 1.3
                 height: root.buttonHeight * 0.9
                 radius: height / 2
-
                 background: Rectangle {
                     radius: parent.radius
                     color: pokeballButton.pressed ? "#f0f0f0" : "white"
                     border.color: "black"
                     border.width: 2
                 }
-
                 contentItem: Item {
                     Image {
                         id: pokeImage
@@ -248,7 +295,6 @@ Rectangle {
                         smooth: false
                         antialiasing: false
                     }
-
                     Text {
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.left: pokeImage.right
@@ -257,10 +303,8 @@ Rectangle {
                         font.pixelSize: root.buttonFontSize
                     }
                 }
-
                 onClicked: root.catchChosen(3)
             }
-
             Loader {
                 anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
@@ -268,7 +312,6 @@ Rectangle {
             }
         }
     }
-
     Component {
         id: runSelection
         Item {
@@ -276,7 +319,6 @@ Rectangle {
                 anchors.centerIn: parent
                 columns: 2
                 spacing: root.gridSpacing
-
                 RoundButton {
                     palette.button: "blue"
                     text: "Confirm"
@@ -284,14 +326,12 @@ Rectangle {
                     height: root.buttonHeight
                     onClicked: root.runChosen()
                 }
-
                 Loader {
                     sourceComponent: backButton
                 }
             }
         }
     }
-
     Component {
         id: backButton
         Rectangle {
@@ -299,14 +339,12 @@ Rectangle {
             height: root.buttonHeight
             color: "lightblue"
             radius: 3
-
             Text {
                 anchors.centerIn: parent
                 text: "←"
                 color: "white"
                 font.pixelSize: root.buttonFontSize
             }
-
             MouseArea {
                 anchors.fill: parent
                 onClicked: stack.pop()
