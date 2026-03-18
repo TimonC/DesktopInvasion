@@ -32,6 +32,15 @@ Item {
 
     signal runClicked()
 
+    // Debug rectangle
+    Rectangle {
+        id: containerDebugLines
+        anchors.fill: parent
+        color: "transparent"
+        border.color: debugLines ? "green" : "transparent"
+        border.width: 1
+    }
+
     // Sprites
     HealthBar{
         id: hpBarOpponent
@@ -131,25 +140,25 @@ Item {
             case 0:
                 sprite.x = margin + sprite.containerOffsetX;
                 sprite.y = root.height - (textBoxHeight + margin + sprite.containerOffsetY + sprite.height);
-                sprite.healthBar.x = 3*32
+                sprite.healthBar.x = 3*32 - margin
                 sprite.healthBar.y = sprite.y
                 break;
             case 1:
                 sprite.x = root.width - (margin + sprite.containerOffsetX + sprite.width);
                 sprite.y = root.height - (textBoxHeight + margin + sprite.height);
-                sprite.healthBar.x = sprite.x
+                sprite.healthBar.x = root.width - 32 - margin
                 sprite.healthBar.y = root.height - (textBoxHeight + 3*32 - margin)
                 break;
             case 2:
                 sprite.x = margin + sprite.containerOffsetX;
                 sprite.y = margin + sprite.containerOffsetY;
-                sprite.healthBar.x = 3*32
+                sprite.healthBar.x = 3*32 - margin
                 sprite.healthBar.y = sprite.y
                 break;
             case 3:
                 sprite.x = margin + sprite.containerOffsetX;
                 sprite.y = root.height - (textBoxHeight + margin + sprite.height);
-                sprite.healthBar.x = sprite.x
+                sprite.healthBar.x = 32 + margin
                 sprite.healthBar.y = root.height - (textBoxHeight + 3*32 - margin)
                 break;
         }
