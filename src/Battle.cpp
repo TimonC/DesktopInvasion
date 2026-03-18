@@ -39,6 +39,10 @@ Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent
                         opp->close();
                         this->close();
             });
+    connectWithQML(SIGNAL(pokemonCaught()), [this, opp]() {
+                        opp->close();
+                        this->close();
+            });
 
     qDebug() << "Window shown, visible:" << isVisible();
 }

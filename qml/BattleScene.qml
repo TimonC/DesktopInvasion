@@ -38,6 +38,7 @@ Item {
     signal runChosen()
     signal opponentWon()
     signal playerWon()
+    signal pokemonCaught()
 
     Component.onCompleted: {
         positionSpriteAndStatusBar(player);
@@ -163,6 +164,9 @@ Item {
                 var coords = calculateBallCoords(opponent)
                 // Start the animation
                 pokeBallOpponent.visible = true;
+
+                battleMenu.showTextBar()
+                battleMenu.updateText("Player used one Poké Ball!")
                 pokeBallOpponent.throwAt(coords[0], coords[1], coords[2], coords[3]);
             } else {
                 console.error("Invalid pokeSprite id:", pokeSpriteId)
@@ -347,6 +351,8 @@ Item {
         if (failure) {
             // Release the pokemon
             pokeBallOpponent.release()
+            battleMenu.updateText("Aargh! Almost had it!")
+
             // Hide after delay
             Qt.callLater(function() {
                 var hideTimer = Qt.createQmlObject('import QtQuick 2.15; Timer {}', root)
@@ -354,6 +360,8 @@ Item {
                 hideTimer.triggered.connect(function() {
                     opponent.visible=true
                     pokeBallOpponent.visible = false
+
+                    battleMenu.resetToRoot()
                     hideTimer.destroy()
                 })
                 hideTimer.start()
@@ -365,7 +373,17 @@ Item {
                 // Third attempt - jump instead of shake
                 pokeBallOpponent.jump()
                 // Pokemon caught!
-                console.log("Pokemon caught!")
+                battleMenu.updateText("Gotcha! " + opponentName + "was caught!")
+
+                Qt.callLater(function() {
+                    var hideTimer = Qt.createQmlObject('import QtQuick 2.15; Timer {}', root)
+                    hideTimer.interval = 2000
+                    hideTimer.triggered.connect(function() {
+                        root.pokemonCaught();
+                        hideTimer.destroy()
+                    })
+                    hideTimer.start()
+                })
             } else {
                 // Shake and try again
                 pokeBallOpponent.shake()
