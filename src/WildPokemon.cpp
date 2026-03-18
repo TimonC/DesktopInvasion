@@ -78,23 +78,28 @@ void WildPokemon::startBattle(){
     m_hitbox->showButton(false);
     m_hitbox->hide();
 
-    switch(m_currentDirection){
-        case 0:
-            if(y() < 32) direction(2);
-            break;
-        case 1:
-            if(x() < 32) direction(3);
-            break;
-        case 2:
-            if(y() + height()  > screenSize().height() - 32) direction(0);
-            break;
-        case 3:
-            if(x() + width()  > screenSize().width() - 32) direction(1);
-            break;
-        default:
-            break;
-    }
+    const int BOUNDARY_MARGIN = 16;
 
+    QRect screen = screenSize();
+    int screenRight = screen.x() + screen.width();
+    int screenBottom = screen.y() + screen.height();
+
+    if (y() < BOUNDARY_MARGIN*2.5) {
+        direction(2);
+        movePos(QPoint(0, BOUNDARY_MARGIN));
+    }
+    else if (x() < BOUNDARY_MARGIN) {
+        direction(3);
+        movePos(QPoint(BOUNDARY_MARGIN, 0));
+    }
+    else if (y() + height() > screenBottom - BOUNDARY_MARGIN) {
+        direction(0);
+        movePos(QPoint(0, -BOUNDARY_MARGIN));
+    }
+    else if (x() + width() > screenRight - BOUNDARY_MARGIN) {
+        direction(1);
+        movePos(QPoint(-BOUNDARY_MARGIN, 0));
+    }
 
     getPlayer().iChooseYou(this);
 }
