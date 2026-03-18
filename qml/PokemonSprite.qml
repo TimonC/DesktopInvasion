@@ -1,5 +1,4 @@
 import QtQuick 2.15
-
 Item {
     id: root
     property color debugColor: "yellow"
@@ -13,7 +12,6 @@ Item {
     property int frameHeight: 32
     property int frameCount: 2
     property int frameRate: 4
-
     // Container properties
     property int itemWidth: 0
     property int itemHeight: 0
@@ -28,7 +26,6 @@ Item {
     height: itemHeight > 0 ? itemHeight : frameHeight * scaleFactor
     layer.enabled: true
     z: 1
-
     //Store starting pos for animations
     property int startingX: 0
     property int startingY: 0
@@ -39,6 +36,24 @@ Item {
         onTriggered: sprite.running = true
     }
 
+    // Watch for spriteSheet changes and restart the sprite
+    onSpriteSheetChanged: {
+        sprite.running = false
+        // Use Qt.callLater to ensure the source change is processed
+        Qt.callLater(function() {
+            sprite.currentFrame = Math.random() < 0.5 ? 0 : 1
+            sprite.running = true
+        })
+    }
+
+    // Watch for row changes and restart the sprite
+    onRowChanged: {
+        sprite.running = false
+        Qt.callLater(function() {
+            sprite.currentFrame = Math.random() < 0.5 ? 0 : 1
+            sprite.running = true
+        })
+    }
 
     AnimatedSprite {
         id: sprite
@@ -46,7 +61,6 @@ Item {
         x: (parent.width - width) / 2
         y: (parent.height - height) / 2
         scale: scaleFactor
-
         running: false
         source: root.spriteSheet
         frameWidth: root.frameWidth
@@ -57,7 +71,6 @@ Item {
         interpolate: false
         smooth: false
         antialiasing: false
-
         frameX: {
             switch (direction) {
                 case 0: return 0
@@ -69,12 +82,10 @@ Item {
         }
         frameY: row * frameHeight
     }
-
     SequentialAnimation {
         id: takeDamage
         running: false
         loops: 1
-
         SequentialAnimation {
             loops: 3
             PropertyAnimation {
@@ -91,44 +102,40 @@ Item {
             }
         }
     }
-
-
-SequentialAnimation {
-    id: actionForward
-    loops: 1
-    running: false
-    property int attackDistance: 20
-
-    PropertyAnimation {
-        target: root
-        property: "x"
-        to: root.startingX + (root.direction==1 ? -actionForward.attackDistance : root.direction==3 ? actionForward.attackDistance : 0)
-        duration: 50
-        easing.type: Easing.InQuad
+    SequentialAnimation {
+        id: actionForward
+        loops: 1
+        running: false
+        property int attackDistance: 20
+        PropertyAnimation {
+            target: root
+            property: "x"
+            to: root.startingX + (root.direction==1 ? -actionForward.attackDistance : root.direction==3 ? actionForward.attackDistance : 0)
+            duration: 50
+            easing.type: Easing.InQuad
+        }
+        PropertyAnimation {
+            target: root
+            property: "y"
+            to: root.startingY + (root.direction==0 ? -actionForward.attackDistance : root.direction==2 ? actionForward.attackDistance : 0)
+            duration: 50
+            easing.type: Easing.InQuad
+        }
+        PropertyAnimation {
+            target: root
+            property: "x"
+            to: root.startingX
+            duration: 100
+            easing.type: Easing.OutQuad
+        }
+        PropertyAnimation {
+            target: root
+            property: "y"
+            to: root.startingY
+            duration: 100
+            easing.type: Easing.OutQuad
+        }
     }
-    PropertyAnimation {
-        target: root
-        property: "y"
-        to: root.startingY + (root.direction==0 ? -actionForward.attackDistance : root.direction==2 ? actionForward.attackDistance : 0)
-        duration: 50
-        easing.type: Easing.InQuad
-    }
-    PropertyAnimation {
-        target: root
-        property: "x"
-        to: root.startingX
-        duration: 100
-        easing.type: Easing.OutQuad
-    }
-    PropertyAnimation {
-        target: root
-        property: "y"
-        to: root.startingY
-        duration: 100
-        easing.type: Easing.OutQuad
-    }
-}
-
     // Debug rectangle
     Rectangle {
         id: containerDebugLines

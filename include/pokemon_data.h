@@ -30,6 +30,8 @@ extern const int kSpriteCount;
 struct Party{
     std::vector<int> spriteIds;
     std::vector<int> iconIds;
+    std::vector<int> gens;
+    std::vector<int> ballIds;
     std::vector<std::string> names;
 };
 

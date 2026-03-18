@@ -1,14 +1,11 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-
 Item {
     id: root
     width: (direction === 0 || direction === 2) ? frameSize * 6 : frameSize * 8
     height: (direction === 0 || direction === 2) ? frameSize * 8 : frameSize * 6
-
     // Properties
     property int frameSize: 32
-
     property int menuWidth: frameSize * 6
     property int menuHeight: 60
     property int statusBarWidth: frameSize*2.5
@@ -16,46 +13,36 @@ Item {
     property int buttonWidth: frameSize * 2
     property int buttonHeight: frameSize * 0.75
     property int gridSpacing: frameSize * 0.1
-
     property int pokeNameFontSize: frameSize * 0.40
     property int buttonFontSize: frameSize * 0.40
     property int textBarFontSize: frameSize * 0.45
-
     property bool debugLines: false
     property int direction: 0
-
     // Action timing delays (delays are applied AFTER action)
     property int textDelay: 300
     property int attackDelay: 500
     property int damageDelay: 200
     property int healthChangeDelay: 1000
     property int effectiveTextDelay: 1200
-
-
     property alias opponent: opponent
     property alias player: player
     property alias statusBarOpponent: statusBarOpponent
     property alias statusBarPlayer: statusBarPlayer
     property alias opponentName: statusBarOpponent.pokeName
     property alias playerName: statusBarPlayer.pokeName
-
     // Action chain state
     property bool actionInProgress: false
     property var actionSequence: []
     property int currentActionIndex: 0
-
     // Catch attempt state
     property int catchShakeCount: 0
     property int catchShakeInterval: 1500
     property int ballTransitionDuration: 750
     property bool catchAttemptActive: false
-
     signal runChosen()
     signal opponentWon()
     signal playerWon()
     signal pokemonCaught()
-
-
     //Relative positioning of elements
     function positionSpriteAndStatusBar(sprite) {
         // Clear all anchors first
@@ -63,7 +50,6 @@ Item {
         sprite.statusBar.anchors.right = undefined
         sprite.statusBar.anchors.top = undefined
         sprite.statusBar.anchors.bottom = undefined
-
         switch(sprite.direction) {
             case 0:
                 sprite.x = (root.width - root.statusBarWidth - sprite.width)/2
@@ -90,16 +76,13 @@ Item {
                 sprite.statusBar.y = 0
                 break
         }
-
         sprite.startingX = sprite.x
         sprite.startingY = sprite.y
         sprite.statusBar.visible = true
     }
-
     Component.onCompleted: {
         positionSpriteAndStatusBar(player)
         positionSpriteAndStatusBar(opponent)
-
         // Schedule for next event loop
         Qt.callLater(function() {
             battleMenu.showTextBar()
@@ -117,7 +100,6 @@ Item {
         border.color: debugLines ? "green" : "transparent"
         border.width: 1
     }
-
     // Sprites
     StatusBar {
         id: statusBarOpponent
@@ -125,7 +107,6 @@ Item {
         width: root.statusBarWidth
         height: root.statusBarHeight
     }
-
     PokemonSprite {
         id: opponent
         objectName: "opponent"
@@ -135,14 +116,12 @@ Item {
         debugColor: "red"
         property alias statusBar: root.statusBarOpponent
     }
-
     StatusBar {
         id: statusBarPlayer
         pokeNameFontSize: root.pokeNameFontSize
         width: root.statusBarWidth
         height: root.statusBarHeight
     }
-
     PokemonSprite {
         id: player
         objectName: "player"
@@ -153,17 +132,14 @@ Item {
         debugColor: "blue"
         property alias statusBar: root.statusBarPlayer
     }
-
     // Pokéball animation component
     Pokeball {
         id: pokeBallOpponent
         scaleFactor: 2
-
         // Configure circle properties
         circleBaseRadius: Math.max(opponent.width/2, opponent.height/2)
         circleX: opponent.x + opponent.width/2  // Center on opponent
         circleY: opponent.y + opponent.height/2
-
         onThrowAnimationDone: {
             root.catchShakeCount = 0
             catchAttemptTimer.interval = root.catchShakeInterval/2
@@ -177,14 +153,12 @@ Item {
     Pokeball {
         id: pokeBallPlayer
         scaleFactor: 2
-
         // Configure circle properties
         circleBaseRadius: Math.max(player.width/2, player.height/2)
         circleAnimationDuration: 1000
         delayReveal: 2 //longer animation for player reveal
         circleX: player.x + player.width/2  // Center on player
         circleY: player.y + player.height/2
-
         onPokemonInsideBall:{
             pokeBallPlayer.circleExpand()
         }
@@ -218,7 +192,6 @@ Item {
                 console.error("Invalid attack id:", attackId)
             }
         }
-
         onCatchChosen: function(pokeSpriteId) {
             if (pokeSpriteId === 3) {
                 startActionChain("catch")
@@ -226,7 +199,6 @@ Item {
                 console.error("Invalid pokeSprite id:", pokeSpriteId)
             }
         }
-
         onRunChosen: function(){
             battleMenu.showTextBar()
             battleMenu.updateText("Got away safely!")
@@ -234,56 +206,46 @@ Item {
                 root.runChosen()
             })
         }
-
-        onSwitchChosen: function(partyIdx){
+        onSwitchChosen: function(partyId){
             battleMenu.showTextBar()
             battleMenu.updateText(player.name + ", come back!")
-
-            player.spriteSheet = "qrc:/assets/HGSS/PokGen" + battleMenu.party.gens[partyIdx] + "_transparent_reordered.png";
-            player.row = battleMenu.party.spriteIds[partyIdx];
-            statusBarPlayer.pokeName = battleMenu.party.names[partyIdx];
-            statusBarPlayer.health = 1;
-
+            player.spriteSheet = "qrc:/assets/HGSS/PokGen" + battleMenu.party.gens[partyId] + "_transparent_reordered.png";
+            player.row = battleMenu.party.spriteIds[partyId];
+            pokeBallPlayer.rowId = battleMenu.party.ballIds[partyId];
+            statusBarPlayer.pokeName = battleMenu.party.names[partyId];
+            statusBarPlayer.totalHealth = 100; //TODO
+            statusBarPlayer.currentHealthRatio = 1;
             var coords = calculateBallCoords(player)
             player.visible = false
             pokeBallPlayer.throwAt(coords[0], coords[1], coords[2], coords[3])
-
             startActionChain("switch", true)
         }
     }
-
-    function setPartyMember(partyIdx, spriteId, iconId, pokemonName) {
-       battleMenu._setPartyMember(partyIdx, spriteId, iconId, pokemonName);
+    function setPartyMember(partyId, spriteId, iconId, ballId, gen, pokemonName) {
+       battleMenu._setPartyMember(partyId, spriteId, iconId, ballId, gen, pokemonName);
     }
-
-
     // Action sequence
     Timer {
         id: sequenceTimer
         repeat: false
         onTriggered: executeNextStep()
     }
-
     function scheduleNext(delay, func) {
         sequenceTimer.interval = delay
         sequenceTimer.callback = func
         sequenceTimer.start()
     }
-
     // Build and start the action sequence (attack or catch)
     function startActionChain(actionType, playerFirst) {
         if (root.actionInProgress) return
-
         battleMenu.showTextBar()
         root.actionInProgress = true
         root.currentActionIndex = 0
-
         if (actionType === "catch") {
             // Catch sequence
             root.catchAttemptActive = true
             root.catchShakeCount = 0
             var coords = calculateBallCoords(opponent)
-
             root.actionSequence = [
                 { type: "text", message: "Player used one Poké Ball!", delay: 300 },
                 { type: "throw-ball", coords: coords, delay: 500 },
@@ -291,11 +253,9 @@ Item {
             ]
         } else if (actionType === "switch") {
             var coords = calculateBallCoords(opponent)
-
             root.actionSequence = [
                 { type: "text", message: "Go! "+player.name, delay: 300 },
             ]
-
         } else {
             // Attack sequence
             var firstAttacker = playerFirst ? player : opponent
@@ -304,7 +264,6 @@ Item {
             var secondAttacker = playerFirst ? opponent : player
             var secondDefender = playerFirst ? player : opponent
             var secondAttackerName = playerFirst ? opponentName : playerName
-
             root.actionSequence = [
                 // First turn
                 { type: "text", message: firstAttackerName + " used Tackle!", delay: textDelay },
@@ -322,20 +281,16 @@ Item {
                 { type: "end" }
             ]
         }
-
         executeNextStep()
     }
-
     // Execute the next step in the sequence
     function executeNextStep() {
         if (root.currentActionIndex >= root.actionSequence.length) {
             endActionChain()
             return
         }
-
         var step = root.actionSequence[root.currentActionIndex]
         root.currentActionIndex++
-
         switch(step.type) {
             case "text":
                 battleMenu.updateText(step.message)
@@ -391,7 +346,6 @@ Item {
                 break
         }
     }
-
     // End the action sequence
     function endActionChain() {
         root.actionInProgress = false
@@ -400,11 +354,6 @@ Item {
         root.catchAttemptActive = false
         battleMenu.resetToRoot()
     }
-
-
-
-
-
     // Catch attempt sequence
     Timer {
         id: catchAttemptTimer
@@ -412,21 +361,16 @@ Item {
         repeat: false
         onTriggered: root.processCatchAttempt()
     }
-
-
     function processCatchAttempt() {
         var failureRate = 0.05 + (0.7 * statusBarOpponent.currentHealthRatio); // 75% fail at full HP, 10% at 1 HP
         var failure = Math.random() < failureRate;
-
         if (failure) {
             // Release the pokemon and opponent attacks
             pokeBallOpponent.release()
             battleMenu.updateText("Aargh! Almost had it!")
-
             root.oneShotTimer(root.ballTransitionDuration, function() {
                 opponent.visible = true
                 pokeBallOpponent.visible = false
-
                 root.actionSequence = [
                     { type: "text", message: battleMenu.getText(), delay: 300 },//hack to get a bit more delay after failed catch
                     { type: "text", message: opponentName + " used Tackle!", delay: textDelay },
@@ -439,14 +383,11 @@ Item {
                 root.currentActionIndex = 0
                 executeNextStep()
             })
-
         } else {
             root.catchShakeCount++
-
             if (root.catchShakeCount >= 3) {
                 pokeBallOpponent.jump()
                 battleMenu.updateText("Gotcha! " + opponentName + " was caught!")
-
                 root.oneShotTimer(2000, function() {
                     root.pokemonCaught()
                 })
@@ -458,8 +399,6 @@ Item {
         }
         catchAttemptTimer.interval = root.catchShakeInterval
     }
-
-
     function calculateBallCoords(sprite){
             var x1 = sprite.x + (sprite.width / 2) - (root.frameSize/4)
             var x0 = x1 + 2*(sprite.direction==1 ? -root.frameSize : root.frameSize)
@@ -468,7 +407,6 @@ Item {
             var y1 = sprite.y + sprite.height - pokeBallOpponent.frameHeight
             return [x0, x1, y0, y1]
     }
-
     function oneShotTimer(duration, onFinish){
             Qt.callLater(function() {
                 var hideTimer = Qt.createQmlObject('import QtQuick 2.15; Timer {}', root)

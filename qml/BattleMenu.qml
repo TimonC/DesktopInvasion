@@ -21,18 +21,22 @@ Rectangle {
     signal catchChosen(int pokeId)
     signal switchChosen(int partyIdx)
     property alias stack: stack
-    property var partyMembers: [
-        {spriteId: -1, iconId: -1, name: ""},
-        {spriteId: -1, iconId: -1, name: ""},
-        {spriteId: -1, iconId: -1, name: ""},
-        {spriteId: -1, iconId: -1, name: ""},
-        {spriteId: -1, iconId: -1, name: ""},
-        {spriteId: -1, iconId: -1, name: ""}
-    ]
-    function _setPartyMember(partyIdx, iconId, iconId, pokemonName) {
-        var temp = partyMembers
-        temp[partyIdx] = {spriteId: spriteId, iconId: iconId, name: pokemonName}
-        partyMembers = temp
+    // Changed to object with arrays instead of array of objects
+    property var party: {
+        "spriteIds": [-1, -1, -1, -1, -1, -1],
+        "iconIds": [-1, -1, -1, -1, -1, -1],
+        "ballIds": [-1, -1, -1, -1, -1, -1],
+        "gens": [-1, -1, -1, -1, -1, -1],
+        "names": ["", "", "", "", "", ""]
+    }
+    function _setPartyMember(partyIdx, spriteId, iconId, ballId, gen, pokemonName) {
+        var temp = party
+        temp.spriteIds[partyIdx] = spriteId
+        temp.iconIds[partyIdx] = iconId
+        temp.ballIds[partyIdx] = ballId
+        temp.gens[partyIdx] = gen
+        temp.names[partyIdx] = pokemonName
+        party = temp
     }
     function showTextBar() {
         stack.replace(textBarComponent)
@@ -216,41 +220,34 @@ Rectangle {
         Item {
             id: switchRoot
             property int selectedIndex: 0
-
             Row {
                 anchors.centerIn: parent
                 spacing: root.gridSpacing*2
-
                 Grid {
                     columns: 3
                     rows: 2
                     spacing:  0
-
                     Repeater {
                         model: 6
                         Rectangle {
                             width: root.menuWidth*0.2
                             height: root.menuHeight*0.5
-                            visible: root.partyMembers[index].iconId >= 0
+                            visible: root.party.iconIds[index] >= 0
                             color: "transparent"
                             radius: 4
                             border.color: switchRoot.selectedIndex === index ? "#4CAF50" : "#e0e0e0"
                             border.width: switchRoot.selectedIndex === index ? 2 : 0.5
-
-
                             Rectangle {
                                 anchors.fill: parent
                                 color: switchRoot.selectedIndex === index ? "#E8F5E9" : "transparent"
                                 radius: parent.radius
                                 opacity: 0.6
                             }
-
                             PokemonIcon {
                                 anchors.centerIn: parent
-                                frameIndex: root.partyMembers[index].iconId
+                                frameIndex: root.party.iconIds[index]
                                 scale: switchRoot.selectedIndex === index ? 1.05 : 1
                             }
-
                             MouseArea {
                                 anchors.fill: parent
                                 onClicked: {
@@ -261,7 +258,6 @@ Rectangle {
                         }
                     }
                 }
-
                 Loader {
                     anchors.verticalCenter: parent.verticalCenter
                     sourceComponent: backButton

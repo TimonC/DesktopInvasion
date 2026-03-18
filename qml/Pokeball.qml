@@ -3,6 +3,7 @@ import QtQuick 2.15
 Item {
     id: root
     // Top-level configuration
+    property int rowId: 3
     property real scaleFactor: 2
     property int frameWidth: 16
     property int frameHeight: 23
@@ -68,7 +69,7 @@ Item {
         visible: false
         z: 100
         source: "qrc:/assets/HGSS/Pokeballs_transparent_reordered.png"
-        sourceClipRect: Qt.rect(0, root.frameHeight * 3, root.frameWidth, root.frameHeight)
+        sourceClipRect: Qt.rect(0, root.frameHeight * root.rowId, root.frameWidth, root.frameHeight)
         smooth: false
         antialiasing: false
     }

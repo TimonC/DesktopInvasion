@@ -40,9 +40,6 @@ Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent
         battleEnded("OpponentCaught");
     });
 
-    connectWithQML(m_battleScene, SIGNAL(switchToPartyId), [this](){
-        /* pokemonSprite->setProperty("spriteSheet", QString("qrc:/assets/HGSS/PokGen%1_transparent_reordered.png").arg(info->generation)); */
-    });
 
     m_battleScene->setProperty("direction", m_currentDirection);
     m_battleScene->setProperty("pokeMargin", m_pokeMargin);
@@ -60,12 +57,13 @@ Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent
 }
 
 void Battle::setupParty(Party party){
-
     for(size_t i = 0; i < party.spriteIds.size(); ++i){
         QMetaObject::invokeMethod(m_battleScene, "setPartyMember",
             Q_ARG(QVariant, QVariant(static_cast<int>(i))),
             Q_ARG(QVariant, QVariant(party.spriteIds[i])),
             Q_ARG(QVariant, QVariant(party.iconIds[i])),
+            Q_ARG(QVariant, QVariant(party.ballIds[i])),
+            Q_ARG(QVariant, QVariant(party.gens[i])),
             Q_ARG(QVariant, QString::fromStdString(party.names[i])));
     };
 }

@@ -205,23 +205,39 @@ void Game::spawnPokemon() {
     }
 }
 
-void Game::getParty() {
+Party Game::getParty() {
     GameState state = m_db.loadGameState();
-    std::vector<int> spriteIds;
-    std::vector<int> iconIds;
-    std::vector<std::string> names;
+    Party party;
+
     for(int i = 0; i < 6; ++i) {
         int pokemonId = state.party_id[i];
         if(pokemonId > 0) {
             PokemonState pokemon = m_db.getPokemon(pokemonId);
             const PokemonInfo* info = Globals::getPokemonInfo(pokemon.pokedex_id);
             if(info) {
-                party.spriteIds[i] = info->spriteId;
-                party.iconIds[i] = VariantMapper::pokedexID2IconID(pokemon.pokedex_id,0);
-                party.names[i] = pokemon.name;
+                party.spriteIds.push_back(info->spriteId);
+                party.iconIds.push_back(VariantMapper::pokedexID2IconID(pokemon.pokedex_id, 0));
+                party.names.push_back(pokemon.name);
+                party.gens.push_back(info->generation);
+                party.ballIds.push_back(3);
+            } else {
+                // Push defaults if info is null
+                party.spriteIds.push_back(-1);
+                party.iconIds.push_back(-1);
+                party.names.push_back("");
+                party.gens.push_back(-1);
+                party.ballIds.push_back(-1);
             }
+        } else {
+            // Push defaults for empty slots
+            party.spriteIds.push_back(-1);
+            party.iconIds.push_back(-1);
+            party.names.push_back("");
+            party.gens.push_back(-1);
+            party.ballIds.push_back(-1);
         }
     }
+    return party;
 }
 
 void Game::handleBattleStart() {
@@ -234,13 +250,12 @@ void Game::handleBattleStart() {
         qWarning() << "Cannot start battle - no party Pokemon";
         return;
     }
-    qDebug() << "Starting battle...";
     m_activeBattle = new Battle(m_wildPokemon, partyPokemon);
     connect(m_activeBattle, &Battle::battleEnded,
             this, &Game::handleBattleEnd);
 
     m_activeBattle->setupParty(getParty());
-;
+    qDebug() << "Starting battle...";
 }
 
 void Game::handleBattleEnd(const char* endState) {
