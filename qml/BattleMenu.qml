@@ -550,7 +550,7 @@ Rectangle {
 
             Column {
                 anchors.fill: parent
-                spacing: root.gridSpacing
+                spacing: root.gridSpacing/2
 
                 Repeater {
                     model: [
@@ -581,11 +581,16 @@ Rectangle {
                             font.pixelSize: root.moveFontSize
                             font.family: root.menuFontFamily
                             font.weight: Font.DemiBold
+                            anchors.centerIn: parent
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
                             anchors.fill: parent
-                            anchors.margins: 8
+                            lineHeight: 1.4
+                            wrapMode: Text.Wrap
+                            maximumLineCount: 2
+                            elide: Text.ElideRight
                         }
+
 
                         MouseArea {
                             anchors.fill: parent
