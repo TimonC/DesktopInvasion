@@ -6,6 +6,7 @@
 #include <QQuickView>
 #include <QQuickItem>
 #include <WildPokemon.h>
+#include <qglobal.h>
 #include <qtmetamacros.h>
 #include <PokemonTypes.h>
 #include <BattleMoveHandler.h>
@@ -68,7 +69,7 @@ private slots:
     void handleBattleEnded(QString endState, bool removeWild);
     QQuickItem* updateSprite(int pokedexId, int generation, const char* role = "player");
     void handleSwitchedPokemon(int partyIndex, int generation, int spriteId);
-    void executeActionSequence(QVariantList sequence);
+    void executeActionSequence(QVariantList sequence, QVariantList statusDeltaPlayer, QVariantList statusDeltaOpponent);
 
 private:
     void setupParty(Party party);

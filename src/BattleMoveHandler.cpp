@@ -107,8 +107,22 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
     QVariantList sequence = generateActionSequence(*m_battleOpponent, *m_battleParty[m_chosenPartyIndex], playerFirst, switchedIn, shakes);
 
     logActionSequence(sequence);
-    emit actionSequenceReady(sequence);
+
+    QVariantList statusDeltaPlayer = statusConditionDelta(m_battleParty[m_chosenPartyIndex]);
+    QVariantList statusDeltaOpponent = statusConditionDelta(m_battleOpponent);
+    emit actionSequenceReady(sequence, statusDeltaPlayer, statusDeltaOpponent);
 }
+
+QVariantList BattleMoveHandler::statusConditionDelta(Battler* battler){
+    QVariantList statusConditionDelta;
+    /* statusConditionDelta.append(battler->delta.removeStatusCondition); */
+    /* statusConditionDelta.append(battler->delta.addStatusCondition); */
+    /* statusConditionDelta.append(battler->delta.addConfusion); */
+    /* statusConditionDelta.append(battler->delta.removeConfusion); */
+    /* statusConditionDelta.append(battler->delta.deltaStatModifiers); */
+
+    return statusConditionDelta;
+};
 
 bool BattleMoveHandler::canBattlerMove(Battler* caster) {
     if (caster->battleState.statusCondition == Ailment::Sleep) {
@@ -524,7 +538,7 @@ void BattleMoveHandler::addEndOfTurnEffects(QVariantList& sequence, Battler& bat
     if(battler.delta.ailmentDamage > 0) {
         QString ailment = ailmentToHurtText(battler.battleState.statusCondition);
         sequence.append(createTextAction(name + " is hurt by its " + ailment + "!", ms_statusConditionText));
-        sequence.append(createDamageAction(role, 200));
+        sequence.append(createDamageAction(role, ms_damageAnimation));
         sequence.append(createHealthChangeAction(role, -battler.delta.ailmentDamage, ms_healthChange));
     }
 }

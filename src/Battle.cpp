@@ -3,6 +3,7 @@
 #include <Battle.h>
 #include <globals.h>
 #include <QTimer>
+#include <qglobal.h>
 #include <qobjectdefs.h>
 
 Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildState, Party party, std::unique_ptr<BattleMoveHandler> battleMoveHandler, QWindow *parent)
@@ -62,7 +63,8 @@ void Battle::handleSwitchedPokemon(int partyIndex, int generation, int spriteId)
     updateSprite(spriteId, generation, "player");
     m_battleMoveHandler.get()->m_chosenPartyIndex=partyIndex;
 }
-void Battle::executeActionSequence(QVariantList sequence) {
+
+void Battle::executeActionSequence(QVariantList sequence, QVariantList statusDeltaPlayer, QVariantList statusDeltaOpponent) {
     QMetaObject::invokeMethod(m_battleScene, "showTextBar");
     QMetaObject::invokeMethod(m_battleScene, "executeActionSequence", Q_ARG(QVariant, QVariant(sequence)));
 }

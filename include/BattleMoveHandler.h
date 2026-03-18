@@ -3,6 +3,7 @@
 #include <QObject>
 #include <data_move.h>
 #include <gamestate.h>
+#include <qglobal.h>
 #include <qtmetamacros.h>
 #include <random>
 #include <array>
@@ -62,13 +63,14 @@ public:
     int m_chosenPartyIndex = 0;
 
 signals:
-    void actionSequenceReady(QVariantList sequence);
+    void actionSequenceReady(QVariantList sequence, QVariantList statusDeltaPlayer, QVariantList statusDeltaOpponent);
 
 public slots:
     void startActionRound(int playerMoveIndex, QString action);
 
 private:
     Battler* createBattler(const PokemonState& state);
+    QVariantList statusConditionDelta(Battler* battler);
     void applyMove(const Move* _move, Battler* caster, Battler* target);
     void applySecondaryEffects(const Move* _move, Battler* target);
     void applyEndOfTurnEffects(Battler* battler);
