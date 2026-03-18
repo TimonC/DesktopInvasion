@@ -12,9 +12,9 @@ int main(int argc, char *argv[]) {
     QGuiApplication app(argc, argv);
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 
-    const int num_wild        = 1;
-    const int start_pokedexid = 6;
-    Globals::DEBUG = true;
+    const int num_wild        = 2;
+    const int start_pokedexid = 400;
+    /* Globals::DEBUG = true; */
 
     /* if (!Globals::DEBUG) { */
         /* QLoggingCategory::setFilterRules("*.debug=false"); */
