@@ -203,15 +203,14 @@ Item {
                                     color: "#ffffff"
                                 }
                             }Text {
-                                width: 64*1.6
+                                width: 64*1.8
                                 text: modelData.name
                                 font.family: bodyFont; font.pixelSize: fontSizeMd
                                 color: root.textColor
                             }
                             Text {
-                                width: 64*1.6*1.6
                                 text: "Pow: " + modelData.power + "   Acc: " + modelData.accuracy
-                                font.family: bodyFont; font.pixelSize: fontSizeSm
+                                font.family: bodyFont; font.pixelSize: fontSizeSm*0.9
                                 color: "#aaaaaa"; anchors.verticalCenter: parent.verticalCenter
                             }
 
