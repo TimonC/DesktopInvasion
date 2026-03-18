@@ -22,7 +22,7 @@ Item {
     property int    spacing:    6
     property int    maxSprite:  64 * 4
 
-    property int typeWidth: 64
+    property int typeWidth: 80
 
     property color  dividerColor: "#3d3d3d"
 
@@ -100,15 +100,15 @@ Item {
                     Repeater {
                         model: pokeData ? [pokeData.type1, pokeData.type2].filter(t => t && t !== "None") : []
                         Rectangle {
-                            width: typeWidth*1.5
+                            width: typeWidth
                             height: fontSizeMd + 6
                             radius: 4
                             color: PokeColor.typeColor(modelData)
                             Text {
                                 id: lbl; anchors.centerIn: parent
                                 text: PokeColor.typeColor(modelData)=="transparent" ? "" : modelData
-                                font.family: mainFont
-                                font.pixelSize: fontSizeSm
+                                font.family: bodyFont
+                                font.pixelSize: fontSizeMd
                                 color: "#ffffff"
                             }
                         }
@@ -159,7 +159,8 @@ Item {
             anchors.centerIn: parent
             width: parent.width
             text: pokeData ? pokeData.flavorText : ""
-            font.family: bodyFont; font.pixelSize: fontSizeMd
+            font.family: bodyFont
+            font.pixelSize: fontSizeMd
             color: "#cccccc"; wrapMode: Text.WordWrap; elide: Text.ElideRight
             horizontalAlignment: Text.AlignJustify
         }
@@ -196,9 +197,9 @@ Item {
                         spacing: 2
 
                         Row {
-                            spacing: 8
+                            spacing: typeWidth/4
                             Rectangle {
-                                width: typeWidth*1.5
+                                width: typeWidth
                                 height: fontSizeMd + 4
                                 radius: 3
                                 color: PokeColor.typeColor(modelData.type)
@@ -207,32 +208,32 @@ Item {
                                     id: pill
                                     anchors.centerIn: parent
                                     text: modelData.type
-                                    font.family: mainFont
-                                    font.pixelSize: fontSizeSm
+                                    font.family: bodyFont
+                                    font.pixelSize: fontSizeMd
                                     color: "#ffffff"
                                 }
                             }Text {
-                                width: typeWidth*1.8
+                                width: typeWidth*3
                                 text: modelData.name
-                                font.family: bodyFont
+                                font.family: mainFont
                                 font.pixelSize: fontSizeMd
                                 color: root.textColor
                             }
                             Text {
                                 text: "Pow: " + modelData.power + "   Acc: " + modelData.accuracy
                                 font.family: bodyFont
-                                font.pixelSize: fontSizeSm*0.9
+                                font.pixelSize: fontSizeSm
                                 color: "#aaaaaa"
                                 anchors.verticalCenter: parent.verticalCenter
                             }
 
                         }
                         Text {
-                            height: fontSizeSm*3
+                            height: fontSizeMd*3 //TODO: move this to higher level of control
                             width: parent.width
                             text:  modelData.flavor
                             font.family: bodyFont
-                            font.pixelSize: fontSizeSm
+                            font.pixelSize: fontSizeMd
                             color: "#888888";
                             wrapMode: Text.WordWrap
                         }
