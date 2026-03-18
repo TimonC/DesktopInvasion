@@ -15,7 +15,16 @@ BattleMoveHandler::BattleMoveHandler(const PokemonState& wildState, const std::a
     qDebug() << "BattleMoveHandler constructor called!";
     m_battleOpponent = createBattler(wildState);
     for (int i = 0; i < 6; i++) {
-        m_battleParty[i] = createBattler(partyStates[i]);
+        qDebug() <<  partyStates[i].pokedex_id;
+        if(partyStates[i].pokedex_id<=0 || partyStates[i].pokedex_id >493){
+        //band-aid solution, apparantly my entire code for some reason depends upon empty party slots being filled with an arbitrary pokemon
+        //in the past, my database  would  fill empty party slots with the wild pokemon
+        //I am too lazy to debug this for now and it doesn't really cause issues since the empty party slots are inaccessible
+        //But ideally, empty party slots should just be able to be nullptrs without silently crashing everything
+            m_battleParty[i] = createBattler(wildState);
+        }else{
+            m_battleParty[i] = createBattler(partyStates[i]);
+        }
     }
     m_includedPartyIndices.insert(m_chosenIndex);
 }
@@ -38,6 +47,7 @@ Battler* BattleMoveHandler::createBattler(const PokemonState& state) {
     battler->pokeState.name = state.name;
     battler->pokeState.lvl = state.lvl;
     battler->pokeState.catchRate = poke->catch_rate;
+    /* qDebug() <<  state.pokedex_id; */
     battler->pokeState.baseXP= poke->base_xp;
     battler->pokeState.types[0] = &poke->types[0];
     battler->pokeState.types[1] = &poke->types[1];
