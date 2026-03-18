@@ -12,6 +12,8 @@ struct AssetInfo{
     int hHeight;
     int vWidth;
     int vHeight;
+    int hCenterUp;
+    int hCenterDown;
     SpriteSheet spriteSheet;
     int rowId;
 };

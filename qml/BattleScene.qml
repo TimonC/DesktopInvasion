@@ -83,7 +83,7 @@ Item {
     function positionSpriteAndStatusBar(sprite) {
         switch(sprite.direction) {
             case 0:
-                sprite.x = Math.round((root.width - root.statusBarWidth - sprite.width)/2)
+                sprite.x = Math.round((root.width - root.statusBarWidth - sprite.width)/2 + (sprite.verticalWidth/2 - sprite.hCenterUp))
                 sprite.y = Math.round(root.height - root.menuHeight - sprite.height - root.frameSize/4)
                 sprite.statusBar.x = Math.round(root.width - root.statusBarWidth)
                 sprite.statusBar.y = Math.round(root.height - root.menuHeight - root.statusBarHeight/2 - root.frameSize*2)
@@ -95,7 +95,7 @@ Item {
                 sprite.statusBar.y = 0
                 break
             case 2:
-                sprite.x = Math.round((root.width - root.statusBarWidth - sprite.width)/2)
+                sprite.x = Math.round((root.width - root.statusBarWidth - sprite.width)/2 + (sprite.verticalWidth/2 - sprite.hCenterDown))
                 sprite.y = Math.round(root.statusBarHeight/2)
                 sprite.statusBar.x = Math.round(root.width - root.statusBarWidth)
                 sprite.statusBar.y = Math.round(sprite.y)
@@ -206,6 +206,7 @@ Item {
 
             pokeBallPlayer.circleX = player.x + player.width/2
             pokeBallPlayer.circleY = player.y + player.height/2
+
 
             pokeBallPlayer.circleBaseWidth = direction%2!=0 ? Math.max(player.verticalWidth, player.width) : player.width
             pokeBallPlayer.circleBaseHeight = direction%2!=0 ? Math.min(player.height, player.horizontalHeight) : player.height

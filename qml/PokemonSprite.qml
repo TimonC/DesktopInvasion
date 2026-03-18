@@ -15,6 +15,8 @@ Item {
 
     property int horizontalHeight: 0
     property int verticalWidth: 0
+    property int hCenterUp: 0
+    property int hCenterDown: 0
 
     property int attackDistance: 10*scaleFactor
 

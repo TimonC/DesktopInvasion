@@ -22,6 +22,58 @@ BIG_IDS = [
 
 GEN_LIMS = [151, 100, 135, 107]  # Gen1: 1-151, Gen2: 152-251, Gen3: 252-386, Gen4: 387-493
 
+def calculate_weighted_hcenter(frame, threshold=10):
+    """Calculate weighted horizontal center of mass for non-transparent pixels."""
+    if frame.mode != 'RGBA':
+        frame = frame.convert('RGBA')
+
+    arr = np.array(frame)
+    alpha = arr[:, :, 3]
+
+    # Create mask of non-transparent pixels
+    mask = alpha > threshold
+
+    if not np.any(mask):
+        return None  # No visible content
+
+    # Get bounding box to find sprite offset within frame
+    rows = np.any(mask, axis=1)
+    cols = np.any(mask, axis=0)
+
+    if not np.any(rows) or not np.any(cols):
+        return None
+
+    y_min, y_max = np.where(rows)[0][[0, -1]]
+    x_min, x_max = np.where(cols)[0][[0, -1]]
+
+    # Calculate weighted center using alpha values as weights
+    # We only consider pixels within the bounding box for efficiency
+    cropped_alpha = alpha[y_min:y_max+1, x_min:x_max+1]
+    cropped_mask = cropped_alpha > threshold
+
+    if not np.any(cropped_mask):
+        return None
+
+    # Get x positions relative to bounding box
+    y_indices, x_indices = np.where(cropped_mask)
+    weights = cropped_alpha[y_indices, x_indices]
+
+    # Calculate weighted average x position within bounding box
+    weighted_x_sum = np.sum(x_indices.astype(np.float64) * weights)
+    total_weight = np.sum(weights)
+
+    if total_weight == 0:
+        return None
+
+    # Center relative to bounding box (0 = left edge, width-1 = right edge)
+    center_in_bbox = weighted_x_sum / total_weight
+
+    # Convert to position relative to sprite width
+    bbox_width = x_max - x_min + 1
+    center_relative = center_in_bbox / bbox_width if bbox_width > 0 else 0.5
+
+    return center_relative
+
 def analyze_frame_bounds(frame):
     """Analyze frame bounds and return width, height, x_min, y_min of non-transparent content"""
     if frame.mode != 'RGBA':
@@ -70,6 +122,32 @@ def calculate_sprite_bounds(frames):
             horizontal_height = max(horizontal_height, height)
 
     return vertical_width, vertical_height, horizontal_width, horizontal_height
+
+def calculate_horizontal_centers(frames, v_width):
+    """Calculate horizontal centers for up and down frames."""
+    # Frames: 0,1 = up (vertical), 4,5 = down (vertical)
+
+    up_centers = []
+    down_centers = []
+
+    # Calculate for up frames (0, 1)
+    for idx in [0, 1]:
+        center = calculate_weighted_hcenter(frames[idx])
+        if center is not None and v_width > 0:
+            # Convert from relative (0-1) to actual pixel position within sprite
+            up_centers.append(int(round(center * v_width)))
+
+    # Calculate for down frames (4, 5)
+    for idx in [4, 5]:
+        center = calculate_weighted_hcenter(frames[idx])
+        if center is not None and v_width > 0:
+            down_centers.append(int(round(center * v_width)))
+
+    # Average the centers for each direction
+    h_center_up = int(round(np.mean(up_centers))) if up_centers else v_width // 2
+    h_center_down = int(round(np.mean(down_centers))) if down_centers else v_width // 2
+
+    return h_center_up, h_center_down
 
 def has_visible_content(frames):
     """Check if any frame has visible content"""
@@ -149,7 +227,10 @@ namespace {
 
         sprite_sheet = "SpriteSheet::Big" if info["is_big"] else "SpriteSheet::Standard"
         cpp_content += f"static const AssetInfo asset_{pid} = "
-        cpp_content += f"{{{info['width']}, {info['height']}, {info['h_width']}, {info['h_height']}, {info['v_width']}, {info['v_height']}, {sprite_sheet}, {info['row_id']}}};\n"
+        cpp_content += f"{{{info['width']}, {info['height']}, {info['h_width']}, {info['h_height']}, "
+        cpp_content += f"{info['v_width']}, {info['v_height']}, "
+        cpp_content += f"{info['h_center_up']}, {info['h_center_down']}, "
+        cpp_content += f"{sprite_sheet}, {info['row_id']}}};\n"
         asset_entries.append(pid)
 
     cpp_content += "\n} // anonymous namespace\n\n"
@@ -236,6 +317,9 @@ def process_sprites_and_generate_assets(image_paths, big_image_path, regular_wid
                     # Calculate vertical and horizontal bounds separately
                     v_width, v_height, h_width, h_height = calculate_sprite_bounds(frames)
 
+                    # Calculate horizontal centers for up and down frames
+                    h_center_up, h_center_down = calculate_horizontal_centers(frames, v_width)
+
                     # Center frames
                     centered_frames = [center_sprite_in_frame(f, regular_width, regular_height) for f in frames]
 
@@ -251,6 +335,8 @@ def process_sprites_and_generate_assets(image_paths, big_image_path, regular_wid
                         "h_height": h_height,
                         "v_width": v_width,
                         "v_height": v_height,
+                        "h_center_up": h_center_up,
+                        "h_center_down": h_center_down,
                         "is_big": False,
                         "row_id": row_id
                     }
@@ -281,6 +367,9 @@ def process_sprites_and_generate_assets(image_paths, big_image_path, regular_wid
             # Calculate vertical and horizontal bounds separately
             v_width, v_height, h_width, h_height = calculate_sprite_bounds(frames)
 
+            # Calculate horizontal centers for up and down frames
+            h_center_up, h_center_down = calculate_horizontal_centers(frames, v_width)
+
             # Center frames
             centered_frames = [center_sprite_in_frame(f, big_width, big_height) for f in frames]
 
@@ -296,11 +385,13 @@ def process_sprites_and_generate_assets(image_paths, big_image_path, regular_wid
                 "h_height": h_height,
                 "v_width": v_width,
                 "v_height": v_height,
+                "h_center_up": h_center_up,
+                "h_center_down": h_center_down,
                 "is_big": True,
                 "row_id": row_id
             }
 
-            print(f"  Processed big Pokémon #{pokedex_id}: V={v_width}x{v_height}, H={h_width}x{h_height}")
+            print(f"  Processed big Pokémon #{pokedex_id}: V={v_width}x{v_height}, H={h_width}x{h_height}, centers: up={h_center_up}, down={h_center_down}")
         else:
             print(f"  WARNING: Big Pokémon #{pokedex_id} has no visible content!")
 
@@ -337,6 +428,7 @@ def process_sprites_and_generate_assets(image_paths, big_image_path, regular_wid
     generate_cpp_asset_file(asset_data, cpp_output_path)
 
     return len(regular_rows), len(big_rows), asset_data
+
 def main():
     parser = argparse.ArgumentParser(description="Process Pokémon sprites and generate C++ asset file")
     parser.add_argument("--input_path", default="assets/HGSS")
@@ -400,7 +492,7 @@ def main():
         if asset_data[pid]:
             info = asset_data[pid]
             sheet = "Big" if info["is_big"] else "Standard"
-            print(f"  #{pid}: width={info['width']}, height={info['height']},  V={info['v_width']}x{info['v_height']}, H={info['h_width']}x{info['h_height']}, {sheet}, row {info['row_id']}")
+            print(f"  #{pid}: width={info['width']}, height={info['height']}, V={info['v_width']}x{info['v_height']}, H={info['h_width']}x{info['h_height']}, centers: up={info['h_center_up']}, down={info['h_center_down']}, {sheet}, row {info['row_id']}")
 
 if __name__ == "__main__":
     main()
