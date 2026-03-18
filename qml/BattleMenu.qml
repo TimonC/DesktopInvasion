@@ -15,7 +15,7 @@ Rectangle {
     property int menuWidth: frameSize * 5
 
     signal attackChosen(int attackId)
-    signal runClicked()
+    signal runChosen()
 
     property alias stack: stack
 
@@ -28,12 +28,12 @@ Rectangle {
     }
 
     function resetToRoot() {
-        stack.replace(rootSelectionComponent)
+        stack.replace(rootSelection)
     }
 
     StackView {
         id: stack
-        initialItem: rootSelectionComponent
+        initialItem: rootSelection
         anchors.fill: parent
         z: 1
     pushEnter: Transition {
@@ -107,7 +107,7 @@ Rectangle {
     }
 
     Component {
-        id: rootSelectionComponent
+        id: rootSelection
         Item {
             anchors.fill: parent
             Grid {
@@ -120,7 +120,7 @@ Rectangle {
                     font.pixelSize: root.buttonFontSize
                     width: root.buttonWidth
                     height: root.buttonHeight
-                    onClicked: stack.push(attackSelectionComponent)
+                    onClicked: stack.push(attackSelection)
                 }
                 RoundButton {
                     text: "Switch"
@@ -142,14 +142,14 @@ Rectangle {
                     font.pixelSize: root.buttonFontSize
                     width: root.buttonWidth
                     height: root.buttonHeight
-                    onClicked: root.runClicked()
+                    onClicked: stack.push(runSelection);
                 }
             }
         }
     }
 
     Component {
-        id: attackSelectionComponent
+        id: attackSelection
         Item {
             anchors.fill: parent
             Grid {
@@ -178,6 +178,34 @@ Rectangle {
                             onClicked: root.attackChosen(0)
                         }
                     }
+                }
+            }
+        }
+    }
+
+    Component{
+        id: runSelection
+        Item {
+            anchors.fill: parent
+            Grid {
+                anchors.centerIn: parent
+                columns: 2
+                spacing: root.gridSpacing
+                RoundButton {
+                    text: "Run"
+                    palette.button: "blue"
+                    font.pixelSize: root.buttonFontSize
+                    width: root.buttonWidth
+                    height: root.buttonHeight
+                    onClicked: root.runChosen();
+                }
+                RoundButton {
+                    text: "Back"
+                    palette.button: "blue"
+                    font.pixelSize: root.buttonFontSize
+                    width: root.buttonWidth
+                    height: root.buttonHeight
+                    onClicked: stack.pop();
                 }
             }
         }

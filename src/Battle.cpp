@@ -28,7 +28,7 @@ Battle::Battle(WildPokemon* opp, const PokemonInfo* chosen_info, QWindow *parent
     });
 
     QObject* helper = new QObject(this);
-    connectWithQML(SIGNAL(runClicked()), [this, opp]() { //this assumes opp is untouched
+    connectWithQML(SIGNAL(runChosen()), [this, opp]() { //this assumes opp is untouched
                         resetOpp(opp);
                     });
 

@@ -30,7 +30,7 @@ Item {
     property var attackSequence: []
     property int currentAttackIndex: 0
 
-    signal runClicked()
+    signal runChosen()
     signal opponentWon()
     signal playerWon()
 
@@ -95,7 +95,7 @@ Item {
                 console.error("Invalid attack id:", attackId)
             }
         }
-        onRunClicked: root.runClicked()
+        onRunChosen: root.runChosen()
     }
 
     //Relative positioning of elements
