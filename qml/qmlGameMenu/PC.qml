@@ -254,12 +254,18 @@ Item {
         property int  frameIndex:  0
         property var  pcPos:       [-1, -1]
 
-        color: (hoverArea.containsMouse) ?
-                   (root.inSwapMode ?
-                        root.highlightSwapColor : (iconVisible ?
-                        root.highlightColor : "transparent")
-                   )
-               : "transparent"
+        color: {
+            if (!hoverArea.containsMouse)
+                return "transparent"
+
+            if (root.inSwapMode)
+                return root.highlightSwapColor
+
+            if (iconVisible)
+                return root.highlightColor
+
+            return "transparent"
+        }
 
         Image {
             anchors.fill: parent
@@ -278,25 +284,25 @@ Item {
             hoverEnabled: true
             cursorShape:  undefined
             onClicked: {
+                if(root.inSwapMode){
+                    if (root.swapSource === null) {
+                        root.swapSource = pokemonSlot.pcPos
+                        root.display(pokemonSlot.pcPos)
+                        return
+                    } else {
+                        root._executeSwap(root.swapSource, pokemonSlot.pcPos)
+                        root.swapRequested(root.swapSource, pokemonSlot.pcPos)
+                        root.toggleSwapMode()
+                        return
+                    }
+                }
                 if (!pokemonSlot.iconVisible) return
-                if (!root.inSwapMode) {
-                    root.display(pokemonSlot.pcPos)
-                    return
-                }
 
-                if (root.swapSource === null) {
-                    root.swapSource = pokemonSlot.pcPos
-                    root.display(pokemonSlot.pcPos)
-                    return
-                } else {
-                    root._executeSwap(root.swapSource, pokemonSlot.pcPos)
-                    root.swapRequested(root.swapSource, pokemonSlot.pcPos)
-                    root.toggleSwapMode()
-                    return
-                }
+                root.display(pokemonSlot.pcPos)
             }
         }
     }
+
 
     // Swap implementation
     function _executeSwap(posx, posy) {
