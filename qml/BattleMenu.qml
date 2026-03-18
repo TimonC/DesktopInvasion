@@ -14,14 +14,11 @@ Rectangle {
     property int menuHeight: 50
     property int menuWidth: frameSize * 5
 
-    // Expose signals
     signal attackChosen(int attackId)
     signal runClicked()
 
-    // Expose stack for external control
     property alias stack: stack
 
-    // Methods to control the menu from outside
     function showTextBar() {
         stack.replace(textBarComponent);
     }
