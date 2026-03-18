@@ -5,12 +5,9 @@ Item {
     id: root
     width: (direction === 0 || direction === 2) ? frameSize * 5 : frameSize * 8
     height: (direction === 0 || direction === 2) ? frameSize * 8 : frameSize * 5
-    layer.enabled: true
-
     signal runClicked()
     property bool attackInProgress: false
 
-   // Scaling properties
     property int frameSize: 32
     property int buttonWidth: frameSize * 2
     property int buttonHeight: frameSize * 0.75
@@ -19,138 +16,163 @@ Item {
     property int pokeMargin: frameSize*0.25
     property bool debugLines: false
     property int textBoxHeight: 50
-    // Only need direction for positioning
     property int direction: 0
 
     property alias opponent: opponent
     property alias player: player
-    // Aliases for external access
     property alias textBar: textBar
     property alias buttonGrid: buttonGrid
-    property alias attackButton: attackButton
-    property alias switchButton: switchButton
-    property alias catchButton: catchButton
-    property alias runButton: runButton
 
-    PokemonContainer {
-        id: opponent
-        objectName: "opponent"
-        direction: root.direction
 
-        Component.onCompleted: {
-            console.log("opponent poke loaded")
-            opponent.containerLines.border.color = "red"
+    SequentialAnimation {
+        id: playerAttackAnim
+        running: false
+        loops: 1
+
+        property int attackDistance: 20
+
+        onStopped: {
+            opponentHitAnim.start();
+            root.update_text_bar("It's super effective!");
         }
 
-        onAttackedAnimationFinished: {
-            console.log("Opponent hit animation finished")
-            // End the attack sequence
+        PropertyAnimation {
+            target: player
+            property: "x"
+            to: player.originalX + (player.direction==1 ? -playerAttackAnim.attackDistance : player.direction==3 ? playerAttackAnim.attackDistance : 0)
+            duration: 50
+            easing.type: Easing.InQuad
+        }
+        PropertyAnimation {
+            target: player
+            property: "y"
+            to: player.originalY + (player.direction==0 ? -playerAttackAnim.attackDistance : player.direction==2 ? playerAttackAnim.attackDistance : 0)
+            duration: 50
+            easing.type: Easing.InQuad
+        }
+        PropertyAnimation {
+            target: player
+            property: "x"
+            to: player.originalX
+            duration: 100
+            easing.type: Easing.OutQuad
+        }
+        PropertyAnimation {
+            target: player
+            property: "y"
+            to: player.originalY
+            duration: 100
+            easing.type: Easing.OutQuad
+        }
+    }
+
+    SequentialAnimation {
+        id: opponentHitAnim
+        running: false
+        loops: 1
+
+        property int attackDistance: 10
+
+        onStopped: {
             root.attackInProgress = false;
             buttonGrid.visible = true;
             textBarText.visible = false;
             textBar.color = "transparent";
             root.update_text_bar("What will you do?");
         }
+
+        PropertyAnimation {
+            target: opponent
+            property: "x"
+            to: opponent.originalX + (opponent.direction==1 ? opponentHitAnim.attackDistance : opponent.direction==3 ? -opponentHitAnim.attackDistance : 0)
+            duration: 50
+            easing.type: Easing.InQuad
+        }
+        PropertyAnimation {
+            target: opponent
+            property: "y"
+            to: opponent.originalY + (opponent.direction==0 ? opponentHitAnim.attackDistance : opponent.direction==2 ? -opponentHitAnim.attackDistance : 0)
+            duration: 50
+            easing.type: Easing.InQuad
+        }
+        PropertyAnimation {
+            target: opponent
+            property: "x"
+            to: opponent.originalX
+            duration: 100
+            easing.type: Easing.OutQuad
+        }
+        PropertyAnimation {
+            target: opponent
+            property: "y"
+            to: opponent.originalY
+            duration: 100
+            easing.type: Easing.OutQuad
+        }
     }
 
-    // Player Pokemon - positioned according to direction
-    PokemonContainer {
-        id: player
-        objectName: "player"
-        direction: (root.direction + 2) % 4
-
-        Component.onCompleted: {
-            console.log("player poke loaded")
-            player.containerLines.border.color = "blue"
+        PokemonSprite {
+            id: opponent
+            objectName: "opponent"
+            direction: root.direction
+            debugLines: root.debugLines
+            debugColor: "red"
         }
 
-        onAttackAnimationFinished: {
-            console.log("Player attack finished - now hitting opponent")
-            // When player attack finishes, trigger opponent hit animation
-            opponent.startAttacked();
-            root.update_text_bar("It's super effective!");
+        PokemonSprite {
+            id: player
+            objectName: "player"
+            direction: (root.direction + 2) % 4
+            debugLines: root.debugLines
+            debugColor: "blue"
         }
-    }
 
-    // Position sprite based on side
     function positionSprite(sprite) {
-        // Reset all anchors first
-        sprite.anchors.top = undefined;
-        sprite.anchors.bottom = undefined;
-        sprite.anchors.left = undefined;
-        sprite.anchors.right = undefined;
-        sprite.anchors.horizontalCenter = undefined;
-        sprite.anchors.verticalCenter = undefined;
-
         var margin = root.pokeMargin;
-
         switch(sprite.direction) {
             case 0:
-                sprite.anchors.bottom = root.bottom;
-                sprite.anchors.bottomMargin = textBoxHeight + margin + sprite.containerOffsetY;
-                sprite.anchors.left = root.left;
-                sprite.anchors.leftMargin = margin + sprite.containerOffsetX;
+                sprite.x = margin + sprite.containerOffsetX;
+                sprite.y = root.height - (textBoxHeight + margin + sprite.containerOffsetY + sprite.height);
                 break;
-            case 1: // East - position at right
-                sprite.anchors.right = root.right;
-                sprite.anchors.rightMargin = margin + sprite.containerOffsetX;
-                sprite.anchors.bottom = root.bottom;
-                sprite.anchors.bottomMargin = textBoxHeight + margin;// + sprite.containerOffsetY;
+            case 1:
+                sprite.x = root.width - (margin + sprite.containerOffsetX + sprite.width);
+                sprite.y = root.height - (textBoxHeight + margin + sprite.containerOffsetY + sprite.height);
                 break;
-            case 2: // South - position at top
-                sprite.anchors.top = root.top;
-                sprite.anchors.topMargin = margin + sprite.containerOffsetY;
-                sprite.anchors.left = root.left;
-                sprite.anchors.leftMargin = margin + sprite.containerOffsetX;
+            case 2:
+                sprite.x = margin + sprite.containerOffsetX;
+                sprite.y = margin + sprite.containerOffsetY;
                 break;
-            case 3: // West - position at left
-                sprite.anchors.left = root.left;
-                sprite.anchors.leftMargin = margin + sprite.containerOffsetX;
-                sprite.anchors.bottom = root.bottom;
-                sprite.anchors.bottomMargin = textBoxHeight + margin;// + sprite.containerOffsetY;
+            case 3:
+                sprite.x = margin + sprite.containerOffsetX;
+                sprite.y = root.height - (textBoxHeight + margin + sprite.containerOffsetY + sprite.height);
                 break;
         }
+        sprite.originalX = sprite.x;
+        sprite.originalY = sprite.y;
     }
 
-    // Public functions
     function update_text_bar(newText) {
         textBar.text = newText;
     }
 
-    // Handle attack button click
     function handleAttack() {
         if (root.attackInProgress) return;
-
         root.attackInProgress = true;
-
-        // Hide buttons and show text during animation
         buttonGrid.visible = false;
+        textBar.color = "darkgrey";
         textBarText.visible = true;
-        textBar.color = "gray";
-
         root.update_text_bar("Player used Tackle!");
-
-        // Start player attack animation
-        player.startAttack();
+        playerAttackAnim.start();
     }
 
-    // Text bar at the bottom
     Rectangle {
         id: textBar
-        objectName: "textBar"
-        z: 8000
+        color: "transparent"
         property string text: ""
-
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
-        width: root.width;
         height: root.textBoxHeight
-
-        color: "transparent"
-        border.color: "transparent"
-        border.width: 1
-        radius: 4
 
         Text {
             id: textBarText
@@ -159,73 +181,46 @@ Item {
             text: textBar.text
             font.pixelSize: 14
             verticalAlignment: Text.AlignVCenter
-            elide: Text.ElideRight
-            visible: false  // Start hidden, show during animations
-            z: 8000
+            visible: false
         }
 
-        // Button grid
         Grid {
             id: buttonGrid
             columns: 2
             spacing: gridSpacing
-            visible: true  // Start visible
-
             x: (parent.width - width) / 2
             y: (parent.height - height) / 2
-            z: 8000
 
             RoundButton {
-                id: attackButton
                 text: "Attack"
-                font.pixelSize: buttonFontSize
                 palette.button: "red"
+                font.pixelSize: buttonFontSize
                 width: buttonWidth
                 height: buttonHeight
-                radius: buttonHeight / 2
                 onClicked: root.handleAttack()
             }
-
             RoundButton {
-                id: switchButton
                 text: "Switch"
                 palette.button: "green"
                 font.pixelSize: buttonFontSize
                 width: buttonWidth
                 height: buttonHeight
-                radius: buttonHeight / 2
-                onClicked: console.log("Switch clicked")
             }
-
             RoundButton {
-                id: catchButton
                 text: "Catch"
                 palette.button: "yellow"
                 font.pixelSize: buttonFontSize
                 width: buttonWidth
                 height: buttonHeight
-                radius: buttonHeight / 2
-                onClicked: console.log("Catch clicked")
             }
-
             RoundButton {
-                id: runButton
                 text: "Run"
                 palette.button: "blue"
                 font.pixelSize: buttonFontSize
                 width: buttonWidth
                 height: buttonHeight
-                radius: buttonHeight / 2
                 onClicked: root.runClicked()
             }
         }
-    }
-
-    Rectangle {
-        anchors.fill: parent
-        color: "transparent"
-        border.color: "green"
-        border.width: 1
-        visible: debugLines
     }
 }

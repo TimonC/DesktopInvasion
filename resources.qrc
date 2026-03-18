@@ -1,12 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>qml/PokemonSprite.qml</file>
-        <file>qml/PokemonContainer.qml</file>
         <file>qml/BattleScene.qml</file>
-
-        <file>qml/spriteAnimations/SpriteAnimation.qml</file>
-        <file>qml/spriteAnimations/actions/MoveForward.qml</file>
-        <file>qml/spriteAnimations/responses/MoveBack.qml</file>
 
         <file>assets/HGSS/PokGen1_transparent_reordered.png</file>
         <file>assets/HGSS/PokGen2_transparent_reordered.png</file>

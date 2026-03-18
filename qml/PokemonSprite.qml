@@ -1,10 +1,8 @@
 import QtQuick 2.15
-import "spriteAnimations/actions" as Actions
-import "spriteAnimations/responses" as Responses
 
 Item {
     id: root
-
+     property color debugColor: "yellow"
     // Sprite properties
     property string spriteSheet: "qrc:/assets/HGSS/PokGen1_transparent_reordered.png"
     property int row: 0
@@ -15,12 +13,22 @@ Item {
     property int frameCount: 2
     property int frameRate: 4
 
-    // Signals
-    signal attackAnimationFinished()
-    signal attackedAnimationFinished()
+    // Container properties
+    property int itemWidth: 0
+    property int itemHeight: 0
+    property int containerOffsetX: 0
+    property int containerOffsetY: 0
+    property bool clickable: true
+    property bool debugLines: false
 
-    width: frameWidth * scaleFactor
-    height: frameHeight * scaleFactor
+    // Store original position for animations
+    property real originalX: 0
+    property real originalY: 0
+
+    width: itemWidth > 0 ? itemWidth : frameWidth * scaleFactor
+    height: itemHeight > 0 ? itemHeight : frameHeight * scaleFactor
+    layer.enabled: true
+    z: 1
 
     // Random delay timer to prevent sync
     property Timer startTimer: Timer {
@@ -31,7 +39,8 @@ Item {
 
     AnimatedSprite {
         id: sprite
-        x: (parent.width - width) / 2  // Center manually using x/y
+        // REMOVE ANCHORS - use manual positioning
+        x: (parent.width - width) / 2
         y: (parent.height - height) / 2
         scale: scaleFactor
 
@@ -58,30 +67,12 @@ Item {
         frameY: row * frameHeight
     }
 
-    // Attack animation
-    Actions.MoveForward {
-        id: attackAnim
-        target: sprite
-        direction: root.direction
-        scaleFactor: root.scaleFactor
-        onAnimationFinished: root.attackAnimationFinished()
-    }
-
-    // Attacked animation
-    Responses.MoveBack {
-        id: attackedAnim
-        target: sprite
-        direction: root.direction
-        scaleFactor: root.scaleFactor
-        onAnimationFinished: root.attackedAnimationFinished()
-    }
-
-    // Slots to start animations
-    function startAttack() {
-        attackAnim.startAnimation();
-    }
-
-    function startAttacked() {
-        attackedAnim.startAnimation();
+    // Debug rectangle
+    Rectangle {
+        id: containerDebugLines
+        anchors.fill: parent
+        color: "transparent"
+        border.color: debugLines ? debugColor : "transparent"
+        border.width: 1
     }
 }

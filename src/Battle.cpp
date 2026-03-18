@@ -54,24 +54,29 @@ QQuickItem* Battle::setupPokemon(const PokemonInfo* info, const char* role) {
 
     Q_ASSERT_X(container, "Battle::setupPokemon", "Container: '%1' is null".arg(role));
 
+    // Set the basic sprite properties
     container->setProperty("spriteSheet", QString("qrc:/assets/HGSS/PokGen%1_transparent_reordered.png").arg(info->generation));
     container->setProperty("row", info->spriteId);
     container->setProperty("scaleFactor", Globals::SCALE);
     container->setProperty("debugLines", Globals::DEBUG);
 
     const SpriteInfo* spriteInfo = Globals::getSpriteInfo(info->spriteId, info->generation);
-    int width = Globals::SCALE* (spriteInfo->max_width + Globals::POKE_PADDING);
-    int height = Globals::SCALE * (spriteInfo->max_height + Globals::POKE_PADDING);
-    int offsetX = Globals::SCALE*(32 - spriteInfo->max_width)/2;
-    int offsetY = Globals::SCALE*(32 - spriteInfo->max_height)/2;
 
+    // Calculate container size
+    int width = Globals::SCALE * (spriteInfo->max_width + Globals::POKE_PADDING);
+    int height = Globals::SCALE * (spriteInfo->max_height + Globals::POKE_PADDING);
+
+    // Calculate positioning offsets
+    int offsetX = Globals::SCALE * (32 - spriteInfo->max_width) / 2;
+    int offsetY = Globals::SCALE * (32 - spriteInfo->max_height) / 2;
+
+    // Set container properties
     container->setProperty("itemWidth", width);
     container->setProperty("itemHeight", height);
-    container->setProperty("spriteOffsetX" , Globals::POKE_PADDING/2);
-    container->setProperty("spriteOffsetY", Globals::POKE_PADDING/2);
     container->setProperty("containerOffsetX", offsetX);
     container->setProperty("containerOffsetY", offsetY);
 
+    // Position the sprite
     QMetaObject::invokeMethod(m_battleScene, "positionSprite", Q_ARG(QVariant, QVariant::fromValue(container)));
 
     return container;
