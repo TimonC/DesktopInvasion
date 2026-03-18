@@ -93,15 +93,12 @@ namespace PokeMath{
         const int baseStats[6],
         const int ivs[6],
         const int evs[6],
-        const std::array<int, 5>& nature  // Changed to int (90, 100, 110)
+        const std::array<int, 5>& nature
         ) {
             std::array<int, 6> result;
 
-            // HP calculation
             result[0] = calculateHealth(lvl, baseStats[0], ivs[0], evs[0]);
 
-
-            // Integer math for nature
             result[1] = (nature[0] * (5 + calculateStat(lvl, baseStats[1], ivs[1], evs[1]))) / 100;
             result[2] = (nature[1] * (5 + calculateStat(lvl, baseStats[2], ivs[2], evs[2]))) / 100;
             result[3] = (nature[2] * (5 + calculateStat(lvl, baseStats[3], ivs[3], evs[3]))) / 100;
