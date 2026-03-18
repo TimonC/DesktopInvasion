@@ -1,485 +1,372 @@
-ID: 1, Name: pound
-ID: 2, Name: karate-chop
-ID: 3, Name: double-slap
-ID: 4, Name: comet-punch
-ID: 5, Name: mega-punch
-ID: 6, Name: pay-day
-ID: 7, Name: fire-punch
-ID: 8, Name: ice-punch
-ID: 9, Name: thunder-punch
-ID: 10, Name: scratch
-ID: 11, Name: vice-grip
-ID: 12, Name: guillotine
-ID: 13, Name: razor-wind
-ID: 14, Name: swords-dance
-ID: 15, Name: cut
-ID: 16, Name: gust
-ID: 17, Name: wing-attack
-ID: 18, Name: whirlwind
-ID: 19, Name: fly
-ID: 20, Name: bind
-ID: 21, Name: slam
-ID: 22, Name: vine-whip
-ID: 23, Name: stomp
-ID: 24, Name: double-kick
-ID: 25, Name: mega-kick
-ID: 26, Name: jump-kick
-ID: 27, Name: rolling-kick
-ID: 28, Name: sand-attack
-ID: 29, Name: headbutt
-ID: 30, Name: horn-attack
-ID: 31, Name: fury-attack
-ID: 32, Name: horn-drill
-ID: 33, Name: tackle
-ID: 34, Name: body-slam
-ID: 35, Name: wrap
-ID: 36, Name: take-down
-ID: 37, Name: thrash
-ID: 38, Name: double-edge
-ID: 39, Name: tail-whip
-ID: 40, Name: poison-sting
-ID: 41, Name: twineedle
-ID: 42, Name: pin-missile
-ID: 43, Name: leer
-ID: 44, Name: bite
-ID: 45, Name: growl
-ID: 46, Name: roar
-ID: 47, Name: sing
-ID: 48, Name: supersonic
-ID: 49, Name: sonic-boom
-ID: 50, Name: disable
-ID: 51, Name: acid
-ID: 52, Name: ember
-ID: 53, Name: flamethrower
-ID: 54, Name: mist
-ID: 55, Name: water-gun
-ID: 56, Name: hydro-pump
-ID: 57, Name: surf
-ID: 58, Name: ice-beam
-ID: 59, Name: blizzard
-ID: 60, Name: psybeam
-ID: 61, Name: bubble-beam
-ID: 62, Name: aurora-beam
-ID: 63, Name: hyper-beam
-ID: 64, Name: peck
-ID: 65, Name: drill-peck
-ID: 66, Name: submission
-ID: 67, Name: low-kick
-ID: 68, Name: counter
-ID: 69, Name: seismic-toss
-ID: 70, Name: strength
-ID: 71, Name: absorb
-ID: 72, Name: mega-drain
-ID: 73, Name: leech-seed
-ID: 74, Name: growth
-ID: 75, Name: razor-leaf
-ID: 76, Name: solar-beam
-ID: 77, Name: poison-powder
-ID: 78, Name: stun-spore
-ID: 79, Name: sleep-powder
-ID: 80, Name: petal-dance
-ID: 81, Name: string-shot
-ID: 82, Name: dragon-rage
-ID: 83, Name: fire-spin
-ID: 84, Name: thunder-shock
-ID: 85, Name: thunderbolt
-ID: 86, Name: thunder-wave
-ID: 87, Name: thunder
-ID: 88, Name: rock-throw
-ID: 89, Name: earthquake
-ID: 90, Name: fissure
-ID: 91, Name: dig
-ID: 92, Name: toxic
-ID: 93, Name: confusion
-ID: 94, Name: psychic
-ID: 95, Name: hypnosis
-ID: 96, Name: meditate
-ID: 97, Name: agility
-ID: 98, Name: quick-attack
-ID: 99, Name: rage
-ID: 100, Name: teleport
-ID: 101, Name: night-shade
-ID: 102, Name: mimic
-ID: 103, Name: screech
-ID: 104, Name: double-team
-ID: 105, Name: recover
-ID: 106, Name: harden
-ID: 107, Name: minimize
-ID: 108, Name: smokescreen
-ID: 109, Name: confuse-ray
-ID: 110, Name: withdraw
-ID: 111, Name: defense-curl
-ID: 112, Name: barrier
-ID: 113, Name: light-screen
-ID: 114, Name: haze
-ID: 115, Name: reflect
-ID: 116, Name: focus-energy
-ID: 117, Name: bide
-ID: 118, Name: metronome
-ID: 119, Name: mirror-move
-ID: 120, Name: self-destruct
-ID: 121, Name: egg-bomb
-ID: 122, Name: lick
-ID: 123, Name: smog
-ID: 124, Name: sludge
-ID: 125, Name: bone-club
-ID: 126, Name: fire-blast
-ID: 127, Name: waterfall
-ID: 128, Name: clamp
-ID: 129, Name: swift
-ID: 130, Name: skull-bash
-ID: 131, Name: spike-cannon
-ID: 132, Name: constrict
-ID: 133, Name: amnesia
-ID: 134, Name: kinesis
-ID: 135, Name: soft-boiled
-ID: 136, Name: high-jump-kick
-ID: 137, Name: glare
-ID: 138, Name: dream-eater
-ID: 139, Name: poison-gas
-ID: 140, Name: barrage
-ID: 141, Name: leech-life
-ID: 142, Name: lovely-kiss
-ID: 143, Name: sky-attack
-ID: 144, Name: transform
-ID: 145, Name: bubble
-ID: 146, Name: dizzy-punch
-ID: 147, Name: spore
-ID: 148, Name: flash
-ID: 149, Name: psywave
-ID: 150, Name: splash
-ID: 151, Name: acid-armor
-ID: 152, Name: crabhammer
-ID: 153, Name: explosion
-ID: 154, Name: fury-swipes
-ID: 155, Name: bonemerang
-ID: 156, Name: rest
-ID: 157, Name: rock-slide
-ID: 158, Name: hyper-fang
-ID: 159, Name: sharpen
-ID: 160, Name: conversion
-ID: 161, Name: tri-attack
-ID: 162, Name: super-fang
-ID: 163, Name: slash
-ID: 164, Name: substitute
-ID: 165, Name: struggle
-ID: 166, Name: sketch
-ID: 167, Name: triple-kick
-ID: 168, Name: thief
-ID: 169, Name: spider-web
-ID: 170, Name: mind-reader
-ID: 171, Name: nightmare
-ID: 172, Name: flame-wheel
-ID: 173, Name: snore
-ID: 174, Name: curse
-ID: 175, Name: flail
-ID: 176, Name: conversion-2
-ID: 177, Name: aeroblast
-ID: 178, Name: cotton-spore
-ID: 179, Name: reversal
-ID: 180, Name: spite
-ID: 181, Name: powder-snow
-ID: 182, Name: protect
-ID: 183, Name: mach-punch
-ID: 184, Name: scary-face
-ID: 185, Name: feint-attack
-ID: 186, Name: sweet-kiss
-ID: 187, Name: belly-drum
-ID: 188, Name: sludge-bomb
-ID: 189, Name: mud-slap
-ID: 190, Name: octazooka
-ID: 191, Name: spikes
-ID: 192, Name: zap-cannon
-ID: 193, Name: foresight
-ID: 194, Name: destiny-bond
-ID: 195, Name: perish-song
-ID: 196, Name: icy-wind
-ID: 197, Name: detect
-ID: 198, Name: bone-rush
-ID: 199, Name: lock-on
-ID: 200, Name: outrage
-ID: 201, Name: sandstorm
-ID: 202, Name: giga-drain
-ID: 203, Name: endure
-ID: 204, Name: charm
-ID: 205, Name: rollout
-ID: 206, Name: false-swipe
-ID: 207, Name: swagger
-ID: 208, Name: milk-drink
-ID: 209, Name: spark
-ID: 210, Name: fury-cutter
-ID: 211, Name: steel-wing
-ID: 212, Name: mean-look
-ID: 213, Name: attract
-ID: 214, Name: sleep-talk
-ID: 215, Name: heal-bell
-ID: 216, Name: return
-ID: 217, Name: present
-ID: 218, Name: frustration
-ID: 219, Name: safeguard
-ID: 220, Name: pain-split
-ID: 221, Name: sacred-fire
-ID: 222, Name: magnitude
-ID: 223, Name: dynamic-punch
-ID: 224, Name: megahorn
-ID: 225, Name: dragon-breath
-ID: 226, Name: baton-pass
-ID: 227, Name: encore
-ID: 228, Name: pursuit
-ID: 229, Name: rapid-spin
-ID: 230, Name: sweet-scent
-ID: 231, Name: iron-tail
-ID: 232, Name: metal-claw
-ID: 233, Name: vital-throw
-ID: 234, Name: morning-sun
-ID: 235, Name: synthesis
-ID: 236, Name: moonlight
-ID: 237, Name: hidden-power
-ID: 238, Name: cross-chop
-ID: 239, Name: twister
-ID: 240, Name: rain-dance
-ID: 241, Name: sunny-day
-ID: 242, Name: crunch
-ID: 243, Name: mirror-coat
-ID: 244, Name: psych-up
-ID: 245, Name: extreme-speed
-ID: 246, Name: ancient-power
-ID: 247, Name: shadow-ball
-ID: 248, Name: future-sight
-ID: 249, Name: rock-smash
-ID: 250, Name: whirlpool
-ID: 251, Name: beat-up
-ID: 252, Name: fake-out
-ID: 253, Name: uproar
-ID: 254, Name: stockpile
-ID: 255, Name: spit-up
-ID: 256, Name: swallow
-ID: 257, Name: heat-wave
-ID: 258, Name: hail
-ID: 259, Name: torment
-ID: 260, Name: flatter
-ID: 261, Name: will-o-wisp
-ID: 262, Name: memento
-ID: 263, Name: facade
-ID: 264, Name: focus-punch
-ID: 265, Name: smelling-salts
-ID: 266, Name: follow-me
-ID: 267, Name: nature-power
-ID: 268, Name: charge
-ID: 269, Name: taunt
-ID: 270, Name: helping-hand
-ID: 271, Name: trick
-ID: 272, Name: role-play
-ID: 273, Name: wish
-ID: 274, Name: assist
-ID: 275, Name: ingrain
-ID: 276, Name: superpower
-ID: 277, Name: magic-coat
-ID: 278, Name: recycle
-ID: 279, Name: revenge
-ID: 280, Name: brick-break
-ID: 281, Name: yawn
-ID: 282, Name: knock-off
-ID: 283, Name: endeavor
-ID: 284, Name: eruption
-ID: 285, Name: skill-swap
-ID: 286, Name: imprison
-ID: 287, Name: refresh
-ID: 288, Name: grudge
-ID: 289, Name: snatch
-ID: 290, Name: secret-power
-ID: 291, Name: dive
-ID: 292, Name: arm-thrust
-ID: 293, Name: camouflage
-ID: 294, Name: tail-glow
-ID: 295, Name: luster-purge
-ID: 296, Name: mist-ball
-ID: 297, Name: feather-dance
-ID: 298, Name: teeter-dance
-ID: 299, Name: blaze-kick
-ID: 300, Name: mud-sport
-ID: 301, Name: ice-ball
-ID: 302, Name: needle-arm
-ID: 303, Name: slack-off
-ID: 304, Name: hyper-voice
-ID: 305, Name: poison-fang
-ID: 306, Name: crush-claw
-ID: 307, Name: blast-burn
-ID: 308, Name: hydro-cannon
-ID: 309, Name: meteor-mash
-ID: 310, Name: astonish
-ID: 311, Name: weather-ball
-ID: 312, Name: aromatherapy
-ID: 313, Name: fake-tears
-ID: 314, Name: air-cutter
-ID: 315, Name: overheat
-ID: 316, Name: odor-sleuth
-ID: 317, Name: rock-tomb
-ID: 318, Name: silver-wind
-ID: 319, Name: metal-sound
-ID: 320, Name: grass-whistle
-ID: 321, Name: tickle
-ID: 322, Name: cosmic-power
-ID: 323, Name: water-spout
-ID: 324, Name: signal-beam
-ID: 325, Name: shadow-punch
-ID: 326, Name: extrasensory
-ID: 327, Name: sky-uppercut
-ID: 328, Name: sand-tomb
-ID: 329, Name: sheer-cold
-ID: 330, Name: muddy-water
-ID: 331, Name: bullet-seed
-ID: 332, Name: aerial-ace
-ID: 333, Name: icicle-spear
-ID: 334, Name: iron-defense
-ID: 335, Name: block
-ID: 336, Name: howl
-ID: 337, Name: dragon-claw
-ID: 338, Name: frenzy-plant
-ID: 339, Name: bulk-up
-ID: 340, Name: bounce
-ID: 341, Name: mud-shot
-ID: 342, Name: poison-tail
-ID: 343, Name: covet
-ID: 344, Name: volt-tackle
-ID: 345, Name: magical-leaf
-ID: 346, Name: water-sport
-ID: 347, Name: calm-mind
-ID: 348, Name: leaf-blade
-ID: 349, Name: dragon-dance
-ID: 350, Name: rock-blast
-ID: 351, Name: shock-wave
-ID: 352, Name: water-pulse
-ID: 353, Name: doom-desire
-ID: 354, Name: psycho-boost
-ID: 10001, Name: shadow-rush
-ID: 10002, Name: shadow-blast
-ID: 10003, Name: shadow-blitz
-ID: 10004, Name: shadow-bolt
-ID: 10005, Name: shadow-break
-ID: 10006, Name: shadow-chill
-ID: 10007, Name: shadow-end
-ID: 10008, Name: shadow-fire
-ID: 10009, Name: shadow-rave
-ID: 10010, Name: shadow-storm
-ID: 10011, Name: shadow-wave
-ID: 10012, Name: shadow-down
-ID: 10013, Name: shadow-half
-ID: 10014, Name: shadow-hold
-ID: 10015, Name: shadow-mist
-ID: 10016, Name: shadow-panic
-ID: 10017, Name: shadow-shed
-ID: 10018, Name: shadow-sky
-ID: 355, Name: roost
-ID: 356, Name: gravity
-ID: 357, Name: miracle-eye
-ID: 358, Name: wake-up-slap
-ID: 359, Name: hammer-arm
-ID: 360, Name: gyro-ball
-ID: 361, Name: healing-wish
-ID: 362, Name: brine
-ID: 363, Name: natural-gift
-ID: 364, Name: feint
-ID: 365, Name: pluck
-ID: 366, Name: tailwind
-ID: 367, Name: acupressure
-ID: 368, Name: metal-burst
-ID: 369, Name: u-turn
-ID: 370, Name: close-combat
-ID: 371, Name: payback
-ID: 372, Name: assurance
-ID: 373, Name: embargo
-ID: 374, Name: fling
-ID: 375, Name: psycho-shift
-ID: 376, Name: trump-card
-ID: 377, Name: heal-block
-ID: 378, Name: wring-out
-ID: 379, Name: power-trick
-ID: 380, Name: gastro-acid
-ID: 381, Name: lucky-chant
-ID: 382, Name: me-first
-ID: 383, Name: copycat
-ID: 384, Name: power-swap
-ID: 385, Name: guard-swap
-ID: 386, Name: punishment
-ID: 387, Name: last-resort
-ID: 388, Name: worry-seed
-ID: 389, Name: sucker-punch
-ID: 390, Name: toxic-spikes
-ID: 391, Name: heart-swap
-ID: 392, Name: aqua-ring
-ID: 393, Name: magnet-rise
-ID: 394, Name: flare-blitz
-ID: 395, Name: force-palm
-ID: 396, Name: aura-sphere
-ID: 397, Name: rock-polish
-ID: 398, Name: poison-jab
-ID: 399, Name: dark-pulse
-ID: 400, Name: night-slash
-ID: 401, Name: aqua-tail
-ID: 402, Name: seed-bomb
-ID: 403, Name: air-slash
-ID: 404, Name: x-scissor
-ID: 405, Name: bug-buzz
-ID: 406, Name: dragon-pulse
-ID: 407, Name: dragon-rush
-ID: 408, Name: power-gem
-ID: 409, Name: drain-punch
-ID: 410, Name: vacuum-wave
-ID: 411, Name: focus-blast
-ID: 412, Name: energy-ball
-ID: 413, Name: brave-bird
-ID: 414, Name: earth-power
-ID: 415, Name: switcheroo
-ID: 416, Name: giga-impact
-ID: 417, Name: nasty-plot
-ID: 418, Name: bullet-punch
-ID: 419, Name: avalanche
-ID: 420, Name: ice-shard
-ID: 421, Name: shadow-claw
-ID: 422, Name: thunder-fang
-ID: 423, Name: ice-fang
-ID: 424, Name: fire-fang
-ID: 425, Name: shadow-sneak
-ID: 426, Name: mud-bomb
-ID: 427, Name: psycho-cut
-ID: 428, Name: zen-headbutt
-ID: 429, Name: mirror-shot
-ID: 430, Name: flash-cannon
-ID: 431, Name: rock-climb
-ID: 432, Name: defog
-ID: 433, Name: trick-room
-ID: 434, Name: draco-meteor
-ID: 435, Name: discharge
-ID: 436, Name: lava-plume
-ID: 437, Name: leaf-storm
-ID: 438, Name: power-whip
-ID: 439, Name: rock-wrecker
-ID: 440, Name: cross-poison
-ID: 441, Name: gunk-shot
-ID: 442, Name: iron-head
-ID: 443, Name: magnet-bomb
-ID: 444, Name: stone-edge
-ID: 445, Name: captivate
-ID: 446, Name: stealth-rock
-ID: 447, Name: grass-knot
-ID: 448, Name: chatter
-ID: 449, Name: judgment
-ID: 450, Name: bug-bite
-ID: 451, Name: charge-beam
-ID: 452, Name: wood-hammer
-ID: 453, Name: aqua-jet
-ID: 454, Name: attack-order
-ID: 455, Name: defend-order
-ID: 456, Name: heal-order
-ID: 457, Name: head-smash
-ID: 458, Name: double-hit
-ID: 459, Name: roar-of-time
-ID: 460, Name: spacial-rend
-ID: 461, Name: lunar-dance
-ID: 462, Name: crush-grip
-ID: 463, Name: magma-storm
-ID: 464, Name: dark-void
-ID: 465, Name: seed-flare
-ID: 466, Name: ominous-wind
-ID: 467, Name: shadow-force
+id: 1 name: pound accuracy: 100 effect_chance: None priority: 0 power: 40 
+id: 2 name: karate-chop accuracy: 100 effect_chance: None priority: 0 power: 50 
+id: 3 name: double-slap accuracy: 85 effect_chance: None priority: 0 power: 15 
+id: 4 name: comet-punch accuracy: 85 effect_chance: None priority: 0 power: 18 
+id: 5 name: mega-punch accuracy: 85 effect_chance: None priority: 0 power: 80 
+id: 6 name: pay-day accuracy: 100 effect_chance: None priority: 0 power: 40 
+id: 7 name: fire-punch accuracy: 100 effect_chance: 10 priority: 0 power: 75 
+id: 8 name: ice-punch accuracy: 100 effect_chance: 10 priority: 0 power: 75 
+id: 9 name: thunder-punch accuracy: 100 effect_chance: 10 priority: 0 power: 75 
+id: 10 name: scratch accuracy: 100 effect_chance: None priority: 0 power: 40 
+id: 11 name: vice-grip accuracy: 100 effect_chance: None priority: 0 power: 55 
+id: 12 name: guillotine accuracy: 30 effect_chance: None priority: 0 power: None 
+id: 13 name: razor-wind accuracy: 100 effect_chance: None priority: 0 power: 80 
+id: 14 name: swords-dance accuracy: None effect_chance: None priority: 0 power: None 
+id: 15 name: cut accuracy: 95 effect_chance: None priority: 0 power: 50 
+id: 16 name: gust accuracy: 100 effect_chance: None priority: 0 power: 40 
+id: 17 name: wing-attack accuracy: 100 effect_chance: None priority: 0 power: 60 
+id: 18 name: whirlwind accuracy: None effect_chance: None priority: -6 power: None 
+id: 19 name: fly accuracy: 95 effect_chance: None priority: 0 power: 90 
+id: 20 name: bind accuracy: 85 effect_chance: 100 priority: 0 power: 15 
+id: 21 name: slam accuracy: 75 effect_chance: None priority: 0 power: 80 
+id: 22 name: vine-whip accuracy: 100 effect_chance: None priority: 0 power: 45 
+id: 23 name: stomp accuracy: 100 effect_chance: 30 priority: 0 power: 65 
+id: 24 name: double-kick accuracy: 100 effect_chance: None priority: 0 power: 30 
+id: 25 name: mega-kick accuracy: 75 effect_chance: None priority: 0 power: 120 
+id: 26 name: jump-kick accuracy: 95 effect_chance: None priority: 0 power: 100 
+id: 27 name: rolling-kick accuracy: 85 effect_chance: 30 priority: 0 power: 60 
+id: 28 name: sand-attack accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 29 name: headbutt accuracy: 100 effect_chance: 30 priority: 0 power: 70 
+id: 30 name: horn-attack accuracy: 100 effect_chance: None priority: 0 power: 65 
+id: 31 name: fury-attack accuracy: 85 effect_chance: None priority: 0 power: 15 
+id: 32 name: horn-drill accuracy: 30 effect_chance: None priority: 0 power: None 
+id: 33 name: tackle accuracy: 100 effect_chance: None priority: 0 power: 40 
+id: 34 name: body-slam accuracy: 100 effect_chance: 30 priority: 0 power: 85 
+id: 35 name: wrap accuracy: 90 effect_chance: 100 priority: 0 power: 15 
+id: 36 name: take-down accuracy: 85 effect_chance: None priority: 0 power: 90 
+id: 37 name: thrash accuracy: 100 effect_chance: None priority: 0 power: 120 
+id: 38 name: double-edge accuracy: 100 effect_chance: None priority: 0 power: 120 
+id: 39 name: tail-whip accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 40 name: poison-sting accuracy: 100 effect_chance: 30 priority: 0 power: 15 
+id: 41 name: twineedle accuracy: 100 effect_chance: 20 priority: 0 power: 25 
+id: 42 name: pin-missile accuracy: 95 effect_chance: None priority: 0 power: 25 
+id: 43 name: leer accuracy: 100 effect_chance: 100 priority: 0 power: None 
+id: 44 name: bite accuracy: 100 effect_chance: 30 priority: 0 power: 60 
+id: 45 name: growl accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 46 name: roar accuracy: None effect_chance: None priority: -6 power: None 
+id: 47 name: sing accuracy: 55 effect_chance: None priority: 0 power: None 
+id: 48 name: supersonic accuracy: 55 effect_chance: None priority: 0 power: None 
+id: 49 name: sonic-boom accuracy: 90 effect_chance: None priority: 0 power: None 
+id: 50 name: disable accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 51 name: acid accuracy: 100 effect_chance: 10 priority: 0 power: 40 
+id: 52 name: ember accuracy: 100 effect_chance: 10 priority: 0 power: 40 
+id: 53 name: flamethrower accuracy: 100 effect_chance: 10 priority: 0 power: 90 
+id: 54 name: mist accuracy: None effect_chance: None priority: 0 power: None 
+id: 55 name: water-gun accuracy: 100 effect_chance: None priority: 0 power: 40 
+id: 56 name: hydro-pump accuracy: 80 effect_chance: None priority: 0 power: 110 
+id: 57 name: surf accuracy: 100 effect_chance: None priority: 0 power: 90 
+id: 58 name: ice-beam accuracy: 100 effect_chance: 10 priority: 0 power: 90 
+id: 59 name: blizzard accuracy: 70 effect_chance: 10 priority: 0 power: 110 
+id: 60 name: psybeam accuracy: 100 effect_chance: 10 priority: 0 power: 65 
+id: 61 name: bubble-beam accuracy: 100 effect_chance: 10 priority: 0 power: 65 
+id: 62 name: aurora-beam accuracy: 100 effect_chance: 10 priority: 0 power: 65 
+id: 63 name: hyper-beam accuracy: 90 effect_chance: None priority: 0 power: 150 
+id: 64 name: peck accuracy: 100 effect_chance: None priority: 0 power: 35 
+id: 65 name: drill-peck accuracy: 100 effect_chance: None priority: 0 power: 80 
+id: 66 name: submission accuracy: 80 effect_chance: None priority: 0 power: 80 
+id: 67 name: low-kick accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 68 name: counter accuracy: 100 effect_chance: None priority: -5 power: None 
+id: 69 name: seismic-toss accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 70 name: strength accuracy: 100 effect_chance: None priority: 0 power: 80 
+id: 71 name: absorb accuracy: 100 effect_chance: None priority: 0 power: 20 
+id: 72 name: mega-drain accuracy: 100 effect_chance: None priority: 0 power: 40 
+id: 73 name: leech-seed accuracy: 90 effect_chance: None priority: 0 power: None 
+id: 74 name: growth accuracy: None effect_chance: None priority: 0 power: None 
+id: 75 name: razor-leaf accuracy: 95 effect_chance: None priority: 0 power: 55 
+id: 76 name: solar-beam accuracy: 100 effect_chance: None priority: 0 power: 120 
+id: 77 name: poison-powder accuracy: 75 effect_chance: None priority: 0 power: None 
+id: 78 name: stun-spore accuracy: 75 effect_chance: None priority: 0 power: None 
+id: 79 name: sleep-powder accuracy: 75 effect_chance: None priority: 0 power: None 
+id: 80 name: petal-dance accuracy: 100 effect_chance: None priority: 0 power: 120 
+id: 81 name: string-shot accuracy: 95 effect_chance: None priority: 0 power: None 
+id: 82 name: dragon-rage accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 83 name: fire-spin accuracy: 85 effect_chance: 100 priority: 0 power: 35 
+id: 84 name: thunder-shock accuracy: 100 effect_chance: 10 priority: 0 power: 40 
+id: 85 name: thunderbolt accuracy: 100 effect_chance: 10 priority: 0 power: 90 
+id: 86 name: thunder-wave accuracy: 90 effect_chance: None priority: 0 power: None 
+id: 87 name: thunder accuracy: 70 effect_chance: 30 priority: 0 power: 110 
+id: 88 name: rock-throw accuracy: 90 effect_chance: None priority: 0 power: 50 
+id: 89 name: earthquake accuracy: 100 effect_chance: None priority: 0 power: 100 
+id: 90 name: fissure accuracy: 30 effect_chance: None priority: 0 power: None 
+id: 91 name: dig accuracy: 100 effect_chance: None priority: 0 power: 80 
+id: 92 name: toxic accuracy: 90 effect_chance: None priority: 0 power: None 
+id: 93 name: confusion accuracy: 100 effect_chance: 10 priority: 0 power: 50 
+id: 94 name: psychic accuracy: 100 effect_chance: 10 priority: 0 power: 90 
+id: 95 name: hypnosis accuracy: 60 effect_chance: None priority: 0 power: None 
+id: 96 name: meditate accuracy: None effect_chance: None priority: 0 power: None 
+id: 97 name: agility accuracy: None effect_chance: None priority: 0 power: None 
+id: 98 name: quick-attack accuracy: 100 effect_chance: None priority: 1 power: 40 
+id: 99 name: rage accuracy: 100 effect_chance: None priority: 0 power: 20 
+id: 100 name: teleport accuracy: None effect_chance: None priority: -6 power: None 
+id: 101 name: night-shade accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 102 name: mimic accuracy: None effect_chance: None priority: 0 power: None 
+id: 103 name: screech accuracy: 85 effect_chance: None priority: 0 power: None 
+id: 104 name: double-team accuracy: None effect_chance: None priority: 0 power: None 
+id: 105 name: recover accuracy: None effect_chance: None priority: 0 power: None 
+id: 106 name: harden accuracy: None effect_chance: None priority: 0 power: None 
+id: 107 name: minimize accuracy: None effect_chance: None priority: 0 power: None 
+id: 108 name: smokescreen accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 109 name: confuse-ray accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 110 name: withdraw accuracy: None effect_chance: None priority: 0 power: None 
+id: 111 name: defense-curl accuracy: None effect_chance: None priority: 0 power: None 
+id: 112 name: barrier accuracy: None effect_chance: None priority: 0 power: None 
+id: 113 name: light-screen accuracy: None effect_chance: None priority: 0 power: None 
+id: 114 name: haze accuracy: None effect_chance: None priority: 0 power: None 
+id: 115 name: reflect accuracy: None effect_chance: None priority: 0 power: None 
+id: 116 name: focus-energy accuracy: None effect_chance: None priority: 0 power: None 
+id: 117 name: bide accuracy: None effect_chance: None priority: 1 power: None 
+id: 118 name: metronome accuracy: None effect_chance: None priority: 0 power: None 
+id: 119 name: mirror-move accuracy: None effect_chance: None priority: 0 power: None 
+id: 120 name: self-destruct accuracy: 100 effect_chance: None priority: 0 power: 200 
+id: 121 name: egg-bomb accuracy: 75 effect_chance: None priority: 0 power: 100 
+id: 122 name: lick accuracy: 100 effect_chance: 30 priority: 0 power: 30 
+id: 123 name: smog accuracy: 70 effect_chance: 40 priority: 0 power: 30 
+id: 124 name: sludge accuracy: 100 effect_chance: 30 priority: 0 power: 65 
+id: 125 name: bone-club accuracy: 85 effect_chance: 10 priority: 0 power: 65 
+id: 126 name: fire-blast accuracy: 85 effect_chance: 10 priority: 0 power: 110 
+id: 127 name: waterfall accuracy: 100 effect_chance: 20 priority: 0 power: 80 
+id: 128 name: clamp accuracy: 85 effect_chance: 100 priority: 0 power: 35 
+id: 129 name: swift accuracy: None effect_chance: None priority: 0 power: 60 
+id: 130 name: skull-bash accuracy: 100 effect_chance: 100 priority: 0 power: 130 
+id: 131 name: spike-cannon accuracy: 100 effect_chance: None priority: 0 power: 20 
+id: 132 name: constrict accuracy: 100 effect_chance: 10 priority: 0 power: 10 
+id: 133 name: amnesia accuracy: None effect_chance: None priority: 0 power: None 
+id: 134 name: kinesis accuracy: 80 effect_chance: None priority: 0 power: None 
+id: 135 name: soft-boiled accuracy: None effect_chance: None priority: 0 power: None 
+id: 136 name: high-jump-kick accuracy: 90 effect_chance: None priority: 0 power: 130 
+id: 137 name: glare accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 138 name: dream-eater accuracy: 100 effect_chance: None priority: 0 power: 100 
+id: 139 name: poison-gas accuracy: 90 effect_chance: None priority: 0 power: None 
+id: 140 name: barrage accuracy: 85 effect_chance: None priority: 0 power: 15 
+id: 141 name: leech-life accuracy: 100 effect_chance: None priority: 0 power: 80 
+id: 142 name: lovely-kiss accuracy: 75 effect_chance: None priority: 0 power: None 
+id: 143 name: sky-attack accuracy: 90 effect_chance: 30 priority: 0 power: 140 
+id: 144 name: transform accuracy: None effect_chance: None priority: 0 power: None 
+id: 145 name: bubble accuracy: 100 effect_chance: 10 priority: 0 power: 40 
+id: 146 name: dizzy-punch accuracy: 100 effect_chance: 20 priority: 0 power: 70 
+id: 147 name: spore accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 148 name: flash accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 149 name: psywave accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 150 name: splash accuracy: None effect_chance: None priority: 0 power: None 
+id: 151 name: acid-armor accuracy: None effect_chance: None priority: 0 power: None 
+id: 152 name: crabhammer accuracy: 90 effect_chance: None priority: 0 power: 100 
+id: 153 name: explosion accuracy: 100 effect_chance: None priority: 0 power: 250 
+id: 154 name: fury-swipes accuracy: 80 effect_chance: None priority: 0 power: 18 
+id: 155 name: bonemerang accuracy: 90 effect_chance: None priority: 0 power: 50 
+id: 156 name: rest accuracy: None effect_chance: None priority: 0 power: None 
+id: 157 name: rock-slide accuracy: 90 effect_chance: 30 priority: 0 power: 75 
+id: 158 name: hyper-fang accuracy: 90 effect_chance: 10 priority: 0 power: 80 
+id: 159 name: sharpen accuracy: None effect_chance: None priority: 0 power: None 
+id: 160 name: conversion accuracy: None effect_chance: None priority: 0 power: None 
+id: 161 name: tri-attack accuracy: 100 effect_chance: 20 priority: 0 power: 80 
+id: 162 name: super-fang accuracy: 90 effect_chance: None priority: 0 power: None 
+id: 163 name: slash accuracy: 100 effect_chance: None priority: 0 power: 70 
+id: 164 name: substitute accuracy: None effect_chance: None priority: 0 power: None 
+id: 165 name: struggle accuracy: None effect_chance: None priority: 0 power: 50 
+id: 166 name: sketch accuracy: None effect_chance: None priority: 0 power: None 
+id: 167 name: triple-kick accuracy: 90 effect_chance: None priority: 0 power: 10 
+id: 168 name: thief accuracy: 100 effect_chance: None priority: 0 power: 60 
+id: 169 name: spider-web accuracy: None effect_chance: None priority: 0 power: None 
+id: 170 name: mind-reader accuracy: None effect_chance: None priority: 0 power: None 
+id: 171 name: nightmare accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 172 name: flame-wheel accuracy: 100 effect_chance: 10 priority: 0 power: 60 
+id: 173 name: snore accuracy: 100 effect_chance: 30 priority: 0 power: 50 
+id: 174 name: curse accuracy: None effect_chance: None priority: 0 power: None 
+id: 175 name: flail accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 176 name: conversion-2 accuracy: None effect_chance: None priority: 0 power: None 
+id: 177 name: aeroblast accuracy: 95 effect_chance: None priority: 0 power: 100 
+id: 178 name: cotton-spore accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 179 name: reversal accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 180 name: spite accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 181 name: powder-snow accuracy: 100 effect_chance: 10 priority: 0 power: 40 
+id: 182 name: protect accuracy: None effect_chance: None priority: 4 power: None 
+id: 183 name: mach-punch accuracy: 100 effect_chance: None priority: 1 power: 40 
+id: 184 name: scary-face accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 185 name: feint-attack accuracy: None effect_chance: None priority: 0 power: 60 
+id: 186 name: sweet-kiss accuracy: 75 effect_chance: None priority: 0 power: None 
+id: 187 name: belly-drum accuracy: None effect_chance: None priority: 0 power: None 
+id: 188 name: sludge-bomb accuracy: 100 effect_chance: 30 priority: 0 power: 90 
+id: 189 name: mud-slap accuracy: 100 effect_chance: 100 priority: 0 power: 20 
+id: 190 name: octazooka accuracy: 85 effect_chance: 50 priority: 0 power: 65 
+id: 191 name: spikes accuracy: None effect_chance: None priority: 0 power: None 
+id: 192 name: zap-cannon accuracy: 50 effect_chance: 100 priority: 0 power: 120 
+id: 193 name: foresight accuracy: None effect_chance: None priority: 0 power: None 
+id: 194 name: destiny-bond accuracy: None effect_chance: None priority: 0 power: None 
+id: 195 name: perish-song accuracy: None effect_chance: None priority: 0 power: None 
+id: 196 name: icy-wind accuracy: 95 effect_chance: 100 priority: 0 power: 55 
+id: 197 name: detect accuracy: None effect_chance: None priority: 4 power: None 
+id: 198 name: bone-rush accuracy: 90 effect_chance: None priority: 0 power: 25 
+id: 199 name: lock-on accuracy: None effect_chance: None priority: 0 power: None 
+id: 200 name: outrage accuracy: 100 effect_chance: None priority: 0 power: 120 
+id: 201 name: sandstorm accuracy: None effect_chance: None priority: 0 power: None 
+id: 202 name: giga-drain accuracy: 100 effect_chance: None priority: 0 power: 75 
+id: 203 name: endure accuracy: None effect_chance: None priority: 4 power: None 
+id: 204 name: charm accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 205 name: rollout accuracy: 90 effect_chance: None priority: 0 power: 30 
+id: 206 name: false-swipe accuracy: 100 effect_chance: None priority: 0 power: 40 
+id: 207 name: swagger accuracy: 85 effect_chance: None priority: 0 power: None 
+id: 208 name: milk-drink accuracy: None effect_chance: None priority: 0 power: None 
+id: 209 name: spark accuracy: 100 effect_chance: 30 priority: 0 power: 65 
+id: 210 name: fury-cutter accuracy: 95 effect_chance: None priority: 0 power: 40 
+id: 211 name: steel-wing accuracy: 90 effect_chance: 10 priority: 0 power: 70 
+id: 212 name: mean-look accuracy: None effect_chance: None priority: 0 power: None 
+id: 213 name: attract accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 214 name: sleep-talk accuracy: None effect_chance: None priority: 0 power: None 
+id: 215 name: heal-bell accuracy: None effect_chance: None priority: 0 power: None 
+id: 216 name: return accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 217 name: present accuracy: 90 effect_chance: None priority: 0 power: None 
+id: 218 name: frustration accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 219 name: safeguard accuracy: None effect_chance: None priority: 0 power: None 
+id: 220 name: pain-split accuracy: None effect_chance: None priority: 0 power: None 
+id: 221 name: sacred-fire accuracy: 95 effect_chance: 50 priority: 0 power: 100 
+id: 222 name: magnitude accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 223 name: dynamic-punch accuracy: 50 effect_chance: 100 priority: 0 power: 100 
+id: 224 name: megahorn accuracy: 85 effect_chance: None priority: 0 power: 120 
+id: 225 name: dragon-breath accuracy: 100 effect_chance: 30 priority: 0 power: 60 
+id: 226 name: baton-pass accuracy: None effect_chance: None priority: 0 power: None 
+id: 227 name: encore accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 228 name: pursuit accuracy: 100 effect_chance: None priority: 0 power: 40 
+id: 229 name: rapid-spin accuracy: 100 effect_chance: 100 priority: 0 power: 50 
+id: 230 name: sweet-scent accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 231 name: iron-tail accuracy: 75 effect_chance: 30 priority: 0 power: 100 
+id: 232 name: metal-claw accuracy: 95 effect_chance: 10 priority: 0 power: 50 
+id: 233 name: vital-throw accuracy: None effect_chance: None priority: -1 power: 70 
+id: 234 name: morning-sun accuracy: None effect_chance: None priority: 0 power: None 
+id: 235 name: synthesis accuracy: None effect_chance: None priority: 0 power: None 
+id: 236 name: moonlight accuracy: None effect_chance: None priority: 0 power: None 
+id: 237 name: hidden-power accuracy: 100 effect_chance: None priority: 0 power: 60 
+id: 238 name: cross-chop accuracy: 80 effect_chance: None priority: 0 power: 100 
+id: 239 name: twister accuracy: 100 effect_chance: 20 priority: 0 power: 40 
+id: 240 name: rain-dance accuracy: None effect_chance: None priority: 0 power: None 
+id: 241 name: sunny-day accuracy: None effect_chance: None priority: 0 power: None 
+id: 242 name: crunch accuracy: 100 effect_chance: 20 priority: 0 power: 80 
+id: 243 name: mirror-coat accuracy: 100 effect_chance: None priority: -5 power: None 
+id: 244 name: psych-up accuracy: None effect_chance: None priority: 0 power: None 
+id: 245 name: extreme-speed accuracy: 100 effect_chance: None priority: 2 power: 80 
+id: 246 name: ancient-power accuracy: 100 effect_chance: 10 priority: 0 power: 60 
+id: 247 name: shadow-ball accuracy: 100 effect_chance: 20 priority: 0 power: 80 
+id: 248 name: future-sight accuracy: 100 effect_chance: None priority: 0 power: 120 
+id: 249 name: rock-smash accuracy: 100 effect_chance: 50 priority: 0 power: 40 
+id: 250 name: whirlpool accuracy: 85 effect_chance: 100 priority: 0 power: 35 
+id: 251 name: beat-up accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 252 name: fake-out accuracy: 100 effect_chance: 100 priority: 3 power: 40 
+id: 253 name: uproar accuracy: 100 effect_chance: None priority: 0 power: 90 
+id: 254 name: stockpile accuracy: None effect_chance: None priority: 0 power: None 
+id: 255 name: spit-up accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 256 name: swallow accuracy: None effect_chance: None priority: 0 power: None 
+id: 257 name: heat-wave accuracy: 90 effect_chance: 10 priority: 0 power: 95 
+id: 258 name: hail accuracy: None effect_chance: None priority: 0 power: None 
+id: 259 name: torment accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 260 name: flatter accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 261 name: will-o-wisp accuracy: 85 effect_chance: None priority: 0 power: None 
+id: 262 name: memento accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 263 name: facade accuracy: 100 effect_chance: None priority: 0 power: 70 
+id: 264 name: focus-punch accuracy: 100 effect_chance: None priority: -3 power: 150 
+id: 265 name: smelling-salts accuracy: 100 effect_chance: None priority: 0 power: 70 
+id: 266 name: follow-me accuracy: None effect_chance: None priority: 2 power: None 
+id: 267 name: nature-power accuracy: None effect_chance: None priority: 0 power: None 
+id: 268 name: charge accuracy: None effect_chance: None priority: 0 power: None 
+id: 269 name: taunt accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 270 name: helping-hand accuracy: None effect_chance: None priority: 5 power: None 
+id: 271 name: trick accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 272 name: role-play accuracy: None effect_chance: None priority: 0 power: None 
+id: 273 name: wish accuracy: None effect_chance: None priority: 0 power: None 
+id: 274 name: assist accuracy: None effect_chance: None priority: 0 power: None 
+id: 275 name: ingrain accuracy: None effect_chance: None priority: 0 power: None 
+id: 276 name: superpower accuracy: 100 effect_chance: 100 priority: 0 power: 120 
+id: 277 name: magic-coat accuracy: None effect_chance: None priority: 4 power: None 
+id: 278 name: recycle accuracy: None effect_chance: None priority: 0 power: None 
+id: 279 name: revenge accuracy: 100 effect_chance: None priority: -4 power: 60 
+id: 280 name: brick-break accuracy: 100 effect_chance: None priority: 0 power: 75 
+id: 281 name: yawn accuracy: None effect_chance: None priority: 0 power: None 
+id: 282 name: knock-off accuracy: 100 effect_chance: None priority: 0 power: 65 
+id: 283 name: endeavor accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 284 name: eruption accuracy: 100 effect_chance: None priority: 0 power: 150 
+id: 285 name: skill-swap accuracy: None effect_chance: None priority: 0 power: None 
+id: 286 name: imprison accuracy: None effect_chance: None priority: 0 power: None 
+id: 287 name: refresh accuracy: None effect_chance: None priority: 0 power: None 
+id: 288 name: grudge accuracy: None effect_chance: None priority: 0 power: None 
+id: 289 name: snatch accuracy: None effect_chance: None priority: 4 power: None 
+id: 290 name: secret-power accuracy: 100 effect_chance: 30 priority: 0 power: 70 
+id: 291 name: dive accuracy: 100 effect_chance: None priority: 0 power: 80 
+id: 292 name: arm-thrust accuracy: 100 effect_chance: None priority: 0 power: 15 
+id: 293 name: camouflage accuracy: None effect_chance: None priority: 0 power: None 
+id: 294 name: tail-glow accuracy: None effect_chance: None priority: 0 power: None 
+id: 295 name: luster-purge accuracy: 100 effect_chance: 50 priority: 0 power: 95 
+id: 296 name: mist-ball accuracy: 100 effect_chance: 50 priority: 0 power: 95 
+id: 297 name: feather-dance accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 298 name: teeter-dance accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 299 name: blaze-kick accuracy: 90 effect_chance: 10 priority: 0 power: 85 
+id: 300 name: mud-sport accuracy: None effect_chance: None priority: 0 power: None 
+id: 301 name: ice-ball accuracy: 90 effect_chance: None priority: 0 power: 30 
+id: 302 name: needle-arm accuracy: 100 effect_chance: 30 priority: 0 power: 60 
+id: 303 name: slack-off accuracy: None effect_chance: None priority: 0 power: None 
+id: 304 name: hyper-voice accuracy: 100 effect_chance: None priority: 0 power: 90 
+id: 305 name: poison-fang accuracy: 100 effect_chance: 50 priority: 0 power: 50 
+id: 306 name: crush-claw accuracy: 95 effect_chance: 50 priority: 0 power: 75 
+id: 307 name: blast-burn accuracy: 90 effect_chance: None priority: 0 power: 150 
+id: 308 name: hydro-cannon accuracy: 90 effect_chance: None priority: 0 power: 150 
+id: 309 name: meteor-mash accuracy: 90 effect_chance: 20 priority: 0 power: 90 
+id: 310 name: astonish accuracy: 100 effect_chance: 30 priority: 0 power: 30 
+id: 311 name: weather-ball accuracy: 100 effect_chance: None priority: 0 power: 50 
+id: 312 name: aromatherapy accuracy: None effect_chance: None priority: 0 power: None 
+id: 313 name: fake-tears accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 314 name: air-cutter accuracy: 95 effect_chance: None priority: 0 power: 60 
+id: 315 name: overheat accuracy: 90 effect_chance: 100 priority: 0 power: 130 
+id: 316 name: odor-sleuth accuracy: None effect_chance: None priority: 0 power: None 
+id: 317 name: rock-tomb accuracy: 95 effect_chance: 100 priority: 0 power: 60 
+id: 318 name: silver-wind accuracy: 100 effect_chance: 10 priority: 0 power: 60 
+id: 319 name: metal-sound accuracy: 85 effect_chance: None priority: 0 power: None 
+id: 320 name: grass-whistle accuracy: 55 effect_chance: None priority: 0 power: None 
+id: 321 name: tickle accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 322 name: cosmic-power accuracy: None effect_chance: None priority: 0 power: None 
+id: 323 name: water-spout accuracy: 100 effect_chance: None priority: 0 power: 150 
+id: 324 name: signal-beam accuracy: 100 effect_chance: 10 priority: 0 power: 75 
+id: 325 name: shadow-punch accuracy: None effect_chance: None priority: 0 power: 60 
+id: 326 name: extrasensory accuracy: 100 effect_chance: 10 priority: 0 power: 80 
+id: 327 name: sky-uppercut accuracy: 90 effect_chance: None priority: 0 power: 85 
+id: 328 name: sand-tomb accuracy: 85 effect_chance: 100 priority: 0 power: 35 
+id: 329 name: sheer-cold accuracy: 30 effect_chance: None priority: 0 power: None 
+id: 330 name: muddy-water accuracy: 85 effect_chance: 30 priority: 0 power: 90 
+id: 331 name: bullet-seed accuracy: 100 effect_chance: None priority: 0 power: 25 
+id: 332 name: aerial-ace accuracy: None effect_chance: None priority: 0 power: 60 
+id: 333 name: icicle-spear accuracy: 100 effect_chance: None priority: 0 power: 25 
+id: 334 name: iron-defense accuracy: None effect_chance: None priority: 0 power: None 
+id: 335 name: block accuracy: None effect_chance: None priority: 0 power: None 
+id: 336 name: howl accuracy: None effect_chance: None priority: 0 power: None 
+id: 337 name: dragon-claw accuracy: 100 effect_chance: None priority: 0 power: 80 
+id: 338 name: frenzy-plant accuracy: 90 effect_chance: None priority: 0 power: 150 
+id: 339 name: bulk-up accuracy: None effect_chance: None priority: 0 power: None 
+id: 340 name: bounce accuracy: 85 effect_chance: 30 priority: 0 power: 85 
+id: 341 name: mud-shot accuracy: 95 effect_chance: 100 priority: 0 power: 55 
+id: 342 name: poison-tail accuracy: 100 effect_chance: 10 priority: 0 power: 50 
+id: 343 name: covet accuracy: 100 effect_chance: None priority: 0 power: 60 
+id: 344 name: volt-tackle accuracy: 100 effect_chance: 10 priority: 0 power: 120 
+id: 345 name: magical-leaf accuracy: None effect_chance: None priority: 0 power: 60 
+id: 346 name: water-sport accuracy: None effect_chance: None priority: 0 power: None 
+id: 347 name: calm-mind accuracy: None effect_chance: None priority: 0 power: None 
+id: 348 name: leaf-blade accuracy: 100 effect_chance: None priority: 0 power: 90 
+id: 349 name: dragon-dance accuracy: None effect_chance: None priority: 0 power: None 
+id: 350 name: rock-blast accuracy: 90 effect_chance: None priority: 0 power: 25 
+id: 351 name: shock-wave accuracy: None effect_chance: None priority: 0 power: 60 
+id: 352 name: water-pulse accuracy: 100 effect_chance: 20 priority: 0 power: 60 
+id: 353 name: doom-desire accuracy: 100 effect_chance: None priority: 0 power: 140 
+id: 354 name: psycho-boost accuracy: 90 effect_chance: 100 priority: 0 power: 140 
+id: 10001 name: shadow-rush accuracy: 100 effect_chance: None priority: 0 power: 55 
+id: 10002 name: shadow-blast accuracy: 100 effect_chance: None priority: 0 power: 80 
+id: 10003 name: shadow-blitz accuracy: 100 effect_chance: None priority: 0 power: 40 
+id: 10004 name: shadow-bolt accuracy: 100 effect_chance: 10 priority: 0 power: 75 
+id: 10005 name: shadow-break accuracy: 100 effect_chance: None priority: 0 power: 75 
+id: 10006 name: shadow-chill accuracy: 100 effect_chance: 10 priority: 0 power: 75 
+id: 10007 name: shadow-end accuracy: 60 effect_chance: None priority: 0 power: 120 
+id: 10008 name: shadow-fire accuracy: 100 effect_chance: 10 priority: 0 power: 75 
+id: 10009 name: shadow-rave accuracy: 100 effect_chance: None priority: 0 power: 70 
+id: 10010 name: shadow-storm accuracy: 100 effect_chance: None priority: 0 power: 95 
+id: 10011 name: shadow-wave accuracy: 100 effect_chance: None priority: 0 power: 50 
+id: 10012 name: shadow-down accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 10013 name: shadow-half accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 10014 name: shadow-hold accuracy: None effect_chance: None priority: 0 power: None 
+id: 10015 name: shadow-mist accuracy: 100 effect_chance: None priority: 0 power: None 
+id: 10016 name: shadow-panic accuracy: 90 effect_chance: None priority: 0 power: None 
+id: 10017 name: shadow-shed accuracy: None effect_chance: None priority: 0 power: None 
+id: 10018 name: shadow-sky accuracy: None effect_chance: None priority: 0 power: None 
