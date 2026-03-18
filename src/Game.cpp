@@ -155,6 +155,7 @@ void Game::createInitialPokemon() {
     PokemonState dusclops;
     dusclops.pokedex_id = 356;
     dusclops.name = "Dusclops";
+    dusclops.pokeball_id = 1;
 
     for (int i = 0; i < 6; i++) {
         dusclops.ivs[i] = 32;
