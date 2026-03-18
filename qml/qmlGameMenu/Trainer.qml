@@ -110,7 +110,7 @@ Rectangle {
                         x: (index * discreteSlider.stepSize / (discreteSlider.to - discreteSlider.from)) * sliderTrack.width - width/2
                         y: parent.height/2 - 4
                         width: 2
-                        height: index === 0 || index === model-1 ? 12 : 8
+                        height: 8
                         color: index === 0 || index === model-1 ? "#ffffff" : "#aaaaaa"
                     }
                 }
