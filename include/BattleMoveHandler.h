@@ -76,7 +76,6 @@ private:
     int calculateTypeEffectiveness(const Move* _move, Battler* target);
     int applyStatModifier(int baseStat, int modifier);
 
-    // Sequence generation methods
     QVariantList generateActionSequence(Battler& opponent, Battler& player, bool playerFirst, int switchedIn, int shakes);
     void generateMoveSequence(QVariantList& sequence, Battler& attacker, Battler& defender, bool isAttackerPlayer);
     void logActionSequence(const QVariantList& sequence);
@@ -87,7 +86,9 @@ private:
     QVariantMap createHealthChangeAction(const QString& role, int amount, int delay);
     QVariantMap createCatchAction(int shakes, int delay);
     QVariantMap createEndAction();
-    QString ailmentToString(Ailment ailment);
+    QString ailmentToApplicationText(Ailment ailment);
+    QString ailmentToHurtText(Ailment ailment);
+    QString ailmentToRemovalText(Ailment ailment);
     void addPostMoveEffects(QVariantList& sequence, Battler& battler, const QString& name, bool isPlayer);
     void addEndOfTurnEffects(QVariantList& sequence, Battler& battler, const QString& name, bool isPlayer);
     QString getStatName(int statIndex);
