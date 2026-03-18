@@ -14,6 +14,7 @@ echo "First script execution - wiping volume"
 rm -rf /app/data/* 2>/dev/null || true
 
 if [ "$VALGRIND_MODE" = "1" ]; then
+# docker compose run --rm -e VALGRIND_MODE=1 dev
     echo "Starting DesktopInvasion with Valgrind"
     mkdir -p /app/logs
     TIMESTAMP=$(date +%Y%m%d_%H%M%S)
