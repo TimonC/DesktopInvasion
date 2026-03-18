@@ -64,6 +64,7 @@ Item {
     property bool  inSwapMode:           false
     property var   swapSource:           null
     property var   displayedPokemonSlot: null
+    property int   displayedPokemonIndex: 0
     property int   displayedPokemonBox:  -1
 
     signal activateSwapMode()
@@ -76,6 +77,7 @@ Item {
             : pcRepeater.itemAt(pcPos[1])
         root.displayedPokemonSlot.displayed = true
         root.displayedPokemonBox = pcPos[0]
+        root.displayedPokemonIndex = pcPos[1]
         display(pcPos)
     }
 

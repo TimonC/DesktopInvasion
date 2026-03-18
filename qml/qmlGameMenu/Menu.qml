@@ -25,10 +25,7 @@ Rectangle {
     property int iconScaleForTrainer: 5
 
     // ── Overall window size ────────────────────────────────────────────────────
-    // Horizontal: pad | pcW | pad  dividerW  pad | rightPanelW | pad
     width:  pad + pcW + pad + dividerW + pad + rightPanelW + pad
-
-    // Vertical: pad | labelHeight | contentSpacing | trainerH | pad  dividerW  pad | labelHeight | contentSpacing | pcH | pad
     height: pad + labelHeight + contentSpacing + trainerH + pad + dividerW + pad + labelHeight + contentSpacing + pcH + pad
 
     // ── Theme ──────────────────────────────────────────────────────────────────
@@ -36,7 +33,7 @@ Rectangle {
     property color  buttonColor:         "#3c3c3c"
     property color  buttonSelectedColor: "#5294e2"
     property color  textColor:           "#ffffff"
-    property color  subheaderColor:      "#aaaaaa"  // Matching MoveMenu's colorSubtext
+    property color  subheaderColor:      "#aaaaaa"
     property int    fontSizeLg: 22
     property int    fontSizeMd: 18
     property int    fontSizeSm: 16
@@ -50,9 +47,17 @@ Rectangle {
     property var boxPokes:   ({})
 
     // ── Menu state ─────────────────────────────────────────────────────────────
-    // "default"  → normal three-section layout
-    // "moveMenu" → full-width MoveMenu overlay
+    // "default"  → PokeView loaded, MoveMenu unloaded
+    // "moveMenu" → MoveMenu loaded, PokeView unloaded
     property string menuState: "default"
+
+    // ── Pending move-menu data (held here so Loader can pass it on create) ─────
+    property var    _pendingPokeData:    null
+    property int    _pendingRowId:       0
+    property string _pendingSheet:       ""
+    property int    _pendingFrameWidth:  32
+    property int    _pendingFrameHeight: 32
+    property real   _pendingScaleFactor: 8
 
     // ── Background click – cancel swap ─────────────────────────────────────────
     MouseArea {
@@ -60,17 +65,14 @@ Rectangle {
         cursorShape:  undefined
         onClicked: {
             if (pc.inSwapMode) pc.toggleSwapMode()
-            if (moveMenu.inNameEditMode) moveMenu.toggleNameEditMode()
-            moveMenu.selectedEligibleIdx = -1
+            var mm = moveMenuLoader.item
+            if (mm) {
+                if (mm.inNameEditMode) mm.toggleNameEditMode()
+                mm.selectedEligibleIdx = -1
+            }
         }
     }
 
-    Connections {
-        target: moveMenu
-        function onNameChanged(name) {
-            menuBridge.nameChangeRequested(pc.displayedPokemonBox, pc.displayedPokemonSlot, name)
-        }
-    }
     // ── Bridge connections ─────────────────────────────────────────────────────
     Connections {
         target: menuBridge
@@ -92,7 +94,6 @@ Rectangle {
             boxPokes = updated
         }
     }
-
 
     Connections {
         target: pc
@@ -120,18 +121,41 @@ Rectangle {
             else if (pcPos[0] > -1 && boxPokes[pcPos[0]] && boxPokes[pcPos[0]][pcPos[1]])
                 poke = boxPokes[pcPos[0]][pcPos[1]]
             else { console.log("ERROR faulty display pos"); return }
-            pokeView.pokeData    = poke
-            pokeView.rowId       = poke.rowId
-            pokeView.spriteSheet = poke.isBig ? "qrc:/assets/HGSS/reordered_sprites_big.png"
-                                              : "qrc:/assets/HGSS/reordered_sprites.png"
-            pokeView.frameWidth  = poke.isBig ? 64 : 32
-            pokeView.frameHeight = poke.isBig ? 64 : 32
-            pokeView.scaleFactor = poke.isBig ? root.iconScaleForBig : root.iconScale
+
+            // Push to PokeView if it's loaded, else just cache it.
+            var pv = pokeViewLoader.item
+            if (pv) {
+                pv.pokeData    = poke
+                pv.rowId       = poke.rowId
+                pv.spriteSheet = poke.isBig ? "qrc:/assets/HGSS/reordered_sprites_big.png"
+                                            : "qrc:/assets/HGSS/reordered_sprites.png"
+                pv.frameWidth  = poke.isBig ? 64 : 32
+                pv.frameHeight = poke.isBig ? 64 : 32
+                pv.scaleFactor = poke.isBig ? root.iconScaleForBig : root.iconScale
+            }
         }
     }
 
+    // ── Entry point called by the VIEW button ──────────────────────────────────
+    function editButtonClicked(pokeData) {
+        if (!pokeData) return
+        if (pc.inSwapMode) pc.toggleSwapMode()
+
+        // Cache data so the Loader can apply it once MoveMenu finishes creating.
+        _pendingPokeData    = pokeData
+        _pendingRowId       = pokeData.rowId
+        _pendingSheet       = pokeData.isBig ? "qrc:/assets/HGSS/reordered_sprites_big.png"
+                                             : "qrc:/assets/HGSS/reordered_sprites.png"
+        _pendingFrameWidth  = pokeData.isBig ? 64 : 32
+        _pendingFrameHeight = pokeData.isBig ? 64 : 32
+        _pendingScaleFactor = pokeData.isBig ? root.iconScaleForBig : root.iconScale
+
+        // Switching state unloads PokeView and loads MoveMenu.
+        root.menuState = "moveMenu"
+    }
+
     // ══════════════════════════════════════════════════════════════════════════
-    //  Main layout  –  two columns separated by a vertical divider
+    //  Main layout
     // ══════════════════════════════════════════════════════════════════════════
     Row {
         anchors.fill:    parent
@@ -144,29 +168,20 @@ Rectangle {
             width:   root.pcW
             height:  parent.height
             spacing: 0
-
-            // Visibility: only in default state
             visible: root.menuState === "default"
 
-            // ── LABEL 1 – Trainer ─────────────────────────────────────────────
             Text {
-                width: parent.width
-                height: root.labelHeight
+                width: parent.width; height: root.labelHeight
                 text: "TRAINER"
-                font.family: root.p2pFont
-                font.pixelSize: root.fontSizeSm
+                font.family: root.p2pFont; font.pixelSize: root.fontSizeSm
                 color: root.subheaderColor
-                horizontalAlignment: Text.AlignLeft
-                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignLeft; verticalAlignment: Text.AlignVCenter
             }
 
             Item { width: parent.width; height: root.contentSpacing }
 
-            // ── SECTION 1 – Trainer ───────────────────────────────────────────
             Item {
-                width:  parent.width
-                height: root.trainerH
-
+                width: parent.width; height: root.trainerH
                 Trainer {
                     anchors.fill: parent
                     textColor:    root.textColor
@@ -177,34 +192,21 @@ Rectangle {
             }
 
             Item { width: parent.width; height: root.pad }
-
-            Rectangle {
-                width:  parent.width
-                height: root.dividerW
-                color:  root.dividerColor
-            }
-
+            Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
             Item { width: parent.width; height: root.pad }
 
-            // ── LABEL 2 – PC ──────────────────────────────────────────────────
             Text {
-                width: parent.width
-                height: root.labelHeight
+                width: parent.width; height: root.labelHeight
                 text: "PC"
-                font.family: root.p2pFont
-                font.pixelSize: root.fontSizeSm
+                font.family: root.p2pFont; font.pixelSize: root.fontSizeSm
                 color: root.subheaderColor
-                horizontalAlignment: Text.AlignLeft
-                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignLeft; verticalAlignment: Text.AlignVCenter
             }
 
             Item { width: parent.width; height: root.contentSpacing }
 
-            // ── SECTION 2 – PC ────────────────────────────────────────────────
             Item {
-                width:  parent.width
-                height: root.pcH
-
+                width: parent.width; height: root.pcH
                 PC {
                     id:               pc
                     anchors.centerIn: parent
@@ -219,94 +221,104 @@ Rectangle {
         }
 
         // ── Vertical divider (default state only) ─────────────────────────────
-        Item    { width: root.pad;     height: parent.height; visible: root.menuState === "default" }
-        Rectangle {
-            width:   root.dividerW
-            height:  parent.height
-            color:   root.dividerColor
-            visible: root.menuState === "default"
-        }
-        Item    { width: root.pad;     height: parent.height; visible: root.menuState === "default" }
+        Item      { width: root.pad;     height: parent.height; visible: root.menuState === "default" }
+        Rectangle { width: root.dividerW; height: parent.height; color: root.dividerColor; visible: root.menuState === "default" }
+        Item      { width: root.pad;     height: parent.height; visible: root.menuState === "default" }
 
-        // ── RIGHT COLUMN  (Section 3 – PokeView) ──────────────────────────────
+        // ── RIGHT COLUMN ──────────────────────────────────────────────────────
         Item {
-            // In default mode this is rightPanelW wide.
-            // In moveMenu mode left column + dividers are hidden, so this item
-            // naturally stretches to fill the whole Row — we pin width explicitly
-            // based on state so nothing reflows unexpectedly.
             width: root.menuState === "default"
                        ? root.rightPanelW
                        : root.pcW + root.pad * 2 + root.dividerW + root.rightPanelW
             height: parent.height
 
-            // ── LABEL 3 – Summary (only visible in default state) ─────────────
+            // ── DEFAULT state: header + PokeView (via Loader) ─────────────────
             Column {
-                width: parent.width
-                height: parent.height
-                visible: root.menuState === "default"
+                width:   parent.width
+                height:  parent.height
                 spacing: 0
+                visible: root.menuState === "default"
 
-                Row{
-                    width: parent.width - 64 //hardcode the buttonsize for offset
+                Row {
+                    width:  parent.width - 64
                     height: root.labelHeight
                     Text {
-                        width: parent.width
-                        height: root.labelHeight
+                        width: parent.width; height: root.labelHeight
                         text: "SUMMARY"
-                        font.family: root.p2pFont
-                        font.pixelSize: root.fontSizeSm
+                        font.family: root.p2pFont; font.pixelSize: root.fontSizeSm
                         color: root.subheaderColor
-                        horizontalAlignment: Text.AlignLeft
-                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignLeft; verticalAlignment: Text.AlignVCenter
                     }
-                   PcButton {
-                       id: pokeEditButton
-                       label:    "VIEW"
-                       onClicked: editButtonClicked(pokeView.pokeData)
-                   }
+                    PcButton {
+                        id:    pokeEditButton
+                        label: "VIEW"
+                        onClicked: editButtonClicked(pokeViewLoader.item ? pokeViewLoader.item.pokeData : null)
+                    }
                 }
 
                 Item { width: parent.width; height: root.contentSpacing }
 
-                // ── DEFAULT: PokeView ────────────────────────────────────────
-                PokeView {
-                    id:               pokeView
-                    width:            parent.width
-                    height:           parent.height - root.labelHeight - root.contentSpacing
-                    fontSizeLg:       root.fontSizeLg
-                    fontSizeMd:       root.fontSizeMd
-                    fontSizeSm:       root.fontSizeSm
-                    mainFont:         root.p2pFont
-                    bodyFont:         root.dotGothicFont
+                // Loader destroys PokeView (and its AnimatedSprite) when not in
+                // default state, freeing the render-thread sprite ticker entirely.
+                Loader {
+                    id:     pokeViewLoader
+                    width:  parent.width
+                    height: parent.height - root.labelHeight - root.contentSpacing
+                    active: root.menuState === "default"
+                    source: "PokeView.qml"
+
+                    onLoaded: {
+                        item.fontSizeLg = root.fontSizeLg
+                        item.fontSizeMd = root.fontSizeMd
+                        item.fontSizeSm = root.fontSizeSm
+                        item.mainFont   = root.p2pFont
+                        item.bodyFont   = root.dotGothicFont
+                        // Re-apply last displayed pokemon if pc has one selected.
+                        // pc.lastDisplayedPoke is a convenience you can add, or
+                        // just leave it null until the user clicks a slot again.
+                    }
                 }
             }
 
-            // ── MOVE MENU state ────────────────────────────────────────────────
-            MoveMenu {
-                id:         moveMenu
+            // ── MOVE MENU state (via Loader) ───────────────────────────────────
+            // Loader destroys MoveMenu (timers, AnimatedSprite, everything) the
+            // moment the user returns to default view.
+            Loader {
+                id:           moveMenuLoader
                 anchors.fill: parent
-                fontSizeLg: root.fontSizeLg
-                fontSizeMd: root.fontSizeMd
-                fontSizeSm: root.fontSizeSm
-                mainFont:   root.p2pFont
-                bodyFont:   root.dotGothicFont
-                visible:    root.menuState === "moveMenu"
-                onReturnClicked: root.menuState = "default"
+                active:       root.menuState === "moveMenu"
+                source:       "MoveMenu.qml"
+
+                onLoaded: {
+                    // Wire up signals before setting data.
+                    item.fontSizeLg = root.fontSizeLg
+                    item.fontSizeMd = root.fontSizeMd
+                    item.fontSizeSm = root.fontSizeSm
+                    item.mainFont   = root.p2pFont
+                    item.bodyFont   = root.dotGothicFont
+
+                    item.returnClicked.connect(function() {
+                        root.menuState = "default"
+                        pc._display([pc.displayedPokemonBox, pc.displayedPokemonIndex])
+                    })
+
+                    item.nameChanged.connect(function(name) {
+                        menuBridge.nameChangeRequested(pc.displayedPokemonIndex, pc.displayedPokemonSlot, name)
+                    })
+                    item.requestMoveChange.connect(function(slot, moveId) {
+                        // forward to your backend as needed
+                    })
+
+                    // Apply the pending pokemon data now that the component exists.
+                    item.spriteSheet = root._pendingSheet
+                    item.frameWidth  = root._pendingFrameWidth
+                    item.frameHeight = root._pendingFrameHeight
+                    item.scaleFactor = root._pendingScaleFactor
+                    item.rowId       = root._pendingRowId
+                    item.pokeData    = root._pendingPokeData
+                }
             }
         }
     }
-    function editButtonClicked(pokeData) {
-        moveMenu.pokeData    = pokeData
-        moveMenu.rowId       = pokeData.rowId
-        moveMenu.spriteSheet = pokeData.isBig ? "qrc:/assets/HGSS/reordered_sprites_big.png"
-                                              : "qrc:/assets/HGSS/reordered_sprites.png"
-        moveMenu.frameWidth  = pokeData.isBig ? 64 : 32
-        moveMenu.frameHeight = pokeData.isBig ? 64 : 32
-        moveMenu.scaleFactor = pokeData.isBig ? root.iconScaleForBig : root.iconScale
-        root.menuState       = "moveMenu"
-
-        if (pc.inSwapMode) pc.toggleSwapMode()
-        if (moveMenu.inNameEditMode) moveMenu.toggleNameEditMode()
-    }
-
 }
+
