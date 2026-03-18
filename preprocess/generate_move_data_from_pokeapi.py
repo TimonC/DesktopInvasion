@@ -238,7 +238,7 @@ for i in range(1, 5):
             moveFilled[field] = move_data.get(field)
         moveFilled['stat_changes'] = extract_stat_changes(move_data.get('stat_changes', []))
         moveFilled['type'] = extract_type_name(move_data.get('type'))
-        # REMOVED: extract_learned_by_pokemon_ids call
+
 
         # Extract and clean flavor text
         raw_flavor_text = extract_gen4_english_flavor_text(move_data.get('flavor_text_entries', []))
@@ -274,7 +274,6 @@ namespace {
     for move in valid_moves:
         move_id = move['id']
 
-        # REMOVED: learned_by_pokemon array generation
 
         # Move definition
         raw_name = move['name']
@@ -314,7 +313,6 @@ namespace {
         {meta['ailment_chance']},
         {meta['flinch_chance']},
         {meta['stat_chance']}
-        // REMOVED: learned_by_pokemon and learned_count fields
     }};
 
 """
