@@ -32,11 +32,11 @@ Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
     connect(m_spawnTimer, &QTimer::timeout, this, &Game::spawnPokemon);
 
     initMenu();
-    /* m_spawnTimer->start(); */
-    m_spawnTimer->stop();
-    QTimer::singleShot(100, this, [this](){
-       handleMenuOpen();
-    });
+    m_spawnTimer->start();
+    /* m_spawnTimer->stop(); */
+    /* QTimer::singleShot(100, this, [this](){ */
+    /*    handleMenuOpen(); */
+    /* }); */
 
 }
 
