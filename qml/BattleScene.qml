@@ -108,7 +108,6 @@ Item {
             var coords = calculateBallCoords(player)
             player.visible = false
 
-            // var adjustedY1 = coords[3] + pokeBallPlayer.height * 0.5
             pokeBallPlayer.throwAt(coords[0], coords[1], coords[2], coords[3])
         })
     }
@@ -178,42 +177,46 @@ Item {
         scaleFactor: root.scale
     }
 
-    function resetPlayerBall() {
-        pokeBallPlayer.reset(root.currentPlayerBallIndex)
-        pokeBallPlayer.visible = true
+        function resetPlayerBall() {
+            pokeBallPlayer.reset(root.currentPlayerBallIndex)
+            pokeBallPlayer.visible = true
 
-        pokeBallPlayer.circleBaseWidth = player.width
-        pokeBallPlayer.circleBaseHeight = player.height
+            pokeBallPlayer.circleX = player.x + player.width/2
+            pokeBallPlayer.circleY = player.y + player.height/2
 
-        pokeBallPlayer.circleX = player.x + player.width/2
-        pokeBallPlayer.circleY = player.y + player.height/2
-
-        pokeBallPlayer.delayReveal = 2
-
-        if (root.pokemonInsideBallConnection) {
-            pokeBallPlayer.onPokemonInsideBall.disconnect(root.pokemonInsideBallConnection)
-        }
-        if (root.ballOpenedConnection) {
-            pokeBallPlayer.onBallOpened.disconnect(root.ballOpenedConnection)
-        }
-
-        root.pokemonInsideBallConnection = function() {
-            pokeBallPlayer.circleExpand()
-        }
-        root.ballOpenedConnection = function() {
-            pokeBallPlayer.visible = false
-            player.visible = true
-            statusBarPlayer.visible = true
-            if(root.safePokemonSwitch){
-                battleMenu.resetToRoot()
-            }else{
-                root.signalToStartActionRound(battleMenu.selectedIndex, "Switch");
+            pokeBallPlayer.circleBaseWidth = player.width
+            pokeBallPlayer.circleBaseHeight = player.height
+            if (pokeBallPlayer.circleY - pokeBallPlayer.circleBaseHeight/2 < 0) {
+                pokeBallPlayer.circleBaseHeight = pokeBallPlayer.circleY * 2
             }
+
+            pokeBallPlayer.delayReveal = 2
+
+            if (root.pokemonInsideBallConnection) {
+                pokeBallPlayer.onPokemonInsideBall.disconnect(root.pokemonInsideBallConnection)
+            }
+            if (root.ballOpenedConnection) {
+                pokeBallPlayer.onBallOpened.disconnect(root.ballOpenedConnection)
+            }
+
+            root.pokemonInsideBallConnection = function() {
+                pokeBallPlayer.circleExpand()
+            }
+            root.ballOpenedConnection = function() {
+                pokeBallPlayer.visible = false
+                player.visible = true
+                statusBarPlayer.visible = true
+                if(root.safePokemonSwitch){
+                    battleMenu.resetToRoot()
+                }else{
+                    root.signalToStartActionRound(battleMenu.selectedIndex, "Switch");
+                }
+            }
+
+            pokeBallPlayer.onPokemonInsideBall.connect(root.pokemonInsideBallConnection)
+            pokeBallPlayer.onBallOpened.connect(root.ballOpenedConnection)
         }
 
-        pokeBallPlayer.onPokemonInsideBall.connect(root.pokemonInsideBallConnection)
-        pokeBallPlayer.onBallOpened.connect(root.ballOpenedConnection)
-    }
     BattleMenu {
         id: battleMenu
         iconScale: root.scale
@@ -481,7 +484,8 @@ Item {
         var y1 = sprite.y + sprite.height - pokeballHeight/2
         var y0 = sprite.y - pokeballHeight
 
-        y0 = Math.max(0, y0)
+        y0 = Math.max(pokeballHeight/2, y0)
+        y1 = Math.max(pokeballHeight/2, y1)
 
         return [x0, x1, y0, y1]
     }
