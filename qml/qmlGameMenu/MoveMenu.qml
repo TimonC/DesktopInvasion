@@ -247,7 +247,7 @@ Item {
                 id: leftTop
                 anchors { top: parent.top; left: parent.left; right: parent.right }
                 height:  Math.floor(parent.height * 0.62)
-                spacing: moveMenu.secGap
+                spacing: 0
                 clip:    true
 
                 // Return button — uses PcButton
@@ -256,6 +256,8 @@ Item {
                     label:  "← RETURN"
                     onClicked:     moveMenu.returnClicked()
                 }
+
+                Item { width: parent.width; height: moveMenu.secGap }
 
                 // Nickname
                 Column {
@@ -346,7 +348,11 @@ Item {
                     }
                 }
 
+                Item { width: parent.width; height: moveMenu.secGap }
+
                 Rectangle { width: parent.width; height: 1; color: moveMenu.colorDivider }
+
+                Item { width: parent.width; height: moveMenu.gap }
 
                 // Moves header
                 Item {
@@ -369,6 +375,8 @@ Item {
                         color:          moveMenu.colorAccent
                     }
                 }
+
+                Item { width: parent.width; height: moveMenu.gap }
 
                 // Current move slots — always 4
                 Column {
@@ -573,4 +581,3 @@ Item {
         }
     }
 }
-
