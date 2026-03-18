@@ -29,6 +29,8 @@ Item {
     property alias statusBarPlayer: statusBarPlayer
     property alias opponentName: statusBarOpponent.pokeName
     property alias playerName: statusBarPlayer.pokeName
+    property alias opponentLevelText: statusBarOpponent.levelText
+    property alias playerLevelText: statusBarPlayer.levelText
     // Action chain state
     property bool actionInProgress: false
     property var actionSequence: []
@@ -259,6 +261,7 @@ Item {
             statusBarPlayer.pokeName = newPlayerName
             statusBarPlayer.currentHealthRatio = battleMenu.party.healthRatios[newPartyId]
             statusBarPlayer.totalHealth = battleMenu.party.healthTotals[newPartyId]
+            statusBarPlayer.setLevelText(battleMenu.party.lvls[newPartyId])
 
             root.currentPlayerBallIndex = battleMenu.party.ballIds[newPartyId]
             root.safePokemonSwitch = battleMenu.forceSwitchMode
@@ -268,8 +271,8 @@ Item {
         }
     }
 
-    function setPartyMember(partyId, spriteId, iconId, ballId, gen, pokemonName, totalHealth, moves) {
-        battleMenu._setPartyMember(partyId, spriteId, iconId, ballId, gen, pokemonName, totalHealth, moves);
+    function setPartyMember(partyId, spriteId, iconId, ballId, gen, pokemonName, lvl, totalHealth, moves) {
+        battleMenu._setPartyMember(partyId, spriteId, iconId, ballId, gen, pokemonName, lvl, totalHealth, moves);
     }
 
     // Action sequence
@@ -295,7 +298,6 @@ Item {
         }
         var step = root.actionSequence[root.currentActionIndex]
 
-        // console.log(root.currentActionIndex + " - " + step.type)
         root.currentActionIndex++
         switch(step.type) {
             case "text":

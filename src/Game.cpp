@@ -180,7 +180,7 @@ void Game::spawnPokemon() {
         PokemonState newWild;
         newWild.pokedex_id = m_wildPokemonInfo->pokedexId;
         newWild.name = m_wildPokemonInfo->name;
-        newWild.lvl = 100;
+        newWild.lvl = 10;
 
         for (int i = 0; i < 6; i++) {
             newWild.ivs[i] = 32;
@@ -221,6 +221,7 @@ Party Game::getParty() {
         party.spriteIds[i] = info->spriteId;
         party.iconIds[i] = FormMapper::toIconId(pokemon.pokedex_id, 0);
         party.names[i] = pokemon.name;
+        party.lvls[i] = pokemon.lvl;
         party.gens[i] = info->generation;
         party.ballIds[i] = pokemon.pokeball_id;
         party.healthTotals[i] = calculateHealth(pokemon.lvl, Globals::getPoke(info->pokedexId)->base_stats[0], pokemon.ivs[0], pokemon.evs[0]);

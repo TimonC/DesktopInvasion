@@ -79,6 +79,7 @@ Rectangle {
         "ballIds": [-1, -1, -1, -1, -1, -1],
         "gens": [-1, -1, -1, -1, -1, -1],
         "names": ["", "", "", "", "", ""],
+        "lvls": [-1, -1, -1, -1, -1, -1],
         "healthRatios": [-1, -1, -1, -1, -1, -1],
         "healthTotals": [-1, -1, -1, -1, -1, -1],
         "moves": [
@@ -92,13 +93,14 @@ Rectangle {
     }
 
 
-    function _setPartyMember(partyIdx, spriteId, iconId, ballId, gen, pokemonName, totalHealth, moves) {
+    function _setPartyMember(partyIdx, spriteId, iconId, ballId, gen, pokemonName, lvl, totalHealth, moves) {
         var temp = party
         temp.spriteIds[partyIdx] = spriteId
         temp.iconIds[partyIdx] = iconId
         temp.ballIds[partyIdx] = ballId
         temp.gens[partyIdx] = gen
         temp.names[partyIdx] = pokemonName
+        temp.lvls[partyIdx] = lvl
         temp.healthTotals[partyIdx] = totalHealth
         temp.moves[partyIdx] = moves
         temp.healthRatios[partyIdx] = 1

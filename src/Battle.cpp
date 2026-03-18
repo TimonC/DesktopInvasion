@@ -34,12 +34,11 @@ Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildS
     connect(m_battleScene, SIGNAL(switchedPokemon(int, int, int)),
         this, SLOT(handleSwitchedPokemon(int, int, int)));
 
-
     m_battleScene->setProperty("direction", m_currentDirection);
     m_battleScene->setProperty("pokeMargin", m_pokeMargin);
     m_battleScene->setProperty("debugLines", Globals::DEBUG);
-    m_opp = setupPokemon(Globals::getPokemonInfo(wildState.pokedex_id), "opponent");
-    m_chosen = setupPokemon(Globals::getPokemonInfo(party.pokedexIds[0]), "player");
+    m_opp = setupPokemon(Globals::getPokemonInfo(wildState.pokedex_id), wildState.lvl, "opponent");
+    m_chosen = setupPokemon(Globals::getPokemonInfo(party.pokedexIds[0]), party.lvls[0], "player");
     initPosition();
 
     setupParty(party);
@@ -92,13 +91,15 @@ void Battle::setupParty(Party party) {
             Q_ARG(QVariant, QVariant(party.ballIds[i])),
             Q_ARG(QVariant, QVariant(party.gens[i])),
             Q_ARG(QVariant, QString::fromStdString(party.names[i])),
+            Q_ARG(QVariant, QVariant(party.lvls[i])),
             Q_ARG(QVariant, QVariant(party.healthTotals[i])),
             Q_ARG(QVariant, moves));
     }
 }
 
-QQuickItem* Battle::setupPokemon(const PokemonInfo* info, const char* role) {
+QQuickItem* Battle::setupPokemon(const PokemonInfo* info, int level, const char* role) {
     m_battleScene->setProperty((QString(role) + "Name").toUtf8(), info->name);
+    m_battleScene->setProperty((QString(role) + "LevelText").toUtf8(), QString("Lv" + QString::number(level)));
     QQuickItem* pokemonSprite = updateSprite(info->spriteId, info->generation, role);
     QMetaObject::invokeMethod(m_battleScene, "positionSpriteAndStatusBar", Q_ARG(QVariant, QVariant::fromValue(pokemonSprite)));
     return pokemonSprite;
@@ -106,7 +107,6 @@ QQuickItem* Battle::setupPokemon(const PokemonInfo* info, const char* role) {
 
 QQuickItem* Battle::updateSprite(int spriteId, int generation, const char* role){
     QQuickItem* pokemonSprite = m_battleScene->property(role).value<QQuickItem*>();
-    Q_ASSERT_X(pokemonSprite, "Battle::setupPokemon", "pokemonSprite: '%1' is null".arg(role));
 
     /* // Set the basic sprite properties */
     QMetaObject::invokeMethod(pokemonSprite, "updatePokemon", Q_ARG(QVariant, generation), Q_ARG(QVariant, spriteId));

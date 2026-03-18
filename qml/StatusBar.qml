@@ -6,16 +6,18 @@ import "Style/PokeColor.js" as PokeColor
 Item {
     id: root
     property int scaleFactor: 3
-    property real totalHealth: 100
+    property int totalHealth: 100
     property alias currentHealthRatio: progressBar.value
-    property real healthChangeDuration: 500
+    property int healthChangeDuration: 500
+
+    property alias pokeName: nameLabel.text
+    property alias levelText: levelLabel.text
+
     property int pokeNameFontSize: 0
     property int subTextFontSize: pokeNameFontSize*0.9
     property string fontFamily: ""
     property int statusPadding: pokeNameFontSize/2
 
-    property alias pokeName: nameLabel.text
-    property alias levelLabel: levelLabel.text
 
     component PopoutText: Text {
         color: "white"
@@ -53,7 +55,7 @@ Item {
             id: levelLabel
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
-            text: "Lv10"
+            text: "Lv000"
             font.pixelSize: root.subTextFontSize
         }
 
@@ -62,7 +64,7 @@ Item {
             anchors.right: levelLabel.left
             anchors.rightMargin: root.statusPadding/2
             anchors.verticalCenter: parent.verticalCenter
-            width: statusText.implicitWidth + root.statusPadding
+            width: statusLabel.implicitWidth + root.statusPadding
             height: root.subTextFontSize + root.statusPadding/2
             radius: 2
             color: "transparent"
@@ -76,7 +78,7 @@ Item {
             }
 
             PopoutText {
-                id: statusText
+                id: statusLabel
                 anchors.centerIn: parent
                 text: ""
                 visible: false
@@ -123,15 +125,13 @@ Item {
 
     function changeStatusCondition(label, remove) {
         if (remove) {
-            console.log(remove)
-            statusText.text = ""
-            statusText.visible = false
+            statusLabel.text = ""
+            statusLabel.visible = false
             statusContainer.color = "transparent"
             statusContainer.border.color = "transparent"
         } else {
-            console.log(label)
-            statusText.text = label
-            statusText.visible = true
+            statusLabel.text = label
+            statusLabel.visible = true
             statusContainer.visible = true
             var baseColor = PokeColor.statusConditionColor(label)
             statusContainer.color = baseColor
@@ -149,6 +149,10 @@ Item {
         healthAnimation.duration = healthChangeDuration
         healthAnimation.start()
         return newHealth
+    }
+
+    function setLevelText(level){
+        root.levelText = "Lv"+level
     }
 
     NumberAnimation {

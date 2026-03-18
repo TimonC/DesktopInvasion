@@ -22,6 +22,7 @@ struct Party {
     std::array<int, 6> gens{-1, -1, -1, -1, -1, -1};
     std::array<int, 6> ballIds{-1, -1, -1, -1, -1, -1};
     std::array<std::string, 6> names{"", "", "", "", "", ""};
+    std::array<int, 6> lvls{-1, -1, -1, -1, -1, -1};
     std::array<int, 6> healthTotals{-1, -1, -1, -1, -1, -1};
     std::array<std::array<BattleMove, 4>, 6> moves{};
 };
@@ -78,7 +79,7 @@ private:
     void initPosition();
 
 
-    QQuickItem* setupPokemon(const PokemonInfo* info, const char* role = "opponent");
+    QQuickItem* setupPokemon(const PokemonInfo* info, int level, const char* role = "opponent");
     QQuickItem* m_battleScene;
     QQuickItem* m_opp;
     QQuickItem* m_chosen;
