@@ -24,18 +24,18 @@ function typeColor(typeName) {
 }
 
     function lighter(baseColor) {
-        var colorShift = 0.2
+        var colorRatio = 1.1
         var c = Qt.color(baseColor)
         return Qt.rgba(
-            Math.min(1, c.r + colorShift),
-            Math.min(1, c.g + colorShift),
-            Math.min(1, c.b + colorShift),
+            Math.min(1, c.r * colorRatio),
+            Math.min(1, c.g * colorRatio),
+            Math.min(1, c.b * colorRatio),
             1
         )
     }
 
     function darker(baseColor) {
-        var colorRatio = 0.75
+        var colorRatio = 0.7
         var c = Qt.color(baseColor)
         return Qt.rgba(
             c.r * colorRatio,
