@@ -52,8 +52,8 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
     setWidth(width);
     setHeight(height);
 
-    m_sprite->setProperty("spriteOffsetX", width/3);
-    m_sprite->setProperty("spriteOffsetY", height/3);
+    m_sprite->setProperty("spriteOffsetX",0);// width/3);
+    m_sprite->setProperty("spriteOffsetY",0);// height/3);
     startRoaming();
     show();
 }
@@ -61,7 +61,7 @@ WildPokemon::WildPokemon(const PokemonInfo* info, QWindow *parent)
 void WildPokemon::mousePressEvent(QMouseEvent* event){
     if(event->button()== Qt::LeftButton){
         handleDrag(true);
-        m_oldMousePos = event->globalPos(); //i want QPoint instead of QPointF so i dont have to convert for setPosition, therefore use deprecated method
+        m_oldMousePos = event->globalPosition().toPoint(); //i want QPoint instead of QPointF so i dont have to convert for setPosition, therefore use deprecated method
     }
 }
 
@@ -71,7 +71,7 @@ void WildPokemon::mouseReleaseEvent(QMouseEvent* event){
 
 void WildPokemon::mouseMoveEvent(QMouseEvent* event){
     if(!m_isDragged) return;
-    const QPoint newMousePos = event->globalPos();
+    const QPoint newMousePos = event->globalPosition().toPoint();
     setPosition(position() + newMousePos - m_oldMousePos);
     m_oldMousePos = newMousePos;
 }

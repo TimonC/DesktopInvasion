@@ -1,5 +1,6 @@
 import argparse
 import os
+import json
 from pathlib import Path
 from PIL import Image
 import numpy as np
@@ -14,6 +15,33 @@ def has_visible_content(frames):
         if np.any(arr[:, :, 3] > 0):
             return True
     return False
+
+
+def analyze_frame_bounds(frame):
+    """Analyze a single frame and return its tightest bounds."""
+    if frame.mode != 'RGBA':
+        frame = frame.convert('RGBA')
+
+    arr = np.array(frame)
+    alpha = arr[:, :, 3]
+
+    # Find non-transparent pixels (alpha > 10 to ignore near-transparent)
+    non_transparent = alpha > 10
+
+    if not np.any(non_transparent):
+        return 0, 0, 0, 0  # Empty frame
+
+    # Find bounds of non-transparent content
+    rows = np.any(non_transparent, axis=1)
+    cols = np.any(non_transparent, axis=0)
+
+    y_min, y_max = np.where(rows)[0][[0, -1]]
+    x_min, x_max = np.where(cols)[0][[0, -1]]
+
+    width = x_max - x_min + 1
+    height = y_max - y_min + 1
+
+    return int(width), int(height), int(x_min), int(y_min)
 
 
 def extract_frame_block(img, col_idx, row_idx, frame_width, frame_height):
@@ -39,11 +67,16 @@ def extract_frame_block(img, col_idx, row_idx, frame_width, frame_height):
 
 
 def process_image(image_path, n_rows, n_cols, frame_width, frame_height):
-    """Process a single image file."""
+    """Process a single image file and generate metadata."""
     img = Image.open(image_path)
     print(f"Processing {image_path}...")
 
     all_rows = []
+    metadata = {
+        "frame_width": frame_width,
+        "frame_height": frame_height,
+        "rows": []
+    }
 
     # Extract all frame blocks
     for row_idx in range(n_rows):
@@ -52,7 +85,30 @@ def process_image(image_path, n_rows, n_cols, frame_width, frame_height):
 
             # Only keep non-empty frame sets
             if has_visible_content(frames):
-               all_rows.append(frames)
+                # Analyze bounds for all 8 frames in this sprite
+                max_width = 0
+                max_height = 0
+                frame_bounds = []
+
+                for frame in frames:
+                    width, height, x_min, y_min = analyze_frame_bounds(frame)
+                    max_width = max(max_width, width)
+                    max_height = max(max_height, height)
+                    frame_bounds.append({
+                        "width": width,
+                        "height": height,
+                        "offset_x": x_min,
+                        "offset_y": y_min
+                    })
+
+                # Store metadata for this sprite row
+                metadata["rows"].append({
+                    "max_width": max_width,
+                    "max_height": max_height,
+                    "frame_bounds": frame_bounds
+                })
+
+                all_rows.append(frames)
 
     # Create output image
     new_width = 8 * frame_width
@@ -67,7 +123,15 @@ def process_image(image_path, n_rows, n_cols, frame_width, frame_height):
     input_path = Path(image_path)
     output_path = input_path.with_name(input_path.stem + "_reordered.png")
     new_img.save(output_path)
+
+    # Save metadata as JSON
+    metadata_path = input_path.with_name(input_path.stem + "_reordered_metadata.json")
+    with open(metadata_path, 'w') as f:
+        json.dump(metadata, f, indent=2)
+
     print(f"Saved to {output_path}")
+    print(f"Saved metadata to {metadata_path}")
+    print(f"Processed {len(all_rows)} sprite rows")
 
 
 def preprocess_poke(image_paths, n_rows, n_cols, frame_width, frame_height):
@@ -78,18 +142,14 @@ def preprocess_poke(image_paths, n_rows, n_cols, frame_width, frame_height):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Reorder frames from multiple PNGs, skipping empty sprites."
+        description="Reorder frames from multiple PNGs, skipping empty sprites and generating metadata."
     )
-    parser.add_argument("--input_path", type=str, default ="assets/HGSS")
-    parser.add_argument("--inputs", nargs='+', default = ["PokGen1_transparent.png", "PokGen2_transparent.png", "PokGen3_transparent.png", "PokGen4_transparent.png"])
-    parser.add_argument("--n_rows", type=int, default=20,
-                        help="Number of rows of sections per image (default 15)")
-    parser.add_argument("--n_cols", type=int, default=15,
-                        help="Number of columns of sections per image (default 11)")
-    parser.add_argument("--frame_width", type=int, default=32,
-                        help="Width of a single frame (default 32)")
-    parser.add_argument("--frame_height", type=int, default=32,
-                        help="Height of a single frame (default 32)")
+    parser.add_argument("--input_path", type=str, default="assets/HGSS")
+    parser.add_argument("--inputs", nargs='+', default=["PokGen1_transparent.png", "PokGen2_transparent.png", "PokGen3_transparent.png", "PokGen4_transparent.png"])
+    parser.add_argument("--n_rows", type=int, default=20, help="Number of rows of sections per image (default 20)")
+    parser.add_argument("--n_cols", type=int, default=15, help="Number of columns of sections per image (default 15)")
+    parser.add_argument("--frame_width", type=int, default=32, help="Width of a single frame (default 32)")
+    parser.add_argument("--frame_height", type=int, default=32, help="Height of a single frame (default 32)")
 
     args = parser.parse_args()
     input_paths = [os.path.join(args.input_path, input) for input in args.inputs]
