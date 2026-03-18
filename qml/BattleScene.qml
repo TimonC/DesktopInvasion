@@ -86,30 +86,34 @@ Item {
         var hPad = root.menuWidth/15//left padding is 10%
         switch(sprite.direction) {
             case 0:
-                sprite.x = Math.round((root.statusBarWidth + root.width - sprite.width)/2 + hPad + (sprite.verticalWidth/2 - sprite.hCenterUp))
-                sprite.y = Math.round(root.height - root.menuHeight - sprite.height - root.statusBarHeight/4)
+                sprite.x = (root.statusBarWidth + root.width - sprite.width)/2 + hPad + (sprite.verticalWidth/2 - sprite.hCenterUp)
+                sprite.y = root.height - root.menuHeight - sprite.height - root.statusBarHeight/4
                 sprite.statusBar.x = hPad
-                sprite.statusBar.y = Math.round((root.height - root.menuHeight)/2)
+                sprite.statusBar.y = (root.height - root.menuHeight)/2
                 break
             case 1:
-                sprite.statusBar.x = Math.round(root.width - root.frameSize/2 - root.statusBarWidth)
+                sprite.statusBar.x = root.width - root.frameSize/2 - root.statusBarWidth
                 sprite.statusBar.y = 0
-                sprite.x = Math.round(sprite.statusBar.x + root.statusBarWidth/2 - sprite.width/2)
-                sprite.y = Math.round(root.height - battleMenu.height - sprite.height + Math.max(0, sprite.height - sprite.horizontalHeight)/2 - root.frameSize/4)
+                sprite.x = sprite.statusBar.x + root.statusBarWidth/2 - sprite.width/2
+                sprite.y = root.height - battleMenu.height - sprite.height + Math.max(0, sprite.height - sprite.horizontalHeight)/2 - root.frameSize/4
                 break
             case 2:
-                sprite.x = Math.round((root.statusBarWidth + root.width - sprite.width)/2 + hPad + (sprite.verticalWidth/2 - sprite.hCenterDown))
-                sprite.y = Math.round(root.statusBarHeight/4)
+                sprite.x = (root.statusBarWidth + root.width - sprite.width)/2 + hPad + (sprite.verticalWidth/2 - sprite.hCenterDown)
+                sprite.y = root.statusBarHeight/4
                 sprite.statusBar.x = hPad
                 sprite.statusBar.y = 0
                 break
             case 3:
-                sprite.statusBar.x = Math.round(root.frameSize/2)
+                sprite.statusBar.x = root.frameSize/2
                 sprite.statusBar.y = 0
-                sprite.x = Math.round(sprite.statusBar.x + root.statusBarWidth/2 - sprite.width/2)
-                sprite.y = Math.round(root.height - battleMenu.height - sprite.height + Math.max(0, sprite.height - sprite.horizontalHeight)/2 - root.frameSize/4)
+                sprite.x = sprite.statusBar.x + root.statusBarWidth/2 - sprite.width/2
+                sprite.y = root.height - battleMenu.height - sprite.height + Math.max(0, sprite.height - sprite.horizontalHeight)/2 - root.frameSize/4
                 break
         }
+        sprite.x = Math.round(sprite.x)
+        sprite.y = Math.round(sprite.y)
+        sprite.statusBar.x = Math.round(sprite.statusBar.x)
+        sprite.statusBar.y = Math.round(sprite.statusBar.y)
         sprite.startingX = sprite.x
         sprite.startingY = sprite.y
     }
