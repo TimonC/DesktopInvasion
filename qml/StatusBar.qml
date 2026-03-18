@@ -1,6 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-
+import QtQuick.Effects  2.15
 Item {
     id: root
     property int scaleFactor: 3
@@ -11,25 +11,33 @@ Item {
     height: 24
     property alias pokeName: textBarText.text
 
-    Rectangle {
-        anchors.top: parent.top
-        anchors.right: parent.right
-        width: root.width
-        height: parent.height*3/4
-        color: "darkgrey"
-        border.color: "black"
+Rectangle {
+    anchors.top: parent.top
+    anchors.right: parent.right
+    width: root.width
+    height: parent.height * 3/4
+    color: "transparent"
 
-        Text {
-            id: textBarText
-            anchors.fill: parent
-            anchors.rightMargin: 4
-            text: "Pokemon"
-            font.pixelSize: parent.height * 0.5
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignRight
-            elide: Text.ElideRight
-        }
+    Text {
+        id: textBarText
+        anchors.fill: parent
+        anchors.rightMargin: 4
+
+        color: "white"
+        style: Text.Outline;
+        styleColor: "black"
+        renderType: Text.NativeRendering //magic way to make outline nicer
+        smooth: true
+        antialiasing: true
+
+        text: "Pokemon"
+        font.pixelSize: Math.round(parent.height * 0.6)
+        verticalAlignment: Text.AlignVCenter
+        horizontalAlignment: Text.AlignRight
+        elide: Text.ElideRight
+
     }
+}
 
     ProgressBar {
         id: progressBar
