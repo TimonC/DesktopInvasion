@@ -556,21 +556,4 @@ Item {
             }
         }
     }
-
-    // Top-level MouseArea to handle clicks outside edit area
-    MouseArea {
-        anchors.fill: parent
-        cursorShape: undefined
-
-        // Only enabled when in name edit mode
-        enabled: moveMenu.inNameEditMode
-
-        onClicked: {
-            // Click anywhere outside will exit edit mode
-            moveMenu.toggleNameEditMode();
-        }
-
-        // Prevent clicks on interactive elements from being handled here
-        propagateComposedEvents: true
-    }
 }
