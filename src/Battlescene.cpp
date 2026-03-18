@@ -65,7 +65,6 @@ Battlescene::Battlescene(Pokemon *opp, Pokemon *chosen, QWindow *parent)
 
     m_corners = initCorners();
     m_corners->show();
-
     show();
 }
 
@@ -81,12 +80,18 @@ QQuickView* Battlescene::initCorners(){
         boxHeight = y() + height() - top;
     }
     QQuickView *corners = new QQuickView(nullptr);
-    corners->setFlags(Qt::WindowStaysOnTopHint | Qt::Tool | Qt::FramelessWindowHint);
+    corners->setFlags(     Qt::WindowStaysOnTopHint
+                | Qt::Tool
+                | Qt::WindowDoesNotAcceptFocus
+                | Qt::FramelessWindowHint
+                | Qt::WindowTransparentForInput);
     corners->setColor(Qt::transparent);
     corners->setPosition(QPoint(lft,top));
     corners->setSource(QUrl("qrc:/sprites/Corners.qml"));
     corners->setWidth(boxWidth);
     corners->setHeight(boxHeight);
+
+    m_cornerSize = QPoint(boxWidth, boxHeight);
 
     corners->rootObject()->setProperty("debugLines", DEBUG);
     corners->show();
@@ -96,11 +101,13 @@ QQuickView* Battlescene::initCorners(){
 
 void Battlescene::run(){
     setVisible(false);
-    m_chosen->setVisible(false);
+    m_corners->hide();
 
-    getPlayer().m_pokemonAvailable = true;
-    m_opp->startRoaming();
+    m_chosen->setVisible(false);
     m_chosen->m_inABattle = false;
+    getPlayer().m_pokemonAvailable = true;
+
+    m_opp->startRoaming();
 }
 
 void Battlescene::attack(){
@@ -117,7 +124,7 @@ void Battlescene::updateTextbar(const std::string &text){
 
 
 void Battlescene::mousePressEvent(QMouseEvent* event) {
-    if (Qt::LeftButton) {
+  if (event->button() == Qt::LeftButton) {
         m_oldpos = event->globalPosition().toPoint();
         m_dragging = true;
 
@@ -140,15 +147,33 @@ void Battlescene::mousePressEvent(QMouseEvent* event) {
 void Battlescene::mouseMoveEvent(QMouseEvent* event){
     if (m_dragging && (event->buttons() & Qt::LeftButton)){
         QPoint currentPos = event->globalPosition().toPoint();
-        drag(currentPos-m_oldpos);
+        QPoint delta = currentPos - m_oldpos;
+        drag(delta);
         m_oldpos = currentPos;
     }
 }
 
-void Battlescene::drag(QPoint delta){
+void Battlescene::drag(QPoint& delta){
     QPoint pos = position();
-    setPosition(pos + delta);
-    m_corners->setPosition(m_corners->position() + delta);
-    m_chosen->movePos(delta);
-    m_opp->movePos(delta);
+    QPoint newCornersPos = m_corners->position() + delta;
+
+    QRect availableScreen = screenSize();  // Now returns QRect instead of QPoint
+
+    QPoint actualDelta(0, 0);
+
+    // Use availableScreen.x() and availableScreen.y() for the minimum bounds!
+    if (newCornersPos.x() >= availableScreen.x() &&
+        newCornersPos.x() + m_corners->width() <= availableScreen.right()) {
+        actualDelta.setX(delta.x());
+    }
+
+    if (newCornersPos.y() >= availableScreen.y() &&
+        newCornersPos.y() + m_corners->height() <= availableScreen.bottom()) {
+        actualDelta.setY(delta.y());
+    }
+
+    setPosition(pos + actualDelta);
+    m_corners->setPosition(m_corners->position() + actualDelta);
+    m_chosen->movePos(actualDelta);
+    m_opp->movePos(actualDelta);
 }

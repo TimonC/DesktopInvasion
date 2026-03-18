@@ -143,7 +143,7 @@ Item {
         // optional visual debugging
         anchors.fill: parent
         color: "transparent"
-        border.color: "blue"
+        border.color: "green"
         border.width: 1
         visible: debugLines
     }

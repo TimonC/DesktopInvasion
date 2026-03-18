@@ -6,7 +6,7 @@
 #include <QGuiApplication>
 
 Player& getPlayer();
-QPoint screenSize();
-static bool DEBUG = true;
+QRect screenSize();
+static bool DEBUG = false;
 
 #endif

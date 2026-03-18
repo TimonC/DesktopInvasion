@@ -9,8 +9,7 @@ Player& getPlayer() {
 }
 
 
-QPoint screenSize(){
-    static QPoint screenSize = QPoint(QGuiApplication::primaryScreen()->geometry().width(), QGuiApplication::primaryScreen()->geometry().height());
-    return screenSize;
+QRect screenSize(){
+    static QRect availableScreen = QGuiApplication::primaryScreen()->availableGeometry();
+    return availableScreen;
 }
-

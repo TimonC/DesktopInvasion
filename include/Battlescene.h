@@ -22,8 +22,9 @@ protected:
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent*  event) override;
 private:
+    QPoint m_cornerSize;
     bool m_dragging = false;
-    void drag(QPoint delta);
+    void drag(QPoint& delta);
     Pokemon* m_chosen;
     Pokemon* m_opp;
     QPoint m_origin;
