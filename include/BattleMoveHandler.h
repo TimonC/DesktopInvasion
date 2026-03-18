@@ -169,8 +169,8 @@ private:
     int ms_effectivenessText = 800;
     int ms_drainEffectText = 800;
     int ms_catchStart = 1000;
-    int ms_ballUsed = 800;
-    int ms_failCatch = 1000;
+    int ms_ballUsed = 400;
+    int ms_failCatch = 800;
     int ms_successCatch = 800;
 };
 
