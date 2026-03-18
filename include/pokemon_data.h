@@ -2,19 +2,19 @@
 #define POKEMON_DATA_H
 
 struct PokemonInfo {
-    int pokedexId;
-    int spriteId;
-    int generation;
+    const int pokedexId;
+    const int spriteId;
+    const int generation;
     const char* name;
 };
 
 struct SpriteInfo{
-    int spriteId;
-    int generation;
-    int width;
-    int height;
-    int xOffset;
-    int yOffset;
+    const int spriteId;
+    const int generation;
+    const int width;
+    const int height;
+    const int xOffset;
+    const int yOffset;
 };
 
 extern const PokemonInfo kPokemonList[];
