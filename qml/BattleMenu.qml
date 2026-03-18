@@ -693,8 +693,8 @@ Rectangle {
                         border.width: root.borderWidth
 
                         gradient: Gradient {
-                            GradientStop { position: 0; color: PokeColor.lighter("blue") }
-                            GradientStop { position: 1; color: PokeColor.darker("blue") }
+                            GradientStop { position: 0; color: PokeColor.lighter(root.runButtonColor) }
+                            GradientStop { position: 1; color: PokeColor.darker(root.runButtonColor) }
                         }
 
                         Text {
