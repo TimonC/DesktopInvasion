@@ -510,11 +510,11 @@ Item {
         var pokeballWidth = pokeBallOpponent.width
         var pokeballHeight = pokeBallOpponent.height
 
-        var x1 = sprite.x + (sprite.width / 2) - (pokeballWidth / 2)
+        var x1 = sprite.x + (sprite.width / 2) - (pokeballWidth/2)
         var x0 = x1 + (sprite.direction == 3 ? -sprite.width : sprite.width)
 
-        var y0 = Math.max(pokeballHeight, sprite.y)
-        var y1 = sprite.y + sprite.height/2 - pokeballHeight/2
+        var y0 = Math.max(pokeballHeight/2, sprite.y - pokeballHeight)
+        var y1 = sprite.y + sprite.height/2 - pokeballHeight
 
         var groundY = sprite.y + sprite.height - pokeballHeight
 
