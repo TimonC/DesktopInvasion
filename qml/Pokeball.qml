@@ -273,7 +273,7 @@ Item {
             PropertyAnimation {
                 target: pokeballSprite
                 property: "y"
-                to: root.y0 + 32 * root.scaleFactor
+                to: root.y1
                 duration: root.throwDuration / 2
                 easing.type: Easing.InQuad
             }

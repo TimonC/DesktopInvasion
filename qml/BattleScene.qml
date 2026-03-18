@@ -188,7 +188,11 @@ Item {
         }
         onPokemonInsideBall:{
             pokeBallOpponent.circleShrink()
-            opponent.visible=false
+            opponent.visible =  false
+            battleMenu.visible = false
+        }
+        onBallOpened:{
+            battleMenu.visible = true
         }
     }
 
@@ -232,6 +236,7 @@ Item {
                 }else{
                     root.signalToStartActionRound(battleMenu.selectedIndex, "Switch");
                 }
+                battleMenu.visible = true
             }
 
             pokeBallPlayer.onPokemonInsideBall.connect(root.pokemonInsideBallConnection)
@@ -502,8 +507,8 @@ Item {
 
         var x0 = x1 + (sprite.direction == 1 ? -sprite.width : sprite.width)
 
+        var y0 = sprite.y - pokeballHeight
         var y1 = sprite.y + sprite.height - pokeballHeight
-        var y0 = sprite.y - pokeballHeight*4
 
         y0 = Math.max(pokeballHeight/2, y0)
         y1 = Math.max(pokeballHeight/2, y1)
