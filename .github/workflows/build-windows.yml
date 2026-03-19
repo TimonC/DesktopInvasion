@@ -67,7 +67,6 @@ jobs:
 
         Get-ChildItem $outputDir | Select-Object Name, Length
 
-        Compress-Archive -Path "$outputDir\*" -DestinationPath DesktopInvasion-Windows.zip -Force
 
     - name: Smoke test
       shell: powershell
@@ -81,7 +80,7 @@ jobs:
           exit 1
         }
 
-        $env:CI_SMOKE = "1"
+        [System.Environment]::SetEnvironmentVariable("CI_SMOKE", "1", "Process")
         $proc = Start-Process -FilePath $exe -PassThru -NoNewWindow
 
         Start-Sleep -Seconds 5
@@ -106,4 +105,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: DesktopInvasion-Windows
-        path: output/DesktopInvasion-Windows
+        path: output/DesktopInvasion-Windows/
