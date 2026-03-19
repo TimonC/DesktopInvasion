@@ -48,7 +48,6 @@ jobs:
         arch: 'win64_mingw'
         cache: true
 
-    # Configure CMake
     - name: Configure CMake
       run: cmake -B build -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
       shell: bash
@@ -68,7 +67,6 @@ jobs:
       run: |
         $outputDir = "output/DesktopInvasion-Windows"
         New-Item -ItemType Directory -Force -Path $outputDir
-
         $exePath = "build/bin/DesktopInvasion.exe"
         if (Test-Path $exePath) {
           Copy-Item $exePath $outputDir/
@@ -77,13 +75,11 @@ jobs:
           Get-ChildItem -Path build -Recurse
           exit 1
         }
-
-        windeployqt.exe --release --compiler-runtime --verbose 2 --qmldir qml --sql $outputDir/DesktopInvasion.exe
+        windeployqt.exe --release --compiler-runtime --verbose 2 --qmldir qml --sqldrivers $outputDir/DesktopInvasion.exe
         Compress-Archive -Path "$outputDir\*" -DestinationPath DesktopInvasion-Windows.zip -Force
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: DesktopInvasion-Windows
-        path: DesktopInvasion-Windows.zipname: Build Windows (MinGW)
-
+        path: DesktopInvasion-Windows.zip
