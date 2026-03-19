@@ -47,8 +47,9 @@ jobs:
           exit 1
         }
 
+        $qtBin = Get-ChildItem "C:\Qt" -Recurse -Filter "windeployqt6.exe" -ErrorAction SilentlyContinue | Select-Object -First 1 | Split-Path
+        Write-Host "Found windeployqt6 at: $qtBin"
         & "$qtBin\windeployqt6.exe" --release --compiler-runtime --verbose 2 --qmldir "$pwd\qml" "$pwd\$outputDir\DesktopInvasion.exe"
-
         Write-Host "Final output directory contents:"
         Get-ChildItem $outputDir | Select-Object Name
 
