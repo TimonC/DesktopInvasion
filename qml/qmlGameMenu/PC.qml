@@ -70,9 +70,9 @@ Item {
     property int   displayedPokemonBox:  -1
 
     signal activateSwapMode()
-    signal display(var pcPos)
+    signal display(var pcPos, bool shouldJump)
 
-    function _display(pcPos) {
+    function _display(pcPos, shouldJump) {
         if (root.displayedPokemonSlot) root.displayedPokemonSlot.displayed = false
         root.displayedPokemonSlot = (pcPos[0] === -1)
             ? partyRepeater.itemAt(pcPos[1])
@@ -80,7 +80,7 @@ Item {
         root.displayedPokemonSlot.displayed = true
         root.displayedPokemonBox = pcPos[0]
         root.displayedPokemonIndex = pcPos[1]
-        display(pcPos)
+        display(pcPos, shouldJump)
     }
 
     function toggleSwapMode() {
@@ -431,7 +431,7 @@ Item {
                 if (root.inSwapMode) {
                     if (root.swapSource === null) {
                         root.swapSource = pokemonSlot.pcPos
-                        if (pokemonSlot.iconVisible) root._display(pokemonSlot.pcPos)
+                        if (pokemonSlot.iconVisible) root._display(pokemonSlot.pcPos, true)
                         else                         root.toggleSwapMode()
                         return
                     } else {
@@ -448,7 +448,7 @@ Item {
                             }
                             root._executeSwap(root.swapSource, pokemonSlot.pcPos)
                             root.swapRequested(root.swapSource, pokemonSlot.pcPos)
-                            root._display(pokemonSlot.pcPos)
+                            root._display(pokemonSlot.pcPos, true)
                             if (joinParty) {
                                 for (var i = root.swapSource[1]; i < root.freePartySlot; i++) {
                                     root._executeSwap([-1, i], [-1, i + 1])
@@ -461,7 +461,7 @@ Item {
                     }
                 }
                 if (!pokemonSlot.iconVisible) return
-                root._display(pokemonSlot.pcPos)
+                root._display(pokemonSlot.pcPos, true)
             }
         }
     }

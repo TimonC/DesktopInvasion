@@ -84,7 +84,7 @@ Rectangle {
             var map = {}
             for (var i = 0; i < data.length; i++) map[data[i].slot] = data[i]
             partyPokes = map
-            if(displayFirst) pc._display([-1, 0])
+            if(displayFirst) pc._display([-1, 0], false)
         }
 
         function onBoxDataReady(boxIndex, data) {
@@ -116,7 +116,7 @@ Rectangle {
             boxPokes   = newBoxes
         }
 
-        function onDisplay(pcPos) {
+        function onDisplay(pcPos, shouldJump) {
             var poke = null
             if (pcPos[0] === -1 && partyPokes[pcPos[1]])
                 poke = partyPokes[pcPos[1]]
@@ -133,6 +133,8 @@ Rectangle {
                 pv.frameWidth  = poke.isBig ? 64 : 32
                 pv.frameHeight = poke.isBig ? 64 : 32
                 pv.scaleFactor = poke.isBig ? root.iconScaleForBig : root.iconScale
+
+                if(shouldJump) pv.spriteJump()
             }
         }
     }
@@ -300,6 +302,6 @@ Rectangle {
     }
     function goToDefaultMenu(){
         root.menuState = "default"
-        pc._display([pc.displayedPokemonBox, pc.displayedPokemonIndex])
+        pc._display([pc.displayedPokemonBox, pc.displayedPokemonIndex], false)
     }
 }

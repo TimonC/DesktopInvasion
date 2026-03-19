@@ -41,6 +41,12 @@ Item {
 
     readonly property real innerH: height - margin * 2
 
+    function spriteJump(){
+        if (!sprite.isJumping) {
+            sprite.isJumping = true
+            jumpAnim.start()
+        }
+    }
 
     Item {
         anchors.centerIn: parent
@@ -90,12 +96,7 @@ Item {
                         MouseArea {
                             anchors.fill: parent
                             cursorShape:  undefined
-                            onClicked: {
-                                if (!sprite.isJumping) {
-                                    sprite.isJumping = true
-                                    jumpAnim.start()
-                                }
-                            }
+                            onClicked: pokeView.spriteJump()
                         }
 
                         SequentialAnimation {
