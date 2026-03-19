@@ -64,25 +64,20 @@ jobs:
         $exePath = "build/bin/DesktopInvasion.exe"
         if (Test-Path $exePath) {
           Copy-Item $exePath output/DesktopInvasion-Windows/
-          Write-Host "Copied executable from $exePath"
         } else {
           Write-Host "Executable not found at $exePath"
           Get-ChildItem -Path build -Recurse
           exit 1
         }
-        windeployqt.exe --release --qmldir qml output/DesktopInvasion-Windows/DesktopInvasion.exe
+        windeployqt.exe --release --qmldir qml --sql output/DesktopInvasion-Windows/DesktopInvasion.exe
         $dlls = @("libstdc++-6.dll", "libgcc_s_seh-1.dll", "libwinpthread-1.dll")
         foreach ($dll in $dlls) {
           $dllPath = & g++ -print-file-name=$dll 2>$null
           if (Test-Path $dllPath) {
             Copy-Item $dllPath output/DesktopInvasion-Windows/
-            Write-Host "Copied $dll"
-          } else {
-            Write-Host "Warning: $dll not found"
           }
         }
-        Compress-Archive -Path output\DesktopInvasion-Windows -DestinationPath DesktopInvasion-Windows.zip -Force
-        Write-Host "Package created: DesktopInvasion-Windows.zip"
+        Compress-Archive -Path output\DesktopInvasion-Windows\* -DestinationPath DesktopInvasion-Windows.zip -Force
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
