@@ -22,10 +22,10 @@ namespace Globals {
     void animationSpeed(float value) { s_speed = value; }
 
     int encounterLvlLow(){ return s_encounter_level_low;}
-    void encounterLvlLow(float value) { s_encounter_level_low = value;}
+    void encounterLvlLow(int value) { s_encounter_level_low = value;}
 
     int encounterLvlHigh() { return s_encounter_level_high;}
-    void encounterLvlHigh(float value) { s_encounter_level_high = value;}
+    void encounterLvlHigh(int value) { s_encounter_level_high = value;}
 
     bool expShare() { return s_exp_share;}
     void expShare(bool value) { s_exp_share = value; }

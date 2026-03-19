@@ -15,10 +15,10 @@ namespace Globals {
     void animationSpeed(float value);
 
     int encounterLvlLow();
-    void encounterLvlLow(float value);
+    void encounterLvlLow(int value);
 
     int encounterLvlHigh();
-    void encounterLvlHigh(float value);
+    void encounterLvlHigh(int value);
 
     bool expShare();
     void expShare(bool value);;
