@@ -35,11 +35,6 @@ Game::Game(QWindow* parent)
 
     initMenu();
     m_spawnTimer->start();
-    /* m_spawnTimer->stop(); */
-    /* QTimer::singleShot(100, this, [this](){ */
-    /*    handleMenuOpen(); */
-    /* }); */
-
 }
 
 Game::~Game() {
@@ -49,8 +44,8 @@ Game::~Game() {
     disconnect(m_trayIcon,   nullptr, this, nullptr);
     disconnect(m_spawnTimer, nullptr, this, nullptr);
 
-    if(m_menu){
-        disconnect(m_menu,       nullptr, this, nullptr);
+    if (m_menu) {
+        disconnect(m_menu, nullptr, this, nullptr);
         delete m_menu;
         m_menu = nullptr;
     }
@@ -61,105 +56,92 @@ Game::~Game() {
         delete m_activeBattle;
         m_activeBattle = nullptr;
     }
+
     if (m_wildPokemon) {
         disconnect(m_wildPokemon, nullptr, this, nullptr);
         disconnect(this, nullptr, m_wildPokemon, nullptr);
         delete m_wildPokemon;
         m_wildPokemon = nullptr;
     }
-
 }
 
-void Game::initMenu(){
+void Game::initMenu() {
     m_menu = new GameMenu();
     Defaults d = m_db.loadDefaults();
     m_menu->setDefaults(d);
-    connect(m_menu,     &GameMenu::menuClosed,              this, &Game::handleMenuClosed);
-    connect(m_menu,     &GameMenu::preloadBoxRequested,     this, &Game::handleMenuPreloadBox);
-    connect(m_menu,     &GameMenu::swapRequested,              this, &Game::handlePCSwap);
-    connect(m_menu,     &GameMenu::nameChangeRequested,              this, &Game::handleNameChange);
-    connect(m_menu,     &GameMenu::moveChangeRequested,              this, &Game::handleMoveChange);
+    connect(m_menu, &GameMenu::menuClosed,          this, &Game::handleMenuClosed);
+    connect(m_menu, &GameMenu::preloadBoxRequested,  this, &Game::handleMenuPreloadBox);
+    connect(m_menu, &GameMenu::swapRequested,        this, &Game::handlePCSwap);
+    connect(m_menu, &GameMenu::nameChangeRequested,  this, &Game::handleNameChange);
+    connect(m_menu, &GameMenu::moveChangeRequested,  this, &Game::handleMoveChange);
 }
 
-// --------------------------------------------------------------------------
-// Menu <-> DB bridge
-// --------------------------------------------------------------------------
-QVariantMap Game::pokemonToMenuState(int slot, const PokemonState &p){
+QVariantMap Game::pokemonToMenuState(int slot, const PokemonState& p) {
     QVariantMap entry;
     entry["slot"]   = slot;
-    entry["iconId"] = p.pokedex_id-1;
-    entry["name"] = QString::fromStdString(p.name);
-    entry["level"] = p.lvl;
+    entry["iconId"] = p.pokedex_id - 1;
+    entry["name"]   = QString::fromStdString(p.name);
+    entry["level"]  = p.lvl;
     entry["nature"] = QString::fromStdString(PokeTypes::natureToString(p.nature));
 
     const AssetInfo* info = Lookup::getSpriteInfo(p.pokedex_id);
     entry["rowId"] = info->rowId;
     entry["isBig"] = info->spriteSheet == SpriteSheet::Big;
 
-    const Poke *poke = Lookup::getPoke(p.pokedex_id);
+    const Poke* poke = Lookup::getPoke(p.pokedex_id);
     auto stats = PokeMath::calculatePokeStats(p.lvl, poke->base_stats, PokeTypes::getNatureMultipliers(p.nature));
     QVariantList statsList;
-    for (int value : stats) {
+    for (int value : stats)
         statsList.append(value);
-    }
-    entry["pokeName"] = QString::fromStdString(poke->name);
-    entry["type1"] = QString::fromStdString(PokeTypes::typeToString(poke->types[0]));
-    entry["type2"] = QString::fromStdString(PokeTypes::typeToString(poke->types[1]));
+
+    entry["pokeName"]   = QString::fromStdString(poke->name);
+    entry["type1"]      = QString::fromStdString(PokeTypes::typeToString(poke->types[0]));
+    entry["type2"]      = QString::fromStdString(PokeTypes::typeToString(poke->types[1]));
     entry["flavorText"] = Lookup::getRandomFlavorText(p.pokedex_id, m_rng);
-    entry["stats"] = statsList;
+    entry["stats"]      = statsList;
 
-    for(int eligible = 0; eligible < poke->eligible_evolve_count; eligible++){
-        if(p.lvl >= poke->eligible_evolves[eligible].level){
-             /* const Pokemontate &eligibleState = p; TODO make copy constructor for pokemonstate */
-             /* entry["evolves"] = {pokemonToMenuState(slot, eligibleState)}; */
-        }
-    }
-
-    QVariantList eligibleMoves;
     struct EligibleEntry { int level; int move_id; };
     std::vector<EligibleEntry> eligible;
     eligible.reserve(poke->eligible_move_count);
-
     for (int i = 0; i < poke->eligible_move_count; i++) {
         if (p.lvl >= poke->eligible_moves[i].level)
             eligible.push_back({ poke->eligible_moves[i].level, poke->eligible_moves[i].move_id });
     }
-
     std::sort(eligible.begin(), eligible.end(),
         [](const EligibleEntry& a, const EligibleEntry& b){ return a.level > b.level; });
 
+    QVariantList eligibleMoves;
     for (const auto& e : eligible) {
-        const Move* _move = Lookup::getMove(e.move_id);
+        const Move* mv = Lookup::getMove(e.move_id);
+        std::string name = mv->name;
+        if (name.length() > 10)
+            name.erase(std::remove(name.begin(), name.end(), '-'), name.end());
         QVariantMap moveData;
         moveData["id"]       = e.move_id;
-        std::string name = _move->name;
-        if (name.length() > 10) {
-            name.erase(std::remove(name.begin(), name.end(), '-'), name.end());
-        }
         moveData["name"]     = QString::fromStdString(name);
-        moveData["type"]     = QString::fromStdString(PokeTypes::typeToString(_move->type));
-        moveData["power"]    = _move->power;
-        moveData["accuracy"] = _move->accuracy;
+        moveData["type"]     = QString::fromStdString(PokeTypes::typeToString(mv->type));
+        moveData["power"]    = mv->power;
+        moveData["accuracy"] = mv->accuracy;
         eligibleMoves.append(moveData);
     }
     entry["eligibleMoves"] = eligibleMoves;
 
     QVariantList moves;
-    for(int moveSlot = 0; moveSlot < 4; moveSlot++) {
-        const Move* _move = Lookup::getMove(p.moves[moveSlot]);
-        QVariantMap moveData;
-        std::string name = _move->name;
-        if (name.length() > 10) {
+    for (int moveSlot = 0; moveSlot < 4; moveSlot++) {
+        const Move* mv = Lookup::getMove(p.moves[moveSlot]);
+        std::string name = mv->name;
+        if (name.length() > 10)
             name.erase(std::remove(name.begin(), name.end(), '-'), name.end());
-        }
+        QVariantMap moveData;
         moveData["name"]     = QString::fromStdString(name);
-        moveData["type"] = QString::fromStdString(PokeTypes::typeToString(_move->type));
-        moveData["flavor"] = QString::fromStdString(_move->flavor_text);
-        moveData["power"] = _move->power;
-        moveData["accuracy"] = _move->accuracy;
+        moveData["type"]     = QString::fromStdString(PokeTypes::typeToString(mv->type));
+        moveData["flavor"]   = QString::fromStdString(mv->flavor_text);
+        moveData["power"]    = mv->power;
+        moveData["accuracy"] = mv->accuracy;
         moves.append(moveData);
     }
     entry["moves"] = moves;
+
     return entry;
 }
 
@@ -169,7 +151,7 @@ QVariantList Game::partyToVariantList() {
     for (int slot = 0; slot < PARTY_SIZE; ++slot) {
         const PokemonState& p = party[slot];
         if (p.empty()) continue;
-        list.append(pokemonToMenuState(slot,p));
+        list.append(pokemonToMenuState(slot, p));
     }
     return list;
 }
@@ -195,31 +177,28 @@ void Game::handleMenuPreloadBox(int boxIndex) {
     pushBoxToMenu(boxIndex);
 }
 
-void Game::handlePCSwap(int placex, int posx, int placey, int posy){
+void Game::handlePCSwap(int placex, int posx, int placey, int posy) {
     m_db.swapByPos(placex, posx, placey, posy);
 }
 
-void Game::handleNameChange(int placex, int posx, QString name){
+void Game::handleNameChange(int placex, int posx, QString name) {
     m_db.renamePokemon(placex, posx, name.toStdString());
-    m_db.commitMenuSession();
-    if(placex==-1){
+    if (placex == -1) {
         m_menu->loadParty(partyToVariantList(), false);
-    }else{
+    } else {
         pushBoxToMenu(placex);
-    }
-    m_menu->loadParty(partyToVariantList(), false);
-    m_db.beginMenuSession();
-}
-void Game::handleMoveChange(int placex, int posx, int moveSlot, int moveId){
-    m_db.setPokemonMove(placex, posx, moveSlot, moveId);
-    m_db.commitMenuSession();
-    if(placex==-1){
         m_menu->loadParty(partyToVariantList(), false);
-    }else{
+    }
+}
+
+void Game::handleMoveChange(int placex, int posx, int moveSlot, int moveId) {
+    m_db.setPokemonMove(placex, posx, moveSlot, moveId);
+    if (placex == -1) {
+        m_menu->loadParty(partyToVariantList(), false);
+    } else {
         pushBoxToMenu(placex);
         m_menu->showBox(placex);
     }
-    m_db.beginMenuSession();
 }
 
 void Game::handleMenuOpen() {
@@ -232,31 +211,28 @@ void Game::handleMenuOpen() {
 
     m_menu->activate();
 
-    // Push party and bootstrap boxes
     m_menu->loadParty(partyToVariantList(), true);
     pushBoxToMenu(0);
     pushBoxToMenu(1);
     pushBoxToMenu(98);
     m_menu->showBox(0);
 
-    m_db.beginMenuSession();
     m_trayIcon->enabled(false);
 }
 
 void Game::handleMenuClosed() {
     writeDefaults();
-    m_db.commitMenuSession();
     m_trayIcon->enabled(true);
     if (m_gameUsedToBeActive) setGameActive(true);
 }
 
-void Game::writeDefaults(){
+void Game::writeDefaults() {
     Defaults d;
-    d.scale = Globals::scale();
-    d.speed = Globals::animationSpeed();
-    d.lvlRangeUp = Globals::encounterLvlHigh();
+    d.scale        = Globals::scale();
+    d.speed        = Globals::animationSpeed();
+    d.lvlRangeUp   = Globals::encounterLvlHigh();
     d.lvlRangeDown = Globals::encounterLvlLow();
-    d.expShareOn = Globals::expShare();
+    d.expShareOn   = Globals::expShare();
     m_db.writeDefaults(d);
 }
 
@@ -450,41 +426,44 @@ void Game::createInitialPokemon() {
     make(383, "Oysterhead", 2, 14,  53,  426, 434, 5);
 }
 
-void Game::updatePartyXP(std::array<int,6> spread) {
+void Game::updatePartyXP(std::array<int, 6> spread) {
     if (!m_activeBattle) return;
 
-    std::array<int,6> lvlUps = {-1,-1,-1,-1,-1,-1};
-    auto party = m_db.party();
+    std::array<int, 6> lvlUps = {-1, -1, -1, -1, -1, -1};
 
     for (int i = 0; i < PARTY_SIZE; ++i) {
-        if (spread[i] <= 0 || party[i].empty()) continue;
+        if (spread[i] <= 0) continue;
+
+        PokemonState p = m_db.party()[i];
+        if (p.empty()) continue;
 
         int xpGain = spread[i];
-        int oldXP  = party[i].currentXP;
-        int oldLvl = party[i].lvl;
+        int oldXP  = p.currentXP;
+        int oldLvl = p.lvl;
 
-        party[i].currentXP += xpGain;
+        p.currentXP += xpGain;
 
-        while (party[i].lvl < 100) {
-            int xpNeeded = PokeMath::xpToNextLevel(party[i].lvl);
-            if (party[i].currentXP >= xpNeeded) {
-                party[i].currentXP -= xpNeeded;
-                party[i].lvl++;
-                lvlUps[i] = party[i].lvl;
+        while (p.lvl < 100) {
+            int xpNeeded = PokeMath::xpToNextLevel(p.lvl);
+            if (p.currentXP >= xpNeeded) {
+                p.currentXP -= xpNeeded;
+                p.lvl++;
+                lvlUps[i] = p.lvl;
             } else {
                 break;
             }
         }
 
         qDebug().nospace()
-            << QString::fromStdString(party[i].name)
-            << " Lvl " << oldLvl << "->" << party[i].lvl
-            << "  XP "  << oldXP  << "->" << party[i].currentXP
+            << QString::fromStdString(p.name)
+            << " Lvl " << oldLvl << "->" << p.lvl
+            << "  XP "  << oldXP  << "->" << p.currentXP
             << " (+" << xpGain << ")"
-            << "  next: " << PokeMath::xpToNextLevel(party[i].lvl);
+            << "  next: " << PokeMath::xpToNextLevel(p.lvl);
 
-        m_db.setPartySlot(i, party[i]);
+        m_db.setPartySlot(i, p);
     }
 
     m_activeBattle->showXPAndEndBattle(spread, lvlUps);
 }
+
