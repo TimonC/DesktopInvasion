@@ -56,8 +56,6 @@ jobs:
         Write-Host "Found exe: $exePath"
         Copy-Item $exePath "$outputDir\"
 
-        Write-Host "QT_ROOT_DIR: $env:QT_ROOT_DIR"
-
         windeployqt6 --release --compiler-runtime --no-translations --verbose 2 --qmldir "$pwd\qml" "$outputDir\DesktopInvasion.exe"
 
         $vcRedistDir = "${env:VCToolsRedistDir}x64\Microsoft.VC143.CRT"
@@ -76,20 +74,19 @@ jobs:
       timeout-minutes: 1
       run: |
         $exe = "output\DesktopInvasion-Windows\DesktopInvasion.exe"
+        $logFile = "output\DesktopInvasion-Windows\ci_smoke.log"
 
         if (-not (Test-Path $exe)) {
           Write-Error "Exe not found for smoke test: $exe"
           exit 1
         }
 
-        $logFile = "$env:TEMP\smoke_qt.log"
-
-        $proc = Start-Process -FilePath $exe -PassThru -NoNewWindow `
-          -Environment @{ QT_LOGGING_TO_CONSOLE = "1"; QT_FORCE_STDERR_LOGGING = "1"; QT_DEBUG_OUTPUT_FILE = $logFile }
+        $env:CI_SMOKE = "1"
+        $proc = Start-Process -FilePath $exe -PassThru -NoNewWindow
 
         Start-Sleep -Seconds 5
 
-        Write-Host "--- QT_DEBUG_OUTPUT_FILE ---"
+        Write-Host "--- ci_smoke.log ---"
         if (Test-Path $logFile) { Get-Content $logFile } else { Write-Host "(no log file produced)" }
 
         if ($proc.HasExited) {
