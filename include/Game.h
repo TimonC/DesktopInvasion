@@ -6,7 +6,6 @@
 #include <GameMenu.h>
 #include <WildPokemon.h>
 #include <QObject>
-#include <QQmlApplicationEngine>
 #include <SystemTrayIcon.h>
 #include <QTimer>
 #include <QVariantList>
@@ -15,7 +14,7 @@
 class Game : public QObject {
     Q_OBJECT
 public:
-    Game(QQmlApplicationEngine* engine, QWindow* parent = nullptr);
+    Game(QWindow* parent = nullptr);
     ~Game();
 
 public slots:
@@ -30,7 +29,6 @@ private:
     void initMenu();
     std::mt19937             m_rng;
     bool                     m_gameUsedToBeActive;
-    QQmlApplicationEngine*   m_engine      = nullptr;
     GameMenu*                m_menu        = nullptr;
     SystemTrayIcon*          m_trayIcon;
     PokemonDatabase&         m_db          = PokemonDatabase::instance();

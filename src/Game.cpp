@@ -14,9 +14,8 @@
 #include <cassert>
 #include <algorithm>
 
-Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
+Game::Game(QWindow* parent)
     : QObject(parent)
-    , m_engine(engine)
     , m_menu()
     , m_trayIcon(new SystemTrayIcon(this))
     , m_spawnTimer(new QTimer(this))
@@ -44,6 +43,8 @@ Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
 }
 
 Game::~Game() {
+    qDebug() << "Game destructor called!";
+
     m_spawnTimer->stop();
     disconnect(m_trayIcon,   nullptr, this, nullptr);
     disconnect(m_spawnTimer, nullptr, this, nullptr);
