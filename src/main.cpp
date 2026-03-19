@@ -78,13 +78,15 @@ int main(int argc, char *argv[]) {
     }
 
     QString dbDir;
-    QString appDirPath = qEnvironmentVariable("APPDIR");
 
-    if (!appDirPath.isEmpty()) {
-        dbDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-    } else {
-        dbDir = QCoreApplication::applicationDirPath();
-    }
+#ifdef Q_OS_WIN
+    dbDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+#else
+    QString appDirPath = qEnvironmentVariable("APPDIR");
+    dbDir = appDirPath.isEmpty()
+        ? QCoreApplication::applicationDirPath()
+        : QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+#endif
 
     QDir dir(dbDir);
     if (!dir.exists()) {

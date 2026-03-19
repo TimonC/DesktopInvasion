@@ -28,7 +28,7 @@ set_target_properties(DesktopInvasion PROPERTIES
 
 # Windows-specific settings
 if(WIN32)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mwindows")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
     set(ICON_FILE "${CMAKE_SOURCE_DIR}/assets/icon/icon.ico")
     if(EXISTS ${ICON_FILE})
         set(RC_FILE "${CMAKE_CURRENT_BINARY_DIR}/app.rc")
