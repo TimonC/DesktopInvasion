@@ -75,7 +75,7 @@ jobs:
           Get-ChildItem -Path build -Recurse
           exit 1
         }
-        windeployqt.exe --release --compiler-runtime --verbose 2 --qmldir qml --sqldrivers $outputDir/DesktopInvasion.exe
+        windeployqt.exe --release --compiler-runtime --verbose 2 --qmldir qml $outputDir/DesktopInvasion.exe
         Compress-Archive -Path "$outputDir\*" -DestinationPath DesktopInvasion-Windows.zip -Force
 
     - name: Upload artifact
