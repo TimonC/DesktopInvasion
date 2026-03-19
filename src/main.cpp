@@ -14,16 +14,8 @@
 #include <QQmlContext>
 #include <QTimer>
 
-#ifdef Q_OS_WIN
-#include <windows.h>
-#endif
 
 int main(int argc, char *argv[]) {
-#ifdef Q_OS_WIN
-    AllocConsole();
-    freopen("CONOUT$", "w", stdout);
-    freopen("CONOUT$", "w", stderr);
-#endif
 
     const char* valgrindMode = std::getenv("VALGRIND_MODE");
     bool isValgrindMode = (valgrindMode && strcmp(valgrindMode, "1") == 0);
@@ -90,20 +82,8 @@ int main(int argc, char *argv[]) {
 
     if (!appDirPath.isEmpty()) {
         dbDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-        qDebug() << "Running from AppImage, using data directory:" << dbDir;
     } else {
-#ifdef Q_OS_WIN
-        if (QCoreApplication::applicationFilePath().contains("build", Qt::CaseInsensitive)) {
-            dbDir = QCoreApplication::applicationDirPath();
-            qDebug() << "Windows dev build, using local path:" << dbDir;
-        } else {
-            dbDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-            qDebug() << "Windows installed, using AppData:" << dbDir;
-        }
-#else
         dbDir = QCoreApplication::applicationDirPath();
-        qDebug() << "Development build, using local path:" << dbDir;
-#endif
     }
 
     QDir dir(dbDir);
