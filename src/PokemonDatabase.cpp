@@ -30,7 +30,7 @@ PokemonDatabase& PokemonDatabase::instance() {
 
 PokemonDatabase::~PokemonDatabase() { shutdown(); }
 
-bool PokemonDatabase::initialize(const std::string& dbPath, int save_id) {
+bool PokemonDatabase::initialize(const QString& dbPath, int save_id) {
     if (m_initialized) return true;
 
     if (!QSqlDatabase::isDriverAvailable("QSQLITE")) {
@@ -38,18 +38,9 @@ bool PokemonDatabase::initialize(const std::string& dbPath, int save_id) {
         return false;
     }
 
-    QString path;
-    if (dbPath.empty()) {
-        QString dir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-        if (!QDir().mkpath(dir)) {
-            DB_ERR("Failed to create app data directory:" << dir);
-            return false;
-        }
-        path = dir + "/pokemon.db";
-    } else {
-        path = QString::fromStdString(dbPath);
-    }
-    m_dbPath = path;
+    QString path = dbPath.isEmpty()
+        ? QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/pokemon.db"
+        : dbPath;
 
     QDir parentDir = QFileInfo(path).dir();
     if (!parentDir.exists() && !parentDir.mkpath(".")) {
@@ -57,7 +48,7 @@ bool PokemonDatabase::initialize(const std::string& dbPath, int save_id) {
         return false;
     }
     if (!QFileInfo(parentDir.path()).isWritable()) {
-        DB_ERR("DB dir not writable:" << parentDir.path());
+        DB_ERR("Database directory not writable:" << parentDir.path());
         return false;
     }
 
@@ -74,12 +65,14 @@ bool PokemonDatabase::initialize(const std::string& dbPath, int save_id) {
     }
 
     DB_LOG("Opened at" << path);
+    m_dbPath = path;
     m_saveId = save_id;
     m_initialized = true;
 
     if (!createTables())    { DB_ERR("Failed to create tables");          shutdown(); return false; }
     if (!initFixedSlots())  { DB_ERR("Failed to initialize fixed slots"); shutdown(); return false; }
     if (!loadWildAndParty()) { DB_ERR("Failed to load wild and party");    shutdown(); return false; }
+
     return true;
 }
 
