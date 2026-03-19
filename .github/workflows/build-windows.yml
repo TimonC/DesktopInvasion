@@ -47,9 +47,8 @@ jobs:
           exit 1
         }
 
-        windeployqt.exe --release --verbose 2 --qmldir qml $outputDir/DesktopInvasion.exe
+        windeployqt.exe --release --compiler-runtime --verbose 2 --qmldir qml $outputDir/DesktopInvasion.exe
 
-        # Copy Qt OpenGL DLLs
         $qtBin = (Get-Command windeployqt.exe).Source | Split-Path
         foreach ($dll in @("libEGL.dll", "libGLESv2.dll", "opengl32sw.dll", "d3dcompiler_47.dll")) {
           if (Test-Path "$qtBin\$dll") {
