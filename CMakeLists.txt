@@ -6,22 +6,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
-set(BUILD_SHARED_LIBS ON)
+# set(BUILD_SHARED_LIBS OFF)
 
-# Find Qt6
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick Widgets Sql)
 
-# Add Qt resources
 qt6_add_resources(RESOURCES_RCC resources.qrc)
 
-# Source files
 file(GLOB_RECURSE ALL_SRC CONFIGURE_DEPENDS src/*.cpp)
 file(GLOB_RECURSE ALL_HEADERS CONFIGURE_DEPENDS include/*.h src/*.h)
 
-# Create executable FIRST
 add_executable(DesktopInvasion ${ALL_SRC} ${ALL_HEADERS} ${RESOURCES_RCC})
 
-# THEN set properties on the existing target
 set_target_properties(DesktopInvasion PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
@@ -48,7 +43,6 @@ if(WIN32)
     endif()
 endif()
 
-# macOS-specific settings (now after target exists)
 if(APPLE)
     set_target_properties(DesktopInvasion PROPERTIES
         MACOSX_BUNDLE TRUE
@@ -69,7 +63,6 @@ if(APPLE)
     endif()
 endif()
 
-# Precompile headers
 target_precompile_headers(DesktopInvasion PRIVATE
     <QtCore>
     <QtGui>
@@ -78,13 +71,11 @@ target_precompile_headers(DesktopInvasion PRIVATE
     <QtSql>
 )
 
-# Include directories
 target_include_directories(DesktopInvasion PRIVATE
     ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-# Link Qt libraries
 target_link_libraries(DesktopInvasion PRIVATE
     Qt6::Core
     Qt6::Gui
@@ -93,7 +84,6 @@ target_link_libraries(DesktopInvasion PRIVATE
     Qt6::Sql
 )
 
-# Print build configuration
 message(STATUS "Building DesktopInvasion")
 message(STATUS "  Qt version: ${Qt6_VERSION}")
 message(STATUS "  Build type: ${CMAKE_BUILD_TYPE}")
