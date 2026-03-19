@@ -82,8 +82,17 @@ jobs:
           exit 1
         }
 
-        $proc = Start-Process -FilePath $exe -PassThru
+        $stdoutFile = "$env:TEMP\smoke_stdout.txt"
+        $stderrFile = "$env:TEMP\smoke_stderr.txt"
+
+        $proc = Start-Process -FilePath $exe -PassThru -NoNewWindow -RedirectStandardOutput $stdoutFile -RedirectStandardError $stderrFile
+
         Start-Sleep -Seconds 5
+
+        Write-Host "--- stdout ---"
+        if (Test-Path $stdoutFile) { Get-Content $stdoutFile }
+        Write-Host "--- stderr ---"
+        if (Test-Path $stderrFile) { Get-Content $stderrFile }
 
         if ($proc.HasExited) {
           $code = $proc.ExitCode
