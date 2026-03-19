@@ -41,9 +41,7 @@ jobs:
           exit 1
         fi
         echo "Found app at: $APP_PATH"
-
         macdeployqt "$APP_PATH" -qmldir=qml -verbose=2
-
         hdiutil create -volname "DesktopInvasion" \
           -srcfolder "$APP_PATH" \
           -ov -format UDZO \
@@ -59,29 +57,30 @@ jobs:
         fi
 
         echo "Smoke testing: $APP_PATH"
-        #
-        # We set QT_QPA_PLATFORM=offscreen so Qt doesn't hard-fail looking for a
-        # screen, then give it 5 seconds to either crash or stabilise.
 
-        QT_QPA_PLATFORM=offscreen \
-          timeout 8s "$APP_PATH/Contents/MacOS/DesktopInvasion" &
+        QT_QPA_PLATFORM=offscreen "$APP_PATH/Contents/MacOS/DesktopInvasion" &
         APP_PID=$!
+
+        { sleep 8; kill $APP_PID 2>/dev/null; } &
+        WATCHDOG_PID=$!
 
         sleep 5
 
         if kill -0 $APP_PID 2>/dev/null; then
-          echo "Smoke test passed — app ran for 5 seconds without crashing"
+          echo "Smoke test passed"
+          kill $WATCHDOG_PID 2>/dev/null || true
           kill $APP_PID
           wait $APP_PID 2>/dev/null || true
           exit 0
         else
           wait $APP_PID
           EXIT_CODE=$?
+          kill $WATCHDOG_PID 2>/dev/null || true
           if [ $EXIT_CODE -eq 0 ]; then
-            echo "Warning: app exited cleanly within 5 seconds (code 0) — check if this is expected"
+            echo "App exited with code 0 within 5 seconds"
             exit 0
           else
-            echo "App crashed on startup! Exit code: $EXIT_CODE"
+            echo "App crashed on startup. Exit code: $EXIT_CODE"
             exit 1
           fi
         fi

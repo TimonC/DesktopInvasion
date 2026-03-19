@@ -48,7 +48,7 @@ jobs:
         }
 
         if (-not $exePath) {
-          Write-Error "Executable not found! Dumping build tree:"
+          Write-Error "Executable not found!"
           Get-ChildItem -Path build -Recurse -Filter "*.exe"
           exit 1
         }
@@ -56,35 +56,20 @@ jobs:
         Write-Host "Found exe: $exePath"
         Copy-Item $exePath "$outputDir\"
 
-        # v4 sets QT_ROOT_DIR and adds bin to PATH automatically
         Write-Host "QT_ROOT_DIR: $env:QT_ROOT_DIR"
-        Write-Host "Running windeployqt6..."
 
-        windeployqt6 `
-          --release `
-          --compiler-runtime `
-          --no-translations `
-          --verbose 2 `
-          --qmldir "$pwd\qml" `
-          "$outputDir\DesktopInvasion.exe"
+        windeployqt6 --release --compiler-runtime --no-translations --verbose 2 --qmldir "$pwd\qml" "$outputDir\DesktopInvasion.exe"
 
         $vcRedistDir = "${env:VCToolsRedistDir}x64\Microsoft.VC143.CRT"
         if (Test-Path $vcRedistDir) {
-          Write-Host "Copying MSVC runtime from: $vcRedistDir"
           Get-ChildItem "$vcRedistDir\*.dll" | ForEach-Object {
             Copy-Item $_.FullName "$outputDir\" -Force
-            Write-Host "  Copied: $($_.Name)"
           }
-        } else {
-          Write-Warning "VCToolsRedistDir not found at expected path: $vcRedistDir"
-          Write-Warning "windeployqt6 --compiler-runtime should have handled this, but verify the zip contents"
         }
 
-        Write-Host "`nFinal output directory contents:"
         Get-ChildItem $outputDir | Select-Object Name, Length
 
         Compress-Archive -Path "$outputDir\*" -DestinationPath DesktopInvasion-Windows.zip -Force
-        Write-Host "Created DesktopInvasion-Windows.zip"
 
     - name: Smoke test
       shell: powershell
@@ -97,21 +82,19 @@ jobs:
           exit 1
         }
 
-        Write-Host "Starting app for smoke test..."
         $proc = Start-Process -FilePath $exe -PassThru
-
         Start-Sleep -Seconds 5
 
         if ($proc.HasExited) {
           $code = $proc.ExitCode
           if ($code -ne 0) {
-            Write-Error "App crashed on startup! Exit code: $code (0xc000007b = wrong-arch DLL)"
+            Write-Error "App crashed on startup. Exit code: $code"
             exit 1
           } else {
-            Write-Warning "App exited with code 0 within 5 seconds — check if this is expected behaviour"
+            Write-Host "App exited with code 0 within 5 seconds"
           }
         } else {
-          Write-Host "Smoke test passed — app ran for 5 seconds without crashing"
+          Write-Host "Smoke test passed"
           $proc.Kill()
         }
 
