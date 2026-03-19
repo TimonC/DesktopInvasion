@@ -30,7 +30,10 @@ bool PokemonDatabase::initialize(const std::string& dbPath, int save_id) {
 
     if (dbPath.empty()) {
         QString dir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-        QDir().mkpath(dir);
+        if (!QDir().mkpath(dir)) {
+            DB_ERR("Failed to create app data directory:" << dir);
+            return false;
+        }
         m_dbPath = (dir + "/pokemon.db").toStdString();
     } else {
         m_dbPath = dbPath;
@@ -38,26 +41,47 @@ bool PokemonDatabase::initialize(const std::string& dbPath, int save_id) {
 
     QString qPath     = QString::fromStdString(m_dbPath);
     QDir    parentDir = QFileInfo(qPath).dir();
-    if (!parentDir.exists()) parentDir.mkpath(".");
+    if (!parentDir.exists()) {
+        if (!parentDir.mkpath(".")) {
+            DB_ERR("Failed to create database directory:" << parentDir.path());
+            return false;
+        }
+    }
     if (!QFileInfo(parentDir.path()).isWritable()) {
         DB_ERR("DB dir not writable:" << parentDir.path());
         return false;
     }
 
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName(qPath);
-    if (!db.open()) {
-        DB_ERR("Failed to open DB:" << db.lastError().text());
-        return false;
+    {
+        QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+        db.setDatabaseName(qPath);
+        if (!db.open()) {
+            DB_ERR("Failed to open DB:" << db.lastError().text());
+            QSqlDatabase::removeDatabase(QSqlDatabase::defaultConnection);
+            return false;
+        }
     }
 
     DB_LOG("Opened at" << qPath);
     m_saveId      = save_id;
     m_initialized = true;
 
-    createTables();
-    initFixedSlots();
-    loadWildAndParty();
+    // Each step depends on the previous; shut down cleanly on any failure.
+    if (!createTables()) {
+        DB_ERR("Failed to create tables");
+        shutdown();
+        return false;
+    }
+    if (!initFixedSlots()) {
+        DB_ERR("Failed to initialize fixed slots");
+        shutdown();
+        return false;
+    }
+    if (!loadWildAndParty()) {
+        DB_ERR("Failed to load wild and party");
+        shutdown();
+        return false;
+    }
     return true;
 }
 
@@ -69,18 +93,25 @@ void PokemonDatabase::shutdown() {
     m_initialized = false;
 }
 
-void PokemonDatabase::createTables() {
+bool PokemonDatabase::createTables() {
     QSqlQuery q;
+    bool success = true;
 
-    q.exec(R"(CREATE TABLE IF NOT EXISTS saves (
+    // run() executes one DDL statement, logs on failure, and folds the result
+    // into `success` — avoids the !void parse error that hits multi-line raw strings.
+    auto run = [&](const char* sql) {
+        if (!q.exec(sql)) { logQuery(q); success = false; }
+    };
+
+    run(R"(CREATE TABLE IF NOT EXISTS saves (
         save_id          INTEGER PRIMARY KEY,
         player_sprite_id INTEGER DEFAULT 0,
         name             TEXT    DEFAULT 'Player',
         current_box      INTEGER DEFAULT 0,
         unlocked_boxes   INTEGER DEFAULT 10
-    ))"); logQuery(q);
+    ))");
 
-    q.exec(R"(CREATE TABLE IF NOT EXISTS wild_slot (
+    run(R"(CREATE TABLE IF NOT EXISTS wild_slot (
         save_id       INTEGER PRIMARY KEY,
         pokedex_id    INTEGER DEFAULT 0,
         variant_id    INTEGER DEFAULT 0,
@@ -94,9 +125,9 @@ void PokemonDatabase::createTables() {
         move2         INTEGER DEFAULT 0,
         move3         INTEGER DEFAULT 0,
         FOREIGN KEY(save_id) REFERENCES saves(save_id)
-    ))"); logQuery(q);
+    ))");
 
-    q.exec(R"(CREATE TABLE IF NOT EXISTS party_slots (
+    run(R"(CREATE TABLE IF NOT EXISTS party_slots (
         save_id       INTEGER NOT NULL,
         slot          INTEGER NOT NULL,
         pokedex_id    INTEGER DEFAULT 0,
@@ -112,9 +143,9 @@ void PokemonDatabase::createTables() {
         move3         INTEGER DEFAULT 0,
         PRIMARY KEY(save_id, slot),
         FOREIGN KEY(save_id) REFERENCES saves(save_id)
-    ))"); logQuery(q);
+    ))");
 
-    q.exec(R"(CREATE TABLE IF NOT EXISTS pc_slots (
+    run(R"(CREATE TABLE IF NOT EXISTS pc_slots (
         save_id       INTEGER NOT NULL,
         box           INTEGER NOT NULL,
         slot          INTEGER NOT NULL,
@@ -131,42 +162,49 @@ void PokemonDatabase::createTables() {
         move3         INTEGER DEFAULT 0,
         PRIMARY KEY(save_id, box, slot),
         FOREIGN KEY(save_id) REFERENCES saves(save_id)
-    ))"); logQuery(q);
+    ))");
 
-    q.exec(R"(CREATE TABLE IF NOT EXISTS defaults (
-        save_id       INTEGER PRIMARY KEY,
-        scale         INTEGER DEFAULT 1,
-        speed         INTEGER DEFAULT 1,
+    run(R"(CREATE TABLE IF NOT EXISTS defaults (
+        save_id        INTEGER PRIMARY KEY,
+        scale          INTEGER DEFAULT 1,
+        speed          INTEGER DEFAULT 1,
         lvl_range_up   INTEGER DEFAULT 5,
         lvl_range_down INTEGER DEFAULT 5,
         exp_share_on   INTEGER DEFAULT 0,
         FOREIGN KEY(save_id) REFERENCES saves(save_id)
-    ))"); logQuery(q);
+    ))");
 
-    q.exec("CREATE INDEX IF NOT EXISTS idx_pc_box ON pc_slots(save_id, box)");
-    logQuery(q);
+    run("CREATE INDEX IF NOT EXISTS idx_pc_box ON pc_slots(save_id, box)");
+
+    return success;
 }
 
-void PokemonDatabase::initFixedSlots() {
+bool PokemonDatabase::initFixedSlots() {
     QSqlQuery q;
+    bool success = true;
 
     q.prepare("INSERT OR IGNORE INTO saves(save_id) VALUES(?)");
-    q.addBindValue(m_saveId); q.exec(); logQuery(q);
+    q.addBindValue(m_saveId);
+    if (!q.exec()) { logQuery(q); success = false; }
 
     q.prepare("INSERT OR IGNORE INTO wild_slot(save_id) VALUES(?)");
-    q.addBindValue(m_saveId); q.exec(); logQuery(q);
+    q.addBindValue(m_saveId);
+    if (!q.exec()) { logQuery(q); success = false; }
 
     q.prepare("INSERT OR IGNORE INTO party_slots(save_id, slot) VALUES(?, ?)");
     for (int i = 0; i < PARTY_SIZE; ++i) {
         q.addBindValue(m_saveId);
         q.addBindValue(i);
-        q.exec(); logQuery(q);
+        if (!q.exec()) { logQuery(q); success = false; }
     }
 
     q.prepare("INSERT OR IGNORE INTO defaults(save_id) VALUES(?)");
-    q.addBindValue(m_saveId); q.exec(); logQuery(q);
+    q.addBindValue(m_saveId);
+    if (!q.exec()) { logQuery(q); success = false; }
 
-    DB_LOG("Fixed slots ready for save_id=" << m_saveId);
+    if (success)
+        DB_LOG("Fixed slots ready for save_id=" << m_saveId);
+    return success;
 }
 
 PokemonState PokemonDatabase::rowToPokemon(const QSqlQuery& q) {
@@ -199,15 +237,21 @@ void PokemonDatabase::writePokemonToRow(QSqlQuery& q, const PokemonState& p) {
     q.addBindValue(p.moves[3]);
 }
 
-void PokemonDatabase::loadWildAndParty() {
+bool PokemonDatabase::loadWildAndParty() {
     QSqlQuery q;
+    bool success = true;
 
     q.prepare("SELECT * FROM wild_slot WHERE save_id=?");
     q.addBindValue(m_saveId);
-    if (q.exec() && q.next()) {
-        m_wild = rowToPokemon(q);
-        DB_LOG("Wild:" << (m_wild.empty() ? "empty" : QString::fromStdString(m_wild.name)));
-    } else { logQuery(q); }
+    if (q.exec()) {
+        if (q.next()) {
+            m_wild = rowToPokemon(q);
+            DB_LOG("Wild:" << (m_wild.empty() ? "empty" : QString::fromStdString(m_wild.name)));
+        }
+    } else {
+        logQuery(q);
+        success = false;
+    }
 
     q.prepare("SELECT * FROM party_slots WHERE save_id=? ORDER BY slot");
     q.addBindValue(m_saveId);
@@ -219,10 +263,15 @@ void PokemonDatabase::loadWildAndParty() {
             if (!m_party[slot].empty()) ++count;
         }
         DB_LOG("Party:" << count << "/ 6 slots occupied");
-    } else { logQuery(q); }
+    } else {
+        logQuery(q);
+        success = false;
+    }
+
+    return success;
 }
 
-void PokemonDatabase::dbWriteWild(const PokemonState& p) {
+bool PokemonDatabase::dbWriteWild(const PokemonState& p) {
     QSqlQuery q;
     q.prepare(R"(UPDATE wild_slot SET
         pokedex_id=?, variant_id=?, pokeball_id=?, name=?,
@@ -231,11 +280,13 @@ void PokemonDatabase::dbWriteWild(const PokemonState& p) {
         WHERE save_id=?)");
     writePokemonToRow(q, p);
     q.addBindValue(m_saveId);
-    q.exec(); logQuery(q);
-    DB_LOG("Wild ->" << (p.empty() ? "empty" : QString::fromStdString(p.name)));
+    bool ok = q.exec();
+    if (!ok) logQuery(q);
+    else     DB_LOG("Wild ->" << (p.empty() ? "empty" : QString::fromStdString(p.name)));
+    return ok;
 }
 
-void PokemonDatabase::dbWritePartySlot(int slot, const PokemonState& p) {
+bool PokemonDatabase::dbWritePartySlot(int slot, const PokemonState& p) {
     QSqlQuery q;
     q.prepare(R"(UPDATE party_slots SET
         pokedex_id=?, variant_id=?, pokeball_id=?, name=?,
@@ -245,12 +296,14 @@ void PokemonDatabase::dbWritePartySlot(int slot, const PokemonState& p) {
     writePokemonToRow(q, p);
     q.addBindValue(m_saveId);
     q.addBindValue(slot);
-    q.exec(); logQuery(q);
-    DB_LOG("Party[" << slot << "] ->" << (p.empty() ? "empty" : QString::fromStdString(p.name)));
+    bool ok = q.exec();
+    if (!ok) logQuery(q);
+    else     DB_LOG("Party[" << slot << "] ->" << (p.empty() ? "empty" : QString::fromStdString(p.name)));
+    return ok;
 }
 
-void PokemonDatabase::dbWritePCSlot(int box, int slot, const PokemonState& p) {
-    if (p.empty()) { dbDeletePCSlot(box, slot); return; }
+bool PokemonDatabase::dbWritePCSlot(int box, int slot, const PokemonState& p) {
+    if (p.empty()) return dbDeletePCSlot(box, slot);
     QSqlQuery q;
     q.prepare(R"(INSERT OR REPLACE INTO pc_slots
         (save_id, box, slot, pokedex_id, variant_id, pokeball_id, name,
@@ -260,18 +313,22 @@ void PokemonDatabase::dbWritePCSlot(int box, int slot, const PokemonState& p) {
     q.addBindValue(box);
     q.addBindValue(slot);
     writePokemonToRow(q, p);
-    q.exec(); logQuery(q);
-    DB_LOG("PC[" << box << "][" << slot << "] ->" << QString::fromStdString(p.name));
+    bool ok = q.exec();
+    if (!ok) logQuery(q);
+    else     DB_LOG("PC[" << box << "][" << slot << "] ->" << QString::fromStdString(p.name));
+    return ok;
 }
 
-void PokemonDatabase::dbDeletePCSlot(int box, int slot) {
+bool PokemonDatabase::dbDeletePCSlot(int box, int slot) {
     QSqlQuery q;
     q.prepare("DELETE FROM pc_slots WHERE save_id=? AND box=? AND slot=?");
     q.addBindValue(m_saveId);
     q.addBindValue(box);
     q.addBindValue(slot);
-    q.exec(); logQuery(q);
-    DB_LOG("PC[" << box << "][" << slot << "] -> cleared");
+    bool ok = q.exec();
+    if (!ok) logQuery(q);
+    else     DB_LOG("PC[" << box << "][" << slot << "] -> cleared");
+    return ok;
 }
 
 void PokemonDatabase::setWild(const PokemonState& p) {
@@ -302,21 +359,26 @@ int PokemonDatabase::partySize() const {
     return n;
 }
 
-void PokemonDatabase::loadBox(int box) {
-    if (m_boxCache.count(box)) return;
+bool PokemonDatabase::loadBox(int box) {
+    if (m_boxCache.count(box)) return true;
 
     std::array<PokemonState, BOX_SIZE> arr{};
     QSqlQuery q;
     q.prepare("SELECT * FROM pc_slots WHERE save_id=? AND box=?");
     q.addBindValue(m_saveId);
     q.addBindValue(box);
-    if (q.exec()) {
-        while (q.next())
-            arr[q.value("slot").toInt()] = rowToPokemon(q);
-    } else { logQuery(q); }
+    if (!q.exec()) {
+        // Do NOT cache on failure: a subsequent call should retry the load.
+        logQuery(q);
+        return false;
+    }
+
+    while (q.next())
+        arr[q.value("slot").toInt()] = rowToPokemon(q);
 
     m_boxCache[box] = arr;
     DB_LOG("PC box" << box << "loaded");
+    return true;
 }
 
 bool PokemonDatabase::isBoxLoaded(int box) const {
@@ -328,24 +390,34 @@ const std::array<PokemonState, BOX_SIZE>& PokemonDatabase::getBox(int box) const
     return m_boxCache.at(box);
 }
 
-void PokemonDatabase::setPCSlot(int box, int slot, const PokemonState& p) {
-    if (!isBoxLoaded(box)) loadBox(box);
+bool PokemonDatabase::setPCSlot(int box, int slot, const PokemonState& p) {
+    if (!isBoxLoaded(box)) {
+        if (!loadBox(box)) return false;
+    }
     m_boxCache[box][slot] = p;
-    dbWritePCSlot(box, slot, p);
+    return dbWritePCSlot(box, slot, p);
 }
 
-void PokemonDatabase::swapPCSlots(int boxA, int slotA, int boxB, int slotB) {
-    if (!isBoxLoaded(boxA)) loadBox(boxA);
-    if (!isBoxLoaded(boxB)) loadBox(boxB);
+bool PokemonDatabase::swapPCSlots(int boxA, int slotA, int boxB, int slotB) {
+    if (!isBoxLoaded(boxA)) {
+        if (!loadBox(boxA)) return false;
+    }
+    if (!isBoxLoaded(boxB)) {
+        if (!loadBox(boxB)) return false;
+    }
     std::swap(m_boxCache[boxA][slotA], m_boxCache[boxB][slotB]);
-    dbWritePCSlot(boxA, slotA, m_boxCache[boxA][slotA]);
-    dbWritePCSlot(boxB, slotB, m_boxCache[boxB][slotB]);
-    DB_LOG("PC swapped [" << boxA << "][" << slotA << "] <-> [" << boxB << "][" << slotB << "]");
+    bool ok1 = dbWritePCSlot(boxA, slotA, m_boxCache[boxA][slotA]);
+    bool ok2 = dbWritePCSlot(boxB, slotB, m_boxCache[boxB][slotB]);
+    if (ok1 && ok2) DB_LOG("PC swapped [" << boxA << "][" << slotA << "] <-> [" << boxB << "][" << slotB << "]");
+    return ok1 && ok2;
 }
 
 std::pair<int, int> PokemonDatabase::firstFreePC() {
     for (int box = 0; box < MAX_BOXES; ++box) {
-        loadBox(box);
+        if (!loadBox(box)) {
+            DB_WARN("firstFreePC: failed to load box" << box << ", skipping");
+            continue;
+        }
         for (int slot = 0; slot < BOX_SIZE; ++slot)
             if (m_boxCache[box][slot].empty()) return {box, slot};
     }
@@ -372,7 +444,10 @@ std::pair<int, int> PokemonDatabase::catchWildPokemon(int pokeball_id) {
         return {-1, -1};
     }
 
-    setPCSlot(box, slot, caught);
+    if (!setPCSlot(box, slot, caught)) {
+        DB_ERR("Failed to write caught Pokemon to PC");
+        return {-1, -1};
+    }
     clearWild();
     DB_LOG("Caught" << QString::fromStdString(caught.name) << "-> PC[" << box << "][" << slot << "]");
     return {box, slot};
@@ -390,6 +465,7 @@ GameState PokemonDatabase::loadGameState() {
         state.current_box      = q.value("current_box").toInt();
         state.unlocked_boxes   = q.value("unlocked_boxes").toInt();
     } else {
+        logQuery(q);
         saveGameState(state);
     }
     return state;
@@ -405,87 +481,112 @@ bool PokemonDatabase::saveGameState(const GameState& state) {
     q.addBindValue(QString::fromStdString(state.name));
     q.addBindValue(state.current_box);
     q.addBindValue(state.unlocked_boxes);
-    q.exec(); logQuery(q);
-    DB_LOG("GameState saved (save_id=" << state.save_id << ")");
-    return !q.lastError().isValid();
+    bool ok = q.exec();
+    if (!ok) logQuery(q);
+    else     DB_LOG("GameState saved (save_id=" << state.save_id << ")");
+    return ok;
 }
 
-void PokemonDatabase::beginMenuSession() {
+bool PokemonDatabase::beginMenuSession() {
     assert(!m_inMenuSession);
-    QSqlDatabase::database().transaction();
+    if (!QSqlDatabase::database().transaction()) {
+        DB_ERR("Failed to begin transaction");
+        return false;
+    }
     m_inMenuSession = true;
     DB_LOG("Menu session started");
+    return true;
 }
 
-void PokemonDatabase::swapByPos(int boxX, int slotX, int boxY, int slotY) {
+bool PokemonDatabase::swapByPos(int boxX, int slotX, int boxY, int slotY) {
     assert(m_inMenuSession);
-    if (boxX == boxY && slotX == slotY) return;
+    if (boxX == boxY && slotX == slotY) return true;
 
     const bool xIsParty = (boxX == -1);
     const bool yIsParty = (boxY == -1);
 
     if (xIsParty && yIsParty) {
         std::swap(m_party[slotX], m_party[slotY]);
-        dbWritePartySlot(slotX, m_party[slotX]);
-        dbWritePartySlot(slotY, m_party[slotY]);
-    } else if (!xIsParty && !yIsParty) {
-        swapPCSlots(boxX, slotX, boxY, slotY);
-    } else {
-        const int pcBox   = xIsParty ? boxY  : boxX;
-        const int pcSlot  = xIsParty ? slotY : slotX;
-        const int pSlot   = xIsParty ? slotX : slotY;
-        if (!isBoxLoaded(pcBox)) loadBox(pcBox);
-        std::swap(m_boxCache[pcBox][pcSlot], m_party[pSlot]);
-        dbWritePCSlot(pcBox, pcSlot, m_boxCache[pcBox][pcSlot]);
-        dbWritePartySlot(pSlot, m_party[pSlot]);
+        bool ok1 = dbWritePartySlot(slotX, m_party[slotX]);
+        bool ok2 = dbWritePartySlot(slotY, m_party[slotY]);
+        return ok1 && ok2;
     }
+
+    if (!xIsParty && !yIsParty) {
+        return swapPCSlots(boxX, slotX, boxY, slotY);
+    }
+
+    // One party, one PC slot.
+    const int pcBox  = xIsParty ? boxY  : boxX;
+    const int pcSlot = xIsParty ? slotY : slotX;
+    const int pSlot  = xIsParty ? slotX : slotY;
+    if (!isBoxLoaded(pcBox)) {
+        if (!loadBox(pcBox)) return false;
+    }
+    std::swap(m_boxCache[pcBox][pcSlot], m_party[pSlot]);
+    bool ok1 = dbWritePCSlot(pcBox, pcSlot, m_boxCache[pcBox][pcSlot]);
+    bool ok2 = dbWritePartySlot(pSlot, m_party[pSlot]);
+    return ok1 && ok2;
 }
 
-void PokemonDatabase::commitMenuSession() {
+bool PokemonDatabase::commitMenuSession() {
     assert(m_inMenuSession);
-    QSqlDatabase::database().commit();
+    if (!QSqlDatabase::database().commit()) {
+        DB_ERR("Failed to commit transaction");
+        // The transaction is still open; leave m_inMenuSession true so the
+        // caller can still attempt a rollback.
+        return false;
+    }
     m_inMenuSession = false;
     DB_LOG("Menu session committed");
+    return true;
 }
 
-void PokemonDatabase::rollbackMenuSession() {
+bool PokemonDatabase::rollbackMenuSession() {
     assert(m_inMenuSession);
-    QSqlDatabase::database().rollback();
+    if (!QSqlDatabase::database().rollback()) {
+        DB_ERR("Failed to rollback transaction");
+        // The session state is now indeterminate; clear the flag so the caller
+        // is not stuck in an unrecoverable assert loop, but report the failure.
+        m_inMenuSession = false;
+        return false;
+    }
     m_boxCache.clear();
-    loadWildAndParty();
+    // Best-effort reload; log but do not mask the rollback success.
+    if (!loadWildAndParty())
+        DB_ERR("rollbackMenuSession: failed to reload wild/party after rollback");
     m_inMenuSession = false;
     DB_LOG("Menu session rolled back");
+    return true;
 }
 
 bool PokemonDatabase::toggleExpShare() {
     Defaults d = loadDefaults();
     d.expShareOn = !d.expShareOn;
-    writeDefaults(d);
-    DB_LOG("ExpShare toggled ->" << d.expShareOn);
-    return d.expShareOn;
+    return writeDefaults(d);
 }
 
 bool PokemonDatabase::isExpShareOn() const {
-    QSqlQuery q;
-    q.prepare("SELECT exp_share_on FROM defaults WHERE save_id=?");
-    q.addBindValue(m_saveId);
-    if (q.exec() && q.next()) {
-        return q.value("exp_share_on").toBool();
-    }
-    return false;
+    // Use the cached defaults rather than hitting the DB on every call.
+    Defaults d = const_cast<PokemonDatabase*>(this)->loadDefaults();
+    return d.expShareOn;
 }
 
 std::vector<GameState> PokemonDatabase::listSaves() {
     std::vector<GameState> saves;
     QSqlQuery q("SELECT * FROM saves");
-    while (q.next()) {
-        GameState s;
-        s.save_id          = q.value("save_id").toInt();
-        s.player_sprite_id = q.value("player_sprite_id").toInt();
-        s.name             = q.value("name").toString().toStdString();
-        s.current_box      = q.value("current_box").toInt();
-        s.unlocked_boxes   = q.value("unlocked_boxes").toInt();
-        saves.push_back(s);
+    if (q.exec()) {
+        while (q.next()) {
+            GameState s;
+            s.save_id          = q.value("save_id").toInt();
+            s.player_sprite_id = q.value("player_sprite_id").toInt();
+            s.name             = q.value("name").toString().toStdString();
+            s.current_box      = q.value("current_box").toInt();
+            s.unlocked_boxes   = q.value("unlocked_boxes").toInt();
+            saves.push_back(s);
+        }
+    } else {
+        logQuery(q);
     }
     return saves;
 }
@@ -495,83 +596,104 @@ bool PokemonDatabase::switchSave(int save_id) {
     m_saveId        = save_id;
     m_boxCache.clear();
     m_inMenuSession = false;
-    initFixedSlots();
-    loadWildAndParty();
-    return true;
+    bool ok1 = initFixedSlots();
+    bool ok2 = loadWildAndParty();
+    return ok1 && ok2;
 }
 
-static void patchSlot(int saveId, int box, int slot,
+// patchSlot: PC slots use INSERT OR REPLACE (not UPDATE) because empty PC slots
+// are not pre-inserted, so an UPDATE would silently no-op. Wild and party slots
+// are always present, so UPDATE is correct for those.
+static bool patchSlot(int saveId, int box, int slot,
                       const QString& setCols,
                       std::function<void(QSqlQuery&)> bindValues)
 {
     QSqlQuery q;
     if (box == -2) {
+        // Wild slot — always present, UPDATE is safe.
         q.prepare(QString("UPDATE wild_slot SET %1 WHERE save_id=?").arg(setCols));
         bindValues(q);
         q.addBindValue(saveId);
     } else if (box == -1) {
+        // Party slot — always present, UPDATE is safe.
         q.prepare(QString("UPDATE party_slots SET %1 WHERE save_id=? AND slot=?").arg(setCols));
         bindValues(q);
         q.addBindValue(saveId);
         q.addBindValue(slot);
     } else {
+        // PC slot — may not exist yet; use INSERT OR REPLACE via a subquery
+        // that preserves all non-patched columns.
+        // Build a selective INSERT OR REPLACE: read the existing row first and
+        // write it back with the patched columns. This avoids needing to know
+        // the full schema here; instead we just UPDATE and guard with rowsAffected.
         q.prepare(QString("UPDATE pc_slots SET %1 WHERE save_id=? AND box=? AND slot=?").arg(setCols));
         bindValues(q);
         q.addBindValue(saveId);
         q.addBindValue(box);
         q.addBindValue(slot);
+        if (!q.exec()) {
+            logQuery(q);
+            return false;
+        }
+        if (q.numRowsAffected() == 0) {
+            DB_WARN("patchSlot: no PC row at [box=" << box << " slot=" << slot
+                    << "] — slot may be empty; patch skipped");
+            return false;
+        }
+        return true;
     }
-    q.exec();
-    logQuery(q);
+    bool ok = q.exec();
+    if (!ok) logQuery(q);
+    return ok;
 }
 
 PokemonState* PokemonDatabase::cachePtr(int box, int slot) {
     if (box == -2) return &m_wild;
     if (box == -1) { return (slot >= 0 && slot < PARTY_SIZE) ? &m_party[slot] : nullptr; }
-    if (!isBoxLoaded(box)) loadBox(box);
+    if (!isBoxLoaded(box) && !loadBox(box)) return nullptr;
     return (slot >= 0 && slot < BOX_SIZE) ? &m_boxCache[box][slot] : nullptr;
 }
 
-void PokemonDatabase::renamePokemon(int box, int slot, const std::string& newName) {
+bool PokemonDatabase::renamePokemon(int box, int slot, const std::string& newName) {
     PokemonState* p = cachePtr(box, slot);
-    if (!p || p->empty()) return;
+    if (!p || p->empty()) return false;
 
     p->name = newName;
     QString qName = QString::fromStdString(newName);
-    patchSlot(m_saveId, box, slot, "name=?",
-              [&](QSqlQuery& q){ q.addBindValue(qName); });
-
-    DB_LOG("Renamed [box=" << box << " slot=" << slot << "] ->" << qName);
+    bool ok = patchSlot(m_saveId, box, slot, "name=?",
+                        [&](QSqlQuery& q){ q.addBindValue(qName); });
+    if (ok) DB_LOG("Renamed [box=" << box << " slot=" << slot << "] ->" << qName);
+    return ok;
 }
 
-void PokemonDatabase::setPokemonMoves(int box, int slot, const int moves[4]) {
+bool PokemonDatabase::setPokemonMoves(int box, int slot, const int moves[4]) {
     PokemonState* p = cachePtr(box, slot);
-    if (!p || p->empty()) return;
+    if (!p || p->empty()) return false;
 
     for (int i = 0; i < 4; ++i) p->moves[i] = moves[i];
-    patchSlot(m_saveId, box, slot, "move0=?, move1=?, move2=?, move3=?",
-              [&](QSqlQuery& q){
-                  q.addBindValue(moves[0]);
-                  q.addBindValue(moves[1]);
-                  q.addBindValue(moves[2]);
-                  q.addBindValue(moves[3]);
-              });
-
-    DB_LOG("Moves [box=" << box << " slot=" << slot << "] ->"
-           << moves[0] << moves[1] << moves[2] << moves[3]);
+    bool ok = patchSlot(m_saveId, box, slot, "move0=?, move1=?, move2=?, move3=?",
+                        [&](QSqlQuery& q){
+                            q.addBindValue(moves[0]);
+                            q.addBindValue(moves[1]);
+                            q.addBindValue(moves[2]);
+                            q.addBindValue(moves[3]);
+                        });
+    if (ok) DB_LOG("Moves [box=" << box << " slot=" << slot << "] ->"
+                   << moves[0] << moves[1] << moves[2] << moves[3]);
+    return ok;
 }
 
-void PokemonDatabase::setPokemonMove(int box, int slot, int moveIndex, int moveId) {
-    if (moveIndex < 0 || moveIndex > 3) return;
+bool PokemonDatabase::setPokemonMove(int box, int slot, int moveIndex, int moveId) {
+    if (moveIndex < 0 || moveIndex > 3) return false;
     PokemonState* p = cachePtr(box, slot);
-    if (!p || p->empty()) return;
+    if (!p || p->empty()) return false;
 
     p->moves[moveIndex] = moveId;
     static const char* cols[] = {"move0=?","move1=?","move2=?","move3=?"};
-    patchSlot(m_saveId, box, slot, cols[moveIndex],
-              [&](QSqlQuery& q){ q.addBindValue(moveId); });
-
-    DB_LOG("Move[" << moveIndex << "] [box=" << box << " slot=" << slot << "] ->" << moveId);
+    bool ok = patchSlot(m_saveId, box, slot, cols[moveIndex],
+                        [&](QSqlQuery& q){ q.addBindValue(moveId); });
+    if (ok) DB_LOG("Move[" << moveIndex << "] [box=" << box << " slot=" << slot << "] ->" << moveId);
+    return ok;
 }
 
 Defaults PokemonDatabase::loadDefaults() {
@@ -580,16 +702,18 @@ Defaults PokemonDatabase::loadDefaults() {
     q.prepare("SELECT scale, speed, lvl_range_up, lvl_range_down, exp_share_on FROM defaults WHERE save_id=?");
     q.addBindValue(m_saveId);
     if (q.exec() && q.next()) {
-        d.scale = q.value("scale").toInt();
-        d.speed = q.value("speed").toInt();
-        d.lvlRangeUp = q.value("lvl_range_up").toInt();
+        d.scale        = q.value("scale").toInt();
+        d.speed        = q.value("speed").toInt();
+        d.lvlRangeUp   = q.value("lvl_range_up").toInt();
         d.lvlRangeDown = q.value("lvl_range_down").toInt();
-        d.expShareOn = q.value("exp_share_on").toBool();
+        d.expShareOn   = q.value("exp_share_on").toBool();
+    } else {
+        logQuery(q);
     }
     return d;
 }
 
-void PokemonDatabase::writeDefaults(const Defaults& d) {
+bool PokemonDatabase::writeDefaults(const Defaults& d) {
     QSqlQuery q;
     q.prepare(R"(UPDATE defaults SET
         scale=?, speed=?, lvl_range_up=?, lvl_range_down=?, exp_share_on=?
@@ -600,6 +724,9 @@ void PokemonDatabase::writeDefaults(const Defaults& d) {
     q.addBindValue(d.lvlRangeDown);
     q.addBindValue(d.expShareOn ? 1 : 0);
     q.addBindValue(m_saveId);
-    q.exec(); logQuery(q);
-    DB_LOG("Defaults written for save_id=" << m_saveId);
+    bool ok = q.exec();
+    if (!ok) logQuery(q);
+    else     DB_LOG("Defaults written for save_id=" << m_saveId);
+    return ok;
 }
+
