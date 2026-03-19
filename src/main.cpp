@@ -72,27 +72,24 @@ int main(int argc, char *argv[]) {
         qDebug() << "Created database directory:" << dbDir;
     }
 
-    QObject::connect(&app, &QApplication::aboutToQuit, []() {
-        PokemonDatabase::instance().shutdown();
-    });
     QString dbPath = QDir(dbDir).filePath("pokemon.db");
     if (!PokemonDatabase::instance().initialize(dbPath)) {
         qCritical() << "Failed to initialize database at:" << dbPath;
         return 1;
     }
     qDebug() << "Database initialized successfully";
+    QObject::connect(&app, &QApplication::aboutToQuit, []() {
+        PokemonDatabase::instance().shutdown();
+    });
 
 
-    bool isDev = (qEnvironmentVariable("DOCKER_ENV") == "dev");
-    const bool DOOM_TIMER = isDev && (strcmp(std::getenv("VALGRIND_MODE"), "1") == 0);
-    const int DOOM_S = 60;
-    if (isDev) qDebug() << "=== RUNNING IN DEV MODE ===";
-    if (DOOM_TIMER) {
-        qDebug() << "=== VALGRIND DEBUG MODE ===";
+    if (strcmp(std::getenv("VALGRIND_MODE"), "1") == 0) {
+        const int DOOM_S = 300;
+        qDebug() << "~~~~~~ VALGRIND DEBUG MODE ~~~~~~";
         qDebug() << "Game will auto-exit in" << DOOM_S << "seconds";
 
         QTimer::singleShot(DOOM_S * 1000, [&app]() {
-            qDebug() << "=== AUTO-EXIT TIMER FIRED ===";
+            qDebug() << "~~~~~~ AUTO-EXIT TIMER FIRED ~~~~~~";
             qDebug() << DOOM_S << "seconds elapsed - exiting cleanly";
             app.quit();
         });
