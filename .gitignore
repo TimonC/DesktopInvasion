@@ -4,6 +4,7 @@
 # src/data_poke_asset.cpp
 # src/data_poke_flavor.cpp
 
+cppresults.txt
 tags
 
 build_output/**

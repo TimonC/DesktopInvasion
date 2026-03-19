@@ -15,7 +15,7 @@ Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildS
 {
     qDebug() << "Battle constructor called!";
 
-    direction(initialOppDirection);
+    /* direction(initialOppDirection); */
 
     // Load the PokemonSprite as root
     const char* env =  getenv("DOCKER_ENV");

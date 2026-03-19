@@ -12,6 +12,7 @@
 #include <QQmlApplicationEngine>
 #include <QFontDatabase>
 #include <QQmlContext>
+#include <QTimer>
 
 #ifdef Q_OS_WIN
 #include <windows.h>
@@ -84,8 +85,6 @@ int main(int argc, char *argv[]) {
         qDebug() << "OpenGL FAILED - using software rendering";
     }
 
-    runAllTests();
-
     QString dbDir;
     QString appDirPath = qEnvironmentVariable("APPDIR");
 
@@ -93,8 +92,18 @@ int main(int argc, char *argv[]) {
         dbDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
         qDebug() << "Running from AppImage, using data directory:" << dbDir;
     } else {
+#ifdef Q_OS_WIN
+        if (QCoreApplication::applicationFilePath().contains("build", Qt::CaseInsensitive)) {
+            dbDir = QCoreApplication::applicationDirPath();
+            qDebug() << "Windows dev build, using local path:" << dbDir;
+        } else {
+            dbDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+            qDebug() << "Windows installed, using AppData:" << dbDir;
+        }
+#else
         dbDir = QCoreApplication::applicationDirPath();
-        qDebug() << "Running from build directory, using local path:" << dbDir;
+        qDebug() << "Development build, using local path:" << dbDir;
+#endif
     }
 
     QDir dir(dbDir);
