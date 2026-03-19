@@ -6,20 +6,25 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
-# set(BUILD_SHARED_LIBS OFF)
+
 
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick Widgets Sql)
 
 qt6_add_resources(RESOURCES_RCC resources.qrc)
 
-file(GLOB_RECURSE ALL_SRC CONFIGURE_DEPENDS src/*.cpp)
+file(GLOB_RECURSE ALL_SRC     CONFIGURE_DEPENDS src/*.cpp)
 file(GLOB_RECURSE ALL_HEADERS CONFIGURE_DEPENDS include/*.h src/*.h)
 
-add_executable(DesktopInvasion ${ALL_SRC} ${ALL_HEADERS} ${RESOURCES_RCC})
+add_executable(DesktopInvasion
+    ${ALL_SRC}
+    ${ALL_HEADERS}
+    ${RESOURCES_RCC}
+)
 
 set_target_properties(DesktopInvasion PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
+
 if(WIN32)
     set_target_properties(DesktopInvasion PROPERTIES
         WIN32_EXECUTABLE TRUE
@@ -27,8 +32,8 @@ if(WIN32)
 
     add_custom_command(TARGET DesktopInvasion POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "$<SHELL_PATH:$<TARGET_RUNTIME_DLLS:DesktopInvasion>>"
-            "$<TARGET_FILE_DIR:DesktopInvasion>"
+            $<TARGET_RUNTIME_DLLS:DesktopInvasion>
+            $<TARGET_FILE_DIR:DesktopInvasion>
         COMMAND_EXPAND_LISTS
     )
 
@@ -45,11 +50,11 @@ endif()
 
 if(APPLE)
     set_target_properties(DesktopInvasion PROPERTIES
-        MACOSX_BUNDLE TRUE
-        MACOSX_BUNDLE_BUNDLE_NAME "DesktopInvasion"
-        MACOSX_BUNDLE_BUNDLE_VERSION "1.0.0"
+        MACOSX_BUNDLE                   TRUE
+        MACOSX_BUNDLE_BUNDLE_NAME       "DesktopInvasion"
+        MACOSX_BUNDLE_BUNDLE_VERSION    "1.0.0"
         MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0.0"
-        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/macos/Info.plist"
+        MACOSX_BUNDLE_INFO_PLIST        "${CMAKE_CURRENT_SOURCE_DIR}/macos/Info.plist"
     )
 
     set(ICON_FILE "${CMAKE_SOURCE_DIR}/assets/icon/icon.icns")
@@ -85,7 +90,7 @@ target_link_libraries(DesktopInvasion PRIVATE
 )
 
 message(STATUS "Building DesktopInvasion")
-message(STATUS "  Qt version: ${Qt6_VERSION}")
-message(STATUS "  Build type: ${CMAKE_BUILD_TYPE}")
+message(STATUS "  Qt version:     ${Qt6_VERSION}")
+message(STATUS "  Build type:     ${CMAKE_BUILD_TYPE}")
 message(STATUS "  Install prefix: ${CMAKE_INSTALL_PREFIX}")
-message(STATUS "  Platform: ${CMAKE_SYSTEM_NAME}")
+
