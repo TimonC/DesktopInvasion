@@ -1,37 +1,47 @@
 name: Build Windows (MinGW)
+
 on:
   push:
     branches: [ "main", "master" ]
   pull_request:
     branches: [ "main", "master" ]
   workflow_dispatch:
+
 jobs:
   build:
     runs-on: windows-latest
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+
+    # Cache MinGW
     - name: Cache MinGW
       id: mingw-cache
       uses: actions/cache@v4
       with:
         path: C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64
         key: ${{ runner.os }}-mingw-13.2.0
+
+    # Install MinGW if cache missed
     - name: Setup MinGW
       if: steps.mingw-cache.outputs.cache-hit != 'true'
       run: |
         choco install mingw --version=13.2.0 --allow-downgrade -y --force
       shell: powershell
+
     - name: Add MinGW to PATH
       run: |
         echo "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin" >> $env:GITHUB_PATH
-        New-Item -ItemType Directory -Force -Path "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\x86_64-w64-mingw32\lib" -ErrorAction SilentlyContinue
       shell: powershell
+
     - name: Verify MinGW
       run: |
         gcc --version
         g++ --version
       shell: bash
+
+    # Install Qt for MinGW
     - name: Install Qt (MinGW)
       uses: jurplel/install-qt-action@v3
       with:
@@ -40,49 +50,144 @@ jobs:
         target: 'desktop'
         arch: 'win64_mingw'
         cache: true
+
+    # Configure CMake
     - name: Configure CMake
       run: cmake -B build -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
       shell: bash
+
+    # Build
     - name: Build
       run: cmake --build build --parallel
       shell: bash
+
+    # Verify windeployqt
     - name: Verify windeployqt
       shell: powershell
       run: |
         $wdqt = Get-Command windeployqt.exe | Select-Object -ExpandProperty Source
         Write-Host "windeployqt path: $wdqt"
+
+    # Package output folder
     - name: Package
       shell: powershell
       run: |
-        New-Item -ItemType Directory -Force -Path output/DesktopInvasion-Windows
+        $outputDir = "output/DesktopInvasion-Windows"
+        New-Item -ItemType Directory -Force -Path $outputDir
 
         $exePath = "build/bin/DesktopInvasion.exe"
         if (Test-Path $exePath) {
-          Copy-Item $exePath output/DesktopInvasion-Windows/
+          Copy-Item $exePath $outputDir/
         } else {
           Write-Host "Executable not found at $exePath"
           Get-ChildItem -Path build -Recurse
           exit 1
         }
 
-        windeployqt.exe --release --verbose 2 --qmldir qml --sql output/DesktopInvasion-Windows/DesktopInvasion.exe
+        # Deploy all required Qt & compiler runtime DLLs
+        windeployqt.exe --release --compiler-runtime --verbose 2 --qmldir qml --sql $outputDir/DesktopInvasion.exe
 
-        $mingwBin = Split-Path (Get-Command g++).Source
-        Write-Host "MinGW bin dir: $mingwBin"
+        # Compress directly from output folder contents (no nested folders)
+        Compress-Archive -Path "$outputDir\*" -DestinationPath DesktopInvasion-Windows.zip -Force
 
-        $dlls = @("libstdc++-6.dll", "libgcc_s_seh-1.dll", "libwinpthread-1.dll")
-        foreach ($dll in $dlls) {
-          $dllPath = Join-Path $mingwBin $dll
-          if (Test-Path $dllPath) {
-            Copy-Item $dllPath output/DesktopInvasion-Windows/
-            Write-Host "Copied: $dll from $dllPath"
-          } else {
-            Write-Error "MISSING: $dll not found in $mingwBin"
-            exit 1
-          }
+    # Upload artifact
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: DesktopInvasion-Windows
+        path: DesktopInvasion-Windows.zipname: Build Windows (MinGW)
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # Cache MinGW
+    - name: Cache MinGW
+      id: mingw-cache
+      uses: actions/cache@v4
+      with:
+        path: C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64
+        key: ${{ runner.os }}-mingw-13.2.0
+
+    # Install MinGW if cache missed
+    - name: Setup MinGW
+      if: steps.mingw-cache.outputs.cache-hit != 'true'
+      run: |
+        choco install mingw --version=13.2.0 --allow-downgrade -y --force
+      shell: powershell
+
+    - name: Add MinGW to PATH
+      run: |
+        echo "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin" >> $env:GITHUB_PATH
+      shell: powershell
+
+    - name: Verify MinGW
+      run: |
+        gcc --version
+        g++ --version
+      shell: bash
+
+    # Install Qt for MinGW
+    - name: Install Qt (MinGW)
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '6.8.0'
+        host: 'windows'
+        target: 'desktop'
+        arch: 'win64_mingw'
+        cache: true
+
+    # Configure CMake
+    - name: Configure CMake
+      run: cmake -B build -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
+      shell: bash
+
+    # Build
+    - name: Build
+      run: cmake --build build --parallel
+      shell: bash
+
+    # Verify windeployqt
+    - name: Verify windeployqt
+      shell: powershell
+      run: |
+        $wdqt = Get-Command windeployqt.exe | Select-Object -ExpandProperty Source
+        Write-Host "windeployqt path: $wdqt"
+
+    # Package output folder
+    - name: Package
+      shell: powershell
+      run: |
+        $outputDir = "output/DesktopInvasion-Windows"
+        New-Item -ItemType Directory -Force -Path $outputDir
+
+        $exePath = "build/bin/DesktopInvasion.exe"
+        if (Test-Path $exePath) {
+          Copy-Item $exePath $outputDir/
+        } else {
+          Write-Host "Executable not found at $exePath"
+          Get-ChildItem -Path build -Recurse
+          exit 1
         }
 
-        Compress-Archive -Path output\DesktopInvasion-Windows\* -DestinationPath DesktopInvasion-Windows.zip -Force
+        # Deploy all required Qt & compiler runtime DLLs
+        windeployqt.exe --release --compiler-runtime --verbose 2 --qmldir qml --sql $outputDir/DesktopInvasion.exe
+
+        # Compress directly from output folder contents (no nested folders)
+        Compress-Archive -Path "$outputDir\*" -DestinationPath DesktopInvasion-Windows.zip -Force
+
+    # Upload artifact
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
