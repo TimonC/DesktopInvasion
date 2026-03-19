@@ -1,61 +1,122 @@
-- name: Install Qt (MSVC)
-  uses: jurplel/install-qt-action@v3
-  with:
-    version: '6.8.0'
-    host: 'windows'
-    target: 'desktop'
-    arch: 'win64_msvc2022_64'
-    cache: true
-    add-tools-to-path: true
+name: Build Windows (MSVC)
 
-- name: Configure CMake
-  run: cmake -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
-  shell: bash
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
 
-- name: Build
-  run: cmake --build build --config Release --parallel
-  shell: bash
+jobs:
+  build:
+    runs-on: windows-latest
 
-- name: Package
-  shell: powershell
-  run: |
-    $outputDir = "output/DesktopInvasion-Windows"
-    New-Item -ItemType Directory -Force -Path $outputDir
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-    $exePath = Get-ChildItem -Path build -Recurse -Filter "DesktopInvasion.exe" |
-               Where-Object { $_.FullName -match "Release" } |
-               Select-Object -First 1 -ExpandProperty FullName
-    if (-not $exePath) {
-      Write-Error "Executable not found!"
-      exit 1
-    }
-    Write-Host "Found exe: $exePath"
-    Copy-Item $exePath $outputDir/
+    - name: Install Qt (MSVC)
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.8.0'
+        host: 'windows'
+        target: 'desktop'
+        arch: 'win64_msvc2022_64'
+        cache: true
 
-    $qtBinDir = "$env:Qt6_DIR/../../bin"
-    $windeployqt = (Resolve-Path "$qtBinDir/windeployqt6.exe").Path
-    Write-Host "Using windeployqt6: $windeployqt"
+    - name: Configure CMake
+      run: cmake -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
+      shell: bash
 
-    & $windeployqt `
-      --release `
-      --compiler-runtime `
-      --no-translations `
-      --verbose 2 `
-      --qmldir "$pwd\qml" `
-      "$outputDir\DesktopInvasion.exe"
+    - name: Build
+      run: cmake --build build --config Release --parallel
+      shell: bash
 
-    $vcRedistDir = "${env:VCToolsRedistDir}x64\Microsoft.VC143.CRT"
-    if (Test-Path $vcRedistDir) {
-      Write-Host "Copying MSVC runtime from: $vcRedistDir"
-      Get-ChildItem "$vcRedistDir\*.dll" | ForEach-Object {
-        Copy-Item $_.FullName $outputDir/ -Force
-        Write-Host "  Copied: $($_.Name)"
-      }
-    } else {
-      Write-Warning "VCToolsRedistDir not found: $vcRedistDir"
-    }
+    - name: Package
+      shell: powershell
+      run: |
+        $outputDir = "output\DesktopInvasion-Windows"
+        New-Item -ItemType Directory -Force -Path $outputDir
 
-    Write-Host "Final contents:"
-    Get-ChildItem $outputDir | Select-Object Name
+        $exePath = Get-ChildItem -Path build -Recurse -Filter "DesktopInvasion.exe" |
+                   Where-Object { $_.FullName -match "Release" } |
+                   Select-Object -First 1 -ExpandProperty FullName
 
-    Compress-Archive -Path "$outputDir\*" -DestinationPath DesktopInvasion-Windows.zip -Force
+        if (-not $exePath) {
+          $exePath = Get-ChildItem -Path build -Recurse -Filter "DesktopInvasion.exe" |
+                     Select-Object -First 1 -ExpandProperty FullName
+        }
+
+        if (-not $exePath) {
+          Write-Error "Executable not found! Dumping build tree:"
+          Get-ChildItem -Path build -Recurse -Filter "*.exe"
+          exit 1
+        }
+
+        Write-Host "Found exe: $exePath"
+        Copy-Item $exePath "$outputDir\"
+
+        # v4 sets QT_ROOT_DIR and adds bin to PATH automatically
+        Write-Host "QT_ROOT_DIR: $env:QT_ROOT_DIR"
+        Write-Host "Running windeployqt6..."
+
+        windeployqt6 `
+          --release `
+          --compiler-runtime `
+          --no-translations `
+          --verbose 2 `
+          --qmldir "$pwd\qml" `
+          "$outputDir\DesktopInvasion.exe"
+
+        $vcRedistDir = "${env:VCToolsRedistDir}x64\Microsoft.VC143.CRT"
+        if (Test-Path $vcRedistDir) {
+          Write-Host "Copying MSVC runtime from: $vcRedistDir"
+          Get-ChildItem "$vcRedistDir\*.dll" | ForEach-Object {
+            Copy-Item $_.FullName "$outputDir\" -Force
+            Write-Host "  Copied: $($_.Name)"
+          }
+        } else {
+          Write-Warning "VCToolsRedistDir not found at expected path: $vcRedistDir"
+          Write-Warning "windeployqt6 --compiler-runtime should have handled this, but verify the zip contents"
+        }
+
+        Write-Host "`nFinal output directory contents:"
+        Get-ChildItem $outputDir | Select-Object Name, Length
+
+        Compress-Archive -Path "$outputDir\*" -DestinationPath DesktopInvasion-Windows.zip -Force
+        Write-Host "Created DesktopInvasion-Windows.zip"
+
+    - name: Smoke test
+      shell: powershell
+      timeout-minutes: 1
+      run: |
+        $exe = "output\DesktopInvasion-Windows\DesktopInvasion.exe"
+
+        if (-not (Test-Path $exe)) {
+          Write-Error "Exe not found for smoke test: $exe"
+          exit 1
+        }
+
+        Write-Host "Starting app for smoke test..."
+        $proc = Start-Process -FilePath $exe -PassThru
+
+        Start-Sleep -Seconds 5
+
+        if ($proc.HasExited) {
+          $code = $proc.ExitCode
+          if ($code -ne 0) {
+            Write-Error "App crashed on startup! Exit code: $code (0xc000007b = wrong-arch DLL)"
+            exit 1
+          } else {
+            Write-Warning "App exited with code 0 within 5 seconds — check if this is expected behaviour"
+          }
+        } else {
+          Write-Host "Smoke test passed — app ran for 5 seconds without crashing"
+          $proc.Kill()
+        }
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: DesktopInvasion-Windows
+        path: DesktopInvasion-Windows.zip
