@@ -77,8 +77,6 @@ void GameMenu::activate() {
 
 void GameMenu::setDefaults(Defaults &d)
 {
-    QQuickItem* m_menuRoot = rootObject();
-
     QMetaObject::invokeMethod(m_menuRoot, "updateDefaults",
                               Q_ARG(QVariant, d.scale),
                               Q_ARG(QVariant, d.speed),
