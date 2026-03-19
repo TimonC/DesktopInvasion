@@ -56,7 +56,7 @@ if(APPLE)
         set_source_files_properties(${ICON_FILE} PROPERTIES
             MACOSX_PACKAGE_LOCATION "Resources"
         )
-        target_sources(DesktopInvision PRIVATE ${ICON_FILE})
+        target_sources(DesktopInvasion PRIVATE ${ICON_FILE})
     else()
         message(WARNING "Icon file not found: ${ICON_FILE}")
     endif()
