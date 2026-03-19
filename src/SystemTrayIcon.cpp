@@ -8,38 +8,93 @@ SystemTrayIcon::SystemTrayIcon(QObject *parent)
     , m_clickEnabled(true)
     , m_activeIcon(":/assets/icon/icon.png")
     , m_inactiveIcon(":/assets/icon/icon_transparent.png")
+    , m_menu(nullptr)
+    , m_quitAction(nullptr)
+    , m_menuAction(nullptr)
+    , m_settingsAction(nullptr)
 {
     setIcon(m_activeIcon);
+
     setVisible(true);
+
+    createContextMenu();
+
     connect(this, &QSystemTrayIcon::activated,
             this, &SystemTrayIcon::onActivated);
+
 }
 
 SystemTrayIcon::~SystemTrayIcon(){
     qDebug() << "SystemTrayIcon destructor called";
+    m_menu->deleteLater();
+    m_menu = nullptr;
+}
+
+void SystemTrayIcon::enabled(bool enabled){
+    m_clickEnabled = enabled;
+    m_activeAction->setEnabled(enabled);
+    m_menuAction->setEnabled(enabled);
+    m_settingsAction->setEnabled(enabled);
+};
+
+void SystemTrayIcon::toggleGameActive(){
+    m_gameActive = !m_gameActive;
+
+    m_activeAction->blockSignals(true);
+    m_activeAction->setChecked(m_gameActive);
+    m_activeAction->blockSignals(false);
+
+    setIconActivityColor(m_gameActive);
+    emit gameActive(m_gameActive);
+}
+
+void SystemTrayIcon::onActivated(QSystemTrayIcon::ActivationReason reason){
+    if(m_clickEnabled && reason == QSystemTrayIcon::Trigger){
+            toggleGameActive();
+    };
+
+}
+
+void SystemTrayIcon::createContextMenu(){
+    m_menu = new QMenu();
+
+    m_quitAction = new QAction(tr("Quit"), m_menu);
+    m_quitAction->setToolTip(tr("Exit the application"));
+    connect(m_quitAction, &QAction::triggered, qApp, &QApplication::quit);
+
+    m_settingsAction = new QAction(tr("Settings"), m_menu);
+    m_settingsAction->setToolTip(tr("Open settings"));
+    connect(m_settingsAction, &QAction::triggered, qApp, [this]() {
+            //TODO implement settings menu
+    });
+
+    m_activeAction = new QAction(tr("Active"), m_menu);
+    m_activeAction->setCheckable(true);
+    m_activeAction->setChecked(m_gameActive);
+    m_activeAction->setToolTip(tr("Toggle game active state"));
+
+    connect(m_activeAction, &QAction::toggled,qApp, [this]() {
+            toggleGameActive();
+    });
+
+    m_menuAction = new QAction(tr("Menu"), m_menu);
+    m_menuAction->setToolTip(tr("Open game menu"));
+    connect(m_menuAction, &QAction::triggered, qApp, [this]() {
+            emit menuButtonPressed();
+    });
+
+    m_menu->addAction(m_quitAction);
+    m_menu->addAction(m_settingsAction);
+    m_menu->addSeparator();
+    m_menu->addAction(m_activeAction);
+    m_menu->addAction(m_menuAction);
+
+    setContextMenu(m_menu);
 }
 
 void SystemTrayIcon::setIconActivityColor(bool active){
     setIcon(active ? m_activeIcon : m_inactiveIcon);
 }
 
-void SystemTrayIcon::enabled(bool enabled){
-    m_clickEnabled = enabled;
-}
 
-void SystemTrayIcon::onActivated(QSystemTrayIcon::ActivationReason reason){
-    if(m_clickEnabled){
-        if(reason == QSystemTrayIcon::Trigger){//left click
-            toggleGameActive();
-        }else if (reason == QSystemTrayIcon::Context) { //right click
-            emit menuButtonPressed();
-        }
-    };
-}
-
-void SystemTrayIcon::toggleGameActive(){
-    m_gameActive = !m_gameActive;
-    setIconActivityColor(m_gameActive);
-    emit gameActive(m_gameActive);
-}
 

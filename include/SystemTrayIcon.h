@@ -24,10 +24,17 @@ private slots:
     void toggleGameActive();
 
 private:
+    void createContextMenu();
     bool m_gameActive;
     bool m_clickEnabled;
     QIcon m_activeIcon;
     QIcon m_inactiveIcon;
+
+    QMenu* m_menu;
+    QAction* m_quitAction;
+    QAction* m_activeAction;
+    QAction* m_menuAction;
+    QAction* m_settingsAction;
 };
 
 #endif

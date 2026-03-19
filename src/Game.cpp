@@ -35,11 +35,11 @@ Game::Game(QQmlApplicationEngine* engine, QWindow* parent)
     writeDefaults();
 
     initMenu();
-    /* m_spawnTimer->start(); */
-    m_spawnTimer->stop();
-    QTimer::singleShot(100, this, [this](){
-       handleMenuOpen();
-    });
+    m_spawnTimer->start();
+    /* m_spawnTimer->stop(); */
+    /* QTimer::singleShot(100, this, [this](){ */
+    /*    handleMenuOpen(); */
+    /* }); */
 
 }
 
