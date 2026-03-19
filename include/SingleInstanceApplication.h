@@ -15,17 +15,9 @@ public:
     bool isPrimary() const { return m_isPrimary; }
     bool shouldExit() const { return m_shouldExit; }
 
-
-private slots:
-    void handleNewConnection();
-
 private:
-    void setupServer();
-    void checkForExistingInstance();
-
     QString m_uniqueKey;
     QSharedMemory m_sharedMemory;
-    QLocalServer m_server;
     bool m_isPrimary = false;
     bool m_shouldExit = false;
 };
