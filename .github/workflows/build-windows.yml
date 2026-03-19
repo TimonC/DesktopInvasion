@@ -1,16 +1,13 @@
 name: Build Windows (MinGW)
-
 on:
   push:
     branches: [ "main", "master" ]
   pull_request:
     branches: [ "main", "master" ]
   workflow_dispatch:
-
 jobs:
   build:
     runs-on: windows-latest
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -67,6 +64,7 @@ jobs:
       run: |
         $outputDir = "output/DesktopInvasion-Windows"
         New-Item -ItemType Directory -Force -Path $outputDir
+
         $exePath = "build/bin/DesktopInvasion.exe"
         if (Test-Path $exePath) {
           Copy-Item $exePath $outputDir/
@@ -75,7 +73,36 @@ jobs:
           Get-ChildItem -Path build -Recurse
           exit 1
         }
+
+        # Deploy Qt DLLs
         windeployqt.exe --release --compiler-runtime --verbose 2 --qmldir qml $outputDir/DesktopInvasion.exe
+
+        # Copy Qt OpenGL DLLs (windeployqt misses these)
+        $qtBin = (Get-Command windeployqt.exe).Source | Split-Path
+        foreach ($dll in @("libEGL.dll", "libGLESv2.dll", "opengl32sw.dll", "d3dcompiler_47.dll")) {
+          if (Test-Path "$qtBin\$dll") {
+            Copy-Item "$qtBin\$dll" $outputDir/
+            Write-Host "Copied $dll"
+          } else {
+            Write-Host "WARNING: $dll not found in $qtBin"
+          }
+        }
+
+        # Copy MinGW runtime DLLs (windeployqt doesn't handle these)
+        $mingwBin = "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin"
+        foreach ($dll in @("libgcc_s_seh-1.dll", "libstdc++-6.dll", "libwinpthread-1.dll")) {
+          if (Test-Path "$mingwBin\$dll") {
+            Copy-Item "$mingwBin\$dll" $outputDir/
+            Write-Host "Copied $dll"
+          } else {
+            Write-Host "WARNING: $dll not found in $mingwBin"
+          }
+        }
+
+        # List final output for verification
+        Write-Host "Final output directory contents:"
+        Get-ChildItem $outputDir | Select-Object Name
+
         Compress-Archive -Path "$outputDir\*" -DestinationPath DesktopInvasion-Windows.zip -Force
 
     - name: Upload artifact
