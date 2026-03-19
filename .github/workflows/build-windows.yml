@@ -82,17 +82,15 @@ jobs:
           exit 1
         }
 
-        $stdoutFile = "$env:TEMP\smoke_stdout.txt"
-        $stderrFile = "$env:TEMP\smoke_stderr.txt"
+        $logFile = "$env:TEMP\smoke_qt.log"
 
-        $proc = Start-Process -FilePath $exe -PassThru -NoNewWindow -RedirectStandardOutput $stdoutFile -RedirectStandardError $stderrFile
+        $proc = Start-Process -FilePath $exe -PassThru -NoNewWindow `
+          -Environment @{ QT_LOGGING_TO_CONSOLE = "1"; QT_FORCE_STDERR_LOGGING = "1"; QT_DEBUG_OUTPUT_FILE = $logFile }
 
         Start-Sleep -Seconds 5
 
-        Write-Host "--- stdout ---"
-        if (Test-Path $stdoutFile) { Get-Content $stdoutFile }
-        Write-Host "--- stderr ---"
-        if (Test-Path $stderrFile) { Get-Content $stderrFile }
+        Write-Host "--- QT_DEBUG_OUTPUT_FILE ---"
+        if (Test-Path $logFile) { Get-Content $logFile } else { Write-Host "(no log file produced)" }
 
         if ($proc.HasExited) {
           $code = $proc.ExitCode
