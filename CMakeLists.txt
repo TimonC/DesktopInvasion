@@ -25,12 +25,18 @@ add_executable(DesktopInvasion ${ALL_SRC} ${ALL_HEADERS} ${RESOURCES_RCC})
 set_target_properties(DesktopInvasion PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
-
-# Windows-specific settings
 if(WIN32)
     set_target_properties(DesktopInvasion PROPERTIES
         WIN32_EXECUTABLE TRUE
     )
+
+    add_custom_command(TARGET DesktopInvasion POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "$<SHELL_PATH:$<TARGET_RUNTIME_DLLS:DesktopInvasion>>"
+            "$<TARGET_FILE_DIR:DesktopInvasion>"
+        COMMAND_EXPAND_LISTS
+    )
+
     set(ICON_FILE "${CMAKE_SOURCE_DIR}/assets/icon/icon.ico")
     if(EXISTS ${ICON_FILE})
         set(RC_FILE "${CMAKE_CURRENT_BINARY_DIR}/app.rc")
