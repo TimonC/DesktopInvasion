@@ -24,7 +24,7 @@ Item {
     property bool inNameEditMode:      false
     property int  selectedEligibleIdx: -1
 
-    property int jumpDistance:  32
+    property int jumpDistance:  24
 
     property color colorText:         "#ffffff"
     property color colorSubtext:      "#aaaaaa"

@@ -10,6 +10,7 @@ Item {
     property int    frameHeight: 32
     property real   scaleFactor: 6
     property int    rowId:       0
+    property int  jumpDistance:  24
 
     property string mainFont:   "Press Start 2P"
     property string bodyFont:   "DotGothic16"
@@ -91,7 +92,6 @@ Item {
                         property bool isJumping:        false
                         property int  jumpUpDuration:   200
                         property int  jumpDownDuration: 150
-                        property int  jumpHeight:       32
 
                         MouseArea {
                             anchors.fill: parent
@@ -103,7 +103,7 @@ Item {
                             id: jumpAnim
                             PropertyAnimation {
                                 target: sprite; property: "y"
-                                to: sprite.y - sprite.jumpHeight
+                                to: sprite.y - pokeView.jumpDistance
                                 duration: sprite.jumpUpDuration; easing.type: Easing.OutQuad
                             }
                             PropertyAnimation {
