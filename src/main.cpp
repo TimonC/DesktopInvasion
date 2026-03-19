@@ -16,6 +16,7 @@
 
 
 int main(int argc, char *argv[]) {
+    std::abort();//temporary flag to  test my smoke test  logging
 
     const char* valgrindMode = std::getenv("VALGRIND_MODE");
     bool isValgrindMode = (valgrindMode && strcmp(valgrindMode, "1") == 0);
