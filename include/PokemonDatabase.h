@@ -33,19 +33,22 @@ struct GameState {
 };
 
 struct Defaults {
-    int  scale       = 2;
-    int  speed       = 1;
-    int  lvlRangeUp  = 5;
-    int  lvlRangeDown= 5;
-    bool expShareOn  = false;
+    int  scale        = 2;
+    int  speed        = 1;
+    int  lvlRangeUp   = 5;
+    int  lvlRangeDown = 5;
+    bool expShareOn   = false;
 };
 
 class PokemonDatabase {
 public:
     static PokemonDatabase& instance();
 
-    bool initialize(const QString& dbPath = QString(), int save_id = 1);
+    bool initialize(const QString& dbPath = QString());
     void shutdown();
+
+    int  currentSaveId() const { return m_saveId; }
+    bool setCurrentSaveId(int save_id);
 
     const PokemonState& wild() const { return m_wild; }
     void setWild(const PokemonState& p);
@@ -87,6 +90,9 @@ private:
     bool createTables();
     bool initFixedSlots();
     bool loadWildAndParty();
+
+    int  readCurrentSaveId();
+    bool writeCurrentSaveId(int save_id);
 
     PokemonState rowToPokemon     (const QSqlQuery& q);
     void         writePokemonToRow(QSqlQuery& q, const PokemonState& p);

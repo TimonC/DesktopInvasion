@@ -25,7 +25,7 @@ PokemonDatabase& PokemonDatabase::instance() {
 
 PokemonDatabase::~PokemonDatabase() { shutdown(); }
 
-bool PokemonDatabase::initialize(const QString& dbPath, int save_id) {
+bool PokemonDatabase::initialize(const QString& dbPath) {
     if (m_initialized) { DB_WARN("initialize called but already initialized"); return true; }
 
     if (!QSqlDatabase::isDriverAvailable("QSQLITE")) {
@@ -37,7 +37,7 @@ bool PokemonDatabase::initialize(const QString& dbPath, int save_id) {
         ? QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/pokemon.db"
         : dbPath;
 
-    DB_LOG("Initializing — path:" << path << " save_id:" << save_id);
+    DB_LOG("Initializing — path:" << path);
 
     QDir parentDir = QFileInfo(path).dir();
     if (!parentDir.exists() && !parentDir.mkpath(".")) {
@@ -62,10 +62,13 @@ bool PokemonDatabase::initialize(const QString& dbPath, int save_id) {
 
     DB_LOG("Opened at " << path);
     m_dbPath      = path;
-    m_saveId      = save_id;
     m_initialized = true;
 
     if (!createTables())     { DB_ERR("Failed to create tables");          shutdown(); return false; }
+
+    m_saveId = readCurrentSaveId();
+    DB_LOG("Active save_id=" << m_saveId);
+
     if (!initFixedSlots())   { DB_ERR("Failed to initialize fixed slots"); shutdown(); return false; }
     if (!loadWildAndParty()) { DB_ERR("Failed to load wild and party");    shutdown(); return false; }
 
@@ -94,6 +97,10 @@ bool PokemonDatabase::createTables() {
     bool ok = true;
     auto run = [&](const char* sql) { if (!q.exec(sql)) { logQuery(q); ok = false; } };
 
+    run(R"(CREATE TABLE IF NOT EXISTS current_save (
+        id              INTEGER PRIMARY KEY CHECK(id = 1),
+        current_save_id INTEGER DEFAULT 1
+    ))");
     run(R"(CREATE TABLE IF NOT EXISTS saves (
         save_id          INTEGER PRIMARY KEY,
         player_sprite_id INTEGER DEFAULT 0,
@@ -162,9 +169,45 @@ bool PokemonDatabase::createTables() {
     ))");
     run("CREATE INDEX IF NOT EXISTS idx_pc_box ON pc_slots(save_id, box)");
 
+    run("INSERT OR IGNORE INTO current_save(id, current_save_id) VALUES(1, 1)");
+
     if (ok) DB_LOG("Tables ready");
     else    DB_ERR("One or more tables failed to create");
     return ok;
+}
+
+int PokemonDatabase::readCurrentSaveId() {
+    QSqlQuery q;
+    q.prepare("SELECT current_save_id FROM current_save WHERE id=1");
+    if (q.exec() && q.next()) {
+        int id = q.value(0).toInt();
+        DB_LOG("readCurrentSaveId: current_save_id=" << id);
+        return id;
+    }
+    DB_WARN("readCurrentSaveId: no row found, defaulting to 1");
+    logQuery(q);
+    return 1;
+}
+
+bool PokemonDatabase::writeCurrentSaveId(int save_id) {
+    QSqlQuery q;
+    q.prepare("UPDATE current_save SET current_save_id=? WHERE id=1");
+    q.addBindValue(save_id);
+    bool ok = q.exec();
+    if (!ok) logQuery(q);
+    else DB_LOG("writeCurrentSaveId: current_save_id=" << save_id);
+    return ok;
+}
+
+bool PokemonDatabase::setCurrentSaveId(int save_id) {
+    DB_LOG("setCurrentSaveId: switching to save_id=" << save_id);
+    if (!writeCurrentSaveId(save_id)) return false;
+    m_saveId    = save_id;
+    m_boxCache.clear();
+    if (!initFixedSlots())   { DB_ERR("setCurrentSaveId: failed to initialize fixed slots"); return false; }
+    if (!loadWildAndParty()) { DB_ERR("setCurrentSaveId: failed to reload wild/party");      return false; }
+    DB_LOG("setCurrentSaveId: active save is now " << m_saveId);
+    return true;
 }
 
 bool PokemonDatabase::initFixedSlots() {
