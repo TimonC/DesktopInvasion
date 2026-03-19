@@ -73,20 +73,16 @@ jobs:
       timeout-minutes: 1
       run: |
         $exe = "output\DesktopInvasion-Windows\DesktopInvasion.exe"
-        $logFile = "output\DesktopInvasion-Windows\ci_smoke.log"
 
         if (-not (Test-Path $exe)) {
           Write-Error "Exe not found for smoke test: $exe"
           exit 1
         }
 
-        [System.Environment]::SetEnvironmentVariable("CI_SMOKE", "1", "Process")
         $proc = Start-Process -FilePath $exe -PassThru -NoNewWindow
 
         Start-Sleep -Seconds 5
 
-        Write-Host "--- ci_smoke.log ---"
-        if (Test-Path $logFile) { Get-Content $logFile } else { Write-Host "(no log file produced)" }
 
         if ($proc.HasExited) {
           $code = $proc.ExitCode
