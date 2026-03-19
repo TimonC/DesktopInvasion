@@ -1,16 +1,13 @@
 name: Build macOS
-
-# on:
-#   push:
-#      branches: [ "foobar" ]
-#    pull_request:
-#     branches: [ "foobar" ]
-#   workflow_dispatch:
-
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
 jobs:
   build:
     runs-on: macos-latest
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -34,30 +31,21 @@ jobs:
 
     - name: Package
       run: |
-        if [ ! -f "build/bin/DesktopInvasion" ]; then
-          echo "Error: Executable not found"
-          find build -name "DesktopInvasion" -type f
+        APP_PATH=$(find build -name "DesktopInvasion.app" -type d | head -1)
+        if [ -z "$APP_PATH" ]; then
+          echo "Error: .app bundle not found"
+          find build -type f
           exit 1
         fi
-        if [ -f "assets/icon/icon.icns" ] && [ ! -f "build/DesktopInvasion.app/Contents/Resources/icon.icns" ]; then
-          mkdir -p build/DesktopInvasion.app/Contents/Resources/
-          cp assets/icon/icon.icns build/DesktopInvasion.app/Contents/Resources/
-        fi
-        macdeployqt build/DesktopInvasion.app -qmldir=qml
+        echo "Found app at: $APP_PATH"
+        macdeployqt "$APP_PATH" -qmldir=qml
         hdiutil create -volname "DesktopInvasion" \
-          -srcfolder build/DesktopInvasion.app \
+          -srcfolder "$APP_PATH" \
           -ov -format UDZO \
           DesktopInvasion-macOS.dmg
-        zip -r DesktopInvasion-macOS.zip build/DesktopInvasion.app
 
     - name: Upload DMG
       uses: actions/upload-artifact@v4
       with:
-        name: DesktopInvasion-macOS-DMG
+        name: DesktopInvasion-macOS
         path: DesktopInvasion-macOS.dmg
-
-    - name: Upload ZIP
-      uses: actions/upload-artifact@v4
-      with:
-        name: DesktopInvasion-macOS-ZIP
-        path: DesktopInvasion-macOS.zip
