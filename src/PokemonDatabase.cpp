@@ -18,7 +18,6 @@ static void logQuery(const QSqlQuery& q) {
         DB_ERR("Query failed:" << q.lastError().text() << "| SQL:" << q.lastQuery());
 }
 
-// Prepare + exec in one shot; logs and returns false on any failure.
 static bool execQuery(QSqlQuery& q, const QString& sql) {
     if (!q.prepare(sql) || !q.exec()) { logQuery(q); return false; }
     return true;
@@ -34,19 +33,25 @@ PokemonDatabase::~PokemonDatabase() { shutdown(); }
 bool PokemonDatabase::initialize(const std::string& dbPath, int save_id) {
     if (m_initialized) return true;
 
+    if (!QSqlDatabase::isDriverAvailable("QSQLITE")) {
+        DB_ERR("SQLITE driver not available");
+        return false;
+    }
+
+    QString path;
     if (dbPath.empty()) {
         QString dir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
         if (!QDir().mkpath(dir)) {
             DB_ERR("Failed to create app data directory:" << dir);
             return false;
         }
-        m_dbPath = (dir + "/pokemon.db").toStdString();
+        path = dir + "/pokemon.db";
     } else {
-        m_dbPath = dbPath;
+        path = QString::fromStdString(dbPath);
     }
+    m_dbPath = path;
 
-    QString qPath     = QString::fromStdString(m_dbPath);
-    QDir    parentDir = QFileInfo(qPath).dir();
+    QDir parentDir = QFileInfo(path).dir();
     if (!parentDir.exists() && !parentDir.mkpath(".")) {
         DB_ERR("Failed to create database directory:" << parentDir.path());
         return false;
@@ -56,22 +61,24 @@ bool PokemonDatabase::initialize(const std::string& dbPath, int save_id) {
         return false;
     }
 
-    {
-        QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-        db.setDatabaseName(qPath);
-        if (!db.open()) {
-            DB_ERR("Failed to open DB:" << db.lastError().text());
-            QSqlDatabase::removeDatabase(QSqlDatabase::defaultConnection);
-            return false;
-        }
+    if (QSqlDatabase::contains(QSqlDatabase::defaultConnection)) {
+        QSqlDatabase::removeDatabase(QSqlDatabase::defaultConnection);
     }
 
-    DB_LOG("Opened at" << qPath);
-    m_saveId      = save_id;
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    db.setDatabaseName(path);
+    if (!db.open()) {
+        DB_ERR("Failed to open DB:" << db.lastError().text());
+        QSqlDatabase::removeDatabase(QSqlDatabase::defaultConnection);
+        return false;
+    }
+
+    DB_LOG("Opened at" << path);
+    m_saveId = save_id;
     m_initialized = true;
 
-    if (!createTables()    ) { DB_ERR("Failed to create tables");          shutdown(); return false; }
-    if (!initFixedSlots()  ) { DB_ERR("Failed to initialize fixed slots"); shutdown(); return false; }
+    if (!createTables())    { DB_ERR("Failed to create tables");          shutdown(); return false; }
+    if (!initFixedSlots())  { DB_ERR("Failed to initialize fixed slots"); shutdown(); return false; }
     if (!loadWildAndParty()) { DB_ERR("Failed to load wild and party");    shutdown(); return false; }
     return true;
 }
@@ -79,8 +86,18 @@ bool PokemonDatabase::initialize(const std::string& dbPath, int save_id) {
 void PokemonDatabase::shutdown() {
     if (!m_initialized) return;
     DB_LOG("Shutdown");
-    QSqlDatabase::database().close();
-    QSqlDatabase::removeDatabase(QSqlDatabase::defaultConnection);
+
+    {
+        QSqlDatabase db = QSqlDatabase::database();
+        if (db.isOpen()) {
+            db.close();
+        }
+    }
+
+    if (QSqlDatabase::contains(QSqlDatabase::defaultConnection)) {
+        QSqlDatabase::removeDatabase(QSqlDatabase::defaultConnection);
+    }
+
     m_initialized = false;
 }
 
@@ -470,7 +487,6 @@ bool PokemonDatabase::swapByPos(int boxX, int slotX, int boxY, int slotY) {
     if (!xIsParty && !yIsParty)
         return swapPCSlots(boxX, slotX, boxY, slotY);
 
-    // One party slot, one PC slot.
     const int pcBox  = xIsParty ? boxY  : boxX;
     const int pcSlot = xIsParty ? slotY : slotX;
     const int pSlot  = xIsParty ? slotX : slotY;
@@ -484,7 +500,7 @@ bool PokemonDatabase::commitMenuSession() {
     assert(m_inMenuSession);
     if (!QSqlDatabase::database().commit()) {
         DB_ERR("Failed to commit transaction");
-        return false; // Leave m_inMenuSession true so caller can rollback.
+        return false;
     }
     m_inMenuSession = false;
     DB_LOG("Menu session committed");
@@ -540,7 +556,6 @@ bool PokemonDatabase::switchSave(int save_id) {
     return initFixedSlots() && loadWildAndParty();
 }
 
-// box == -2: wild, box == -1: party, box >= 0: PC.
 static bool patchSlot(int saveId, int box, int slot,
                       const QString& setCols,
                       std::function<void(QSqlQuery&)> bindValues)
@@ -640,4 +655,3 @@ bool PokemonDatabase::writeDefaults(const Defaults& d) {
     else DB_LOG("Defaults written for save_id=" << m_saveId);
     return ok;
 }
-

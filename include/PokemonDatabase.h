@@ -44,7 +44,7 @@ class PokemonDatabase {
 public:
     static PokemonDatabase& instance();
 
-    bool initialize(const std::string& dbPath = "", int save_id = 1);
+    bool initialize(const QString& dbPath = QString(), int save_id = 1);
     void shutdown();
 
     // ── Wild slot ────────────────────────────────────────────────────────────
@@ -128,11 +128,10 @@ private:
     // or out-of-range indices.
     PokemonState* cachePtr(int box, int slot);
 
-    // ── State ─────────────────────────────────────────────────────────────────
     bool        m_initialized   = false;
     bool        m_inMenuSession = false;
     int         m_saveId        = 1;
-    std::string m_dbPath;
+    QString m_dbPath;
 
     PokemonState                                                m_wild;
     std::array<PokemonState, PARTY_SIZE>                        m_party;

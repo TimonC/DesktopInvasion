@@ -118,7 +118,8 @@ int main(int argc, char *argv[]) {
     QString dbPath = QDir(dbDir).filePath("pokemon.db");
     qDebug() << "Initializing database at:" << dbPath;
 
-    if (!PokemonDatabase::instance().initialize(dbPath.toStdString())) {
+        // In main.cpp:
+    if (!PokemonDatabase::instance().initialize(dbPath)) {
         qCritical() << "Failed to initialize database at:" << dbPath;
         return 1;
     }
