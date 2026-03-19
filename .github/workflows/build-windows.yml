@@ -47,17 +47,18 @@ jobs:
           exit 1
         }
 
-        windeployqt.exe --release --compiler-runtime --verbose 2 --qmldir qml $outputDir/DesktopInvasion.exe
+        windeployqt.exe --release --verbose 2 --qmldir qml $outputDir/DesktopInvasion.exe
 
         $redistDir = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Redist\MSVC"
         $redistVersion = Get-ChildItem $redistDir | Sort-Object Name -Descending | Select-Object -First 1
         $redistX64 = Join-Path $redistVersion.FullName "x64\Microsoft.VC143.CRT"
-        foreach ($dll in @( "msvcp140.dll", "vcruntime140.dll", "vcruntime140_1.dll")) {
+        Write-Host "Copying MSVC runtime DLLs from $redistX64"
+        foreach ($dll in @("msvcp140.dll", "msvcp140_1.dll", "vcruntime140.dll", "vcruntime140_1.dll")) {
           if (Test-Path "$redistX64\$dll") {
             Copy-Item "$redistX64\$dll" $outputDir/
             Write-Host "Copied $dll"
           } else {
-            Write-Host "WARNING: $dll not found at $redistX64\$dll"
+            Write-Host "WARNING: $dll not found at $redistX64"
           }
         }
 
