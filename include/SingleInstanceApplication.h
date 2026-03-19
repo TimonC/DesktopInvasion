@@ -15,8 +15,6 @@ public:
     bool isPrimary() const { return m_isPrimary; }
     bool shouldExit() const { return m_shouldExit; }
 
-signals:
-    void signalReceived(const QString &signal);
 
 private slots:
     void handleNewConnection();

@@ -1,4 +1,4 @@
-#include <QApplication>
+#include <SingleInstanceApplication.h>
 #include <QLoggingCategory>
 #include <QOpenGLContext>
 #include <QStandardPaths>
@@ -16,7 +16,10 @@
 
 
 int main(int argc, char *argv[]) {
-    QApplication app(argc, argv);
+    SingleInstanceApplication app(argc, argv, "DesktopInvasion");
+    if(app.shouldExit()){
+        return 0;
+    }
     QCoreApplication::setOrganizationName("DesktopInvasion");
     QCoreApplication::setApplicationName("DesktopInvasion");
 
