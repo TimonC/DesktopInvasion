@@ -28,13 +28,14 @@ set_target_properties(DesktopInvasion PROPERTIES
 
 # Windows-specific settings
 if(WIN32)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
+    set_target_properties(DesktopInvasion PROPERTIES
+        WIN32_EXECUTABLE TRUE
+    )
     set(ICON_FILE "${CMAKE_SOURCE_DIR}/assets/icon/icon.ico")
     if(EXISTS ${ICON_FILE})
         set(RC_FILE "${CMAKE_CURRENT_BINARY_DIR}/app.rc")
         file(WRITE ${RC_FILE} "IDI_ICON1 ICON \"${ICON_FILE}\"\n")
-        list(APPEND ALL_SRC ${RC_FILE})
-        set(CMAKE_RC_COMPILER_INIT windres)
+        target_sources(DesktopInvasion PRIVATE ${RC_FILE})
         enable_language(RC)
     else()
         message(WARNING "Icon file not found: ${ICON_FILE}")

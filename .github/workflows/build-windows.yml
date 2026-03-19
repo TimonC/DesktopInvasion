@@ -1,4 +1,4 @@
-name: Build Windows (MinGW)
+name: Build Windows (MSVC)
 on:
   push:
     branches: [ "main", "master" ]
@@ -12,52 +12,22 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Cache MinGW
-      id: mingw-cache
-      uses: actions/cache@v4
-      with:
-        path: C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64
-        key: ${{ runner.os }}-mingw-13.2.0
-
-    - name: Setup MinGW
-      if: steps.mingw-cache.outputs.cache-hit != 'true'
-      run: |
-        choco install mingw --version=13.2.0 --allow-downgrade -y --force
-      shell: powershell
-
-    - name: Add MinGW to PATH
-      run: |
-        echo "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin" >> $env:GITHUB_PATH
-      shell: powershell
-
-    - name: Verify MinGW
-      run: |
-        gcc --version
-        g++ --version
-      shell: bash
-
-    - name: Install Qt (MinGW)
+    - name: Install Qt (MSVC)
       uses: jurplel/install-qt-action@v3
       with:
         version: '6.8.0'
         host: 'windows'
         target: 'desktop'
-        arch: 'win64_mingw'
+        arch: 'win64_msvc2022_64'
         cache: true
 
     - name: Configure CMake
-      run: cmake -B build -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
+      run: cmake -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
       shell: bash
 
     - name: Build
-      run: cmake --build build --parallel
+      run: cmake --build build --config Release --parallel
       shell: bash
-
-    - name: Verify windeployqt
-      shell: powershell
-      run: |
-        $wdqt = Get-Command windeployqt.exe | Select-Object -ExpandProperty Source
-        Write-Host "windeployqt path: $wdqt"
 
     - name: Package
       shell: powershell
@@ -65,19 +35,21 @@ jobs:
         $outputDir = "output/DesktopInvasion-Windows"
         New-Item -ItemType Directory -Force -Path $outputDir
 
-        $exePath = "build/bin/DesktopInvasion.exe"
+        $exePath = "build/bin/Release/DesktopInvasion.exe"
+        if (-not (Test-Path $exePath)) {
+          $exePath = "build/bin/DesktopInvasion.exe"
+        }
         if (Test-Path $exePath) {
           Copy-Item $exePath $outputDir/
         } else {
-          Write-Host "Executable not found at $exePath"
-          Get-ChildItem -Path build -Recurse
+          Write-Host "Executable not found, searching..."
+          Get-ChildItem -Path build -Recurse -Filter "*.exe"
           exit 1
         }
 
-        # Deploy Qt DLLs
-        windeployqt.exe --release --compiler-runtime --verbose 2 --qmldir qml $outputDir/DesktopInvasion.exe
+        windeployqt.exe --release --verbose 2 --qmldir qml $outputDir/DesktopInvasion.exe
 
-        # Copy Qt OpenGL DLLs (windeployqt misses these)
+        # Copy Qt OpenGL DLLs
         $qtBin = (Get-Command windeployqt.exe).Source | Split-Path
         foreach ($dll in @("libEGL.dll", "libGLESv2.dll", "opengl32sw.dll", "d3dcompiler_47.dll")) {
           if (Test-Path "$qtBin\$dll") {
@@ -88,18 +60,6 @@ jobs:
           }
         }
 
-        # Copy MinGW runtime DLLs (windeployqt doesn't handle these)
-        $mingwBin = "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin"
-        foreach ($dll in @("libgcc_s_seh-1.dll", "libstdc++-6.dll", "libwinpthread-1.dll")) {
-          if (Test-Path "$mingwBin\$dll") {
-            Copy-Item "$mingwBin\$dll" $outputDir/
-            Write-Host "Copied $dll"
-          } else {
-            Write-Host "WARNING: $dll not found in $mingwBin"
-          }
-        }
-
-        # List final output for verification
         Write-Host "Final output directory contents:"
         Get-ChildItem $outputDir | Select-Object Name
 
