@@ -47,7 +47,7 @@ jobs:
           exit 1
         }
 
-        windeployqt.exe --release --verbose 2 --qmldir qml $outputDir/DesktopInvasion.exe
+        windeployqt6.exe --release --compiler-runtime --verbose 2 --qmldir qml $outputDir/DesktopInvasion.exe
 
         Write-Host "Final output directory contents:"
         Get-ChildItem $outputDir | Select-Object Name
