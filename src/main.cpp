@@ -82,8 +82,8 @@ int main(int argc, char *argv[]) {
         PokemonDatabase::instance().shutdown();
     });
 
-
-    if (strcmp(std::getenv("VALGRIND_MODE"), "1") == 0) {
+    const char* valgrind_mode = std::getenv("VALGRIND_MODE");
+    if (valgrind_mode && strcmp(valgrind_mode, "1") == 0) {
         const int DOOM_S = 300;
         qDebug() << "~~~~~~ VALGRIND DEBUG MODE ~~~~~~";
         qDebug() << "Game will auto-exit in" << DOOM_S << "seconds";
