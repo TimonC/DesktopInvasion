@@ -41,11 +41,39 @@ jobs:
           exit 1
         fi
         echo "Found app at: $APP_PATH"
+
         macdeployqt "$APP_PATH" -qmldir=qml -verbose=2
+
+        INFO_PLIST="$APP_PATH/Contents/Info.plist"
+        if [ -f "$INFO_PLIST" ]; then
+          echo "Checking Info.plist..."
+
+          if ! /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$INFO_PLIST" 2>/dev/null; then
+            echo "Adding CFBundleIdentifier to Info.plist"
+            /usr/libexec/PlistBuddy -c "Add :CFBundleIdentifier string com.github.${GITHUB_ACTOR}.DesktopInvasion" "$INFO_PLIST"
+          fi
+
+          if ! /usr/libexec/PlistBuddy -c "Print :LSMinimumSystemVersion" "$INFO_PLIST" 2>/dev/null; then
+            /usr/libexec/PlistBuddy -c "Add :LSMinimumSystemVersion string 11.0" "$INFO_PLIST"
+          fi
+
+          echo "Final Info.plist contents:"
+          cat "$INFO_PLIST"
+        fi
+
+        xattr -cr "$APP_PATH"
+
+        echo "Codesigning app..."
+        codesign --force --deep --sign - "$APP_PATH"
+
+        codesign --verify --verbose "$APP_PATH"
+
         hdiutil create -volname "DesktopInvasion" \
           -srcfolder "$APP_PATH" \
           -ov -format UDZO \
           DesktopInvasion-macOS.dmg
+
+        codesign --force --sign - DesktopInvasion-macOS.dmg 2>/dev/null || true
 
     - name: Smoke test
       timeout-minutes: 1
