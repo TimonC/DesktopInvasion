@@ -25,32 +25,36 @@ PokemonDatabase& PokemonDatabase::instance() {
 
 PokemonDatabase::~PokemonDatabase() { shutdown(); }
 
-bool PokemonDatabase::initialize(const QString& dbPath) {
-    if (m_initialized) { DB_WARN("initialize called but already initialized"); return true; }
+bool PokemonDatabase::initialize() {
+    if (m_initialized) {
+        DB_WARN("initialize called but already initialized");
+        return true;
+    }
 
     if (!QSqlDatabase::isDriverAvailable("QSQLITE")) {
         DB_ERR("SQLITE driver not available");
         return false;
     }
 
-    QString path = dbPath.isEmpty()
-        ? QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/pokemon.db"
-        : dbPath;
+    QString appDataLocation = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QString path = appDataLocation + "/app.db";
 
     DB_LOG("Initializing — path:" << path);
 
-    QDir parentDir = QFileInfo(path).dir();
-    if (!parentDir.exists() && !parentDir.mkpath(".")) {
-        DB_ERR("Failed to create database directory: " << parentDir.path());
-        return false;
-    }
-    if (!QFileInfo(parentDir.path()).isWritable()) {
-        DB_ERR("Database directory not writable: " << parentDir.path());
+    QDir dbDir(appDataLocation);
+    if (!dbDir.exists() && !dbDir.mkpath(".")) {
+        DB_ERR("Failed to create database directory: " << dbDir.path());
         return false;
     }
 
-    if (QSqlDatabase::contains(QSqlDatabase::defaultConnection))
+    if (!QFileInfo(dbDir.path()).isWritable()) {
+        DB_ERR("Database directory not writable: " << dbDir.path());
+        return false;
+    }
+
+    if (QSqlDatabase::contains(QSqlDatabase::defaultConnection)) {
         QSqlDatabase::removeDatabase(QSqlDatabase::defaultConnection);
+    }
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName(path);
@@ -75,7 +79,6 @@ bool PokemonDatabase::initialize(const QString& dbPath) {
     DB_LOG("Initialization complete");
     return true;
 }
-
 void PokemonDatabase::shutdown() {
     if (!m_initialized) return;
     DB_LOG("Shutdown");

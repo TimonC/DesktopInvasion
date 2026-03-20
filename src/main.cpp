@@ -14,19 +14,18 @@
 #include <QQmlContext>
 #include <QTimer>
 
-
 int main(int argc, char *argv[]) {
     SingleInstanceApplication app(argc, argv, "DesktopInvasion");
     if(app.shouldExit()){
         return 0;
     }
+
     QCoreApplication::setOrganizationName("DesktopInvasion");
     QCoreApplication::setApplicationName("DesktopInvasion");
 
     QIcon icon;
     icon = QIcon(":/assets/icon/icon.png");
     app.setWindowIcon(icon);
-
 
     QOpenGLContext context;
     if (context.create()) {
@@ -62,22 +61,12 @@ int main(int argc, char *argv[]) {
     engine.rootContext()->setContextProperty("pixelFontFamily", pixelFontFamily);
     engine.rootContext()->setContextProperty("dotGothicFontFamily", dotGothicFamily);
 
-    QString dbDir;
-    QDir dir(dbDir);
-    if (!dir.exists()) {
-        if (!dir.mkpath(".")) {
-            qCritical() << "Failed to create database directory:" << dbDir;
-            return 1;
-        }
-        qDebug() << "Created database directory:" << dbDir;
-    }
-
-    QString dbPath = QDir(dbDir).filePath("pokemon.db");
-    if (!PokemonDatabase::instance().initialize(dbPath)) {
-        qCritical() << "Failed to initialize database at:" << dbPath;
+    if (!PokemonDatabase::instance().initialize()) {
+        qCritical() << "Failed to initialize database";
         return 1;
     }
     qDebug() << "Database initialized successfully";
+
     QObject::connect(&app, &QApplication::aboutToQuit, []() {
         PokemonDatabase::instance().shutdown();
     });

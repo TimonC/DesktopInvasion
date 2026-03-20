@@ -44,7 +44,7 @@ class PokemonDatabase {
 public:
     static PokemonDatabase& instance();
 
-    bool initialize(const QString& dbPath = QString());
+    bool initialize();
     void shutdown();
 
     int  currentSaveId() const { return m_saveId; }
