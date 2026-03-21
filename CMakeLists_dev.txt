@@ -24,4 +24,17 @@ target_precompile_headers(DesktopInvasion PRIVATE
 )
 
 target_include_directories(DesktopInvasion PRIVATE ${CMAKE_SOURCE_DIR}/include)
-t
+target_link_libraries(DesktopInvasion PRIVATE
+    Qt6::Core
+    Qt6::Gui
+    Qt6::Quick
+    Qt6::Widgets
+    Qt6::Sql
+)
+
+message(STATUS "Building DesktopInvasion")
+message(STATUS "  Qt version:     ${Qt6_VERSION}")
+message(STATUS "  Build type:     ${CMAKE_BUILD_TYPE}")
+message(STATUS "  Install prefix: ${CMAKE_INSTALL_PREFIX}")
+
+

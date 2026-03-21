@@ -66,6 +66,11 @@ if(APPLE)
     else()
         message(WARNING "Icon file not found: ${ICON_FILE}")
     endif()
+    # Link frameworks for compiling objective c flag to cpp
+    target_link_libraries(DesktopInvasion PRIVATE
+        "-framework Cocoa"
+        "-framework Foundation"
+    )
 endif()
 
 target_precompile_headers(DesktopInvasion PRIVATE
