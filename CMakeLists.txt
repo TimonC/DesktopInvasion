@@ -12,8 +12,9 @@ find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick Widgets Sql)
 
 qt6_add_resources(RESOURCES_RCC resources.qrc)
 
-file(GLOB_RECURSE ALL_SRC     CONFIGURE_DEPENDS src/*.cpp)
+file(GLOB_RECURSE CPP_SRC CONFIGURE_DEPENDS src/*.cpp)
 file(GLOB_RECURSE ALL_HEADERS CONFIGURE_DEPENDS include/*.h src/*.h)
+set(ALL_SRC ${CPP_SRC})
 
 add_executable(DesktopInvasion
     ${ALL_SRC}
@@ -25,30 +26,10 @@ set_target_properties(DesktopInvasion PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
 
-if(WIN32)
-    set_target_properties(DesktopInvasion PROPERTIES
-        WIN32_EXECUTABLE TRUE
-    )
-
-    add_custom_command(TARGET DesktopInvasion POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_RUNTIME_DLLS:DesktopInvasion>
-            $<TARGET_FILE_DIR:DesktopInvasion>
-        COMMAND_EXPAND_LISTS
-    )
-
-    set(ICON_FILE "${CMAKE_SOURCE_DIR}/assets/icon/icon.ico")
-    if(EXISTS ${ICON_FILE})
-        set(RC_FILE "${CMAKE_CURRENT_BINARY_DIR}/app.rc")
-        file(WRITE ${RC_FILE} "IDI_ICON1 ICON \"${ICON_FILE}\"\n")
-        target_sources(DesktopInvasion PRIVATE ${RC_FILE})
-        enable_language(RC)
-    else()
-        message(WARNING "Icon file not found: ${ICON_FILE}")
-    endif()
-endif()
-
 if(APPLE)
+    file(GLOB_RECURSE MM_SRC CONFIGURE_DEPENDS src/*.mm)
+    set(ALL_SRC ${CPP_SRC} ${MM_SRC})
+
     set_target_properties(DesktopInvasion PROPERTIES
         MACOSX_BUNDLE                   TRUE
         MACOSX_BUNDLE_BUNDLE_NAME       "DesktopInvasion"
@@ -71,6 +52,29 @@ if(APPLE)
         "-framework Cocoa"
         "-framework Foundation"
     )
+endif()
+
+if(WIN32)
+    set_target_properties(DesktopInvasion PROPERTIES
+        WIN32_EXECUTABLE TRUE
+    )
+
+    add_custom_command(TARGET DesktopInvasion POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_RUNTIME_DLLS:DesktopInvasion>
+            $<TARGET_FILE_DIR:DesktopInvasion>
+        COMMAND_EXPAND_LISTS
+    )
+
+    set(ICON_FILE "${CMAKE_SOURCE_DIR}/assets/icon/icon.ico")
+    if(EXISTS ${ICON_FILE})
+        set(RC_FILE "${CMAKE_CURRENT_BINARY_DIR}/app.rc")
+        file(WRITE ${RC_FILE} "IDI_ICON1 ICON \"${ICON_FILE}\"\n")
+        target_sources(DesktopInvasion PRIVATE ${RC_FILE})
+        enable_language(RC)
+    else()
+        message(WARNING "Icon file not found: ${ICON_FILE}")
+    endif()
 endif()
 
 target_precompile_headers(DesktopInvasion PRIVATE
