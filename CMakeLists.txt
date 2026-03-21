@@ -28,11 +28,6 @@ set_target_properties(DesktopInvasion PROPERTIES
 )
 
 if(APPLE)
-    set_source_files_properties(${MM_SRC} PROPERTIES
-        LANGUAGE OBJCXX
-        COMPILE_FLAGS "-fobjc-arc"
-    )
-
     set_target_properties(DesktopInvasion PROPERTIES
         MACOSX_BUNDLE                   TRUE
         MACOSX_BUNDLE_BUNDLE_NAME       "DesktopInvasion"
