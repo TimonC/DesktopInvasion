@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
-project(DesktopInvasion LANGUAGES CXX)
+
+project(DesktopInvasion LANGUAGES CXX OBJCXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -7,19 +8,19 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick Widgets Sql)
 
 qt6_add_resources(RESOURCES_RCC resources.qrc)
 
 file(GLOB_RECURSE CPP_SRC CONFIGURE_DEPENDS src/*.cpp)
 file(GLOB_RECURSE ALL_HEADERS CONFIGURE_DEPENDS include/*.h src/*.h)
-set(ALL_SRC ${CPP_SRC})
+file(GLOB_RECURSE MM_SRC CONFIGURE_DEPENDS src/*.mm)
+
+set(ALL_SRC ${CPP_SRC} ${ALL_HEADERS} ${RESOURCES_RCC})
 
 add_executable(DesktopInvasion
     ${ALL_SRC}
-    ${ALL_HEADERS}
-    ${RESOURCES_RCC}
+    ${MM_SRC}
 )
 
 set_target_properties(DesktopInvasion PROPERTIES
@@ -27,12 +28,9 @@ set_target_properties(DesktopInvasion PROPERTIES
 )
 
 if(APPLE)
-    file(GLOB_RECURSE MM_SRC CONFIGURE_DEPENDS src/*.mm)
-    list(APPEND ALL_SRC ${MM_SRC})
-
     set_source_files_properties(${MM_SRC} PROPERTIES
-        LANGUAGE CXX
-        COMPILE_FLAGS "-x objective-c++ -fobjc-arc"
+        LANGUAGE OBJCXX
+        COMPILE_FLAGS "-fobjc-arc"
     )
 
     set_target_properties(DesktopInvasion PROPERTIES
@@ -52,10 +50,12 @@ if(APPLE)
     else()
         message(WARNING "Icon file not found: ${ICON_FILE}")
     endif()
-    # Link frameworks for compiling objective c flag to cpp
+
+    # Link macOS frameworks
     target_link_libraries(DesktopInvasion PRIVATE
         "-framework Cocoa"
         "-framework Foundation"
+        "-framework AppKit"
     )
 endif()
 
@@ -107,4 +107,3 @@ message(STATUS "Building DesktopInvasion")
 message(STATUS "  Qt version:     ${Qt6_VERSION}")
 message(STATUS "  Build type:     ${CMAKE_BUILD_TYPE}")
 message(STATUS "  Install prefix: ${CMAKE_INSTALL_PREFIX}")
-
