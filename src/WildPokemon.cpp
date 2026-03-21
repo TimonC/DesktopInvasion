@@ -52,12 +52,12 @@ WildPokemon::WildPokemon(int pokedexId, QPoint spawnPoint, int spawnDirection,  
     setWidth(width);
     setHeight(height);
 
-    // if(spawnDirection>-1 && spawnDirection<5){  TODO virtual in constructor?
-    /*     direction(spawnDirection); */
-    /* } */
-    /* else{ */
-    /*     direction(std::rand()%4); */
-    /* } */
+    if(spawnDirection>-1 && spawnDirection<5){
+        direction(spawnDirection);
+    }
+    else{
+        direction(std::rand()%4);
+    }
 
     m_decisionTimer->setInterval(2000 + std::rand()%2000);
     m_moveTimer->setInterval(50);
