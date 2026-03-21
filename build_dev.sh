@@ -9,9 +9,6 @@ chmod 0700 "$XDG_RUNTIME_DIR"
 if [ -f "resources.dev.qrc" ]; then
     cp resources.dev.qrc resources.qrc
 fi
-if [ -f "CMakeLists_dev.txt" ]; then
-    cp CMakeLists_dev.txt CMakeLists.txt
-fi
 
 echo "First script execution - wiping volume"
 rm -rf /app/data/* 2>/dev/null || true
