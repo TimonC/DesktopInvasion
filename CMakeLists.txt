@@ -28,7 +28,12 @@ set_target_properties(DesktopInvasion PROPERTIES
 
 if(APPLE)
     file(GLOB_RECURSE MM_SRC CONFIGURE_DEPENDS src/*.mm)
-    set(ALL_SRC ${CPP_SRC} ${MM_SRC})
+    list(APPEND ALL_SRC ${MM_SRC})
+
+    set_source_files_properties(${MM_SRC} PROPERTIES
+        LANGUAGE CXX
+        COMPILE_FLAGS "-x objective-c++ -fobjc-arc"
+    )
 
     set_target_properties(DesktopInvasion PROPERTIES
         MACOSX_BUNDLE                   TRUE
