@@ -4,6 +4,8 @@
 #include <QTimer>
 #include <QQuickItem>
 
+#include "macos_helper.h"
+
 DesktopScene::DesktopScene(QWindow *parent)
     : QQuickView(parent)
     , m_currentDirection(0)
@@ -17,18 +19,9 @@ DesktopScene::DesktopScene(QWindow *parent)
     setColor(Qt::transparent);
 
 #ifdef Q_OS_MAC
-    // Force native window creation
     show();
     hide();
-
-    // Get the native NSWindow and set properties
-    NSView *nsView = reinterpret_cast<NSView*>(winId());
-    NSWindow *nsWindow = [nsView window];
-
-    // This is the macOS equivalent of WA_MacAlwaysShowToolWindow
-    [nsWindow setLevel:NSFloatingWindowLevel];
-    [nsWindow setHidesOnDeactivate:NO];
-    [nsWindow setStyleMask:[nsWindow styleMask] | NSWindowStyleMaskNonactivatingPanel];
+    setupMacOSWindow(reinterpret_cast<void*>(winId()));
 #endif
 
     m_grabCursor = QCursor(QPixmap(":/assets/XY/grab.png"));
