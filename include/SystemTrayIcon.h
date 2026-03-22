@@ -34,7 +34,6 @@ private:
     QAction* m_quitAction;
     QAction* m_activeAction;
     QAction* m_menuAction;
-    QAction* m_settingsAction;
 };
 
 #endif

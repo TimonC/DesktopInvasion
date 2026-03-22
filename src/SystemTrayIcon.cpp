@@ -11,7 +11,6 @@ SystemTrayIcon::SystemTrayIcon(QObject *parent)
     , m_menu(nullptr)
     , m_quitAction(nullptr)
     , m_menuAction(nullptr)
-    , m_settingsAction(nullptr)
 {
     setIcon(m_activeIcon);
 
@@ -34,7 +33,6 @@ void SystemTrayIcon::enabled(bool enabled){
     m_clickEnabled = enabled;
     m_activeAction->setEnabled(enabled);
     m_menuAction->setEnabled(enabled);
-    m_settingsAction->setEnabled(enabled);
 };
 
 void SystemTrayIcon::toggleGameActive(){
@@ -62,12 +60,6 @@ void SystemTrayIcon::createContextMenu(){
     m_quitAction = new QAction(tr("Quit"), m_menu);
     m_quitAction->setToolTip(tr("Exit the application"));
     connect(m_quitAction, &QAction::triggered, qApp, &QApplication::quit);
-
-    /* m_settingsAction = new QAction(tr("Settings"), m_menu); */
-    /* m_settingsAction->setToolTip(tr("Open settings")); */
-    /* connect(m_settingsAction, &QAction::triggered, qApp, [this]() { */
-    /*         //TODO implement settings menu */
-    /* }); */
 
     m_activeAction = new QAction(tr("Active"), m_menu);
     m_activeAction->setCheckable(true);

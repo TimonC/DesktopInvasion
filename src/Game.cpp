@@ -203,21 +203,21 @@ void Game::handleMoveChange(int placex, int posx, int moveSlot, int moveId) {
 
 void Game::handleMenuOpen() {
     bool usedToBeActive = m_gameUsedToBeActive;
-    m_gameUsedToBeActive = usedToBeActive;
     setGameActive(false);
-    m_trayIcon->enabled(false);
+    m_gameUsedToBeActive = usedToBeActive;
 
     Defaults d = m_db.loadDefaults();
     m_menu->setDefaults(d);
 
-    m_menu->loadParty(partyToVariantList(), true);
+    m_menu->activate();
 
+    m_menu->loadParty(partyToVariantList(), true);
     pushBoxToMenu(0);
     pushBoxToMenu(1);
     pushBoxToMenu(98);
     m_menu->showBox(0);
 
-    m_menu->activate();
+    m_trayIcon->enabled(false);
 }
 
 void Game::handleMenuClosed() {

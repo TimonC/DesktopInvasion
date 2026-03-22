@@ -36,23 +36,23 @@ GameMenu::GameMenu()
     setTitle("DesktopInvasion");
 
 
-    /* //Hardcoded values in the root qml (derived from simple log) */
-    const double menuWidth = 1361.0;
-    const double menuHeight = 945.0;
-    QRect availableGeometry = QGuiApplication::primaryScreen()->availableGeometry();
+/*     /1* //Hardcoded values in the root qml (derived from simple log) *1/ */
+/*     const double menuWidth = 1361.0; */
+/*     const double menuHeight = 945.0; */
+/*     QRect availableGeometry = QGuiApplication::primaryScreen()->availableGeometry(); */
 
-    const double scaleW = std::min(1.0, static_cast<double>(availableGeometry.width())/menuWidth);
-    const double scaleH = std::min(1.0, static_cast<double>(availableGeometry.height())/menuHeight);
-    const double uiScale = std::min(scaleW, scaleH);
+/*     const double scaleW = std::min(1.0, static_cast<double>(availableGeometry.width())/menuWidth); */
+/*     const double scaleH = std::min(1.0, static_cast<double>(availableGeometry.height())/menuHeight); */
+/*     const double uiScale = std::min(scaleW, scaleH); */
 
-    if(m_menuRoot){
-        m_menuRoot->setProperty("uiScale", uiScale);
-        //The menu doesn't handle resizing well so I just lock it like this
-        setMinimumSize( QSize(menuWidth*uiScale, menuHeight*uiScale));
-        setMaximumSize( QSize(menuWidth*uiScale, menuHeight*uiScale));
-    }
+/*     if(m_menuRoot){ */
+/*         m_menuRoot->setProperty("uiScale", uiScale); */
+/*         //The menu doesn't handle resizing well so I just lock it like this */
+/*         setMinimumSize( QSize(menuWidth*uiScale, menuHeight*uiScale)); */
+/*         setMaximumSize( QSize(menuWidth*uiScale, menuHeight*uiScale)); */
+/*     } */
 
-    hide();
+/*     hide(); */
 }
 
 
