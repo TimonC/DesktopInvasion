@@ -63,11 +63,11 @@ void SystemTrayIcon::createContextMenu(){
     m_quitAction->setToolTip(tr("Exit the application"));
     connect(m_quitAction, &QAction::triggered, qApp, &QApplication::quit);
 
-    m_settingsAction = new QAction(tr("Settings"), m_menu);
-    m_settingsAction->setToolTip(tr("Open settings"));
-    connect(m_settingsAction, &QAction::triggered, qApp, [this]() {
-            //TODO implement settings menu
-    });
+    /* m_settingsAction = new QAction(tr("Settings"), m_menu); */
+    /* m_settingsAction->setToolTip(tr("Open settings")); */
+    /* connect(m_settingsAction, &QAction::triggered, qApp, [this]() { */
+    /*         //TODO implement settings menu */
+    /* }); */
 
     m_activeAction = new QAction(tr("Active"), m_menu);
     m_activeAction->setCheckable(true);
@@ -85,10 +85,9 @@ void SystemTrayIcon::createContextMenu(){
     });
 
     m_menu->addAction(m_quitAction);
-    m_menu->addAction(m_settingsAction);
     m_menu->addSeparator();
-    m_menu->addAction(m_activeAction);
     m_menu->addAction(m_menuAction);
+    m_menu->addAction(m_activeAction);
 
     setContextMenu(m_menu);
 }
