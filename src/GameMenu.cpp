@@ -34,17 +34,22 @@ GameMenu::GameMenu()
     setCursor(m_pointerCursor);
     setTitle("DesktopInvasion");
 
-    //Hardcoded values based on printing the size
-    //I'm doing this cause it's the easiest way to
-    //fix size and I'm too lazy to handle window resize
-    int fixedWidth = std::min(1361, Globals::screenGeometry().width());
-    int fixedHeight = std::min(945, Globals::screenGeometry().height());
+    //Hardcoded values in the root qml (derived from simple log)
+    const double menuWidth = 1361.0;
+    const double menuHeight = 945.0;
+    QRect availableGeometry = QGuiApplication::primaryScreen()->availableGeometry();
 
-    setMinimumSize( QSize(fixedWidth, fixedHeight));
-    setMaximumSize( QSize(fixedWidth, fixedHeight));
+    const double scaleW = std::min(1.0, availableGeometry.width()/menuWidth);
+    const double scaleH = std::min(1.0, availableGeometry.height()/menuHeight);
+    qDebug() << scaleW;
+    const int uiScale = std::min(scaleW, scaleH);
+    m_menuRoot->setProperty("uiScale", uiScale);
+
+    //The menu doesn't handle resizing well so I just lock it like this
+    setMinimumSize( QSize(menuWidth*uiScale, menuHeight*uiScale));
+    setMaximumSize( QSize(menuWidth*uiScale, menuHeight*uiScale));
 
     hide();
-
 }
 
 
