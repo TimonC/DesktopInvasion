@@ -5,8 +5,8 @@
 class QRect;
 
 namespace Globals {
-    bool debug();
-    void debug(bool value);
+    bool debugLines();
+    void debugLines(bool value);
 
     float scale();
     void scale(float value);

@@ -45,7 +45,7 @@ Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildS
 
     m_battleScene->setProperty("direction", m_currentDirection);
     m_battleScene->setProperty("pokeMargin", m_pokeMargin);
-    m_battleScene->setProperty("debugLines", Globals::debug());
+    m_battleScene->setProperty("debugLines", Globals::debugLines());
     m_battleScene->setProperty("animationSpeed", Globals::animationSpeed());
     m_battleScene->setProperty("scale", Globals::scale());
     m_opp = setupPokemon(wildState.pokedex_id, wildState.name,wildState.lvl, "opponent");
@@ -171,7 +171,7 @@ QQuickItem* Battle::updateSprite(int pokedexId, const char* role){
 
     // Apply correct scaling
     pokemonSprite->setProperty("scaleFactor", Globals::scale() / scaleDivisor);
-    pokemonSprite->setProperty("debugLines", Globals::debug());
+    pokemonSprite->setProperty("debugLines", Globals::debugLines());
     pokemonSprite->setProperty("horizontalHeight", Globals::scale()/scaleDivisor * info->hHeight);
     pokemonSprite->setProperty("verticalWidth", Globals::scale()/scaleDivisor * info->vWidth);
     pokemonSprite->setProperty("hCenterUp", Globals::scale()/scaleDivisor * info->hCenterUp);

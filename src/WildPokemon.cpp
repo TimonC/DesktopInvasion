@@ -40,7 +40,7 @@ WildPokemon::WildPokemon(int pokedexId, QPoint spawnPoint, int spawnDirection,  
     float scaleDivisor = isBig ? 1.4/3.0f : 1.0f/3.0f;
     m_sprite->setProperty("scaleFactor", Globals::scale()/scaleDivisor) ;
     m_sprite->setProperty("row", info->rowId);
-    m_sprite->setProperty("debugLines", Globals::debug());
+    m_sprite->setProperty("debugLines", Globals::debugLines());
     m_sprite->setProperty("frameWidth", isBig ? 64  : 32);
     m_sprite->setProperty("frameHeight", isBig ? 64  : 32);
 

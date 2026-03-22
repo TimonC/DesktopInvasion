@@ -12,8 +12,8 @@ namespace Globals {
         bool s_exp_share = false;
     }
 
-    bool debug() { return s_debug; }
-    void debug(bool value) { s_debug = value; }
+    bool debugLines() { return s_debug; }
+    void debugLines(bool value) { s_debug = value; }
 
     float scale() { return s_scale; }
     void scale(float value) { s_scale = value; }
