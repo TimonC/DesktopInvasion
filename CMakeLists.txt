@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(DesktopInvasion LANGUAGES CXX OBJCXX)
+if(APPLE)
+    project(DesktopInvasion LANGUAGES CXX OBJCXX)
+else()
+    project(DesktopInvasion LANGUAGES CXX)
+endif()
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -18,16 +22,21 @@ file(GLOB_RECURSE MM_SRC CONFIGURE_DEPENDS src/*.mm)
 
 set(ALL_SRC ${CPP_SRC} ${ALL_HEADERS} ${RESOURCES_RCC})
 
-add_executable(DesktopInvasion
-    ${ALL_SRC}
-    ${MM_SRC}
-)
+if(APPLE)
+    add_executable(DesktopInvasion ${ALL_SRC} ${MM_SRC})
+else()
+    add_executable(DesktopInvasion ${ALL_SRC})
+endif()
 
 set_target_properties(DesktopInvasion PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
 
 if(APPLE)
+    add_executable(DesktopInvasion
+        ${ALL_SRC}
+        ${MM_SRC}
+    )
     set_target_properties(DesktopInvasion PROPERTIES
         MACOSX_BUNDLE                   TRUE
         MACOSX_BUNDLE_BUNDLE_NAME       "DesktopInvasion"
@@ -46,7 +55,6 @@ if(APPLE)
         message(WARNING "Icon file not found: ${ICON_FILE}")
     endif()
 
-    # Link macOS frameworks
     target_link_libraries(DesktopInvasion PRIVATE
         "-framework Cocoa"
         "-framework Foundation"
