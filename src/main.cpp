@@ -63,11 +63,13 @@ int main(int argc, char *argv[]) {
     engine.rootContext()->setContextProperty("pixelFontFamily", pixelFontFamily);
     engine.rootContext()->setContextProperty("dotGothicFontFamily", dotGothicFamily);
 
-    if (!PokemonDatabase::instance().initialize()) {
+    int initResult = PokemonDatabase::instance().initialize();
+    if (initResult == -1) {
         qCritical() << "Failed to initialize database";
         return 1;
+    }else if( initResult == 0){
+        //TODO: handle first time init!!
     }
-    qDebug() << "Database initialized successfully";
 
     QObject::connect(&app, &QApplication::aboutToQuit, []() {
         PokemonDatabase::instance().shutdown();

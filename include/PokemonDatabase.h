@@ -44,7 +44,7 @@ class PokemonDatabase {
 public:
     static PokemonDatabase& instance();
 
-    bool initialize();
+    int initialize(); //-1 on error, 0 on first play, 1 on success
     void shutdown();
 
     int  currentSaveId() const { return m_saveId; }

@@ -25,15 +25,15 @@ PokemonDatabase& PokemonDatabase::instance() {
 
 PokemonDatabase::~PokemonDatabase() { shutdown(); }
 
-bool PokemonDatabase::initialize() {
+int PokemonDatabase::initialize() {
     if (m_initialized) {
         DB_WARN("initialize called but already initialized");
-        return true;
+        return 1;
     }
 
     if (!QSqlDatabase::isDriverAvailable("QSQLITE")) {
         DB_ERR("SQLITE driver not available");
-        return false;
+        return -1;
     }
 
     QString appDataLocation = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
@@ -44,12 +44,12 @@ bool PokemonDatabase::initialize() {
     QDir dbDir(appDataLocation);
     if (!dbDir.exists() && !dbDir.mkpath(".")) {
         DB_ERR("Failed to create database directory: " << dbDir.path());
-        return false;
+        return -1;
     }
 
     if (!QFileInfo(dbDir.path()).isWritable()) {
         DB_ERR("Database directory not writable: " << dbDir.path());
-        return false;
+        return -1;
     }
 
     if (QSqlDatabase::contains(QSqlDatabase::defaultConnection)) {
@@ -61,24 +61,24 @@ bool PokemonDatabase::initialize() {
     if (!db.open()) {
         DB_ERR("Failed to open DB: " << db.lastError().text());
         QSqlDatabase::removeDatabase(QSqlDatabase::defaultConnection);
-        return false;
+        return -1;
     }
 
-    DB_LOG("Opened at " << path);
     m_dbPath      = path;
     m_initialized = true;
 
-    if (!createTables())     { DB_ERR("Failed to create tables");          shutdown(); return false; }
+    if (!createTables())     { DB_ERR("Failed to create tables");          shutdown(); return -1; }
 
     m_saveId = readCurrentSaveId();
-    DB_LOG("Active save_id=" << m_saveId);
+    if(m_saveId==0)         return 0;
 
-    if (!initFixedSlots())   { DB_ERR("Failed to initialize fixed slots"); shutdown(); return false; }
-    if (!loadWildAndParty()) { DB_ERR("Failed to load wild and party");    shutdown(); return false; }
+    if (!initFixedSlots())   { DB_ERR("Failed to initialize fixed slots"); shutdown(); return -1; }
+    if (!loadWildAndParty()) { DB_ERR("Failed to load wild and party");    shutdown(); return -1; }
 
     DB_LOG("Initialization complete");
-    return true;
+    return 1;
 }
+
 void PokemonDatabase::shutdown() {
     if (!m_initialized) return;
     DB_LOG("Shutdown");
@@ -102,7 +102,7 @@ bool PokemonDatabase::createTables() {
 
     run(R"(CREATE TABLE IF NOT EXISTS current_save (
         id              INTEGER PRIMARY KEY CHECK(id = 1),
-        current_save_id INTEGER DEFAULT 1
+        current_save_id INTEGER DEFAULT 0
     ))");
     run(R"(CREATE TABLE IF NOT EXISTS saves (
         save_id          INTEGER PRIMARY KEY,
@@ -172,7 +172,7 @@ bool PokemonDatabase::createTables() {
     ))");
     run("CREATE INDEX IF NOT EXISTS idx_pc_box ON pc_slots(save_id, box)");
 
-    run("INSERT OR IGNORE INTO current_save(id, current_save_id) VALUES(1, 1)");
+    run("INSERT OR IGNORE INTO current_save(id, current_save_id) VALUES(1, 0)");
 
     if (ok) DB_LOG("Tables ready");
     else    DB_ERR("One or more tables failed to create");
