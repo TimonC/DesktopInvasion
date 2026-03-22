@@ -49,10 +49,11 @@ void SystemTrayIcon::toggleGameActive(){
 }
 
 void SystemTrayIcon::onActivated(QSystemTrayIcon::ActivationReason reason){
-    if(m_clickEnabled && reason == QSystemTrayIcon::Trigger){
-            toggleGameActive();
-    };
-
+    if(m_clickEnabled && (reason == QSystemTrayIcon::Trigger || reason == QSystemTrayIcon::Context)){
+        if(m_menu) {
+            m_menu->popup(QCursor::pos());
+        }
+    }
 }
 
 void SystemTrayIcon::createContextMenu(){
