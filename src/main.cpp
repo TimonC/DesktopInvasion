@@ -4,7 +4,6 @@
 #include <QStandardPaths>
 #include <QDir>
 #include <QCoreApplication>
-#include <globals.h>
 #include <Game.h>
 #include <PokemonDatabase.h>
 #include <qnamespace.h>
@@ -16,7 +15,10 @@
 
 int main(int argc, char *argv[]) {
     SingleInstanceApplication app(argc, argv, "DesktopInvasion");
-    if(app.shouldExit()){
+
+    const char* env =  getenv("DOCKER_ENV");
+    bool isDev = (env && strcmp(env, "dev") == 0);
+    if(!isDev && app.shouldExit()){
         return 0;
     }
 
@@ -70,19 +72,6 @@ int main(int argc, char *argv[]) {
     QObject::connect(&app, &QApplication::aboutToQuit, []() {
         PokemonDatabase::instance().shutdown();
     });
-
-    const char* valgrind_mode = std::getenv("VALGRIND_MODE");
-    if (valgrind_mode && strcmp(valgrind_mode, "1") == 0) {
-        const int DOOM_S = 300;
-        qDebug() << "~~~~~~ VALGRIND DEBUG MODE ~~~~~~";
-        qDebug() << "Game will auto-exit in" << DOOM_S << "seconds";
-
-        QTimer::singleShot(DOOM_S * 1000, [&app]() {
-            qDebug() << "~~~~~~ AUTO-EXIT TIMER FIRED ~~~~~~";
-            qDebug() << DOOM_S << "seconds elapsed - exiting cleanly";
-            app.quit();
-        });
-    }
 
     std::unique_ptr<Game> game = std::make_unique<Game>(nullptr);
     return app.exec();
