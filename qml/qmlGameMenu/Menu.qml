@@ -156,20 +156,6 @@ Item {
                 }
             }
 
-            function editButtonClicked(pokeData) {
-                if (!pokeData) return
-                if (pc.inSwapMode) pc.toggleSwapMode()
-
-                _pendingPokeData    = pokeData
-                _pendingRowId       = pokeData.rowId
-                _pendingSheet       = pokeData.isBig ? "qrc:/assets/HGSS/reordered_sprites_big.png"
-                                                     : "qrc:/assets/HGSS/reordered_sprites.png"
-                _pendingFrameWidth  = pokeData.isBig ? 64 : 32
-                _pendingFrameHeight = pokeData.isBig ? 64 : 32
-                _pendingScaleFactor = pokeData.isBig ? root.iconScaleForBig : root.iconScale
-
-                root.menuState = "moveMenu"
-            }
 
             Item {
                 anchors.fill: parent
@@ -297,7 +283,7 @@ Item {
                                 item.mainFont   = root.p2pFont
                                 item.bodyFont   = root.dotGothicFont
 
-                                item.returnClicked.connect(goToDefaultMenu)
+                                item.returnClicked.connect(root.goToDefaultMenu)
 
                                 item.nameChanged.connect(function(name) {
                                     menuBridge.nameChangeRequested(pc.displayedPokemonBox, pc.displayedPokemonIndex, name)
@@ -317,10 +303,26 @@ Item {
                     }
                 }
             }
-            function goToDefaultMenu(){
-                root.menuState = "default"
-                pc._display([pc.displayedPokemonBox, pc.displayedPokemonIndex])
-            }
         }
+    }
+
+    function goToDefaultMenu(){
+        root.menuState = "default"
+        pc._display([pc.displayedPokemonBox, pc.displayedPokemonIndex])
+    }
+
+    function editButtonClicked(pokeData) {
+        if (!pokeData) return
+        if (pc.inSwapMode) pc.toggleSwapMode()
+
+        _pendingPokeData    = pokeData
+        _pendingRowId       = pokeData.rowId
+        _pendingSheet       = pokeData.isBig ? "qrc:/assets/HGSS/reordered_sprites_big.png"
+                                             : "qrc:/assets/HGSS/reordered_sprites.png"
+        _pendingFrameWidth  = pokeData.isBig ? 64 : 32
+        _pendingFrameHeight = pokeData.isBig ? 64 : 32
+        _pendingScaleFactor = pokeData.isBig ? root.iconScaleForBig : root.iconScale
+
+        root.menuState = "moveMenu"
     }
 }
