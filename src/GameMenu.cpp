@@ -41,10 +41,9 @@ GameMenu::GameMenu()
 
     const double scaleW = std::min(1.0, availableGeometry.width()/menuWidth);
     const double scaleH = std::min(1.0, availableGeometry.height()/menuHeight);
-    qDebug() << scaleW;
-    const int uiScale = std::min(scaleW, scaleH);
-    m_menuRoot->setProperty("uiScale", uiScale);
+    const double uiScale = std::min(scaleW, scaleH);
 
+    m_menuRoot->setProperty("uiScale", uiScale);
     //The menu doesn't handle resizing well so I just lock it like this
     setMinimumSize( QSize(menuWidth*uiScale, menuHeight*uiScale));
     setMaximumSize( QSize(menuWidth*uiScale, menuHeight*uiScale));
