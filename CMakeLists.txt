@@ -33,10 +33,6 @@ set_target_properties(DesktopInvasion PROPERTIES
 )
 
 if(APPLE)
-    add_executable(DesktopInvasion
-        ${ALL_SRC}
-        ${MM_SRC}
-    )
     set_target_properties(DesktopInvasion PROPERTIES
         MACOSX_BUNDLE                   TRUE
         MACOSX_BUNDLE_BUNDLE_NAME       "DesktopInvasion"
