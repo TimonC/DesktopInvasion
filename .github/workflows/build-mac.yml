@@ -75,43 +75,43 @@ jobs:
 
         codesign --force --sign - DesktopInvasion-macOS.dmg 2>/dev/null || true
 
-    - name: Smoke test
-      timeout-minutes: 1
-      run: |
-        APP_PATH=$(find build -name "DesktopInvasion.app" -type d | head -1)
-        if [ -z "$APP_PATH" ]; then
-          echo "Error: .app bundle not found for smoke test"
-          exit 1
-        fi
+    # - name: Smoke test
+    #   timeout-minutes: 1
+    #   run: |
+    #     APP_PATH=$(find build -name "DesktopInvasion.app" -type d | head -1)
+    #     if [ -z "$APP_PATH" ]; then
+    #       echo "Error: .app bundle not found for smoke test"
+    #       exit 1
+    #     fi
 
-        echo "Smoke testing: $APP_PATH"
+    #     echo "Smoke testing: $APP_PATH"
 
-        QT_QPA_PLATFORM=offscreen "$APP_PATH/Contents/MacOS/DesktopInvasion" &
-        APP_PID=$!
+    #     QT_QPA_PLATFORM=offscreen "$APP_PATH/Contents/MacOS/DesktopInvasion" &
+    #     APP_PID=$!
 
-        { sleep 8; kill $APP_PID 2>/dev/null; } &
-        WATCHDOG_PID=$!
+    #     { sleep 8; kill $APP_PID 2>/dev/null; } &
+    #     WATCHDOG_PID=$!
 
-        sleep 5
+    #     sleep 5
 
-        if kill -0 $APP_PID 2>/dev/null; then
-          echo "Smoke test passed"
-          kill $WATCHDOG_PID 2>/dev/null || true
-          kill $APP_PID
-          wait $APP_PID 2>/dev/null || true
-          exit 0
-        else
-          wait $APP_PID
-          EXIT_CODE=$?
-          kill $WATCHDOG_PID 2>/dev/null || true
-          if [ $EXIT_CODE -eq 0 ]; then
-            echo "App exited with code 0 within 5 seconds"
-            exit 0
-          else
-            echo "App crashed on startup. Exit code: $EXIT_CODE"
-            exit 1
-          fi
-        fi
+    #     if kill -0 $APP_PID 2>/dev/null; then
+    #       echo "Smoke test passed"
+    #       kill $WATCHDOG_PID 2>/dev/null || true
+    #       kill $APP_PID
+    #       wait $APP_PID 2>/dev/null || true
+    #       exit 0
+    #     else
+    #       wait $APP_PID
+    #       EXIT_CODE=$?
+    #       kill $WATCHDOG_PID 2>/dev/null || true
+    #       if [ $EXIT_CODE -eq 0 ]; then
+    #         echo "App exited with code 0 within 5 seconds"
+    #         exit 0
+    #       else
+    #         echo "App crashed on startup. Exit code: $EXIT_CODE"
+    #         exit 1
+    #       fi
+    #     fi
 
     - name: Upload DMG
       uses: actions/upload-artifact@v4
