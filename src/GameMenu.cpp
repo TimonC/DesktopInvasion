@@ -32,21 +32,25 @@ GameMenu::GameMenu()
     m_grabCursor    = QCursor(QPixmap(":/assets/XY/grab.png"));
     m_pointerCursor = QCursor(QPixmap(":/assets/XY/pointer.png"), 6, 6);
     setCursor(m_pointerCursor);
+
     setTitle("DesktopInvasion");
 
-    //Hardcoded values in the root qml (derived from simple log)
+
+    /* //Hardcoded values in the root qml (derived from simple log) */
     const double menuWidth = 1361.0;
     const double menuHeight = 945.0;
     QRect availableGeometry = QGuiApplication::primaryScreen()->availableGeometry();
 
-    const double scaleW = std::min(1.0, availableGeometry.width()/menuWidth);
-    const double scaleH = std::min(1.0, availableGeometry.height()/menuHeight);
+    const double scaleW = std::min(1.0, static_cast<double>(availableGeometry.width())/menuWidth);
+    const double scaleH = std::min(1.0, static_cast<double>(availableGeometry.height())/menuHeight);
     const double uiScale = std::min(scaleW, scaleH);
 
-    m_menuRoot->setProperty("uiScale", uiScale);
-    //The menu doesn't handle resizing well so I just lock it like this
-    setMinimumSize( QSize(menuWidth*uiScale, menuHeight*uiScale));
-    setMaximumSize( QSize(menuWidth*uiScale, menuHeight*uiScale));
+    if(m_menuRoot){
+        m_menuRoot->setProperty("uiScale", uiScale);
+        //The menu doesn't handle resizing well so I just lock it like this
+        setMinimumSize( QSize(menuWidth*uiScale, menuHeight*uiScale));
+        setMaximumSize( QSize(menuWidth*uiScale, menuHeight*uiScale));
+    }
 
     hide();
 }
@@ -68,10 +72,6 @@ bool GameMenu::event(QEvent* event) {
     return QQuickView::event(event);
 }
 
-QObject* GameMenu::qmlRoot() {
-    return rootObject();
-}
-
 void GameMenu::activate() {
     show();
     raise();
@@ -79,8 +79,7 @@ void GameMenu::activate() {
     setVisible(true);
 }
 
-void GameMenu::setDefaults(Defaults &d)
-{
+void GameMenu::setDefaults(Defaults &d){
     QMetaObject::invokeMethod(m_menuRoot, "updateDefaults",
                               Q_ARG(QVariant, d.scale),
                               Q_ARG(QVariant, d.speed),

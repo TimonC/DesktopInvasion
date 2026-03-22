@@ -41,7 +41,6 @@ protected:
 private:
     QCursor  m_grabCursor;
     QCursor  m_pointerCursor;
-    QObject* qmlRoot();
 };
 
 #endif

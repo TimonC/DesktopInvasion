@@ -6,7 +6,7 @@ Item {
 //i hardcoded the whole menu size and then realised it wouldn't fit on some screens.
 //As an easy solution the whole thing is wrapped and rescaled in an item
 //Only problem is that the pc icons are a bit distorted on scaling
-    property real uiScale:  1.0
+    property double uiScale:  1.0
 
     readonly property int baseWidth: pad + pcW + pad + dividerW + pad + rightPanelW + pad
     readonly property int baseHeight: pad + labelHeight + contentSpacing + trainerH + pad + dividerW + pad + labelHeight + contentSpacing + pcH + pad
