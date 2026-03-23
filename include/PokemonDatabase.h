@@ -47,6 +47,7 @@ public:
 
     int  currentSaveId() const { return m_saveId; }
     bool setCurrentSaveId(int save_id);
+    std::vector<std::pair<int, std::string>> listTrainerNames();
 
     int              createNewSave(const GameState& state, const PokemonState& starter);
     bool             deleteSave(int save_id);

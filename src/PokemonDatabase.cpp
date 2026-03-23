@@ -799,3 +799,18 @@ bool PokemonDatabase::writeDefaults(const Defaults& d) {
     else DB_LOG("Defaults written for save_id=" << m_saveId);
     return ok;
 }
+
+std::vector<std::pair<int, std::string>> PokemonDatabase::listTrainerNames() {
+    std::vector<std::pair<int, std::string>> names;
+    QSqlQuery q;
+    q.prepare(R"(SELECT s.save_id, s.name FROM saves s
+                 INNER JOIN save_list sl ON sl.save_id = s.save_id
+                 ORDER BY s.save_id ASC)");
+    if (q.exec()) {
+        while (q.next())
+            names.emplace_back(q.value(0).toInt(), q.value(1).toString().toStdString());
+    } else {
+        logQuery(q);
+    }
+    return names;
+}

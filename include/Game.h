@@ -25,6 +25,7 @@ public slots:
 
 
 private:
+    void resetGame();
     void openStarterMenu();
     void writeDefaults();
     void initMenu();
@@ -41,7 +42,7 @@ private:
     QTimer*                  m_spawnTimer;
     const int                m_spawnDelay_ms = 1000;
 
-    void initializeGame();
+    void initializeGame(bool openStarter = true);
     void spawnPokemon();
     void safelyRemoveBattleScene();
     void safelyRemoveWildPokemon();
@@ -52,7 +53,9 @@ private:
     QVariantList boxToVariantList(int boxIndex);
     void         pushBoxToMenu(int boxIndex);
 
+
 private slots:
+    void handleSaveSelected(int saveId);
     void onStarterMenuFinished(QString playerName, int trainerId, int starterPokedexId);
     void updatePartyXP(std::array<int,6> spread);
     void handleMenuOpen();

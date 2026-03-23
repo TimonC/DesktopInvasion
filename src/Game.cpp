@@ -23,6 +23,7 @@ Game::Game(QWindow* parent)
 {
     qDebug() << "Game constructor called!";
 
+    qApp->setQuitOnLastWindowClosed(false);
     initializeGame();
 }
 
@@ -33,6 +34,11 @@ Game::~Game() {
     disconnect(m_trayIcon,   nullptr, this, nullptr);
     disconnect(m_spawnTimer, nullptr, this, nullptr);
 
+    resetGame();
+
+}
+
+void Game::resetGame(){
     if (m_menu) {
         disconnect(m_menu, nullptr, this, nullptr);
         delete m_menu;
@@ -95,24 +101,30 @@ void Game::setGameActive(bool active) {
     processing = false;
 }
 
-void Game::initializeGame() {
+void Game::initializeGame(bool openStarter) {
     bool hasParty = false;
     for (const auto& p : m_db.party())
         if (!p.empty()) { hasParty = true; break; }
 
-    if (!hasParty) {
+    if (!hasParty && openStarter) {
         qDebug() << "Starting new game!";
         openStarterMenu();
         return;
-    } else {
+    }
+    else{
         qDebug() << "Save loaded — party size:" << m_db.partySize();
     }
 
     if (!m_db.wild().empty())
         qDebug() << "Resuming wild Pokemon:" << QString::fromStdString(m_db.wild().name);
 
+    auto trainerNames = m_db.listTrainerNames();
+    m_trayIcon->createContextMenu(trainerNames, m_db.currentSaveId());
+
     connect(m_trayIcon, &SystemTrayIcon::gameActive,        this, &Game::setGameActive,    Qt::UniqueConnection);
     connect(m_trayIcon, &SystemTrayIcon::menuButtonPressed, this, &Game::handleMenuOpen,   Qt::UniqueConnection);
+    connect(m_trayIcon, &SystemTrayIcon::saveSelected, this, &Game::handleSaveSelected,   Qt::UniqueConnection);
+    connect(m_trayIcon, &SystemTrayIcon::newGameRequested, this, &Game::openStarterMenu,   Qt::UniqueConnection);
     m_spawnTimer->setInterval(m_spawnDelay_ms);
     connect(m_spawnTimer, &QTimer::timeout, this, &Game::spawnPokemon,                     Qt::UniqueConnection);
 
@@ -122,10 +134,17 @@ void Game::initializeGame() {
     m_spawnTimer->start();
 }
 
+void Game::handleSaveSelected(int saveId){
+    if(m_db.currentSaveId()==saveId) return;
+    m_db.setCurrentSaveId(saveId);
+    resetGame();
+    initializeGame();
+}
+
 void Game::openStarterMenu(){
     setGameActive(false);
     m_spawnTimer->stop();
-    m_trayIcon->hide();
+    m_trayIcon->setVisible(false);
 
     m_starterMenu = new QQuickView();
     const char* env = getenv("DOCKER_ENV");
@@ -133,44 +152,55 @@ void Game::openStarterMenu(){
         m_starterMenu->setSource(QUrl("../qml/qmlGameMenu/StarterMenu.qml"));
     else
         m_starterMenu->setSource(QUrl("qrc:/qml/qmlGameMenu/StarterMenu.qml"));
+
     m_starterMenu->setCursor(QCursor(QPixmap(":/assets/XY/pointer.png"), 6, 6));
     m_starterMenu->setTitle("DesktopInvasion");
-
-    int width = 1100;
-    int height = 720;
-    m_starterMenu->setProperty("width", width);
-    m_starterMenu->setProperty("height", height);
     m_starterMenu->setResizeMode(QQuickView::SizeRootObjectToView);
-    m_starterMenu->resize(width, height);
-
+    m_starterMenu->resize(1100, 720);
     m_starterMenu->show();
 
     QObject* root = m_starterMenu->rootObject();
     if (root)
         connect(root, SIGNAL(startGame(QString, int, int)), this, SLOT(onStarterMenuFinished(QString, int, int)));
+
+    connect(m_starterMenu, &QQuickView::closing, this, [this](QQuickCloseEvent*){
+        disconnect(m_starterMenu, nullptr, this, nullptr);
+        m_starterMenu->deleteLater();
+        m_starterMenu = nullptr;
+
+        auto saves = m_db.listSaveIds();
+        if (!saves.empty()) {
+            m_gameUsedToBeActive = true;
+            m_trayIcon->show();
+            resetGame();
+            initializeGame(false);
+        } else {
+            qApp->quit();
+        }
+    });
 }
 
 void Game::onStarterMenuFinished(QString playerName, int trainerId, int starterPokedexId){
     qDebug() << playerName << trainerId << starterPokedexId;
+
     PokemonState p;
     p.pokedex_id  = starterPokedexId;
     p.name        = Lookup::getPoke(starterPokedexId)->name;
     p.pokeball_id = 0;
     p.nature      = Nature::Hardy;
     p.lvl         = 5;
-    p.moves[0]       = 1;
+    p.moves[0]    = 1;
 
     GameState gs;
     gs.name             = playerName.toStdString();
     gs.player_sprite_id = trainerId;
     m_db.createNewSave(gs, p);
 
-    m_starterMenu->hide();
+    disconnect(m_starterMenu, nullptr, this, nullptr);
     m_starterMenu->deleteLater();
     m_starterMenu = nullptr;
 
     m_trayIcon->show();
-    m_spawnTimer->start();
     m_gameUsedToBeActive = true;
     initializeGame();
 }
