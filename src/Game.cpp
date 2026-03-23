@@ -35,13 +35,19 @@ Game::~Game() {
 
 void Game::resetGame(){
     m_spawnTimer->stop();
-    disconnect(m_trayIcon,   nullptr, this, nullptr);
-    disconnect(m_spawnTimer, nullptr, this, nullptr);
 
     if (m_menu) {
         disconnect(m_menu, nullptr, this, nullptr);
+        disconnect(this, nullptr, m_menu, nullptr);
         delete m_menu;
         m_menu = nullptr;
+    }
+
+    if (m_starterMenu){
+        disconnect(m_starterMenu, nullptr, this, nullptr);
+        disconnect(this, nullptr, m_starterMenu, nullptr);
+        delete m_starterMenu;
+        m_starterMenu = nullptr;
     }
 
     if (m_activeBattle) {
@@ -185,15 +191,13 @@ void Game::openStarterMenu(){
         connect(root, SIGNAL(startGame(QString, int, int)), this, SLOT(onStarterMenuFinished(QString, int, int)));
 
     connect(m_starterMenu, &QQuickView::closing, this, [this](QQuickCloseEvent*){
-        disconnect(m_starterMenu, nullptr, this, nullptr);
-        /* m_starterMenu->deleteLater(); */
-        m_starterMenu = nullptr;
-
         auto saves = m_db.listSaveIds();
         if (!saves.empty()) {
-            m_trayIcon->m_gameActive=false;
-            m_trayIcon->toggleGameActive();
-            m_trayIcon->show();
+            if(m_trayIcon){
+                m_trayIcon->m_gameActive=false;
+                m_trayIcon->toggleGameActive();
+                m_trayIcon->show();
+            }
             m_gameUsedToBeActive = true;
 
             resetGame();

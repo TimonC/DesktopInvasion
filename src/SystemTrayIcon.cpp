@@ -20,8 +20,6 @@ SystemTrayIcon::SystemTrayIcon(QObject *parent)
 
 SystemTrayIcon::~SystemTrayIcon(){
     qDebug() << "SystemTrayIcon destructor called!";
-    m_menu->deleteLater();
-    m_menu = nullptr;
 }
 
 void SystemTrayIcon::enabled(bool enabled){
@@ -49,8 +47,8 @@ void SystemTrayIcon::createContextMenu(std::vector<std::pair<int, std::string>> 
     m_quitAction->setToolTip(tr("Exit the application"));
     connect(m_quitAction, &QAction::triggered, qApp, &QApplication::quit);
 
-    m_deleteAction = new QAction(tr("Delete current save"));
-    m_deleteAction->setToolTip(tr("Delete the currently selected save"));
+    m_deleteAction = new QAction(tr("Delete current game"));
+    m_deleteAction->setToolTip(tr("Delete the currently active game"));
     connect(m_deleteAction, &QAction::triggered, qApp, [this](){
             emit deleteSaveRequested();
     });
