@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import "../Style/PokeColor.js" as PokeColor
 
 Rectangle {
     id: root
@@ -56,13 +57,13 @@ Rectangle {
         inNameEditMode = false
     }
 
-        MouseArea {
-            anchors.fill: parent
-            cursorShape:  undefined
-            onClicked: {
-                    if (root.inNameEditMode) root.toggleNameEditMode()
-            }
+    MouseArea {
+        anchors.fill: parent
+        cursorShape:  undefined
+        onClicked: {
+            if (root.inNameEditMode) root.toggleNameEditMode()
         }
+    }
 
     Item {
         id: slide0
@@ -183,7 +184,7 @@ Rectangle {
                 PcButton {
                     width: 4 * 48
                     label: "NEXT →"
-                    selectable: root.playerName !== ""   // Disabled until a name is entered
+                    selectable: root.playerName !== ""
                     onClicked: root.slide = 1
                 }
             }
@@ -207,6 +208,88 @@ Rectangle {
                     label: "← BACK"
                     selectable: true
                     onClicked: root.slide = 0
+                }
+            }
+
+            Item { width: parent.width; height: root.pad }
+            Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
+            Item { width: parent.width; height: root.pad }
+
+            Text {
+                width: parent.width
+                text: "Hello " + (nameField.text ?? "") + "!"
+                font.family: root.p2pFont
+                font.pixelSize: root.fontSizeMd
+                color: "#ffffff"
+                wrapMode: Text.Wrap
+            }
+
+            Item { width: parent.width; height: root.pad/2 }
+
+            Text {
+                width: parent.width
+                text: "Choose your trainer avatar:"
+                font.family: root.dotGothicFont
+                font.pixelSize: root.fontSizeMd
+                color: "#ffffff"
+                wrapMode: Text.Wrap
+            }
+
+            Item { width: parent.width; height: root.pad }
+            Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
+            Item { width: parent.width; height: root.pad }
+
+            Grid {
+                width: 32*16*2
+                height: 32*5*2
+                rows: 5
+                columns: 16
+                rowSpacing: 0
+                columnSpacing: 0
+
+                Repeater {
+                    id: partyRepeater
+                    model: 80
+
+                    Rectangle {
+                        property bool isHovered: hoverArea.containsMouse
+
+                        width: image.width
+                        height: image.height
+                        radius: 8
+                        color: isHovered ? Qt.rgba(root.colorAccent.r, root.colorAccent.g, root.colorAccent.b, 0.15) : "transparent"
+
+                        MouseArea {
+                            id: hoverArea
+                            anchors.fill: parent
+                            cursorShape: undefined
+                            hoverEnabled: true
+                        }
+
+                        Rectangle {
+                            anchors.fill: parent
+                            color: "transparent"
+                            radius: 8
+                            border.width: isHovered ? 2 : 0
+                            border.color: isHovered ? Qt.rgba(root.colorAccent.r, root.colorAccent.g, root.colorAccent.b, 0.6) : "transparent"
+                        }
+
+                        Image {
+                            id: image
+                            anchors.centerIn: parent
+                            property int spriteWidth: 32
+                            property int spriteHeight: 32
+                            property double iconScale: 2
+
+                            width: Math.ceil(spriteWidth * iconScale)
+                            height: Math.ceil(spriteHeight * iconScale)
+
+                            source: "qrc:/assets/HGSS/reordered_trainers.png"
+                            sourceClipRect: Qt.rect(0, index * spriteHeight, spriteWidth, spriteHeight)
+                            smooth: false
+                            antialiasing: false
+                        }
+                    }
                 }
             }
 
