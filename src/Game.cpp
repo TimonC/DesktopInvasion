@@ -203,8 +203,10 @@ void Game::onStarterMenuFinished(QString playerName, int trainerId, int starterP
     m_starterMenu->deleteLater();
     m_starterMenu = nullptr;
 
-    m_trayIcon->show();
     m_gameUsedToBeActive = true;
+    m_trayIcon->show();
+    m_trayIcon->setIconActivityColor(true);
+    m_trayIcon->enabled(true);
     initializeGame();
 }
 
