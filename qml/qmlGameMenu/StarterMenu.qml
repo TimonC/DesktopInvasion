@@ -439,8 +439,8 @@ Rectangle {
                         Image {
                             anchors.horizontalCenter: parent.horizontalCenter
                             visible: root.trainerId !== -1
-                            width: 32 * 4
-                            height: 32 * 4
+                            width: 32 * 6
+                            height: 32 * 6
                             source: "qrc:/assets/HGSS/reordered_trainers.png"
                             sourceClipRect: Qt.rect(0, root.trainerId * 32, 32, 32)
                             smooth: false
