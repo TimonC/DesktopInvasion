@@ -131,7 +131,7 @@ void Game::initializeGame(bool openStarter) {
     writeDefaults();
 
     initMenu();
-    m_spawnTimer->start();
+    if(m_gameUsedToBeActive) m_spawnTimer->start();
 }
 
 void Game::handleSaveSelected(int saveId){
@@ -170,10 +170,13 @@ void Game::openStarterMenu(){
 
         auto saves = m_db.listSaveIds();
         if (!saves.empty()) {
-            m_gameUsedToBeActive = true;
+            m_trayIcon->gameActive(false);
+            m_trayIcon->toggleGameActive();
             m_trayIcon->show();
+
             resetGame();
             initializeGame(false);
+            setGameActive(true);
         } else {
             qApp->quit();
         }
@@ -241,6 +244,9 @@ void Game::initMenu() {
     m_menu = new GameMenu();
     Defaults d = m_db.loadDefaults();
     m_menu->setDefaults(d);
+    auto gs = m_db.loadGameState();
+
+    m_menu->setTrainer(QString::fromStdString(gs.name), gs.player_sprite_id);
     connect(m_menu, &GameMenu::menuClosed,          this, &Game::handleMenuClosed);
     connect(m_menu, &GameMenu::preloadBoxRequested,  this, &Game::handleMenuPreloadBox);
     connect(m_menu, &GameMenu::swapRequested,        this, &Game::handlePCSwap);

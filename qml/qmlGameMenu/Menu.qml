@@ -60,6 +60,9 @@ Item {
     property alias encounterLevelLow:  trainer.encounterLevelLow
     property alias expShare:           trainer.expShare
 
+    property alias trainerId: trainer.row
+    property string trainerName: "TRAINER"
+
     function updateDefaults(spriteSize, battleSpeed, lvlRangeDown, lvlRangeUp, expShare){
        trainer.spriteSizeDefault = spriteSize
        trainer.battleSpeedDefault = battleSpeed
@@ -67,6 +70,7 @@ Item {
        trainer.encounterLevelHighDefault = lvlRangeUp
        trainer.expShareDefault = expShare
     }
+
 
     Item {
         id: scaledContent
@@ -172,7 +176,7 @@ Item {
 
                         Text {
                             width: parent.width; height: root.labelHeight
-                            text: "TRAINER"
+                            text: root.trainerName
                             font.family: root.p2pFont;
                             font.pixelSize: root.fontSizeSm
                             color: root.subheaderColor
@@ -186,6 +190,7 @@ Item {
                             Trainer {
                                 id: trainer
                                 anchors.fill: parent
+                                anchors.left: parent.left
                                 textColor:    root.textColor
                                 fontSizeSm:     root.fontSizeSm
                                 fontSizeMd:     root.fontSizeMd

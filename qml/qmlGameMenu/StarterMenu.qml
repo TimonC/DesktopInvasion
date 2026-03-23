@@ -327,7 +327,7 @@ Rectangle {
 
                 Repeater {
                     id: trainerRepeater
-                    model: 80
+                    model: 79
 
                     SpriteTile {
                         spriteSource: "qrc:/assets/HGSS/reordered_trainers.png"

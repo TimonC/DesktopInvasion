@@ -23,7 +23,7 @@ signals:
     void deleteSaveRequested();
     void newGameRequested();
 
-private slots:
+public slots:
     void toggleGameActive();
 
 private:

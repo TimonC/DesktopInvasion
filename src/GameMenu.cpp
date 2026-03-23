@@ -84,6 +84,10 @@ void GameMenu::setDefaults(Defaults &d){
                               Q_ARG(QVariant, d.lvlRangeUp),
                               Q_ARG(QVariant, d.expShareOn));
 }
+void GameMenu::setTrainer(QString name, int trainerId){
+    m_menuRoot->setProperty("trainerName", name);
+    m_menuRoot->setProperty("trainerId",trainerId);
+}
 
 // These are Q_INVOKABLE so QML can also call them directly if needed,
 // but primarily Game calls them and they emit signals that QML listens to.

@@ -21,6 +21,7 @@ public:
     void showBox(int boxIndex);
 
     void setDefaults(Defaults &d);
+    void setTrainer(QString name, int trainerId);
 
     QQuickItem* m_menuRoot;
 
