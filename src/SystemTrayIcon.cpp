@@ -17,10 +17,6 @@ SystemTrayIcon::SystemTrayIcon(QObject *parent)
     setVisible(true);
 
     createContextMenu();
-
-    connect(this, &QSystemTrayIcon::activated,
-            this, &SystemTrayIcon::onActivated);
-
 }
 
 SystemTrayIcon::~SystemTrayIcon(){
@@ -46,13 +42,6 @@ void SystemTrayIcon::toggleGameActive(){
     emit gameActive(m_gameActive);
 }
 
-void SystemTrayIcon::onActivated(QSystemTrayIcon::ActivationReason reason){
-    if(m_clickEnabled && (reason == QSystemTrayIcon::Trigger || reason == QSystemTrayIcon::Context)){
-        if(m_menu) {
-            m_menu->popup(QCursor::pos());
-        }
-    }
-}
 
 void SystemTrayIcon::createContextMenu(){
     m_menu = new QMenu();

@@ -20,7 +20,6 @@ signals:
     void menuButtonPressed();
 
 private slots:
-    void onActivated(QSystemTrayIcon::ActivationReason reason);
     void toggleGameActive();
 
 private:

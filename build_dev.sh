@@ -44,7 +44,7 @@ else
     ninja
 
     echo "Starting DesktopInvasion with HMR"
-    ./bin/DesktopInvasion &  # CHANGED: added bin/
+    ./bin/DesktopInvasion &
     APP_PID=$!
 
     while inotifywait -r -e modify,create,delete ../src ../include ../qml; do

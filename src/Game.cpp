@@ -22,7 +22,6 @@ Game::Game(QWindow* parent)
     , m_rng(std::random_device{}())
 {
     qDebug() << "Game constructor called!";
-    m_gameUsedToBeActive = true;
 
     initMenu();
     initializeGame();
@@ -113,11 +112,10 @@ void Game::initializeGame() {
     if (!m_db.wild().empty())
         qDebug() << "Resuming wild Pokemon:" << QString::fromStdString(m_db.wild().name);
 
-    connect(m_trayIcon, &SystemTrayIcon::gameActive,        this, &Game::setGameActive);
-    connect(m_trayIcon, &SystemTrayIcon::menuButtonPressed, this, &Game::handleMenuOpen);
-
+connect(m_trayIcon, &SystemTrayIcon::gameActive,        this, &Game::setGameActive,    Qt::UniqueConnection);
+connect(m_trayIcon, &SystemTrayIcon::menuButtonPressed, this, &Game::handleMenuOpen,   Qt::UniqueConnection);
     m_spawnTimer->setInterval(m_spawnDelay_ms);
-    connect(m_spawnTimer, &QTimer::timeout, this, &Game::spawnPokemon);
+connect(m_spawnTimer, &QTimer::timeout, this, &Game::spawnPokemon,                     Qt::UniqueConnection);
 
     writeDefaults();
 
