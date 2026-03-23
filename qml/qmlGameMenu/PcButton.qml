@@ -6,21 +6,21 @@ Item {
     width:  64
     height: 48
 
-    property string label:    ""
-    property bool   active:   true
-    property color  btnColor: "#5294e2"
+    property string label:         ""
+    property bool   selectable:    true
+    property color  btnColor:      "#5294e2"
     property color  highlightColor: btnColor
-    property int    buttonRadius:     10
-    property string fontFamily:  "Press Start 2P"
+    property int    buttonRadius:  10
+    property string fontFamily:    "Press Start 2P"
 
     signal clicked()
 
-    property bool _hovered: mouseArea.containsMouse && active
-    property bool _pressed: mouseArea.pressed        && active
+    property bool _hovered: mouseArea.containsMouse && selectable
+    property bool _pressed: mouseArea.pressed        && selectable
 
     property color _currentBaseColor: highlightColor != btnColor ? highlightColor : btnColor
 
-    property color _borderColor: active
+    property color _borderColor: selectable
         ? (_hovered ? _currentBaseColor : PokeColor.lighter(_currentBaseColor))
         : "#555555"
     Behavior on _borderColor { ColorAnimation { duration: 120; easing.type: Easing.OutQuad } }
@@ -44,7 +44,7 @@ Item {
             gradient: Gradient {
                 GradientStop {
                     position: 0.0
-                    color: pcButtonRoot.active
+                    color: pcButtonRoot.selectable
                         ? (pcButtonRoot._hovered
                            ? pcButtonRoot._currentBaseColor
                            : PokeColor.lighter(pcButtonRoot._currentBaseColor))
@@ -53,7 +53,7 @@ Item {
                 }
                 GradientStop {
                     position: 1.0
-                    color: pcButtonRoot.active
+                    color: pcButtonRoot.selectable
                         ? (pcButtonRoot._hovered
                            ? PokeColor.darker(PokeColor.darker(pcButtonRoot._currentBaseColor))
                            : PokeColor.darker(pcButtonRoot._currentBaseColor))
@@ -77,7 +77,7 @@ Item {
         Text {
             anchors.centerIn: parent
             text:             pcButtonRoot.label
-            color:            pcButtonRoot.active ? "#ffffff" : "#888888"
+            color:            pcButtonRoot.selectable ? "#ffffff" : "#888888"
             font.family:      pcButtonRoot.fontFamily
             font.pixelSize : 18
             font.bold:        true
@@ -90,7 +90,7 @@ Item {
     MouseArea {
         id: mouseArea
         anchors.fill: parent
-        enabled:      pcButtonRoot.active
+        enabled:      pcButtonRoot.selectable
         hoverEnabled: true
         onClicked:    pcButtonRoot.clicked()
         cursorShape:  undefined

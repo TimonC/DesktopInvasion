@@ -23,6 +23,7 @@ Game::Game(QWindow* parent)
 {
     qDebug() << "Game constructor called!";
     m_gameUsedToBeActive = true;
+
     openStarterMenu();
     /* initializeGame(); */
 
@@ -114,8 +115,8 @@ void Game::initializeGame() {
 
     if (!hasParty) {
         qDebug() << "Starting new game!";
-        openStarterMenu();
-        /* createInitialPokemon(); */
+        /* openStarterMenu(); */
+        createInitialPokemon();
     } else {
         qDebug() << "Save loaded — party size:" << m_db.partySize();
     }
@@ -125,18 +126,32 @@ void Game::initializeGame() {
 }
 
 void Game::openStarterMenu(){
-    setGameActive(false); //questionable
-    m_starterMenu = new QQuickView();
+    setGameActive(false);
+    m_trayIcon->hide();
 
+    m_starterMenu = new QQuickView();
     const char* env = getenv("DOCKER_ENV");
     if (env && strcmp(env, "dev") == 0)
-        m_starterMenu->setSource(QUrl("../qml/StarterMenu.qml"));
+        m_starterMenu->setSource(QUrl("../qml/qmlGameMenu/StarterMenu.qml"));
     else
-        m_starterMenu->setSource(QUrl("qrc:/qml/StarterMenu.qml"));
+        m_starterMenu->setSource(QUrl("qrc:/qml/qmlGameMenu/StarterMenu.qml"));
     m_starterMenu->setCursor(QCursor(QPixmap(":/assets/XY/pointer.png"), 6, 6));
     m_starterMenu->setTitle("DesktopInvasion");
+
+    int width = 800;
+    int height = 600;
+    m_starterMenu->setProperty("width", width);
+    m_starterMenu->setProperty("height", height);
+    m_starterMenu->setResizeMode(QQuickView::SizeRootObjectToView);
+    m_starterMenu->resize(width, height);
+
     m_starterMenu->show();
+
+    QObject* root = m_starterMenu->rootObject();
+    /* if (root) */
+    /*     connect(root, SIGNAL(startGame()), this, SLOT(onStarterMenuFinished())); */
 }
+
 
 void Game::spawnPokemon() {
     if (m_wildPokemon) return;
