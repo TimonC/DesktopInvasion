@@ -114,7 +114,7 @@ QVariantMap Game::pokemonToMenuState(int slot, const PokemonState& p) {
     for (const auto& e : eligible) {
         const Move* mv = Lookup::getMove(e.move_id);
         std::string name = mv->name;
-        if (name.length() > 10)
+        if (name.length() > 9)
             name.erase(std::remove(name.begin(), name.end(), '-'), name.end());
         QVariantMap moveData;
         moveData["id"]       = e.move_id;
@@ -130,7 +130,7 @@ QVariantMap Game::pokemonToMenuState(int slot, const PokemonState& p) {
     for (int moveSlot = 0; moveSlot < 4; moveSlot++) {
         const Move* mv = Lookup::getMove(p.moves[moveSlot]);
         std::string name = mv->name;
-        if (name.length() > 10)
+        if (name.length() > 9)
             name.erase(std::remove(name.begin(), name.end(), '-'), name.end());
         QVariantMap moveData;
         moveData["name"]     = QString::fromStdString(name);
@@ -421,9 +421,6 @@ void Game::createInitialPokemon() {
     make(92,  "Gastly",     0, 202, 28,  339, 93,  0);
     make(321, "Wailord",    0, 48,  28,  339, 260, 1);
     make(383, "Oysterhead", 2, 14,  53,  426, 434, 2);
-    make(383, "Oysterhead", 2, 14,  53,  426, 434, 3);
-    make(383, "Oysterhead", 2, 14,  53,  426, 434, 4);
-    make(383, "Oysterhead", 2, 14,  53,  426, 434, 5);
 }
 
 void Game::updatePartyXP(std::array<int, 6> spread) {
