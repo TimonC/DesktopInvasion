@@ -19,7 +19,6 @@ Item {
     property color  highlightHover:        "#6aaef5"
     property color  highlightSwappable:    "#7ab0f5"
     property color  highlightSwappableHover: "#8fc5ff"
-    property color  highlightDisplayed:    "#64b5f6"
     property color  swapButtonHighlight:   "#ff9933"
     property color  labelColor: "#aaaaaa"
 
@@ -362,6 +361,7 @@ Item {
         property int  frameIndex:  0
         property var  pcPos:       [-1, -1]
         property bool displayed:   false
+        property bool displayedColor: displayed && (root.displayedPokemonBox==root.currentBoxIndex || root.displayedPokemonBox==-1)
         property bool iconVisible: false
 
         property bool swappable: {
@@ -377,12 +377,12 @@ Item {
         }
 
         property color _baseColor: {
-            if (displayed)
-                return root.swapHoverColor
             if (swappable)
                 return hoverArea.containsMouse ? root.swapHoverColor : root.swapColor
             if (hoverArea.containsMouse && iconVisible)
                 return root.hoverHighlightColor
+            if (displayedColor)
+                return root.swapHoverColor
             return "transparent"
         }
 
@@ -409,8 +409,8 @@ Item {
             anchors.margins: 2
             radius: 4
             color: "transparent"
-            border.color: displayed ? (swappable ? root.swapHoverColor : root.hoverHighlightColor) : "transparent"
-            border.width: displayed ? 2 : 0
+            border.color: displayedColor ? (swappable ? root.swapHoverColor : root.hoverHighlightColor) : "transparent"
+            border.width: displayedColor ? 2 : 0
         }
         Image {
             anchors.fill: parent

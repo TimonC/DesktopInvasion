@@ -65,6 +65,94 @@ Game::~Game() {
     }
 }
 
+void Game::safelyRemoveBattleScene() {
+    if (!m_activeBattle) return;
+    disconnect(m_activeBattle, nullptr, this, nullptr);
+    disconnect(this, nullptr, m_activeBattle, nullptr);
+    m_activeBattle->deleteLater();
+    m_activeBattle = nullptr;
+}
+
+void Game::safelyRemoveWildPokemon() {
+    if (!m_wildPokemon) return;
+    disconnect(m_wildPokemon, nullptr, this, nullptr);
+    disconnect(this, nullptr, m_wildPokemon, nullptr);
+    m_wildPokemon->deleteLater();
+    m_wildPokemon = nullptr;
+}
+
+void Game::setGameActive(bool active) {
+    static bool processing = false;
+    if (processing) return;
+    m_gameUsedToBeActive = active;
+    processing = true;
+
+    QTimer::singleShot(0, this, nullptr);
+    if (active) {
+        spawnPokemon();
+    } else {
+        if (m_wildPokemon) {
+            m_spawnPoint     = m_wildPokemon->position();
+            m_spawnDirection = m_wildPokemon->m_currentDirection;
+            safelyRemoveWildPokemon();
+        }
+        if (m_activeBattle) {
+            m_spawnPoint     = m_activeBattle->position() + m_activeBattle->m_spriteOffset;
+            m_spawnDirection = m_activeBattle->m_currentDirection;
+            m_activeBattle->setSceneVisibility(false);
+            safelyRemoveBattleScene();
+        }
+    }
+    processing = false;
+}
+
+void Game::initializeGame() {
+    bool hasParty = false;
+    for (const auto& p : m_db.party())
+        if (!p.empty()) { hasParty = true; break; }
+
+    if (!hasParty) {
+        qDebug() << "New game — creating starter Pokemon";
+        createInitialPokemon();
+    } else {
+        qDebug() << "Save loaded — party size:" << m_db.partySize();
+    }
+
+    if (!m_db.wild().empty())
+        qDebug() << "Resuming wild Pokemon:" << QString::fromStdString(m_db.wild().name);
+}
+
+void Game::spawnPokemon() {
+    if (m_wildPokemon) return;
+
+    if (m_db.wild().empty()) {
+        m_spawnDirection = rand() % 4;
+        m_spawnPoint     = QPoint(-1, -1);
+
+        std::uniform_int_distribution<int> dist(1, 493);
+        int pokedexId        = dist(m_rng);
+        const Poke* wildPoke = Lookup::getPoke(pokedexId);
+
+        PokemonState w;
+        w.pokedex_id = pokedexId;
+        w.name       = wildPoke->name;
+        w.lvl        = 15;
+        w.nature     = Nature::Hardy;
+        w.moves[0]   = 1;
+        w.moves[1]   = 422;
+        w.moves[2]   = 86;
+        w.moves[3]   = 86;
+
+        m_db.setWild(w);
+    } else {
+        qDebug() << "Resuming existing wild:" << QString::fromStdString(m_db.wild().name);
+    }
+
+    m_wildPokemon = new WildPokemon(m_db.wild().pokedex_id, m_spawnPoint, m_spawnDirection);
+    connect(m_wildPokemon, &WildPokemon::startABattle, this, &Game::handleBattleStart);
+    m_wildPokemon->show();
+    m_spawnTimer->stop();
+}
 void Game::initMenu() {
     m_menu = new GameMenu();
     Defaults d = m_db.loadDefaults();
@@ -236,95 +324,6 @@ void Game::writeDefaults() {
     d.lvlRangeDown = Globals::encounterLvlLow();
     d.expShareOn   = Globals::expShare();
     m_db.writeDefaults(d);
-}
-
-void Game::safelyRemoveBattleScene() {
-    if (!m_activeBattle) return;
-    disconnect(m_activeBattle, nullptr, this, nullptr);
-    disconnect(this, nullptr, m_activeBattle, nullptr);
-    m_activeBattle->deleteLater();
-    m_activeBattle = nullptr;
-}
-
-void Game::safelyRemoveWildPokemon() {
-    if (!m_wildPokemon) return;
-    disconnect(m_wildPokemon, nullptr, this, nullptr);
-    disconnect(this, nullptr, m_wildPokemon, nullptr);
-    m_wildPokemon->deleteLater();
-    m_wildPokemon = nullptr;
-}
-
-void Game::setGameActive(bool active) {
-    static bool processing = false;
-    if (processing) return;
-    m_gameUsedToBeActive = active;
-    processing = true;
-
-    QTimer::singleShot(0, this, nullptr);
-    if (active) {
-        spawnPokemon();
-    } else {
-        if (m_wildPokemon) {
-            m_spawnPoint     = m_wildPokemon->position();
-            m_spawnDirection = m_wildPokemon->m_currentDirection;
-            safelyRemoveWildPokemon();
-        }
-        if (m_activeBattle) {
-            m_spawnPoint     = m_activeBattle->position() + m_activeBattle->m_spriteOffset;
-            m_spawnDirection = m_activeBattle->m_currentDirection;
-            m_activeBattle->setSceneVisibility(false);
-            safelyRemoveBattleScene();
-        }
-    }
-    processing = false;
-}
-
-void Game::initializeGame() {
-    bool hasParty = false;
-    for (const auto& p : m_db.party())
-        if (!p.empty()) { hasParty = true; break; }
-
-    if (!hasParty) {
-        qDebug() << "New game — creating starter Pokemon";
-        createInitialPokemon();
-    } else {
-        qDebug() << "Save loaded — party size:" << m_db.partySize();
-    }
-
-    if (!m_db.wild().empty())
-        qDebug() << "Resuming wild Pokemon:" << QString::fromStdString(m_db.wild().name);
-}
-
-void Game::spawnPokemon() {
-    if (m_wildPokemon) return;
-
-    if (m_db.wild().empty()) {
-        m_spawnDirection = rand() % 4;
-        m_spawnPoint     = QPoint(-1, -1);
-
-        std::uniform_int_distribution<int> dist(1, 493);
-        int pokedexId        = dist(m_rng);
-        const Poke* wildPoke = Lookup::getPoke(pokedexId);
-
-        PokemonState w;
-        w.pokedex_id = pokedexId;
-        w.name       = wildPoke->name;
-        w.lvl        = 15;
-        w.nature     = Nature::Hardy;
-        w.moves[0]   = 1;
-        w.moves[1]   = 422;
-        w.moves[2]   = 86;
-        w.moves[3]   = 86;
-
-        m_db.setWild(w);
-    } else {
-        qDebug() << "Resuming existing wild:" << QString::fromStdString(m_db.wild().name);
-    }
-
-    m_wildPokemon = new WildPokemon(m_db.wild().pokedex_id, m_spawnPoint, m_spawnDirection);
-    connect(m_wildPokemon, &WildPokemon::startABattle, this, &Game::handleBattleStart);
-    m_wildPokemon->show();
-    m_spawnTimer->stop();
 }
 
 void Game::handleBattleStart() {
