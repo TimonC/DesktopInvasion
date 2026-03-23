@@ -42,7 +42,6 @@ private:
     const int                m_spawnDelay_ms = 1000;
 
     void initializeGame();
-    void createInitialPokemon();
     void spawnPokemon();
     void safelyRemoveBattleScene();
     void safelyRemoveWildPokemon();

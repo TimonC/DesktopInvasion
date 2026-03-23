@@ -24,19 +24,8 @@ Game::Game(QWindow* parent)
     qDebug() << "Game constructor called!";
     m_gameUsedToBeActive = true;
 
-    openStarterMenu();
-    /* initializeGame(); */
-
-    connect(m_trayIcon, &SystemTrayIcon::gameActive,        this, &Game::setGameActive);
-    connect(m_trayIcon, &SystemTrayIcon::menuButtonPressed, this, &Game::handleMenuOpen);
-
-    m_spawnTimer->setInterval(m_spawnDelay_ms);
-    connect(m_spawnTimer, &QTimer::timeout, this, &Game::spawnPokemon);
-
-    writeDefaults();
-
-    /* initMenu(); */
-    /* m_spawnTimer->start(); */
+    setGameActive(true);
+    initializeGame();
 }
 
 Game::~Game() {
@@ -115,18 +104,30 @@ void Game::initializeGame() {
 
     if (!hasParty) {
         qDebug() << "Starting new game!";
-        /* openStarterMenu(); */
-        createInitialPokemon();
+        openStarterMenu();
+        return;
     } else {
         qDebug() << "Save loaded — party size:" << m_db.partySize();
     }
 
     if (!m_db.wild().empty())
         qDebug() << "Resuming wild Pokemon:" << QString::fromStdString(m_db.wild().name);
+
+    connect(m_trayIcon, &SystemTrayIcon::gameActive,        this, &Game::setGameActive);
+    connect(m_trayIcon, &SystemTrayIcon::menuButtonPressed, this, &Game::handleMenuOpen);
+
+    m_spawnTimer->setInterval(m_spawnDelay_ms);
+    connect(m_spawnTimer, &QTimer::timeout, this, &Game::spawnPokemon);
+
+    writeDefaults();
+
+    initMenu();
+    m_spawnTimer->start();
 }
 
 void Game::openStarterMenu(){
     setGameActive(false);
+    m_spawnTimer->stop();
     m_trayIcon->hide();
 
     m_starterMenu = new QQuickView();
@@ -154,6 +155,23 @@ void Game::openStarterMenu(){
 
 void Game::onStarterMenuFinished(QString playerName, int trainerId, int starterPokedexId){
     qDebug() << playerName << trainerId << starterPokedexId;
+    PokemonState p;
+    p.pokedex_id  = starterPokedexId;
+    p.name        = Lookup::getPoke(starterPokedexId)->name;
+    p.pokeball_id = 0;
+    p.nature      = Nature::Hardy;
+    p.lvl         = 5;
+    p.moves[0]       = 1;
+
+    m_db.setPartySlot(0, p);
+
+    m_starterMenu->hide();
+    m_starterMenu->deleteLater();
+    m_starterMenu = nullptr;
+
+    m_trayIcon->show();
+    m_spawnTimer->start();
+    initializeGame();
 }
 
 
@@ -438,25 +456,6 @@ void Game::handleBattleEnd(const char* endState, bool removeWild) {
 
         QTimer::singleShot(100, this, [this]() { safelyRemoveBattleScene(); });
     }
-}
-
-void Game::createInitialPokemon() {
-    auto make = [&](int dexId, const char* name, int ball,
-                    int m0, int m1, int m2, int m3, int slot) {
-        PokemonState p;
-        p.pokedex_id  = dexId;
-        p.name        = name;
-        p.pokeball_id = ball;
-        p.nature      = Nature::Hardy;
-        p.lvl         = 10;
-        p.moves[0]    = m0; p.moves[1] = m1;
-        /* p.moves[2]    = m2; p.moves[3] = m3; */
-        m_db.setPartySlot(slot, p);
-    };
-
-    make(92,  "Gastly",     0, 202, 28,  339, 93,  0);
-    make(321, "Wailord",    0, 48,  28,  339, 260, 1);
-    make(383, "Oysterhead", 2, 14,  53,  426, 434, 2);
 }
 
 void Game::updatePartyXP(std::array<int, 6> spread) {
