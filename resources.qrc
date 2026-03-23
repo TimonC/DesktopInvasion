@@ -16,6 +16,7 @@
         <file>qml/qmlGameMenu/PokeView.qml</file>
         <file>qml/qmlGameMenu/PcButton.qml</file>
         <file>qml/qmlGameMenu/MoveMenu.qml</file>
+        <file>qml/qmlGameMenu/StarterMenu.qml</file>
 
         <file>assets/fonts/PressStart2P-Regular.ttf</file>
         <file>assets/fonts/DotGothic16-Regular.ttf</file>
