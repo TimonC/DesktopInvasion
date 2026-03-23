@@ -29,16 +29,15 @@ Game::Game(QWindow* parent)
 
 Game::~Game() {
     qDebug() << "Game destructor called!";
-
-    m_spawnTimer->stop();
-    disconnect(m_trayIcon,   nullptr, this, nullptr);
-    disconnect(m_spawnTimer, nullptr, this, nullptr);
-
     resetGame();
 
 }
 
 void Game::resetGame(){
+    m_spawnTimer->stop();
+    disconnect(m_trayIcon,   nullptr, this, nullptr);
+    disconnect(m_spawnTimer, nullptr, this, nullptr);
+
     if (m_menu) {
         disconnect(m_menu, nullptr, this, nullptr);
         delete m_menu;
@@ -125,6 +124,7 @@ void Game::initializeGame(bool openStarter) {
     connect(m_trayIcon, &SystemTrayIcon::menuButtonPressed, this, &Game::handleMenuOpen,   Qt::UniqueConnection);
     connect(m_trayIcon, &SystemTrayIcon::saveSelected, this, &Game::handleSaveSelected,   Qt::UniqueConnection);
     connect(m_trayIcon, &SystemTrayIcon::newGameRequested, this, &Game::openStarterMenu,   Qt::UniqueConnection);
+    connect(m_trayIcon, &SystemTrayIcon::deleteSaveRequested, this, &Game::deleteCurrentSave,   Qt::UniqueConnection);
     m_spawnTimer->setInterval(m_spawnDelay_ms);
     connect(m_spawnTimer, &QTimer::timeout, this, &Game::spawnPokemon,                     Qt::UniqueConnection);
 
@@ -139,6 +139,27 @@ void Game::handleSaveSelected(int saveId){
     m_db.setCurrentSaveId(saveId);
     resetGame();
     initializeGame();
+}
+
+void Game::deleteCurrentSave(){
+    m_db.deleteSave(m_db.currentSaveId());
+    auto v = m_db.listSaveIds();
+    if(v.empty()){
+        m_db.setCurrentSaveId(0);
+        resetGame();
+        openStarterMenu();
+    }else{
+        m_db.setCurrentSaveId(v.back());
+
+        m_trayIcon->m_gameActive=false;
+        m_trayIcon->toggleGameActive();
+        m_trayIcon->show();
+        m_gameUsedToBeActive = true;
+
+        resetGame();
+        initializeGame();
+        setGameActive(true);
+    }
 }
 
 void Game::openStarterMenu(){
@@ -165,7 +186,7 @@ void Game::openStarterMenu(){
 
     connect(m_starterMenu, &QQuickView::closing, this, [this](QQuickCloseEvent*){
         disconnect(m_starterMenu, nullptr, this, nullptr);
-        m_starterMenu->deleteLater();
+        /* m_starterMenu->deleteLater(); */
         m_starterMenu = nullptr;
 
         auto saves = m_db.listSaveIds();

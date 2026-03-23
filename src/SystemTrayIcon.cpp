@@ -82,16 +82,18 @@ void SystemTrayIcon::createContextMenu(std::vector<std::pair<int, std::string>> 
 
     QActionGroup* trainerGroup = new QActionGroup(m_menu);
     trainerGroup->setExclusive(true);
-    for (auto& [id, name] : trainers) {
-        QAction* a = new QAction(QString::fromStdString(name), m_menu);
-        a->setCheckable(true);
-        a->setChecked(id == activeSaveId);
-        trainerGroup->addAction(a);
-        m_menu->addAction(a);
-        connect(a, &QAction::triggered, this, [this, id]() {
-            m_activeSaveId = id;
-            emit saveSelected(id);
-        });
+    if(!trainers.empty()){
+        for (auto& [id, name] : trainers) {
+            QAction* a = new QAction(QString::fromStdString(name), m_menu);
+            a->setCheckable(true);
+            a->setChecked(id == activeSaveId);
+            trainerGroup->addAction(a);
+            m_menu->addAction(a);
+            connect(a, &QAction::triggered, this, [this, id]() {
+                m_activeSaveId = id;
+                emit saveSelected(id);
+            });
+        }
     }
 
     m_menu->addAction(m_newGameAction);

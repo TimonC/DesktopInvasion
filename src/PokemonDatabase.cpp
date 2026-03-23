@@ -68,6 +68,16 @@ int PokemonDatabase::initialize() {
 
     if (!createTables())     { DB_ERR("Failed to create tables");          shutdown(); return -1; }
 
+    {
+        QSqlQuery cleanup;
+        if (!cleanup.exec("DELETE FROM saves WHERE save_id NOT IN (SELECT save_id FROM save_list)")) {
+            DB_WARN("Failed to cleanup orphaned saves rows");
+            logQuery(cleanup);
+        } else {
+            DB_LOG("Cleaned up orphaned saves rows");
+        }
+    }
+
     m_saveId = readCurrentSaveId();
     if (m_saveId == 0)       return 0;
 
@@ -189,14 +199,9 @@ bool PokemonDatabase::createTables() {
 int PokemonDatabase::readCurrentSaveId() {
     QSqlQuery q;
     q.prepare("SELECT current_save_id FROM current_save WHERE id=1");
-    if (q.exec() && q.next()) {
-        int id = q.value(0).toInt();
-        DB_LOG("readCurrentSaveId: current_save_id=" << id);
-        return id;
-    }
-    DB_WARN("readCurrentSaveId: no row found, defaulting to 1");
-    logQuery(q);
-    return 1;
+    if (q.exec() && q.next())
+        return q.value(0).toInt();
+    return 0;
 }
 
 bool PokemonDatabase::writeCurrentSaveId(int save_id) {
@@ -311,30 +316,35 @@ std::vector<int> PokemonDatabase::listSaveIds() {
 }
 
 bool PokemonDatabase::initFixedSlots() {
-    DB_LOG("Initializing fixed slots for save_id=" << m_saveId);
-    QSqlQuery q;
-    bool ok = true;
-    auto run = [&](const QString& sql, auto... vals) {
-        q.prepare(sql);
-        (q.addBindValue(vals), ...);
-        if (!q.exec()) { logQuery(q); ok = false; }
-    };
+    QSqlQuery check;
+    check.prepare("SELECT 1 FROM save_list WHERE save_id = ?");
+    check.addBindValue(m_saveId);
 
-    run("INSERT OR IGNORE INTO saves(save_id) VALUES(?)", m_saveId);
-    run("INSERT OR IGNORE INTO wild_slot(save_id) VALUES(?)", m_saveId);
-    run("INSERT OR IGNORE INTO defaults(save_id) VALUES(?)", m_saveId);
-    run("INSERT OR IGNORE INTO save_list(save_id) VALUES(?)", m_saveId);
+    if (!(check.exec() && check.next()))
+        return false;
+
+    QSqlQuery q;
+
+    q.prepare("INSERT OR IGNORE INTO saves(save_id) VALUES(?)");
+    q.addBindValue(m_saveId);
+    if (!q.exec()) return false;
+
+    q.prepare("INSERT OR IGNORE INTO wild_slot(save_id) VALUES(?)");
+    q.addBindValue(m_saveId);
+    if (!q.exec()) return false;
+
+    q.prepare("INSERT OR IGNORE INTO defaults(save_id) VALUES(?)");
+    q.addBindValue(m_saveId);
+    if (!q.exec()) return false;
 
     q.prepare("INSERT OR IGNORE INTO party_slots(save_id, slot) VALUES(?, ?)");
     for (int i = 0; i < PARTY_SIZE; ++i) {
         q.addBindValue(m_saveId);
         q.addBindValue(i);
-        if (!q.exec()) { logQuery(q); ok = false; }
+        if (!q.exec()) return false;
     }
 
-    if (ok) DB_LOG("Fixed slots ready for save_id=" << m_saveId);
-    else    DB_ERR("Failed to initialize one or more fixed slots for save_id=" << m_saveId);
-    return ok;
+    return true;
 }
 
 PokemonState PokemonDatabase::rowToPokemon(const QSqlQuery& q) {

@@ -67,6 +67,7 @@ private slots:
     void handleBattleStart();
     void handleBattleEnd(const char* endState, bool removeWild);
     void setGameActive(bool active = true);
+    void deleteCurrentSave();
 };
 
 #endif

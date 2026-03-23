@@ -109,7 +109,7 @@ private:
     PokemonState*       cachePtr(int box, int slot);
 
     bool    m_initialized = false;
-    int     m_saveId      = 1;
+    int     m_saveId      = 0;
     QString m_dbPath;
 
     PokemonState                                                m_wild;
