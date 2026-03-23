@@ -40,7 +40,7 @@ private:
     QPoint                   m_spawnPoint  = QPoint(-1,-1);
     int                      m_spawnDirection = -1;
     QTimer*                  m_spawnTimer;
-    const int                m_spawnDelay_ms = 1000;
+    const int                m_spawnDelay_ms = 500;
 
     void initializeGame(bool openStarter = true);
     void spawnPokemon();
