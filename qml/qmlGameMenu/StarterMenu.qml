@@ -277,6 +277,7 @@ Rectangle {
                         Image {
                             id: image
                             anchors.centerIn: parent
+                            anchors.horizontalCenterOffset: 1
                             property int spriteWidth: 32
                             property int spriteHeight: 32
                             property double iconScale: 2
