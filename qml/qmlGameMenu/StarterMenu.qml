@@ -397,12 +397,10 @@ Rectangle {
                             spriteSource: "qrc:/assets/HGSS/reordered_icons.png"
                             spriteWidth: 40
                             spriteHeight: 30
-                            frameIndex: index
+                            frameIndex: modelData.id-1
                             selected: root.pokeId === modelData.id
                             hoverEnabled: true
                             iconScale: 3
-                            onHovered: slide2.hoveredStarterIndex = index
-                            onUnhovered: slide2.hoveredStarterIndex = -1
                             onClicked: { root.pokeId = modelData.id; }
                         }
                     }
@@ -437,7 +435,7 @@ Rectangle {
                                             return root.starterList[i].name
                                     }
                                 }
-                                return "???"
+                                return ""
                             }
                             font.family: root.p2pFont
                             font.pixelSize: root.fontSizeLg
