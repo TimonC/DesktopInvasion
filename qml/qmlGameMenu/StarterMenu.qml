@@ -39,19 +39,27 @@ Rectangle {
     property int  slide:         0
 
     property var starterList: [
-        { id: 1,  name: "BULBASAUR" },
-        { id: 4,  name: "CHARMANDER" },
-        { id: 7,  name: "SQUIRTLE" },
-        { id: 152, name: "CHIKORITA" },
-        { id: 155, name: "CYNDAQUIL" },
-        { id: 158, name: "TOTODILE" },
-        { id: 252, name: "TREECKO" },
-        { id: 255, name: "TORCHIC" },
-        { id: 258, name: "MUDKIP" },
-        { id: 387, name: "TURTWIG" },
-        { id: 390, name: "CHIMCHAR" },
-        { id: 393, name: "PIPLUP" }
+        { id: 1,  name: "BULBASAUR", type: "Grass" },
+        { id: 4,  name: "CHARMANDER", type: "Fire" },
+        { id: 7,  name: "SQUIRTLE", type: "Water" },
+        { id: 152, name: "CHIKORITA", type: "Grass" },
+        { id: 155, name: "CYNDAQUIL", type: "Fire" },
+        { id: 158, name: "TOTODILE", type: "Water" },
+        { id: 252, name: "TREECKO", type: "Grass" },
+        { id: 255, name: "TORCHIC", type: "Fire" },
+        { id: 258, name: "MUDKIP", type: "Water" },
+        { id: 387, name: "TURTWIG", type: "Grass" },
+        { id: 390, name: "CHIMCHAR", type: "Fire" },
+        { id: 393, name: "PIPLUP", type: "Water" }
     ]
+
+    function getSelectedStarter() {
+        for (var i = 0; i < starterList.length; ++i) {
+            if (starterList[i].id === root.pokeId)
+                return starterList[i];
+        }
+        return null;
+    }
 
     function toggleNameEditMode() {
         if (inNameEditMode) {
@@ -103,8 +111,6 @@ Rectangle {
             anchors.fill: parent
             cursorShape: undefined
             hoverEnabled: tile.hoverEnabled
-            onEntered: tile.hovered()
-            onExited: tile.unhovered()
             onClicked: tile.clicked()
         }
 
@@ -359,6 +365,7 @@ Rectangle {
         visible: root.slide === 2
 
         property int hoveredStarterIndex: -1
+        property var selectedStarter: root.getSelectedStarter()
 
         Column {
             width: parent.width
@@ -397,10 +404,12 @@ Rectangle {
                             spriteSource: "qrc:/assets/HGSS/reordered_icons.png"
                             spriteWidth: 40
                             spriteHeight: 30
-                            frameIndex: modelData.id-1
+                            frameIndex: modelData.id - 1
                             selected: root.pokeId === modelData.id
                             hoverEnabled: true
                             iconScale: 3
+                            onHovered: slide2.hoveredStarterIndex = index
+                            onUnhovered: slide2.hoveredStarterIndex = -1
                             onClicked: { root.pokeId = modelData.id; }
                         }
                     }
@@ -415,15 +424,37 @@ Rectangle {
                         anchors.centerIn: parent
                         spacing: root.pad
                         width: parent.width
+
                         Text {
                             width: parent.width
-                            text: "YOUR STARTER"
+                            text: root.playerName !== "" ? root.playerName : "TRAINER"
                             font.family: root.p2pFont
                             font.pixelSize: root.fontSizeLg
                             color: "#ffffff"
                             horizontalAlignment: Text.AlignHCenter
                             wrapMode: Text.WordWrap
                         }
+
+                        Image {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            visible: root.trainerId !== -1
+                            width: 32 * 4
+                            height: 32 * 4
+                            source: "qrc:/assets/HGSS/reordered_trainers.png"
+                            sourceClipRect: Qt.rect(0, root.trainerId * 32, 32, 32)
+                            smooth: false
+                            antialiasing: false
+                        }
+                        Text {
+                            width: parent.width
+                            text: "YOUR STARTER"
+                            font.family: root.p2pFont
+                            font.pixelSize: root.fontSizeMd
+                            color: "#aaaaaa"
+                            horizontalAlignment: Text.AlignHCenter
+                            wrapMode: Text.WordWrap
+                        }
+
                         Text {
                             width: parent.width
                             text: {
@@ -439,7 +470,17 @@ Rectangle {
                             }
                             font.family: root.p2pFont
                             font.pixelSize: root.fontSizeLg
-                            color: root.colorAccent
+                            color: {
+                                if (slide2.hoveredStarterIndex !== -1)
+                                    return PokeColor.typeColor(root.starterList[slide2.hoveredStarterIndex].type)
+                                if (root.pokeId !== -1) {
+                                    for (var i = 0; i < root.starterList.length; ++i) {
+                                        if (root.starterList[i].id === root.pokeId)
+                                            return PokeColor.typeColor(root.starterList[i].type)
+                                    }
+                                }
+                                return root.colorAccent
+                            }
                             horizontalAlignment: Text.AlignHCenter
                             wrapMode: Text.WordWrap
                         }
