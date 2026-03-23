@@ -23,7 +23,8 @@ Game::Game(QWindow* parent)
 {
     qDebug() << "Game constructor called!";
     m_gameUsedToBeActive = true;
-    initializeGame();
+    openStarterMenu();
+    /* initializeGame(); */
 
     connect(m_trayIcon, &SystemTrayIcon::gameActive,        this, &Game::setGameActive);
     connect(m_trayIcon, &SystemTrayIcon::menuButtonPressed, this, &Game::handleMenuOpen);
@@ -33,8 +34,8 @@ Game::Game(QWindow* parent)
 
     writeDefaults();
 
-    initMenu();
-    m_spawnTimer->start();
+    /* initMenu(); */
+    /* m_spawnTimer->start(); */
 }
 
 Game::~Game() {
@@ -112,14 +113,29 @@ void Game::initializeGame() {
         if (!p.empty()) { hasParty = true; break; }
 
     if (!hasParty) {
-        qDebug() << "New game — creating starter Pokemon";
-        createInitialPokemon();
+        qDebug() << "Starting new game!";
+        openStarterMenu();
+        /* createInitialPokemon(); */
     } else {
         qDebug() << "Save loaded — party size:" << m_db.partySize();
     }
 
     if (!m_db.wild().empty())
         qDebug() << "Resuming wild Pokemon:" << QString::fromStdString(m_db.wild().name);
+}
+
+void Game::openStarterMenu(){
+    setGameActive(false); //questionable
+    m_starterMenu = new QQuickView();
+
+    const char* env = getenv("DOCKER_ENV");
+    if (env && strcmp(env, "dev") == 0)
+        m_starterMenu->setSource(QUrl("../qml/StarterMenu.qml"));
+    else
+        m_starterMenu->setSource(QUrl("qrc:/qml/StarterMenu.qml"));
+    m_starterMenu->setCursor(QCursor(QPixmap(":/assets/XY/pointer.png"), 6, 6));
+    m_starterMenu->setTitle("DesktopInvasion");
+    m_starterMenu->show();
 }
 
 void Game::spawnPokemon() {

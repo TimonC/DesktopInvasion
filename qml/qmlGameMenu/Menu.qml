@@ -31,8 +31,6 @@ Item {
     property int iconScaleForTrainer: 5
 
     property color  backgroundColor:     "#2b2b2b"
-    property color  buttonColor:         "#3c3c3c"
-    property color  buttonSelectedColor: "#5294e2"
     property color  textColor:           "#ffffff"
     property color  subheaderColor:      "#aaaaaa"
     property int    fontSizeLg: 22

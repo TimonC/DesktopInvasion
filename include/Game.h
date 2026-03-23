@@ -25,11 +25,13 @@ public slots:
 
 
 private:
+    void openStarterMenu();
     void writeDefaults();
     void initMenu();
     std::mt19937             m_rng;
     bool                     m_gameUsedToBeActive;
     GameMenu*                m_menu        = nullptr;
+    QQuickView*              m_starterMenu        = nullptr;
     SystemTrayIcon*          m_trayIcon;
     PokemonDatabase&         m_db          = PokemonDatabase::instance();
     WildPokemon*             m_wildPokemon = nullptr;

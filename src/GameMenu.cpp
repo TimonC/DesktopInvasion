@@ -29,10 +29,7 @@ GameMenu::GameMenu()
         setSource(QUrl("qrc:/qml/qmlGameMenu/Menu.qml"));
     m_menuRoot = rootObject();
 
-    m_grabCursor    = QCursor(QPixmap(":/assets/XY/grab.png"));
-    m_pointerCursor = QCursor(QPixmap(":/assets/XY/pointer.png"), 6, 6);
-    setCursor(m_pointerCursor);
-
+    setCursor(QCursor(QPixmap(":/assets/XY/pointer.png"), 6, 6));
     setTitle("DesktopInvasion");
 
 
