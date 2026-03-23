@@ -20,7 +20,7 @@ struct PokemonState {
     int         lvl         = 1;
     int         currentXP   = 0;
     Nature      nature      = Nature::Hardy;
-    int         moves[4]    = {0, 0, 0, 0};
+    int         moves[4]    = {0};
     bool empty() const { return pokedex_id == 0; }
 };
 

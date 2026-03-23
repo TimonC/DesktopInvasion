@@ -160,9 +160,11 @@ Item {
             propagateComposedEvents: false
             onClicked: {
                 if (!cmc.swapReady) return
-                var eligMove = moveMenu.pokeData.eligibleMoves[moveMenu.selectedEligibleIdx]
 
                 var newMoves = moveMenu.pokeData.moves.slice()
+                if(newMoves.length<cmc.slotIndex) return
+
+                var eligMove = moveMenu.pokeData.eligibleMoves[moveMenu.selectedEligibleIdx]
                 newMoves[cmc.slotIndex] = {
                     id:       eligMove.id,
                     name:     eligMove.name,

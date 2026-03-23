@@ -128,6 +128,8 @@ QVariantMap Game::pokemonToMenuState(int slot, const PokemonState& p) {
 
     QVariantList moves;
     for (int moveSlot = 0; moveSlot < 4; moveSlot++) {
+        if(p.moves[moveSlot]==0) break;
+
         const Move* mv = Lookup::getMove(p.moves[moveSlot]);
         std::string name = mv->name;
         if (name.length() > 9)
@@ -414,7 +416,7 @@ void Game::createInitialPokemon() {
         p.nature      = Nature::Hardy;
         p.lvl         = 10;
         p.moves[0]    = m0; p.moves[1] = m1;
-        p.moves[2]    = m2; p.moves[3] = m3;
+        /* p.moves[2]    = m2; p.moves[3] = m3; */
         m_db.setPartySlot(slot, p);
     };
 

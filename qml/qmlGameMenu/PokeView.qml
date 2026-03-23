@@ -259,6 +259,7 @@ Item {
             Column {
                 anchors.centerIn: parent
                 width:   parent.width
+                height: parent.height - moveCardGap * 5
                 spacing: moveCardGap
 
                 Repeater {

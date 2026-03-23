@@ -263,10 +263,9 @@ void PokemonDatabase::writePokemonToRow(QSqlQuery& q, const PokemonState& p) {
     q.addBindValue(p.lvl);
     q.addBindValue(p.currentXP);
     q.addBindValue(static_cast<int>(p.nature));
-    q.addBindValue(p.moves[0]);
-    q.addBindValue(p.moves[1]);
-    q.addBindValue(p.moves[2]);
-    q.addBindValue(p.moves[3]);
+    for(int moveIndex = 0; moveIndex < 4; moveIndex++){
+        q.addBindValue(p.moves[moveIndex]);
+    }
 }
 
 bool PokemonDatabase::loadWildAndParty() {
