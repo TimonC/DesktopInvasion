@@ -131,7 +131,7 @@ def format_pokemon_name(name):
         return name
     if name.lower() not in [p.lower() for p in POKEMON_WITH_VALID_DASH]:
         name = name.split("-")[0]
-    return name.capitalize()
+    return name.upper()
 
 for poke_id in range(1, MAX_POKEMON_ID + 1):
     time.sleep(BASE_DELAY + random.uniform(-JITTER, JITTER))
