@@ -23,7 +23,6 @@ Game::Game(QWindow* parent)
 {
     qDebug() << "Game constructor called!";
 
-    initMenu();
     initializeGame();
 }
 
@@ -112,13 +111,14 @@ void Game::initializeGame() {
     if (!m_db.wild().empty())
         qDebug() << "Resuming wild Pokemon:" << QString::fromStdString(m_db.wild().name);
 
-connect(m_trayIcon, &SystemTrayIcon::gameActive,        this, &Game::setGameActive,    Qt::UniqueConnection);
-connect(m_trayIcon, &SystemTrayIcon::menuButtonPressed, this, &Game::handleMenuOpen,   Qt::UniqueConnection);
+    connect(m_trayIcon, &SystemTrayIcon::gameActive,        this, &Game::setGameActive,    Qt::UniqueConnection);
+    connect(m_trayIcon, &SystemTrayIcon::menuButtonPressed, this, &Game::handleMenuOpen,   Qt::UniqueConnection);
     m_spawnTimer->setInterval(m_spawnDelay_ms);
-connect(m_spawnTimer, &QTimer::timeout, this, &Game::spawnPokemon,                     Qt::UniqueConnection);
+    connect(m_spawnTimer, &QTimer::timeout, this, &Game::spawnPokemon,                     Qt::UniqueConnection);
 
     writeDefaults();
 
+    initMenu();
     m_spawnTimer->start();
 }
 
@@ -160,7 +160,10 @@ void Game::onStarterMenuFinished(QString playerName, int trainerId, int starterP
     p.lvl         = 5;
     p.moves[0]       = 1;
 
-    m_db.setPartySlot(0, p);
+    GameState gs;
+    gs.name             = playerName.toStdString();
+    gs.player_sprite_id = trainerId;
+    m_db.createNewSave(gs, p);
 
     m_starterMenu->hide();
     m_starterMenu->deleteLater();

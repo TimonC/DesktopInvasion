@@ -1,10 +1,10 @@
 #ifndef POKEMONDATABASE_H
 #define POKEMONDATABASE_H
-
 #include <PokeTypes.h>
 #include <string>
 #include <array>
 #include <unordered_map>
+#include <vector>
 #include <QSqlQuery>
 
 constexpr int PARTY_SIZE = 6;
@@ -42,12 +42,15 @@ struct Defaults {
 class PokemonDatabase {
 public:
     static PokemonDatabase& instance();
-
-    int initialize(); //-1 on error, 0 on first play, 1 on success
+    int  initialize();
     void shutdown();
 
     int  currentSaveId() const { return m_saveId; }
     bool setCurrentSaveId(int save_id);
+
+    int              createNewSave(const GameState& state, const PokemonState& starter);
+    bool             deleteSave(int save_id);
+    std::vector<int> listSaveIds();
 
     const PokemonState& wild() const { return m_wild; }
     void setWild(const PokemonState& p);
@@ -89,9 +92,9 @@ private:
     bool createTables();
     bool initFixedSlots();
     bool loadWildAndParty();
-
     int  readCurrentSaveId();
     bool writeCurrentSaveId(int save_id);
+    int  nextSaveIdFromCounter();
 
     PokemonState rowToPokemon     (const QSqlQuery& q);
     void         writePokemonToRow(QSqlQuery& q, const PokemonState& p);
@@ -102,8 +105,7 @@ private:
     bool dbDeletePCSlot  (int box, int slot);
 
     std::pair<int, int> firstFreePC();
-
-    PokemonState* cachePtr(int box, int slot);
+    PokemonState*       cachePtr(int box, int slot);
 
     bool    m_initialized = false;
     int     m_saveId      = 1;
