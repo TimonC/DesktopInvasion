@@ -30,6 +30,8 @@ Rectangle {
 
     property string playerName:      ""
     property bool   inNameEditMode:  false
+    property int  trainerId: -1
+    property int pokeId: -1
 
     signal startGame()
     signal nameChanged(string newName)
@@ -249,29 +251,35 @@ Rectangle {
 
                 Repeater {
                     id: partyRepeater
-                    model: 80
+                    model: 79
 
                     Rectangle {
                         property bool isHovered: hoverArea.containsMouse
+                        property bool isSelected: root.trainerId==index
 
                         width: image.width
                         height: image.height
                         radius: 8
-                        color: isHovered ? Qt.rgba(root.colorAccent.r, root.colorAccent.g, root.colorAccent.b, 0.15) : "transparent"
+                        color: isHovered ? (Qt.rgba(root.colorAccent.r, root.colorAccent.g, root.colorAccent.b, 0.30))
+                                    : (isSelected ? Qt.rgba(root.colorAccent.r, root.colorAccent.g, root.colorAccent.b, 0.15)
+                                    : "transparent")
 
                         MouseArea {
                             id: hoverArea
                             anchors.fill: parent
                             cursorShape: undefined
                             hoverEnabled: true
+                            onClicked: {
+                                root.trainerId = index;
+                            }
                         }
 
                         Rectangle {
                             anchors.fill: parent
                             color: "transparent"
                             radius: 8
-                            border.width: isHovered ? 2 : 0
-                            border.color: isHovered ? Qt.rgba(root.colorAccent.r, root.colorAccent.g, root.colorAccent.b, 0.6) : "transparent"
+                            border.width: (isHovered || isSelected) ? 2 : 0
+                            border.color: (isHovered || isSelected) ? Qt.rgba(root.colorAccent.r, root.colorAccent.g, root.colorAccent.b, 0.6) : "transparent"
                         }
 
                         Image {
@@ -304,7 +312,7 @@ Rectangle {
                 PcButton {
                     width: 4 * 48
                     label: "NEXT →"
-                    selectable: true
+                    selectable: root.trainerId !== -1
                     onClicked: root.slide = 2
                 }
             }
