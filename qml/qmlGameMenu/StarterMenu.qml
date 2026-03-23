@@ -10,8 +10,10 @@ Rectangle {
     readonly property int dividerW:      1
     readonly property int labelHeight:   30
     readonly property int contentSpacing:8
-
     readonly property color dividerColor: "#3d3d3d"
+
+    property bool   inNameEditMode:  false
+
     property color  subheaderColor: "#aaaaaa"
     property color  colorVeryFaint: "#999999"
     property color  colorNameBg:    "#383838"
@@ -29,12 +31,10 @@ Rectangle {
     property string dotGothicFont:  "DotGothic16"
 
     property string playerName:      ""
-    property bool   inNameEditMode:  false
     property int  trainerId: -1
     property int  pokeId: -1
 
-    signal startGame()
-    signal nameChanged(string newName)
+    signal startGame(string playerName, int trainerId, int pokeId)
 
     property int  slide:         0
 
@@ -71,8 +71,6 @@ Rectangle {
     }
 
     function finishNameEditing() {
-        if (nameField.text !== playerName)
-            nameChanged(nameField.text)
         playerName = nameField.text
         inNameEditMode = false
     }
@@ -502,7 +500,7 @@ Rectangle {
                     width: 2 * 4 * 48
                     label: "START NEW GAME"
                     selectable: root.pokeId !== -1
-                    onClicked: root.startGame()
+                    onClicked: root.startGame(root.playerName, root.trainerId, root.pokeId)
                     btnColor: "green"
                 }
             }

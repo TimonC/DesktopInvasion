@@ -148,8 +148,12 @@ void Game::openStarterMenu(){
     m_starterMenu->show();
 
     QObject* root = m_starterMenu->rootObject();
-    /* if (root) */
-    /*     connect(root, SIGNAL(startGame()), this, SLOT(onStarterMenuFinished())); */
+    if (root)
+        connect(root, SIGNAL(startGame(QString, int, int)), this, SLOT(onStarterMenuFinished(QString, int, int)));
+}
+
+void Game::onStarterMenuFinished(QString playerName, int trainerId, int starterPokedexId){
+    qDebug() << playerName << trainerId << starterPokedexId;
 }
 
 

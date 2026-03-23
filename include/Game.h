@@ -54,6 +54,7 @@ private:
     void         pushBoxToMenu(int boxIndex);
 
 private slots:
+    void onStarterMenuFinished(QString playerName, int trainerId, int starterPokedexId);
     void updatePartyXP(std::array<int,6> spread);
     void handleMenuOpen();
     void handleMenuClosed();
