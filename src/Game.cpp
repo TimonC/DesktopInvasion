@@ -173,6 +173,7 @@ void Game::openStarterMenu(){
             m_trayIcon->m_gameActive=false;
             m_trayIcon->toggleGameActive();
             m_trayIcon->show();
+            m_gameUsedToBeActive = true;
 
             resetGame();
             initializeGame(false);

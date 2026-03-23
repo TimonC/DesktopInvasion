@@ -30,7 +30,7 @@ private:
     void writeDefaults();
     void initMenu();
     std::mt19937             m_rng;
-    bool                     m_gameUsedToBeActive;
+    bool                     m_gameUsedToBeActive = true;
     GameMenu*                m_menu        = nullptr;
     QQuickView*              m_starterMenu        = nullptr;
     SystemTrayIcon*          m_trayIcon;
