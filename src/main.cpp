@@ -19,6 +19,7 @@ int main(int argc, char *argv[]) {
     const char* env =  getenv("DOCKER_ENV");
     bool isDev = (env && strcmp(env, "dev") == 0);
     if(!isDev && app.shouldExit()){
+        qDebug() << "DesktopInvasion is already running!";
         return 0;
     }
 
