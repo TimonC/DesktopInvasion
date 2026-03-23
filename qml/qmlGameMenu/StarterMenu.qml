@@ -56,6 +56,14 @@ Rectangle {
         inNameEditMode = false
     }
 
+        MouseArea {
+            anchors.fill: parent
+            cursorShape:  undefined
+            onClicked: {
+                    if (root.inNameEditMode) root.toggleNameEditMode()
+            }
+        }
+
     Item {
         id: slide0
         anchors.fill: parent
