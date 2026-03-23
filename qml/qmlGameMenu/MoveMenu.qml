@@ -287,7 +287,7 @@ Item {
 
                 PcButton {
                     width:  48*4
-                    label:  "← RETURN"
+                    label:  "← BACK"
                     onClicked: moveMenu.returnClicked()
                 }
 
