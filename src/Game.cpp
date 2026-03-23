@@ -170,7 +170,7 @@ void Game::openStarterMenu(){
 
         auto saves = m_db.listSaveIds();
         if (!saves.empty()) {
-            m_trayIcon->gameActive(false);
+            m_trayIcon->m_gameActive=false;
             m_trayIcon->toggleGameActive();
             m_trayIcon->show();
 
@@ -204,10 +204,10 @@ void Game::onStarterMenuFinished(QString playerName, int trainerId, int starterP
     m_starterMenu = nullptr;
 
     m_gameUsedToBeActive = true;
-    m_trayIcon->show();
-    m_trayIcon->setIconActivityColor(true);
-    m_trayIcon->enabled(true);
     initializeGame();
+    m_trayIcon->m_gameActive=false;
+    m_trayIcon->toggleGameActive();
+    m_trayIcon->show();
 }
 
 

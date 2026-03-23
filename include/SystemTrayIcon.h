@@ -15,6 +15,7 @@ public:
     void enabled(bool enabled);
     void createContextMenu(std::vector<std::pair<int, std::string>> trainers, int activeSaveId);
     void setActiveSaveId(int id) { m_activeSaveId = id; }
+    bool   m_gameActive;
 
 signals:
     void gameActive(bool active);
@@ -27,7 +28,6 @@ public slots:
     void toggleGameActive();
 
 private:
-    bool   m_gameActive;
     bool   m_clickEnabled;
     int    m_activeSaveId = -1;
     QIcon  m_activeIcon;
