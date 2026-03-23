@@ -24,7 +24,7 @@ Game::Game(QWindow* parent)
     qDebug() << "Game constructor called!";
     m_gameUsedToBeActive = true;
 
-    setGameActive(true);
+    initMenu();
     initializeGame();
 }
 
@@ -121,7 +121,6 @@ void Game::initializeGame() {
 
     writeDefaults();
 
-    initMenu();
     m_spawnTimer->start();
 }
 
@@ -171,6 +170,7 @@ void Game::onStarterMenuFinished(QString playerName, int trainerId, int starterP
 
     m_trayIcon->show();
     m_spawnTimer->start();
+    m_gameUsedToBeActive = true;
     initializeGame();
 }
 
