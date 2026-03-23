@@ -94,6 +94,8 @@ Rectangle {
         property bool selected: false
         property bool hoverEnabled: true
         property double iconScale: 1.0
+        property int horizontalOffset: 1
+        property int verticalOffset: 0
 
         width: Math.ceil(spriteWidth * iconScale)
         height: Math.ceil(spriteHeight * iconScale)
@@ -125,7 +127,8 @@ Rectangle {
         Image {
             id: sprite
             anchors.centerIn: parent
-            anchors.horizontalCenterOffset: 1 * iconScale
+            anchors.horizontalCenterOffset: horizontalOffset
+            anchors.verticalCenterOffset: verticalOffset
             width: Math.ceil(spriteWidth * iconScale)
             height: Math.ceil(spriteHeight * iconScale)
             sourceClipRect: Qt.rect(0, frameIndex * spriteHeight, spriteWidth, spriteHeight)
@@ -288,9 +291,9 @@ Rectangle {
                 }
             }
 
-            Item { width: parent.width; height: root.pad }
+            Item { width: parent.width; height: root.pad/1.5 }
             Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
-            Item { width: parent.width; height: root.pad }
+            Item { width: parent.width; height: root.pad/1.5 }
 
             Text {
                 width: parent.width
@@ -301,7 +304,7 @@ Rectangle {
                 wrapMode: Text.Wrap
             }
 
-            Item { width: parent.width; height: root.pad/2 }
+            Item { width: parent.width; height: root.pad/1.5 }
 
             Text {
                 width: parent.width
@@ -312,9 +315,9 @@ Rectangle {
                 wrapMode: Text.Wrap
             }
 
-            Item { width: parent.width; height: root.pad }
+            Item { width: parent.width; height: root.pad/1.5 }
             Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
-            Item { width: parent.width; height: root.pad }
+            Item { width: parent.width; height: root.pad/1.5 }
 
             Grid {
                 width: 64 * 16
@@ -408,8 +411,8 @@ Rectangle {
                             selected: root.pokeId === modelData.id
                             hoverEnabled: true
                             iconScale: 3
-                            onHovered: slide2.hoveredStarterIndex = index
-                            onUnhovered: slide2.hoveredStarterIndex = -1
+                            horizontalOffset: 1
+                            verticalOffset: -10
                             onClicked: { root.pokeId = modelData.id; }
                         }
                     }
@@ -496,10 +499,11 @@ Rectangle {
                 width: parent.width
                 layoutDirection: Qt.RightToLeft
                 PcButton {
-                    width: 4 * 48
-                    label: "START"
+                    width: 2 * 4 * 48
+                    label: "START NEW GAME"
                     selectable: root.pokeId !== -1
                     onClicked: root.startGame()
+                    btnColor: "green"
                 }
             }
         }
