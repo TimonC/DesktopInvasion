@@ -67,8 +67,6 @@ int main(int argc, char *argv[]) {
     if (initResult == -1) {
         qCritical() << "Failed to initialize database";
         return 1;
-    }else if( initResult == 0){
-        //TODO: handle first time init!!
     }
 
     QObject::connect(&app, &QApplication::aboutToQuit, []() {
