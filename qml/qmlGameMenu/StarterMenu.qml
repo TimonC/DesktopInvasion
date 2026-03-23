@@ -31,12 +31,27 @@ Rectangle {
     property string playerName:      ""
     property bool   inNameEditMode:  false
     property int  trainerId: -1
-    property int pokeId: -1
+    property int  pokeId: -1
 
     signal startGame()
     signal nameChanged(string newName)
 
     property int  slide:         0
+
+    property var starterList: [
+        { id: 1,  name: "BULBASAUR" },
+        { id: 4,  name: "CHARMANDER" },
+        { id: 7,  name: "SQUIRTLE" },
+        { id: 152, name: "CHIKORITA" },
+        { id: 155, name: "CYNDAQUIL" },
+        { id: 158, name: "TOTODILE" },
+        { id: 252, name: "TREECKO" },
+        { id: 255, name: "TORCHIC" },
+        { id: 258, name: "MUDKIP" },
+        { id: 387, name: "TURTWIG" },
+        { id: 390, name: "CHIMCHAR" },
+        { id: 393, name: "PIPLUP" }
+    ]
 
     function toggleNameEditMode() {
         if (inNameEditMode) {
@@ -57,6 +72,60 @@ Rectangle {
     function cancelNameEditing() {
         nameField.text = playerName
         inNameEditMode = false
+    }
+
+    component SpriteTile: Rectangle {
+        id: tile
+        signal clicked()
+        signal hovered()
+        signal unhovered()
+        property alias spriteSource: sprite.source
+        property int spriteWidth: 32
+        property int spriteHeight: 32
+        property int frameIndex: 0
+        property bool selected: false
+        property bool hoverEnabled: true
+        property double iconScale: 1.0
+
+        width: Math.ceil(spriteWidth * iconScale)
+        height: Math.ceil(spriteHeight * iconScale)
+        radius: 8
+        color: {
+            if (mouseArea.containsMouse)
+                return Qt.rgba(root.colorAccent.r, root.colorAccent.g, root.colorAccent.b, 0.30)
+            if (selected)
+                return Qt.rgba(root.colorAccent.r, root.colorAccent.g, root.colorAccent.b, 0.15)
+            return "transparent"
+        }
+
+        MouseArea {
+            id: mouseArea
+            anchors.fill: parent
+            cursorShape: undefined
+            hoverEnabled: tile.hoverEnabled
+            onEntered: tile.hovered()
+            onExited: tile.unhovered()
+            onClicked: tile.clicked()
+        }
+
+        Rectangle {
+            anchors.fill: parent
+            color: "transparent"
+            radius: 8
+            border.width: (mouseArea.containsMouse || selected) ? 2 : 0
+            border.color: (mouseArea.containsMouse || selected) ? Qt.rgba(root.colorAccent.r, root.colorAccent.g, root.colorAccent.b, 0.6) : "transparent"
+        }
+
+        Image {
+            id: sprite
+            anchors.centerIn: parent
+            anchors.horizontalCenterOffset: 1 * iconScale
+            width: Math.ceil(spriteWidth * iconScale)
+            height: Math.ceil(spriteHeight * iconScale)
+            sourceClipRect: Qt.rect(0, frameIndex * spriteHeight, spriteWidth, spriteHeight)
+            smooth: false
+            antialiasing: false
+        }
     }
 
     MouseArea {
@@ -242,62 +311,26 @@ Rectangle {
             Item { width: parent.width; height: root.pad }
 
             Grid {
-                width: 32*16*2
-                height: 32*5*2
+                width: 64 * 16
+                height: 64 * 5
                 rows: 5
                 columns: 16
                 rowSpacing: 0
                 columnSpacing: 0
 
                 Repeater {
-                    id: partyRepeater
-                    model: 79
+                    id: trainerRepeater
+                    model: 80
 
-                    Rectangle {
-                        property bool isHovered: hoverArea.containsMouse
-                        property bool isSelected: root.trainerId==index
-
-                        width: image.width
-                        height: image.height
-                        radius: 8
-                        color: isHovered ? (Qt.rgba(root.colorAccent.r, root.colorAccent.g, root.colorAccent.b, 0.30))
-                                    : (isSelected ? Qt.rgba(root.colorAccent.r, root.colorAccent.g, root.colorAccent.b, 0.15)
-                                    : "transparent")
-
-                        MouseArea {
-                            id: hoverArea
-                            anchors.fill: parent
-                            cursorShape: undefined
-                            hoverEnabled: true
-                            onClicked: {
-                                root.trainerId = index;
-                            }
-                        }
-
-                        Rectangle {
-                            anchors.fill: parent
-                            color: "transparent"
-                            radius: 8
-                            border.width: (isHovered || isSelected) ? 2 : 0
-                            border.color: (isHovered || isSelected) ? Qt.rgba(root.colorAccent.r, root.colorAccent.g, root.colorAccent.b, 0.6) : "transparent"
-                        }
-
-                        Image {
-                            id: image
-                            anchors.centerIn: parent
-                            anchors.horizontalCenterOffset: 1
-                            property int spriteWidth: 32
-                            property int spriteHeight: 32
-                            property double iconScale: 2
-
-                            width: Math.ceil(spriteWidth * iconScale)
-                            height: Math.ceil(spriteHeight * iconScale)
-
-                            source: "qrc:/assets/HGSS/reordered_trainers.png"
-                            sourceClipRect: Qt.rect(0, index * spriteHeight, spriteWidth, spriteHeight)
-                            smooth: false
-                            antialiasing: false
-                        }
+                    SpriteTile {
+                        spriteSource: "qrc:/assets/HGSS/reordered_trainers.png"
+                        spriteWidth: 32
+                        spriteHeight: 32
+                        frameIndex: index
+                        selected: root.trainerId === index
+                        hoverEnabled: true
+                        iconScale: 2
+                        onClicked: { root.trainerId = index; }
                     }
                 }
             }
@@ -325,6 +358,8 @@ Rectangle {
         anchors.margins: root.pad
         visible: root.slide === 2
 
+        property int hoveredStarterIndex: -1
+
         Column {
             width: parent.width
             spacing: 0
@@ -345,11 +380,86 @@ Rectangle {
 
             Row {
                 width: parent.width
+                spacing: root.pad
+
+                Grid {
+                    id: starterGrid
+                    columns: 3
+                    rows: 4
+                    spacing: 16
+                    width: parent.width * 0.6
+
+                    Repeater {
+                        id: starterRepeater
+                        model: root.starterList
+
+                        SpriteTile {
+                            spriteSource: "qrc:/assets/HGSS/reordered_icons.png"
+                            spriteWidth: 40
+                            spriteHeight: 30
+                            frameIndex: index
+                            selected: root.pokeId === modelData.id
+                            hoverEnabled: true
+                            iconScale: 3
+                            onHovered: slide2.hoveredStarterIndex = index
+                            onUnhovered: slide2.hoveredStarterIndex = -1
+                            onClicked: { root.pokeId = modelData.id; }
+                        }
+                    }
+                }
+
+                Item {
+                    width: parent.width * 0.4
+                    height: starterGrid.height
+                    clip: true
+
+                    Column {
+                        anchors.centerIn: parent
+                        spacing: root.pad
+                        width: parent.width
+                        Text {
+                            width: parent.width
+                            text: "YOUR STARTER"
+                            font.family: root.p2pFont
+                            font.pixelSize: root.fontSizeLg
+                            color: "#ffffff"
+                            horizontalAlignment: Text.AlignHCenter
+                            wrapMode: Text.WordWrap
+                        }
+                        Text {
+                            width: parent.width
+                            text: {
+                                if (slide2.hoveredStarterIndex !== -1)
+                                    return root.starterList[slide2.hoveredStarterIndex].name
+                                if (root.pokeId !== -1) {
+                                    for (var i = 0; i < root.starterList.length; ++i) {
+                                        if (root.starterList[i].id === root.pokeId)
+                                            return root.starterList[i].name
+                                    }
+                                }
+                                return "???"
+                            }
+                            font.family: root.p2pFont
+                            font.pixelSize: root.fontSizeLg
+                            color: root.colorAccent
+                            horizontalAlignment: Text.AlignHCenter
+                            wrapMode: Text.WordWrap
+                        }
+                    }
+                }
+            }
+
+            Item { width: parent.width; height: root.pad }
+            Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
+            Item { width: parent.width; height: root.pad }
+
+            Row {
+                width: parent.width
                 layoutDirection: Qt.RightToLeft
                 PcButton {
                     width: 4 * 48
                     label: "START"
-                    selectable: true
+                    selectable: root.pokeId !== -1
                     onClicked: root.startGame()
                 }
             }
