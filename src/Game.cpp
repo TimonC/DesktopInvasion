@@ -225,10 +225,10 @@ void Game::onStarterMenuFinished(QString playerName, int trainerId, int starterP
     p.name        = poke->name;
     p.pokeball_id = 0;
     p.nature      = Nature::Hardy;
-    p.lvl         = 50;
+    p.lvl         = 10;
 
     int moveIndex = 0;
-    for (int i = poke->eligible_move_count; i > 0 && moveIndex < 4; i--) {
+    for (int i = poke->eligible_move_count - 1; i >= 0 && moveIndex < 4; i--) {
         int moveLevel = poke->eligible_moves[i].level;
         if (moveLevel > 0 && moveLevel <= p.lvl) {
             p.moves[moveIndex] = poke->eligible_moves[i].move_id;
@@ -236,6 +236,9 @@ void Game::onStarterMenuFinished(QString playerName, int trainerId, int starterP
         }
     }
 
+    if (moveIndex == 0) {
+        p.moves[0] = 33;
+    }
 
     GameState gs;
     gs.name             = playerName.toStdString();
@@ -262,8 +265,8 @@ void Game::spawnPokemon() {
         m_spawnPoint     = QPoint(-1, -1);
 
         int firstLvl = m_db.party().begin()->lvl;
-        std::uniform_int_distribution<int> distLvl(firstLvl-Globals::encounterLvlLow(), firstLvl+Globals::encounterLvlHigh());
-        int lvl = distLvl(m_rng);
+        std::uniform_int_distribution<int> distLvl(firstLvl+Globals::encounterLvlLow(), firstLvl+Globals::encounterLvlHigh());
+        int lvl = std::clamp(distLvl(m_rng), 1, 100);
 
         int pokedexId        = Lookup::getRandomPokemonByCatchRate(lvl, m_rng);
         const Poke* wildPoke = Lookup::getPoke(pokedexId);
@@ -276,12 +279,16 @@ void Game::spawnPokemon() {
 
         const Poke* poke = Lookup::getPoke(pokedexId);
         int moveIndex = 0;
-        for (int i = poke->eligible_move_count; i > 0 && moveIndex < 4; i--) {
+        for (int i = poke->eligible_move_count - 1; i >= 0 && moveIndex < 4; i--) {
             int moveLevel = poke->eligible_moves[i].level;
             if (moveLevel > 0 && moveLevel <= w.lvl) {
                 w.moves[moveIndex] = poke->eligible_moves[i].move_id;
                 moveIndex++;
             }
+        }
+
+        if (moveIndex == 0) {
+            w.moves[0] = 33;
         }
 
         m_db.setWild(w);
@@ -337,12 +344,11 @@ QVariantMap Game::pokemonToMenuState(int slot, const PokemonState& p) {
     std::vector<EligibleEntry> eligible_move;
     std::vector<EligibleEntry> eligible_tm_move;
     for (int i = 0; i < poke->eligible_move_count; i++) {
-        if (p.lvl >= poke->eligible_moves[i].level) {
-            if (poke->eligible_moves[i].level==-1) {
-                eligible_tm_move.push_back({ poke->eligible_moves[i].level, poke->eligible_moves[i].move_id });
-            } else {
-                eligible_move.push_back({ poke->eligible_moves[i].level, poke->eligible_moves[i].move_id });
-            }
+        int moveLevel = poke->eligible_moves[i].level;
+        if (moveLevel == -1) {
+            eligible_tm_move.push_back({ moveLevel, poke->eligible_moves[i].move_id });
+        } else if (p.lvl >= moveLevel) {
+            eligible_move.push_back({ moveLevel, poke->eligible_moves[i].move_id });
         }
     }
     eligible_tm_move = m_db.filterKnownTMs(eligible_tm_move);
@@ -610,4 +616,3 @@ void Game::updatePartyXP(std::array<int, 6> spread) {
 
     m_activeBattle->showUpdateAndEndBattle(spread, lvlUps, tmGet, ballGet, whichBall);
 }
-
