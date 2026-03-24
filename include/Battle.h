@@ -55,14 +55,16 @@ public:
                value.value<T>() : defaultValue;
     }
 
-    void showXPAndEndBattle(std::array<int,6> spread, std::array<int,6> lvlups);
+    void showUpdateAndEndBattle(std::array<int,6> spread, std::array<int,6> lvlups, int tmGet, int ballGet, int whichBall);
 
 signals:
     void battleEnded(const char* endState, bool removeWild);
     void _updatePartyXP(std::array<int, 6> spread);
+    void updateBallCount(int delta, int row);
 
 public slots:
     void handleDrag(bool isDragged) override;
+    void handleBallCountUpdate(int delta, int row);
 
 private slots:
     void handleBattleEnded(QString endState, bool removeWild);

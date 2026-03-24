@@ -224,7 +224,7 @@ void Game::onStarterMenuFinished(QString playerName, int trainerId, int starterP
     p.name        = Lookup::getPoke(starterPokedexId)->name;
     p.pokeball_id = 0;
     p.nature      = Nature::Hardy;
-    p.lvl         = 5;
+    p.lvl         = 50;
     p.moves[0]    = 1;
 
     GameState gs;
@@ -490,6 +490,9 @@ void Game::handleBattleStart() {
 
     connect(m_activeBattle, &Battle::battleEnded,    this, &Game::handleBattleEnd);
     connect(m_activeBattle, &Battle::_updatePartyXP, this, &Game::updatePartyXP);
+    connect(m_activeBattle, &Battle::updateBallCount, this, [this](int delta, int row){
+            m_db.changePokeball(delta, row);
+        });
 
     QTimer::singleShot(80, this, [this]() { safelyRemoveWildPokemon(); });
 }
@@ -564,6 +567,14 @@ void Game::updatePartyXP(std::array<int, 6> spread) {
         m_db.setPartySlot(i, p);
     }
 
-    m_activeBattle->showXPAndEndBattle(spread, lvlUps);
+    int tmGet = 70;
+    int ballGet = 2;
+    std::uniform_int_distribution<int> dist(1, 3);
+    int whichBall = dist(m_rng);
+
+    m_db.changePokeball(ballGet, whichBall);
+    m_db.addTechnicalMove(tmGet);
+
+    m_activeBattle->showUpdateAndEndBattle(spread, lvlUps, tmGet, ballGet, whichBall);
 }
 

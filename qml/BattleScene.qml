@@ -72,6 +72,7 @@ Item {
     signal signalToStartActionRound(int actionIndex, string actionState)
     signal switchedPokemon(int pokedexId, int partyIndex)
     signal requestExperienceSpread();
+    signal requestBallCountUpdate(int delta, int row);
 
     function setBalls(n_greatBall, n_ultraBall, n_masterBall){
         battleMenu.nrOfBalls = [1000, n_greatBall, n_ultraBall, n_masterBall]
@@ -489,8 +490,24 @@ Item {
                 break
         }
     }
-    function showExperienceSpreadSequence(spread, lvlups) {
+    function showExperienceSpreadSequence(spread, lvlups, tmName, ballGet, whichBall) {
+
         var sequence = []
+        if(tmName != "NONE"){
+            sequence.push({
+                type: "text",
+                message: "Got the TM: '" + tmName + "'!",
+                delay: root.lvlUpDuration
+            })
+        }
+        if(ballGet>0){
+            var ballName = whichBall == 1 ? "Great Ball" : ((whichBall == 2) ? "Ultra Ball" : "Master Ball")
+            sequence.push({
+                type: "text",
+                message: "Got " + ballGet + " " + ballName + "!",
+                delay: root.lvlUpDuration
+            })
+        }
         for (var i = 0; i < 6; i++) {
             if (lvlups[i] >0){
                 sequence.push({

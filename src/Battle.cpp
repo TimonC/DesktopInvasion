@@ -42,11 +42,14 @@ Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildS
     connect(m_battleScene, SIGNAL(requestExperienceSpread()),
         this, SLOT(handleGettingExperience()));
 
+    connect(m_battleScene, SIGNAL(requestBallCountUpdate(int, int)),
+        this, SLOT(handleBallCountUpdate(int, int)));
+
 
     QMetaObject::invokeMethod(m_battleScene, "setBalls",
-        Q_ARG(int, balls[0]),
-        Q_ARG(int, balls[1]),
-        Q_ARG(int, balls[2]));
+        Q_ARG(QVariant, balls[0]),
+        Q_ARG(QVariant, balls[1]),
+        Q_ARG(QVariant, balls[2]));
     m_battleScene->setProperty("direction", m_currentDirection);
     m_battleScene->setProperty("pokeMargin", m_pokeMargin);
     m_battleScene->setProperty("debugLines", Globals::debugLines());
@@ -95,22 +98,33 @@ Battle::~Battle(){
 
 };
 
+void Battle::handleBallCountUpdate(int delta, int row){
+    emit updateBallCount(delta,row);
+}
 void Battle::handleGettingExperience(){
     std::array<int,6> spread = m_battleMoveHandler->getExperienceSpread();
     emit _updatePartyXP(spread);
 }
 
-void Battle::showXPAndEndBattle(std::array<int,6> spread, std::array<int,6> lvlUps){
+void Battle::showUpdateAndEndBattle(std::array<int,6> spread, std::array<int,6> lvlUps, int tmGet, int ballGet, int whichBall){
     QVector<int> qmlSpread;
     QVector<int> qmlLvlUps;
+
     for (int i = 0; i < 6; i++) {
         qmlSpread.append(spread[i]);
         qmlLvlUps.append(lvlUps[i]);
     }
 
+
+
+    std::string tmName = (tmGet > 0) ? std::string(Lookup::getMove(tmGet)->name) : "NONE";
     QMetaObject::invokeMethod(m_battleScene, "showExperienceSpreadSequence",
                               Q_ARG(QVariant, QVariant::fromValue(qmlSpread)),
-                              Q_ARG(QVariant, QVariant::fromValue(qmlLvlUps)));
+                              Q_ARG(QVariant, QVariant::fromValue(qmlLvlUps)),
+                              Q_ARG(QVariant, QString::fromStdString(tmName)),
+                              Q_ARG(QVariant, ballGet),
+                              Q_ARG(QVariant, whichBall)
+                              );
 }
 
 void Battle::handleSwitchedPokemon(int pokedexId, int partyIndex){

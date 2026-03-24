@@ -184,11 +184,55 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
        m_chosenIndex = actionIndex;
 
     } else if(actionChar == 'C'){
-        shakes = PokeMath::calculateBallShakes(m_rng, m_battleOpponent->pokeState.stats[0], m_battleOpponent->battleState.currentHealth, m_battleOpponent->pokeState.catchRate);
+        int catchMod;
+        switch(actionIndex) {
+            case 0:  // Poké Ball
+                catchMod = 100;
+                break;
+            case 1:  // Great Ball
+                catchMod = 150;
+                break;
+            case 2:  // Ultra Ball
+                catchMod = 200;
+                break;
+            case 3:  // Master Ball
+                catchMod = 255;
+                break;
+            default:
+                catchMod = 100;
+                break;
+        }
+
+        int statusMod;
+        switch(m_battleOpponent->battleState.statusCondition) {
+            case Ailment::Freeze:
+            case Ailment::Sleep:
+                statusMod = 250;
+                break;
+            case Ailment::Paralysis:
+            case Ailment::Burn:
+            case Ailment::Poison:
+            case Ailment::Toxic:
+                statusMod = 150;
+                break;
+            case Ailment::Null:
+            case Ailment::Confusion:
+            default:
+                statusMod = 100;
+                break;
+        }
+
+        shakes = PokeMath::calculateBallShakes(
+            m_rng,
+            m_battleOpponent->pokeState.stats[0],
+            m_battleOpponent->battleState.currentHealth,
+            m_battleOpponent->pokeState.catchRate,
+            catchMod,
+            statusMod
+        );
         s.append(createTextAction(QStringLiteral("Player used one Poké Ball!"), ms_ballUsed));
         s.append(createCatchAction(shakes, ms_catchStart));
     }
-
     if(actionChar == 'F'){
         if (playerMove->priority == opponentMove->priority){
             int oppSpeed = m_battleOpponent->pokeState.stats[5];
