@@ -20,11 +20,11 @@ Rectangle {
     readonly property real battleSpeedMax:        6.0
     readonly property real battleSpeedStep:       0.5
 
-    readonly property int  encounterHighMin:      5
+    readonly property int  encounterHighMin:      0
     readonly property int  encounterHighMax:      25
     readonly property int  encounterHighStep:     5
 
-    readonly property int  encounterLowMin:       5
+    readonly property int  encounterLowMin:       0
     readonly property int  encounterLowMax:       25
     readonly property int  encounterLowStep:      5
 

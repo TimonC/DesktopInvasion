@@ -265,7 +265,7 @@ void Game::spawnPokemon() {
         m_spawnPoint     = QPoint(-1, -1);
 
         int firstLvl = m_db.party().begin()->lvl;
-        std::uniform_int_distribution<int> distLvl(firstLvl+Globals::encounterLvlLow(), firstLvl+Globals::encounterLvlHigh());
+        std::uniform_int_distribution<int> distLvl(firstLvl-Globals::encounterLvlLow(), firstLvl+Globals::encounterLvlHigh());
         int lvl = std::clamp(distLvl(m_rng), 1, 100);
 
         int pokedexId        = Lookup::getRandomPokemonByCatchRate(lvl, m_rng);
