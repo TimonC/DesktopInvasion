@@ -3,9 +3,6 @@ import QtQuick 2.15
 Item {
     id: root
 
-//i hardcoded the whole menu size and then realised it wouldn't fit on some screens.
-//As an easy solution the whole thing is wrapped and rescaled in an item
-//Only problem is that the pc icons are a bit distorted on scaling
     property double uiScale:  1.0
 
     readonly property int baseWidth: pad + pcW + pad + dividerW + pad + rightPanelW + pad
@@ -269,6 +266,7 @@ Item {
                                     item.fontSizeSm = root.fontSizeSm
                                     item.mainFont   = root.p2pFont
                                     item.bodyFont   = root.dotGothicFont
+                                    item.evolveBtnClicked.connect(root.evolveButtonClicked)
                                 }
                             }
                         }
@@ -303,6 +301,25 @@ Item {
                                 item.pokeData    = root._pendingPokeData
                             }
                         }
+
+                        Loader {
+                            id:           evolveMenuLoader
+                            anchors.fill: parent
+                            active:       root.menuState === "evolveMenu"
+                            source:       "EvolveMenu.qml"
+
+                            onLoaded: {
+                                item.fontSizeLg = root.fontSizeLg
+                                item.fontSizeMd = root.fontSizeMd
+                                item.fontSizeSm = root.fontSizeSm
+                                item.mainFont   = root.p2pFont
+                                item.bodyFont   = root.dotGothicFont
+
+                                item.returnClicked.connect(root.goToDefaultMenu)
+
+                                item.pokeData = root._pendingPokeData
+                            }
+                        }
                     }
                 }
             }
@@ -328,4 +345,14 @@ Item {
 
         root.menuState = "moveMenu"
     }
+
+    function evolveButtonClicked(pokeData) {
+        if (!pokeData) return
+        if (pc.inSwapMode) pc.toggleSwapMode()
+
+        _pendingPokeData = pokeData
+
+        root.menuState = "evolveMenu"
+    }
 }
+

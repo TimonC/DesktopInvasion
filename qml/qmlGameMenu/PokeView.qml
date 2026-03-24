@@ -157,7 +157,7 @@ Item {
                             label: "++EVOLVE++"
                             btnColor: "green"
                             fontSize: root.fontSizeSm
-                            onClicked: pokeView.evolveBtnWasClicked(pokeData)
+                            onClicked: pokeView.evolveBtnClicked(pokeData)
                         }
                     }
                     Row {
