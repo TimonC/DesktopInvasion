@@ -445,6 +445,11 @@ Item {
                 root.currentOpponentBallIndex = step.ballId
                 resetOpponentBall()
 
+                if(step.ballId>0){
+                    root.requestBallCountUpdate(-1, step.ballId)
+                    battleMenu.nrOfBalls[step.ballId] -=1
+                }
+
                 var newActions
                 if(step.shakes>=4){
                     step.shakes = 3
