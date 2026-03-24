@@ -220,12 +220,23 @@ void Game::onStarterMenuFinished(QString playerName, int trainerId, int starterP
     qDebug() << playerName << trainerId << starterPokedexId;
 
     PokemonState p;
+    const Poke* poke = Lookup::getPoke(starterPokedexId);
     p.pokedex_id  = starterPokedexId;
-    p.name        = Lookup::getPoke(starterPokedexId)->name;
+    p.name        = poke->name;
     p.pokeball_id = 0;
     p.nature      = Nature::Hardy;
-    p.lvl         = 50;
+    p.lvl         = 10;
     p.moves[0]    = 1;
+
+    int moveIndex = 0;
+    for (int i = poke->eligible_move_count; i >= 0 && moveIndex < 4; i--) {
+        int moveLevel = poke->eligible_moves[i].level;
+        if (moveLevel > 0 && moveLevel <= p.lvl) {
+            p.moves[moveIndex] = poke->eligible_moves[i].move_id;
+            moveIndex++;
+        }
+    }
+
 
     GameState gs;
     gs.name             = playerName.toStdString();
