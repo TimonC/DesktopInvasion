@@ -310,6 +310,7 @@ void Game::initMenu() {
     connect(m_menu, &GameMenu::swapRequested,        this, &Game::handlePCSwap);
     connect(m_menu, &GameMenu::nameChangeRequested,  this, &Game::handleNameChange);
     connect(m_menu, &GameMenu::moveChangeRequested,  this, &Game::handleMoveChange);
+    connect(m_menu, &GameMenu::evolvesRequested, this, &Game::handleEvolveRequest);
 }
 
 QVariantMap Game::pokemonToMenuState(int slot, const PokemonState& p) {
@@ -396,6 +397,44 @@ QVariantMap Game::pokemonToMenuState(int slot, const PokemonState& p) {
     entry["moves"] = moves;
 
     return entry;
+}
+void Game::handleEvolveRequest(QVariantMap pokeData){
+    QVariantMap evolvesData;
+    QVariantList slot = pokeData["slot"].toList();
+    evolvesData["slot"] = slot;
+    QVariantList evolveIds = pokeData["evolves"].toList();
+
+    QVariantList list;
+    PokemonState originalState;
+    if(slot[0]==1){
+        const auto& party = m_db.party();
+        originalState = party[slot[1].toInt()];
+    }else{
+        const auto& box = m_db.getBox(slot[0].toInt());
+        originalState = box[slot[1].toInt()];
+    }
+
+    QVariantList evolvesList;
+    for(int i =0; i<evolveIds.size(); i++){
+        int pokedexId = evolveIds[i].toInt();
+        const Poke* poke = Lookup::getPoke(pokedexId);
+        PokemonState p = {
+            pokedexId,
+            0,
+            originalState.pokeball_id,
+            originalState.name,
+            originalState.lvl,
+            originalState.currentXP,
+            originalState.nature,
+        };
+        int index = 0;
+        for(int _move : originalState.moves){
+            p.moves[index]=_move;
+        }
+        evolvesList.append(pokemonToMenuState(slot[1].toInt(), p));
+    }
+    evolvesData["evolvesList"] = evolvesList;
+    m_menu->updateEvolveMenu(evolvesData);
 }
 
 QVariantList Game::partyToVariantList() {

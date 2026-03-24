@@ -19,6 +19,8 @@ public:
     void loadParty(const QVariantList& data, bool displayFirst);
     void loadBox(int boxIndex, const QVariantList& data);
     void showBox(int boxIndex);
+    void _evolvesRequested(QVariantMap pokeData);
+    void updateEvolveMenu(QVariantMap evolvesData);
 
     void setDefaults(Defaults &d);
     void setTrainer(QString name, int trainerId);
@@ -31,6 +33,7 @@ signals:
     void swapRequested(int xplace, int xpos, int yplace, int ypos);
     void nameChangeRequested(int xplace, int xpos, QString name);
     void moveChangeRequested(int xplace, int xpos, int moveSlot, int moveId);
+    void evolvesRequested(QVariantMap pokeData);
 
     void partyDataReady(QVariantList data, bool displayFirst);
     void boxDataReady(int boxIndex, QVariantList data);

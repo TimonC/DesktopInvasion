@@ -45,25 +45,19 @@ Item {
             spacing: evolveMenu.gap
 
             Repeater {
-                model: evolveMenu.pokeData ? evolveMenu.pokeData.evolves : []
+                model: evolveMenu.pokeData ? evolveMenu.pokeData[0].evolves : []
 
                 Row {
                     width:   parent.width
                     spacing: 16
 
                     Text {
-                        text:           "Lv. " + modelData.lvl
+                        text:           "Lv. " + modelData
                         font.family:    evolveMenu.bodyFont
                         font.pixelSize: evolveMenu.fontSizeMd
                         color:          evolveMenu.colorText
                     }
 
-                    Text {
-                        text:           "Move ID: " + modelData.moveid
-                        font.family:    evolveMenu.bodyFont
-                        font.pixelSize: evolveMenu.fontSizeMd
-                        color:          evolveMenu.colorSubtext
-                    }
                 }
             }
         }

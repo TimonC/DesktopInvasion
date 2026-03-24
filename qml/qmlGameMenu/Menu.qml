@@ -347,11 +347,14 @@ Item {
     }
 
     function evolveButtonClicked(pokeData) {
+        requestEvolutions(pokeData)
+    }
+    signal requestEvolutions(var pokedexIds)
+
+    function receivedEvolutions(evolveData){
         if (!pokeData) return
         if (pc.inSwapMode) pc.toggleSwapMode()
-
-        _pendingPokeData = pokeData
-
+        _pendingPokeData=evolveData
         root.menuState = "evolveMenu"
     }
 }
