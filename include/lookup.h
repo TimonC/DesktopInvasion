@@ -47,22 +47,33 @@ namespace Lookup {
 
         return QString::fromUtf8(flavor.data(), flavor.size());
     }
-    inline int getRandomPokemonByCatchRate(std::mt19937& rng) {
+    inline int getRandomPokemonByCatchRate(int pokemonLvl, std::mt19937& rng) {
         static std::uniform_int_distribution<int> dist(1, kTotalCatchRateWeight);
-        int roll = dist(rng);
 
-        int low = 1, high = 493;
-        while (low < high) {
-            int mid = (low + high) / 2;
-            if (kCatchRateCumulativeWeights[mid] >= roll) {
-                high = mid;
-            } else {
-                low = mid + 1;
+
+        while(true){
+            int roll = dist(rng);
+
+            int low = 1, high = 493;
+            while (low < high) {
+                int mid = (low + high) / 2;
+                if (kCatchRateCumulativeWeights[mid] >= roll) {
+                    high = mid;
+                } else {
+                    low = mid + 1;
+                }
             }
-        }
-        return low;
-    }
 
+            const Poke* poke = getPoke(low);
+
+            //-0.11 constant tuned so legendaries spawn around 40
+            int threshold = static_cast<int>(255.0 * std::exp(-0.11 * pokemonLvl));
+            threshold = std::clamp(threshold, 3, 255);
+
+            if (poke->catch_rate >= threshold) return low;
+        }
+    }
 }
+
 
 #endif

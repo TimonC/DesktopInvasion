@@ -225,11 +225,10 @@ void Game::onStarterMenuFinished(QString playerName, int trainerId, int starterP
     p.name        = poke->name;
     p.pokeball_id = 0;
     p.nature      = Nature::Hardy;
-    p.lvl         = 10;
-    p.moves[0]    = 1;
+    p.lvl         = 50;
 
     int moveIndex = 0;
-    for (int i = poke->eligible_move_count; i >= 0 && moveIndex < 4; i--) {
+    for (int i = poke->eligible_move_count; i > 0 && moveIndex < 4; i--) {
         int moveLevel = poke->eligible_moves[i].level;
         if (moveLevel > 0 && moveLevel <= p.lvl) {
             p.moves[moveIndex] = poke->eligible_moves[i].move_id;
@@ -266,7 +265,7 @@ void Game::spawnPokemon() {
         std::uniform_int_distribution<int> distLvl(firstLvl-Globals::encounterLvlLow(), firstLvl+Globals::encounterLvlHigh());
         int lvl = distLvl(m_rng);
 
-        int pokedexId        = Lookup::getRandomPokemonByCatchRate(m_rng);
+        int pokedexId        = Lookup::getRandomPokemonByCatchRate(lvl, m_rng);
         const Poke* wildPoke = Lookup::getPoke(pokedexId);
 
         PokemonState w;
