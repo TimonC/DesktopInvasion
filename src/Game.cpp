@@ -311,13 +311,23 @@ QVariantMap Game::pokemonToMenuState(int slot, const PokemonState& p) {
     entry["flavorText"] = Lookup::getRandomFlavorText(p.pokedex_id, m_rng);
     entry["stats"]      = statsList;
 
-    std::vector<EligibleEntry> eligible;
-    eligible.reserve(poke->eligible_move_count);
+    std::vector<EligibleEntry> eligible_move;
+    std::vector<EligibleEntry> eligible_tm_move;
     for (int i = 0; i < poke->eligible_move_count; i++) {
-        if (p.lvl >= poke->eligible_moves[i].level)
-            eligible.push_back({ poke->eligible_moves[i].level, poke->eligible_moves[i].move_id });
+        if (p.lvl >= poke->eligible_moves[i].level) {
+            if (poke->eligible_moves[i].level==-1) {
+                eligible_tm_move.push_back({ poke->eligible_moves[i].level, poke->eligible_moves[i].move_id });
+            } else {
+                eligible_move.push_back({ poke->eligible_moves[i].level, poke->eligible_moves[i].move_id });
+            }
+        }
     }
-    eligible = m_db.filterKnownTMs(eligible);
+    eligible_tm_move = m_db.filterKnownTMs(eligible_tm_move);
+    std::vector<EligibleEntry> eligible;
+    eligible.reserve(eligible_move.size() + eligible_tm_move.size());
+    eligible.insert(eligible.end(), eligible_move.begin(), eligible_move.end());
+    eligible.insert(eligible.end(), eligible_tm_move.begin(), eligible_tm_move.end());
+
 
     QVariantList eligibleMoves;
     for (const auto& e : eligible) {
