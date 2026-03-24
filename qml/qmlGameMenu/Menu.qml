@@ -68,6 +68,12 @@ Item {
        trainer.expShareDefault = expShare
     }
 
+    function _updateEvolvesMenu(evolveData) {
+        _pendingPokeData = evolveData
+        root.menuState = "evolveMenu"
+        if (evolveMenuLoader.item)
+            evolveMenuLoader.item.pokeData = evolveData
+    }
 
     Item {
         id: scaledContent
@@ -347,10 +353,8 @@ Item {
     }
 
     function evolveButtonClicked(pokeData) {
-        requestEvolutions(pokeData)
+        menuBridge.evolvesRequested(root.displayedPokemonBox, pokeData)
     }
-    signal requestEvolutions(var pokedexIds)
-
     function receivedEvolutions(evolveData){
         if (!pokeData) return
         if (pc.inSwapMode) pc.toggleSwapMode()

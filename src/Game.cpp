@@ -398,41 +398,39 @@ QVariantMap Game::pokemonToMenuState(int slot, const PokemonState& p) {
 
     return entry;
 }
-void Game::handleEvolveRequest(QVariantMap pokeData){
-    QVariantMap evolvesData;
-    QVariantList slot = pokeData["slot"].toList();
-    evolvesData["slot"] = slot;
-    QVariantList evolveIds = pokeData["evolves"].toList();
+void Game::handleEvolveRequest(int boxIndex, QVariantMap pokeData) {
+    int slot    = pokeData["slot"].toInt();
 
-    QVariantList list;
     PokemonState originalState;
-    if(slot[0]==1){
-        const auto& party = m_db.party();
-        originalState = party[slot[1].toInt()];
-    }else{
-        const auto& box = m_db.getBox(slot[0].toInt());
-        originalState = box[slot[1].toInt()];
+    if (boxIndex == -1) {
+        originalState = m_db.party()[slot];
+    } else {
+        originalState = m_db.getBox(boxIndex)[slot];
     }
 
+    QVariantList evolveIds = pokeData["evolves"].toList();
     QVariantList evolvesList;
-    for(int i =0; i<evolveIds.size(); i++){
-        int pokedexId = evolveIds[i].toInt();
-        const Poke* poke = Lookup::getPoke(pokedexId);
-        PokemonState p = {
-            pokedexId,
-            0,
-            originalState.pokeball_id,
-            originalState.name,
-            originalState.lvl,
-            originalState.currentXP,
-            originalState.nature,
-        };
-        int index = 0;
-        for(int _move : originalState.moves){
-            p.moves[index]=_move;
-        }
-        evolvesList.append(pokemonToMenuState(slot[1].toInt(), p));
+
+    for (int i = 0; i < evolveIds.size(); i++) {
+        int pokedexId     = evolveIds[i].toInt();
+        const Poke* poke  = Lookup::getPoke(pokedexId);
+
+        PokemonState p;
+        p.pokedex_id  = pokedexId;
+        p.name        = poke->name;          // ← target's name, not original
+        p.pokeball_id = originalState.pokeball_id;
+        p.lvl         = originalState.lvl;
+        p.currentXP   = originalState.currentXP;
+        p.nature      = originalState.nature;
+        for (int m = 0; m < 4; m++)          // ← fixed loop
+            p.moves[m] = originalState.moves[m];
+
+        evolvesList.append(pokemonToMenuState(slot, p));
     }
+
+    QVariantMap evolvesData;
+    evolvesData["slot"]       = slot;
+    evolvesData["box"]        = boxIndex;
     evolvesData["evolvesList"] = evolvesList;
     m_menu->updateEvolveMenu(evolvesData);
 }

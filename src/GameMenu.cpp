@@ -77,8 +77,8 @@ void GameMenu::activate() {
 }
 
 void GameMenu::updateEvolveMenu(QVariantMap evolvesData){
-    QMetaObject::invokeMethod(m_menuRoot, "_updateEvolvesMenu", QArg(evolvesData));
-}
+    QMetaObject::invokeMethod(m_menuRoot, "_updateEvolvesMenu",
+        Q_ARG(QVariant, QVariant::fromValue(evolvesData)));}
 
 void GameMenu::setDefaults(Defaults &d){
     QMetaObject::invokeMethod(m_menuRoot, "updateDefaults",
@@ -108,7 +108,7 @@ void GameMenu::showBox(int boxIndex) {
     emit showBoxRequested(boxIndex);
 }
 
-void GameMenu::_evolvesRequested(QVariantMap pokeData){
-    emit evolvesRequested(pokeData);
+void GameMenu::_evolvesRequested(int boxIndex, QVariantMap pokeData){
+    emit evolvesRequested(boxIndex, pokeData);
 };
 
