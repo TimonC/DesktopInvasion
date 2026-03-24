@@ -225,7 +225,7 @@ void Game::onStarterMenuFinished(QString playerName, int trainerId, int starterP
     p.name        = poke->name;
     p.pokeball_id = 0;
     p.nature      = Nature::Hardy;
-    p.lvl         = 10;
+    p.lvl         = 50;
 
     int moveIndex = 0;
     for (int i = poke->eligible_move_count - 1; i >= 0 && moveIndex < 4; i--) {
@@ -234,10 +234,6 @@ void Game::onStarterMenuFinished(QString playerName, int trainerId, int starterP
             p.moves[moveIndex] = poke->eligible_moves[i].move_id;
             moveIndex++;
         }
-    }
-
-    if (moveIndex == 0) {
-        p.moves[0] = 33;
     }
 
     GameState gs;

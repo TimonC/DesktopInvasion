@@ -97,7 +97,7 @@ namespace Lookup {
                             availableTmIds.push_back(kAllTmIds[i]);
                         }
                     }
-                    static std::uniform_int_distribution<int> tmOrBallDist(1, 2);
+                    static std::uniform_int_distribution<int> tmOrBallDist(1, 10);
                     bool isTm = (tmOrBallDist(rng) == 1) && !availableTmIds.empty();
 
                     if (isTm) {
