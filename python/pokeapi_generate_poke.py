@@ -48,36 +48,52 @@ def extract_base_stats(stats_list):
     return [stats.get(stat_name, 0) for stat_name in stat_order]
 
 def extract_eligible_moves(moves_list):
-    move_dict = {}
+    tm_moves = set()
+    non_tm_levels = {}
+
     for move_entry in moves_list:
         version_details = move_entry.get('version_group_details', [])
-        target_details = []
-        for detail in version_details:
-            version_group = detail.get('version_group', {}).get('name', '')
-            if version_group in GEN4_VERSION_GROUPS:
-                target_details.append(detail)
+        target_details = [
+            d for d in version_details
+            if d.get('version_group', {}).get('name', '') in GEN4_VERSION_GROUPS
+        ]
         if not target_details:
             continue
+
+        move_url = move_entry.get('move', {}).get('url', '')
+        if not move_url:
+            continue
+        parts = move_url.rstrip('/').split('/')
+        if not parts:
+            continue
+        move_id = int(parts[-1])
+        if move_id in SKIP_MOVE_IDS:
+            continue
+
         for detail in target_details:
             learn_method = detail.get('move_learn_method', {}).get('name', '')
             level_learned = detail.get('level_learned_at', 0)
-            move_url = move_entry.get('move', {}).get('url', '')
-            if move_url:
-                parts = move_url.rstrip('/').split('/')
-                if parts:
-                    move_id = int(parts[-1])
-                    if move_id not in SKIP_MOVE_IDS:
-                        is_level_up = (learn_method == 'level-up')
-                        if not is_level_up:
-                            level_learned = -1
-                        if move_id not in move_dict:
-                            move_dict[move_id] = (level_learned, is_level_up)
-                        elif is_level_up and not move_dict[move_id][1]:
-                            move_dict[move_id] = (level_learned, is_level_up)
-                        elif is_level_up and level_learned > 0 and level_learned < move_dict[move_id][0]:
-                            move_dict[move_id] = (level_learned, is_level_up)
-    eligible_moves = [{'move_id': move_id, 'level': level} for move_id, (level, _) in move_dict.items()]
-    eligible_moves.sort(key=lambda x: (x['level'], x['move_id']))
+
+            if learn_method == 'machine':
+                tm_moves.add(move_id)
+            else:
+                if learn_method == 'level-up' and level_learned > 0:
+                    candidate = level_learned
+                else:
+                    candidate = 40
+                if move_id not in non_tm_levels or candidate < non_tm_levels[move_id]:
+                    non_tm_levels[move_id] = candidate
+
+    eligible_moves = []
+    all_move_ids = tm_moves | set(non_tm_levels.keys())
+    for move_id in all_move_ids:
+        if move_id in tm_moves:
+            eligible_moves.append({'move_id': move_id, 'level': -1})
+        if move_id in non_tm_levels:
+            eligible_moves.append({'move_id': move_id, 'level': non_tm_levels[move_id]})
+
+    # Sort: level-up moves first (ascending), then TMs (level -1) at the end
+    eligible_moves.sort(key=lambda x: (x['level'] if x['level'] != -1 else float('inf'), x['move_id']))
     return eligible_moves
 
 def extract_evolution_data(species_url, current_poke_id):
@@ -97,7 +113,7 @@ def find_next_evolutions(chain, target_id):
         if parts:
             chain_id = int(parts[-1])
             if chain_id == target_id:
-                evolves_to = []
+                evolutions = []
                 for evolution in chain.get('evolves_to', []):
                     evolved_species_url = evolution.get('species', {}).get('url', '')
                     if evolved_species_url:
@@ -105,14 +121,23 @@ def find_next_evolutions(chain, target_id):
                         if parts:
                             evolved_id = int(parts[-1])
                             if 1 <= evolved_id <= MAX_POKEMON_ID:
-                                evolves_to.append({
+                                evolutions.append({
                                     'pokedex_id': evolved_id,
                                     'level': extract_evolution_condition(evolution)
                                 })
-                return evolves_to
+
+                level_up_levels = [e['level'] for e in evolutions if e['level'] > 0]
+                fallback = min(level_up_levels) if level_up_levels else 30
+
+                for e in evolutions:
+                    if e['level'] == -1:
+                        e['level'] = fallback
+
+                return evolutions
+
     for evolution in chain.get('evolves_to', []):
         result = find_next_evolutions(evolution, target_id)
-        if result:
+        if result is not None and len(result) > 0:
             return result
     return []
 
@@ -133,6 +158,7 @@ def format_pokemon_name(name):
         name = name.split("-")[0]
     return name.upper()
 
+print("Fetching Pokémon data from PokéAPI...")
 for poke_id in range(1, MAX_POKEMON_ID + 1):
     time.sleep(BASE_DELAY + random.uniform(-JITTER, JITTER))
 
@@ -171,8 +197,9 @@ for poke_id in range(1, MAX_POKEMON_ID + 1):
         'eligible_evolves': eligible_evolves
     })
 
-    print(f"Added Pokémon: {poke_id:03d} - {format_pokemon_name(poke_data.get('name', ''))} ({len(eligible_moves)} moves, {len(eligible_evolves)} evolve(s), catch rate: {catch_rate}, base XP: {base_experience})")
+    print(f"  Fetched {poke_id:03d} - {format_pokemon_name(poke_data.get('name', ''))} (raw moves: {len(eligible_moves)})")
 
+print("\nBuilding evolution parent map...")
 evolution_parents = {}
 for pokemon in pokemons:
     for evolve in pokemon['eligible_evolves']:
@@ -181,22 +208,44 @@ for pokemon in pokemons:
             evolution_parents[child_id] = []
         evolution_parents[child_id].append(pokemon['id'])
 
+print("Propagating moves through evolution chains (forward only)...")
 for pokemon in pokemons:
-    poke_id = pokemon['id']
-    if poke_id in evolution_parents:
-        parent_ids = evolution_parents[poke_id]
-        all_parent_moves = []
-        for parent_id in parent_ids:
-            parent_pokemon = next(p for p in pokemons if p['id'] == parent_id)
-            all_parent_moves.extend(parent_pokemon['eligible_moves'])
-        current_move_ids = {move['move_id'] for move in pokemon['eligible_moves']}
-        for parent_move in all_parent_moves:
-            if parent_move['move_id'] not in current_move_ids:
-                pokemon['eligible_moves'].append(parent_move)
-        pokemon['eligible_moves'].sort(key=lambda x: (x['level'], x['move_id']))
-        new_count = len(pokemon['eligible_moves'])
-        if new_count > len(current_move_ids):
-            print(f"Updated {pokemon['name']} with {new_count - len(current_move_ids)} moves from parents {parent_ids}")
+    pokemon['move_dict'] = {}
+    for move in pokemon['eligible_moves']:
+        mid = move['move_id']
+        lvl = move['level']
+        if mid not in pokemon['move_dict'] or lvl < pokemon['move_dict'][mid]:
+            pokemon['move_dict'][mid] = lvl
+
+changed = True
+iteration = 0
+while changed:
+    changed = False
+    iteration += 1
+    for pokemon in pokemons:
+        if pokemon['id'] not in evolution_parents:
+            continue
+        cur = pokemon['move_dict']
+        for parent_id in evolution_parents[pokemon['id']]:
+            parent = next(p for p in pokemons if p['id'] == parent_id)
+            for mid, lvl in parent['move_dict'].items():
+                if mid not in cur or lvl < cur[mid]:
+                    cur[mid] = lvl
+                    changed = True
+        pokemon['move_dict'] = cur
+    print(f"  Propagation iteration {iteration}: {'changed' if changed else 'stable'}")
+
+print("Converting move dictionaries back to list format...")
+for pokemon in pokemons:
+    moves = [{'move_id': mid, 'level': lvl} for mid, lvl in pokemon['move_dict'].items()]
+    # Sort: level-up moves first (ascending), then TMs (level -1) at the end
+    moves.sort(key=lambda x: (x['level'] if x['level'] != -1 else float('inf'), x['move_id']))
+    pokemon['eligible_moves'] = moves
+
+print("\nFinal move counts after propagation:")
+for pokemon in pokemons:
+    if pokemon['id'] in [1, 2, 3, 4, 5, 6, 7, 8, 9, 25, 26, 133, 134, 135, 136, 196, 197, 470, 471]:
+        print(f"  {pokemon['id']:03d} - {format_pokemon_name(pokemon['name'])}: {len(pokemon['eligible_moves'])} moves")
 
 def generate_pokemon_data_direct():
     source_content = '#include "data_poke.h"\n\n'
@@ -268,4 +317,4 @@ with open(output_path, 'w', encoding='utf-8') as f:
     f.write(source_content)
 
 print(f"\nGenerated src/data_poke.cpp")
-print(f"Total Pokémon: {len(pokemons)}")
+print(f"Total Pokémon processed: {len(pokemons)}")
