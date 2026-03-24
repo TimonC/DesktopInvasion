@@ -315,7 +315,7 @@ def generate_pokemon_data_direct():
     cumulative = 0
     for poke_id in range(1, MAX_POKEMON_ID + 1):
         pokemon = next(p for p in pokemons if p['id'] == poke_id)
-        weight = 256 - pokemon['catch_rate']
+        weight = pokemon['catch_rate'] + 1
         cumulative += weight
         source_content += f"    {cumulative},  // {pokemon['name'].upper()} (catch_rate: {pokemon['catch_rate']}, weight: {weight})\n"
 
