@@ -300,7 +300,10 @@ void Game::initMenu() {
     m_menu = new GameMenu();
     auto gs = m_db.loadGameState();
 
-    m_menu->setTrainer(QString::fromStdString(gs.name), gs.player_sprite_id);
+    std::string upperName = gs.name;
+    std::transform(upperName.begin(), upperName.end(), upperName.begin(),
+                   [](unsigned char c) { return std::toupper(c); });
+    m_menu->setTrainer(QString::fromStdString(upperName), gs.player_sprite_id);
     connect(m_menu, &GameMenu::menuClosed,          this, &Game::handleMenuClosed);
     connect(m_menu, &GameMenu::preloadBoxRequested,  this, &Game::handleMenuPreloadBox);
     connect(m_menu, &GameMenu::swapRequested,        this, &Game::handlePCSwap);
