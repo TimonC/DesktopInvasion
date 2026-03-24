@@ -10,7 +10,7 @@
 
 BattleMoveHandler::BattleMoveHandler(const PokemonState& wildState, const std::array<PokemonState, 6>& partyStates, std::mt19937 &rng)
     : m_rng(rng)
-    , m_moveChoiceDist(0, 3)
+    , m_moveChoiceDist(0, 0)
     , m_expShare(Globals::expShare())
 {
     qDebug() << "BattleMoveHandler constructor called!";

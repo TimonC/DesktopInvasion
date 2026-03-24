@@ -260,12 +260,19 @@ void Game::spawnPokemon() {
         w.name       = wildPoke->name;
         w.lvl        = 15;
         w.nature     = Nature::Hardy;
-        w.moves[0]   = 1;
-        w.moves[1]   = 422;
-        w.moves[2]   = 86;
-        w.moves[3]   = 86;
+
+        const Poke* poke = Lookup::getPoke(pokedexId);
+        int moveIndex = 0;
+        for (int i = poke->eligible_move_count; i >= 0 && moveIndex < 4; i--) {
+            int moveLevel = poke->eligible_moves[i].level;
+            if (moveLevel > 0 && moveLevel <= w.lvl) {
+                w.moves[moveIndex] = poke->eligible_moves[i].move_id;
+                moveIndex++;
+            }
+        }
 
         m_db.setWild(w);
+
     } else {
         qDebug() << "Resuming existing wild:" << QString::fromStdString(m_db.wild().name);
     }
