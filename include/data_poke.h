@@ -7,7 +7,8 @@ struct EligibleMove {
     const int move_id;
     const int level;
 };
-struct EligibleEvolve{
+
+struct EligibleEvolve {
     const int pokedex_id;
     const int level;
 };
@@ -26,5 +27,7 @@ struct Poke {
 };
 
 extern const Poke* const kPokesByIndex[];
+extern const int kCatchRateCumulativeWeights[];
+extern const int kTotalCatchRateWeight;
 
 #endif

@@ -47,6 +47,22 @@ namespace Lookup {
 
         return QString::fromUtf8(flavor.data(), flavor.size());
     }
+    inline int getRandomPokemonByCatchRate(std::mt19937& rng) {
+        static std::uniform_int_distribution<int> dist(1, kTotalCatchRateWeight);
+        int roll = dist(rng);
+
+        int low = 1, high = 493;
+        while (low < high) {
+            int mid = (low + high) / 2;
+            if (kCatchRateCumulativeWeights[mid] >= roll) {
+                high = mid;
+            } else {
+                low = mid + 1;
+            }
+        }
+        return low;
+    }
+
 }
 
 #endif

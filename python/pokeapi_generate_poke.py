@@ -92,7 +92,6 @@ def extract_eligible_moves(moves_list):
         if move_id in non_tm_levels:
             eligible_moves.append({'move_id': move_id, 'level': non_tm_levels[move_id]})
 
-    # Sort: level-up moves first (ascending), then TMs (level -1) at the end
     eligible_moves.sort(key=lambda x: (x['level'] if x['level'] != -1 else float('inf'), x['move_id']))
     return eligible_moves
 
@@ -238,7 +237,6 @@ while changed:
 print("Converting move dictionaries back to list format...")
 for pokemon in pokemons:
     moves = [{'move_id': mid, 'level': lvl} for mid, lvl in pokemon['move_dict'].items()]
-    # Sort: level-up moves first (ascending), then TMs (level -1) at the end
     moves.sort(key=lambda x: (x['level'] if x['level'] != -1 else float('inf'), x['move_id']))
     pokemon['eligible_moves'] = moves
 
@@ -306,7 +304,24 @@ def generate_pokemon_data_direct():
     source_content += "    nullptr,\n"
     for poke_id in range(1, MAX_POKEMON_ID + 1):
         source_content += f"    &poke_{poke_id},\n"
-    source_content += "};\n"
+    source_content += "};\n\n"
+
+    # Generate cumulative weights array for inverse catch rate spawning
+    source_content += "// Cumulative weights for inverse catch rate spawning\n"
+    source_content += "// Weight = 256 - catch_rate (lower catch rate = higher spawn chance)\n"
+    source_content += "constexpr int kCatchRateCumulativeWeights[] = {\n"
+    source_content += "    0,  // Index 0 unused\n"
+
+    cumulative = 0
+    for poke_id in range(1, MAX_POKEMON_ID + 1):
+        pokemon = next(p for p in pokemons if p['id'] == poke_id)
+        weight = 256 - pokemon['catch_rate']
+        cumulative += weight
+        source_content += f"    {cumulative},  // {pokemon['name'].upper()} (catch_rate: {pokemon['catch_rate']}, weight: {weight})\n"
+
+    source_content += "};\n\n"
+    source_content += f"const int kTotalCatchRateWeight = {cumulative};\n"
+
     return source_content
 
 source_content = generate_pokemon_data_direct()

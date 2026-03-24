@@ -262,19 +262,22 @@ void Game::spawnPokemon() {
         m_spawnDirection = rand() % 4;
         m_spawnPoint     = QPoint(-1, -1);
 
-        std::uniform_int_distribution<int> dist(1, 493);
-        int pokedexId        = dist(m_rng);
+        int firstLvl = m_db.party().begin()->lvl;
+        std::uniform_int_distribution<int> distLvl(firstLvl-Globals::encounterLvlLow(), firstLvl+Globals::encounterLvlHigh());
+        int lvl = distLvl(m_rng);
+
+        int pokedexId        = Lookup::getRandomPokemonByCatchRate(m_rng);
         const Poke* wildPoke = Lookup::getPoke(pokedexId);
 
         PokemonState w;
         w.pokedex_id = pokedexId;
         w.name       = wildPoke->name;
-        w.lvl        = 15;
+        w.lvl        = lvl;
         w.nature     = Nature::Hardy;
 
         const Poke* poke = Lookup::getPoke(pokedexId);
         int moveIndex = 0;
-        for (int i = poke->eligible_move_count; i >= 0 && moveIndex < 4; i--) {
+        for (int i = poke->eligible_move_count; i > 0 && moveIndex < 4; i--) {
             int moveLevel = poke->eligible_moves[i].level;
             if (moveLevel > 0 && moveLevel <= w.lvl) {
                 w.moves[moveIndex] = poke->eligible_moves[i].move_id;
