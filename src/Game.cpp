@@ -287,12 +287,7 @@ void Game::spawnPokemon() {
                 moveIndex++;
             }
         }
-
-
-
-
         m_db.setWild(w);
-
     } else {
         qDebug() << "Resuming existing wild:" << QString::fromStdString(m_db.wild().name);
     }
@@ -340,6 +335,14 @@ QVariantMap Game::pokemonToMenuState(int slot, const PokemonState& p) {
     entry["type2"]      = QString::fromStdString(PokeTypes::typeToString(poke->types[1]));
     entry["flavorText"] = Lookup::getRandomFlavorText(p.pokedex_id, m_rng);
     entry["stats"]      = statsList;
+
+    QVariantList eligibleEvolves;
+    for(int i = 0; i < poke->eligible_evolve_count; i++){
+        if(poke->eligible_evolves[i].level<=p.lvl){
+            eligibleEvolves.append(poke->eligible_evolves[i].pokedex_id);
+        }
+    }
+    entry["evolves"] = eligibleEvolves;
 
     std::vector<EligibleEntry> eligible_move;
     std::vector<EligibleEntry> eligible_tm_move;

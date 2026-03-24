@@ -11,6 +11,7 @@ Item {
     property color  btnColor:      "#5294e2"
     property color  highlightColor: btnColor
     property int    buttonRadius:  10
+    property int    fontSize: 18
     property string fontFamily:    "Press Start 2P"
 
     signal clicked()
@@ -79,7 +80,7 @@ Item {
             text:             pcButtonRoot.label
             color:            pcButtonRoot.selectable ? "#ffffff" : "#888888"
             font.family:      pcButtonRoot.fontFamily
-            font.pixelSize : 18
+            font.pixelSize :  pcButtonRoot.fontSize
             font.bold:        true
             style:            Text.Raised
             styleColor:       "#00000060"

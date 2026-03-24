@@ -42,6 +42,8 @@ Item {
 
     readonly property real innerH: height - margin * 2
 
+    signal evolveBtnClicked(var pokeData)
+
     function spriteJump(){
         if (!sprite.isJumping) {
             sprite.isJumping = true
@@ -135,13 +137,28 @@ Item {
                         width: parent.width
                         elide: Text.ElideRight
                     }
-                    Text {
-                        text: pokeData ? pokeData.pokeName : ""
-                        font.family: bodyFont
-                        font.pixelSize: fontSizeMd
-                        color: colorSubtext
-                        width: parent.width
-                        elide: Text.ElideRight
+                    Row {
+                        width: parent.width*0.9
+                        spacing: rowSpacing
+
+                        Text {
+                            text: pokeData ? pokeData.pokeName : ""
+                            font.family: bodyFont
+                            font.pixelSize: fontSizeMd
+                            color: colorSubtext
+                            width: parent.width*1/3
+                            elide: Text.ElideRight
+                        }
+                        PcButton {
+                            width: parent.width*2/3
+                            height: fontSizeMd + 8
+                            visible: pokeData && pokeData.evolves && pokeData.evolves.length > 0
+                            enabled: pokeData && pokeData.evolves && pokeData.evolves.length > 0
+                            label: "++EVOLVE++"
+                            btnColor: "green"
+                            fontSize: root.fontSizeSm
+                            onClicked: pokeView.evolveBtnWasClicked(pokeData)
+                        }
                     }
                     Row {
                         spacing: rowSpacing
