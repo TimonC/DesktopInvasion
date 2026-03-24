@@ -73,6 +73,10 @@ Item {
     signal switchedPokemon(int pokedexId, int partyIndex)
     signal requestExperienceSpread();
 
+    function setBalls(n_greatBall, n_ultraBall, n_masterBall){
+        battleMenu.nrOfBalls = [1000, n_greatBall, n_ultraBall, n_masterBall]
+    }
+
     function setInitialTotalHealth(opponentTotalHealth, playerTotalHealth){
         opponent.statusBar.totalHealth  = opponentTotalHealth
         player.statusBar.totalHealth    = playerTotalHealth

@@ -311,15 +311,13 @@ QVariantMap Game::pokemonToMenuState(int slot, const PokemonState& p) {
     entry["flavorText"] = Lookup::getRandomFlavorText(p.pokedex_id, m_rng);
     entry["stats"]      = statsList;
 
-    struct EligibleEntry { int level; int move_id; };
     std::vector<EligibleEntry> eligible;
     eligible.reserve(poke->eligible_move_count);
     for (int i = 0; i < poke->eligible_move_count; i++) {
         if (p.lvl >= poke->eligible_moves[i].level)
             eligible.push_back({ poke->eligible_moves[i].level, poke->eligible_moves[i].move_id });
     }
-    std::sort(eligible.begin(), eligible.end(),
-        [](const EligibleEntry& a, const EligibleEntry& b){ return a.level > b.level; });
+    eligible = m_db.filterKnownTMs(eligible);
 
     QVariantList eligibleMoves;
     for (const auto& e : eligible) {
@@ -487,8 +485,8 @@ void Game::handleBattleStart() {
         }
     }
 
-    m_activeBattle = new Battle(m_spawnPoint, m_spawnDirection, wildState, battleParty,
-                                std::move(battleMoveHandler));
+    std::array<int, 3> ballCount = m_db.loadPokeballs();
+    m_activeBattle = new Battle(m_spawnPoint, m_spawnDirection, wildState, battleParty, ballCount, std::move(battleMoveHandler));
 
     connect(m_activeBattle, &Battle::battleEnded,    this, &Game::handleBattleEnd);
     connect(m_activeBattle, &Battle::_updatePartyXP, this, &Game::updatePartyXP);

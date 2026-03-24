@@ -30,7 +30,7 @@ class Battle : public DesktopScene{
     Q_DISABLE_COPY(Battle)
 
 public:
-    explicit Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildState, Party party, std::unique_ptr<BattleMoveHandler> battleMoveHandler, QWindow *parent = nullptr);
+    explicit Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildState, Party party, std::array<int, 3> balls, std::unique_ptr<BattleMoveHandler> battleMoveHandler, QWindow *parent = nullptr);
     ~Battle();
     void updateTextbar(const std::string& text);
     QQuickView* initCorners();

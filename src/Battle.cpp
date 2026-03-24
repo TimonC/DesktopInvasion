@@ -8,7 +8,7 @@
 #include <qobjectdefs.h>
 #include <lookup.h>
 
-Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildState, Party party, std::unique_ptr<BattleMoveHandler> battleMoveHandler, QWindow *parent)
+Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildState, Party party, std::array<int, 3> balls, std::unique_ptr<BattleMoveHandler> battleMoveHandler, QWindow *parent)
     : DesktopScene(parent)
     , m_oppPos(initialOppPos)
     , m_battleMoveHandler(std::move(battleMoveHandler))
@@ -43,6 +43,10 @@ Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildS
         this, SLOT(handleGettingExperience()));
 
 
+    QMetaObject::invokeMethod(m_battleScene, "setBalls",
+        Q_ARG(int, balls[0]),
+        Q_ARG(int, balls[1]),
+        Q_ARG(int, balls[2]));
     m_battleScene->setProperty("direction", m_currentDirection);
     m_battleScene->setProperty("pokeMargin", m_pokeMargin);
     m_battleScene->setProperty("debugLines", Globals::debugLines());

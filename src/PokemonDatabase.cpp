@@ -8,6 +8,7 @@
 #include <QFileInfo>
 #include <QDebug>
 #include <cassert>
+#include <unordered_set>
 
 #define DB_LOG(msg)  qDebug().nospace()    << "[DB] " << msg
 #define DB_WARN(msg) qWarning().nospace()  << "[DB] " << msg
@@ -186,6 +187,19 @@ bool PokemonDatabase::createTables() {
         exp_share_on   INTEGER DEFAULT 0,
         FOREIGN KEY(save_id) REFERENCES saves(save_id)
     ))");
+    run(R"(CREATE TABLE IF NOT EXISTS pokeballs (
+        save_id INTEGER NOT NULL,
+        row     INTEGER NOT NULL,
+        count   INTEGER DEFAULT 0,
+        PRIMARY KEY(save_id, row),
+        FOREIGN KEY(save_id) REFERENCES saves(save_id)
+    ))");
+    run(R"(CREATE TABLE IF NOT EXISTS technical_moves (
+        save_id INTEGER NOT NULL,
+        move_id INTEGER NOT NULL,
+        PRIMARY KEY(save_id, move_id),
+        FOREIGN KEY(save_id) REFERENCES saves(save_id)
+    ))");
     run("CREATE INDEX IF NOT EXISTS idx_pc_box ON pc_slots(save_id, box)");
 
     run("INSERT OR IGNORE INTO save_id_counter(id, counter) VALUES(1, 0)");
@@ -281,12 +295,14 @@ bool PokemonDatabase::deleteSave(int save_id) {
         if (!q.exec()) { logQuery(q); ok = false; }
     };
 
-    del("DELETE FROM pc_slots    WHERE save_id=?");
-    del("DELETE FROM party_slots WHERE save_id=?");
-    del("DELETE FROM wild_slot   WHERE save_id=?");
-    del("DELETE FROM defaults    WHERE save_id=?");
-    del("DELETE FROM saves       WHERE save_id=?");
-    del("DELETE FROM save_list   WHERE save_id=?");
+    del("DELETE FROM pc_slots        WHERE save_id=?");
+    del("DELETE FROM party_slots     WHERE save_id=?");
+    del("DELETE FROM wild_slot       WHERE save_id=?");
+    del("DELETE FROM defaults        WHERE save_id=?");
+    del("DELETE FROM pokeballs       WHERE save_id=?");
+    del("DELETE FROM technical_moves WHERE save_id=?");
+    del("DELETE FROM saves           WHERE save_id=?");
+    del("DELETE FROM save_list       WHERE save_id=?");
 
     if (save_id == m_saveId) {
         DB_WARN("deleteSave: deleted the active save — caller must switch to another save");
@@ -341,6 +357,13 @@ bool PokemonDatabase::initFixedSlots() {
     for (int i = 0; i < PARTY_SIZE; ++i) {
         q.addBindValue(m_saveId);
         q.addBindValue(i);
+        if (!q.exec()) return false;
+    }
+
+    q.prepare("INSERT OR IGNORE INTO pokeballs(save_id, row, count) VALUES(?, ?, 0)");
+    for (int r = 0; r < 3; ++r) {
+        q.addBindValue(m_saveId);
+        q.addBindValue(r);
         if (!q.exec()) return false;
     }
 
@@ -824,3 +847,111 @@ std::vector<std::pair<int, std::string>> PokemonDatabase::listTrainerNames() {
     }
     return names;
 }
+
+std::array<int, 3> PokemonDatabase::loadPokeballs() {
+    std::array<int, 3> counts{0, 0, 0};
+    QSqlQuery q;
+    q.prepare("SELECT row, count FROM pokeballs WHERE save_id=? ORDER BY row ASC");
+    q.addBindValue(m_saveId);
+    if (q.exec()) {
+        while (q.next()) {
+            int r = q.value(0).toInt();
+            if (r >= 0 && r < 3) counts[r] = q.value(1).toInt();
+        }
+    } else {
+        logQuery(q);
+    }
+    DB_LOG("loadPokeballs: [" << counts[0] << ", " << counts[1] << ", " << counts[2] << "]");
+    return counts;
+}
+
+bool PokemonDatabase::changePokeball(int delta, int row) {
+    if (row < 1 || row > 3) {
+        DB_WARN("changePokeball: row " << row << " out of range (1-3)");
+        return false;
+    }
+    int zeroRow = row - 1;
+    QSqlQuery q;
+    q.prepare("UPDATE pokeballs SET count = MIN(999, MAX(0, count + ?)) WHERE save_id=? AND row=?");
+    q.addBindValue(delta);
+    q.addBindValue(m_saveId);
+    q.addBindValue(zeroRow);
+    bool ok = q.exec();
+    if (!ok) logQuery(q);
+    else DB_LOG("changePokeball: row=" << row << " delta=" << delta);
+    return ok;
+}
+
+bool PokemonDatabase::addTechnicalMove(int moveId) {
+    QSqlQuery q;
+    q.prepare("INSERT OR IGNORE INTO technical_moves(save_id, move_id) VALUES(?, ?)");
+    q.addBindValue(m_saveId);
+    q.addBindValue(moveId);
+    bool ok = q.exec();
+    if (!ok) logQuery(q);
+    else DB_LOG("addTechnicalMove: move_id=" << moveId);
+    return ok;
+}
+
+bool PokemonDatabase::hasTechnicalMove(int moveId) {
+    QSqlQuery q;
+    q.prepare("SELECT 1 FROM technical_moves WHERE save_id=? AND move_id=?");
+    q.addBindValue(m_saveId);
+    q.addBindValue(moveId);
+    bool found = q.exec() && q.next();
+    if (!q.exec() && q.lastError().isValid()) logQuery(q);
+    DB_LOG("hasTechnicalMove: move_id=" << moveId << " -> " << (found ? "yes" : "no"));
+    return found;
+}
+
+std::vector<int> PokemonDatabase::filterKnownTMs(const std::vector<int>& moveIds) {
+    if (moveIds.empty()) return {};
+
+    QString placeholders;
+    for (int i = 0; i < (int)moveIds.size(); ++i) {
+        if (i > 0) placeholders += ',';
+        placeholders += '?';
+    }
+
+    QSqlQuery q;
+    q.prepare(QString("SELECT move_id FROM technical_moves WHERE save_id=? AND move_id IN (%1)").arg(placeholders));
+    q.addBindValue(m_saveId);
+    for (int id : moveIds) q.addBindValue(id);
+
+    std::vector<int> result;
+    if (q.exec()) {
+        while (q.next()) result.push_back(q.value(0).toInt());
+    } else {
+        logQuery(q);
+    }
+    DB_LOG("filterKnownTMs: " << result.size() << "/" << moveIds.size() << " known");
+    return result;
+}
+
+std::vector<EligibleEntry> PokemonDatabase::filterKnownTMs(const std::vector<EligibleEntry>& entries) {
+    if (entries.empty()) return {};
+
+    QString placeholders;
+    for (int i = 0; i < (int)entries.size(); ++i) {
+        if (i > 0) placeholders += ',';
+        placeholders += '?';
+    }
+
+    QSqlQuery q;
+    q.prepare(QString("SELECT move_id FROM technical_moves WHERE save_id=? AND move_id IN (%1)").arg(placeholders));
+    q.addBindValue(m_saveId);
+    for (const auto& e : entries) q.addBindValue(e.move_id);
+
+    std::unordered_set<int> known;
+    if (q.exec()) {
+        while (q.next()) known.insert(q.value(0).toInt());
+    } else {
+        logQuery(q);
+    }
+
+    std::vector<EligibleEntry> result;
+    for (const auto& e : entries)
+        if (known.count(e.move_id)) result.push_back(e);
+    return result;
+}
+
