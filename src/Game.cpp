@@ -134,9 +134,16 @@ void Game::initializeGame(bool openStarter) {
     m_spawnTimer->setInterval(m_spawnDelay_ms);
     connect(m_spawnTimer, &QTimer::timeout, this, &Game::spawnPokemon,                     Qt::UniqueConnection);
 
-    writeDefaults();
 
     initMenu();
+    Defaults d = m_db.loadDefaults();
+    Globals::scale(d.scale);
+    Globals::animationSpeed(d.speed);
+    Globals::encounterLvlHigh(d.lvlRangeUp);
+    Globals::encounterLvlLow(d.lvlRangeDown);
+    Globals::expShare(d.expShareOn);
+    m_menu->setDefaults(d);
+
     if(m_gameUsedToBeActive) m_spawnTimer->start();
 }
 
@@ -270,8 +277,6 @@ void Game::spawnPokemon() {
 }
 void Game::initMenu() {
     m_menu = new GameMenu();
-    Defaults d = m_db.loadDefaults();
-    m_menu->setDefaults(d);
     auto gs = m_db.loadGameState();
 
     m_menu->setTrainer(QString::fromStdString(gs.name), gs.player_sprite_id);

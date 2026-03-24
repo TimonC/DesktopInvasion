@@ -179,7 +179,7 @@ bool PokemonDatabase::createTables() {
     ))");
     run(R"(CREATE TABLE IF NOT EXISTS defaults (
         save_id        INTEGER PRIMARY KEY,
-        scale          INTEGER DEFAULT 1,
+        scale          INTEGER DEFAULT 2,
         speed          INTEGER DEFAULT 1,
         lvl_range_up   INTEGER DEFAULT 5,
         lvl_range_down INTEGER DEFAULT 5,
