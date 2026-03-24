@@ -29,4 +29,7 @@ extern const Move* const kMovesByIndex[];
 extern const int kMaxMoveId;
 extern const int kMoveCount;
 
+extern const int kTmCount;
+extern const int kAllTmIds[];
+
 #endif

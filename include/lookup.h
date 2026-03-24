@@ -7,6 +7,13 @@
 #include <data_poke_flavor.h>
 #include <cassert>
 
+struct PokeRoll{
+    const int poke_id;
+    const int tmId;
+    const int ballCount;
+    const int ballId;
+};
+
 namespace Lookup {
     const int MAX_POKEDEX_ID = 493;
 
@@ -47,30 +54,72 @@ namespace Lookup {
 
         return QString::fromUtf8(flavor.data(), flavor.size());
     }
-    inline int getRandomPokemonByCatchRate(int pokemonLvl, std::mt19937& rng) {
-        static std::uniform_int_distribution<int> dist(1, kTotalCatchRateWeight);
 
+    inline int getRandomTM_uniform(std::mt19937& rng){
+        static std::uniform_int_distribution<int> tmDist(0, kTmCount);
+        return kAllTmIds[tmDist(rng)];
+    }
 
-        while(true){
-            int roll = dist(rng);
+    inline const PokeRoll getRandomPokemonByCatchRate(int pokemonLvl, const std::vector<int>& unavailableTmIds, std::mt19937& rng) {
+        static std::uniform_int_distribution<int> pokemonDist(1, kTotalCatchRateWeight);
 
+        while (true) {
+            int roll = pokemonDist(rng);
             int low = 1, high = 493;
             while (low < high) {
                 int mid = (low + high) / 2;
-                if (kCatchRateCumulativeWeights[mid] >= roll) {
+                if (kCatchRateCumulativeWeights[mid] >= roll)
                     high = mid;
-                } else {
+                else
                     low = mid + 1;
-                }
             }
-
             const Poke* poke = getPoke(low);
 
-            //-0.11 constant tuned so legendaries spawn around 40
             int threshold = static_cast<int>(255.0 * std::exp(-0.11 * pokemonLvl));
             threshold = std::clamp(threshold, 3, 255);
 
-            if (poke->catch_rate >= threshold) return low;
+            if (poke->catch_rate >= threshold) {
+                int excess = poke->catch_rate - threshold;
+                int range = 255 - threshold;
+                int chancePercent = (range > 0) ? (excess * 100 / range) : 100;
+
+                static std::uniform_int_distribution<int> rewardDist(1, 100);
+                bool giveReward = (rewardDist(rng) <= chancePercent);
+
+                int tmId = 0;
+                int ballCount = 0;
+                int ballType = 0;
+
+                if (giveReward) {
+                    std::vector<int> availableTmIds;
+                    for (int i = 0; i < kTmCount; i++) {
+                        if (std::find(unavailableTmIds.begin(), unavailableTmIds.end(), kAllTmIds[i]) == unavailableTmIds.end()) {
+                            availableTmIds.push_back(kAllTmIds[i]);
+                        }
+                    }
+                    static std::uniform_int_distribution<int> tmOrBallDist(1, 2);
+                    bool isTm = (tmOrBallDist(rng) == 1) && !availableTmIds.empty();
+
+                    if (isTm) {
+                        std::uniform_int_distribution<int> dist(0, (int)availableTmIds.size() - 1);
+                        tmId = availableTmIds[dist(rng)];
+                    } else {
+                        static std::uniform_int_distribution<int> typeDist(1, 100);
+                        int typeRoll = typeDist(rng);
+                        if (typeRoll <= 70)
+                            ballType = 1;
+                        else if (typeRoll <= 95)
+                            ballType = 2;
+                        else
+                            ballType = 3;
+
+                        static std::uniform_int_distribution<int> countDist(1, 3);
+                        ballCount = countDist(rng);
+                    }
+                }
+
+                return PokeRoll{ low, tmId, ballCount, ballType };
+            }
         }
     }
 }

@@ -904,6 +904,22 @@ bool PokemonDatabase::hasTechnicalMove(int moveId) {
     return found;
 }
 
+std::vector<int> PokemonDatabase::getTechnicalMoveList() {
+    QSqlQuery q;
+    q.prepare("SELECT move_id FROM technical_moves WHERE save_id=?");
+    q.addBindValue(m_saveId);
+    std::vector<int> moves;
+    if (q.exec()) {
+        while (q.next()) {
+            moves.push_back(q.value(0).toInt());
+        }
+    } else {
+        logQuery(q);
+    }
+    DB_LOG("getTechnicalMoveList: found " << moves.size() << " moves");
+    return moves;
+}
+
 std::vector<int> PokemonDatabase::filterKnownTMs(const std::vector<int>& moveIds) {
     if (moveIds.empty()) return {};
 

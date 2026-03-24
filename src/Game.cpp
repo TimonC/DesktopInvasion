@@ -268,16 +268,21 @@ void Game::spawnPokemon() {
         std::uniform_int_distribution<int> distLvl(firstLvl-Globals::encounterLvlLow(), firstLvl+Globals::encounterLvlHigh());
         int lvl = std::clamp(distLvl(m_rng), 1, 100);
 
-        int pokedexId        = Lookup::getRandomPokemonByCatchRate(lvl, m_rng);
-        const Poke* wildPoke = Lookup::getPoke(pokedexId);
+        std::vector<int> unavailableTmList = m_db.getTechnicalMoveList();
+        const PokeRoll roll        = Lookup::getRandomPokemonByCatchRate(lvl, unavailableTmList, m_rng);
+        const Poke* wildPoke = Lookup::getPoke(roll.poke_id);
+
+        m_tmGetId=roll.tmId;
+        m_ballGetCount=roll.ballCount;
+        m_ballGetId=roll.ballId;
 
         PokemonState w;
-        w.pokedex_id = pokedexId;
+        w.pokedex_id = roll.poke_id;
         w.name       = wildPoke->name;
         w.lvl        = lvl;
         w.nature     = Nature::Hardy;
 
-        const Poke* poke = Lookup::getPoke(pokedexId);
+        const Poke *poke = Lookup::getPoke(roll.poke_id);
         int moveIndex = 0;
         for (int i = poke->eligible_move_count - 1; i >= 0 && moveIndex < 4; i--) {
             int moveLevel = poke->eligible_moves[i].level;
@@ -287,9 +292,8 @@ void Game::spawnPokemon() {
             }
         }
 
-        if (moveIndex == 0) {
-            w.moves[0] = 33;
-        }
+
+
 
         m_db.setWild(w);
 
@@ -606,13 +610,9 @@ void Game::updatePartyXP(std::array<int, 6> spread) {
         m_db.setPartySlot(i, p);
     }
 
-    int tmGet = 70;
-    int ballGet = 2;
-    std::uniform_int_distribution<int> dist(1, 3);
-    int whichBall = dist(m_rng);
 
-    m_db.changePokeball(ballGet, whichBall);
-    m_db.addTechnicalMove(tmGet);
+    m_db.changePokeball(m_ballGetCount, m_ballGetId);
+    m_db.addTechnicalMove(m_tmGetId);
 
-    m_activeBattle->showUpdateAndEndBattle(spread, lvlUps, tmGet, ballGet, whichBall);
+    m_activeBattle->showUpdateAndEndBattle(spread, lvlUps, m_tmGetId, m_ballGetCount, m_ballGetId);
 }

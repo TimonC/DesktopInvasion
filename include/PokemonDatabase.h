@@ -79,6 +79,7 @@ public:
     bool               changePokeball(int delta, int row);
     bool               addTechnicalMove(int moveId);
     bool               hasTechnicalMove(int moveId);
+    std::vector<int>  getTechnicalMoveList();
     std::vector<int>   filterKnownTMs(const std::vector<int>& moveIds);
     std::vector<EligibleEntry> filterKnownTMs(const std::vector<EligibleEntry>& entries);
 

@@ -149,6 +149,10 @@ def extract_meta_data(meta):
         'stat_chance': meta.get('stat_chance', 0)
     }
 
+def is_tm_move(machines_list):
+    """Return True if the move is learnable via TM in any generation"""
+    return len(machines_list) > 0
+
 # Fetch all moves from generations 1-4
 for i in range(1, 5):
     response = urllib.request.urlopen(f"https://pokeapi.co/api/v2/generation/{i}/")
@@ -171,6 +175,7 @@ for i in range(1, 5):
         raw_flavor_text = extract_platinum_english_flavor_text(move_data.get('flavor_text_entries', []))
         moveFilled['flavor_text'] = clean_flavor_text(raw_flavor_text)
         moveFilled['meta'] = meta_data
+        moveFilled['is_tm'] = is_tm_move(move_data.get('machines', []))
         moves.append(moveFilled)
 
         name = moveFilled['name']
@@ -189,6 +194,8 @@ def generate_moves_data_direct():
         return ""
 
     max_move_id = max(m['id'] for m in valid_moves)
+
+    tm_move_ids = sorted([m['id'] for m in valid_moves if m['is_tm']])
 
     source_content = """#include "data_move.h"
 
@@ -277,7 +284,12 @@ namespace {
 
     source_content += "};\n\n"
     source_content += f"const int kMaxMoveId = {max_move_id};\n"
-    source_content += f"const int kMoveCount = {len(valid_moves)};\n"
+    source_content += f"const int kMoveCount = {len(valid_moves)};\n\n"
+
+    # Create the TM move ID list (kAllTmIds)
+    tm_ids_str = ", ".join(str(mid) for mid in tm_move_ids)
+    source_content += f"const int kTmCount = {len(tm_move_ids)};\n"
+    source_content += f"const int kAllTmIds[{len(tm_move_ids)}] = {{{tm_ids_str}}};\n"
 
     return source_content
 
@@ -294,6 +306,7 @@ if source_content:
     print(f"Total moves: {valid_move_count}")
     print(f"Max move ID: {max(m['id'] for m in moves if not should_skip_move(m['id']))}")
     print(f"Array size: {max(m['id'] for m in moves if not should_skip_move(m['id'])) + 1}")
+    print(f"TM moves: {len([m for m in moves if not should_skip_move(m['id']) and m['is_tm']])}")
 
     with open("move_names_longer_than_eight_characters.txt", "w") as t:
         for move in move_names_longer_than_eight_characters:

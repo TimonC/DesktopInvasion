@@ -42,6 +42,10 @@ private:
     QTimer*                  m_spawnTimer;
     const int                m_spawnDelay_ms = 500;
 
+    int m_ballGetCount = 0;
+    int m_tmGetId = 0;
+    int m_ballGetId = 0;
+
     void initializeGame(bool openStarter = true);
     void spawnPokemon();
     void safelyRemoveBattleScene();
