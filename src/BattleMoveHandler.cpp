@@ -230,8 +230,19 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
             catchMod,
             statusMod
         );
-        s.append(createTextAction(QStringLiteral("Player used one Poké Ball!"), ms_ballUsed));
-        s.append(createCatchAction(shakes, ms_catchStart));
+
+        QString ballMessage = "";
+        if(actionIndex==0){
+            ballMessage = QStringLiteral("Player used one Poké Ball!");
+        }else if(actionIndex==1){
+            ballMessage = QStringLiteral("Player used one Great Ball!");
+        }else if(actionIndex==2){
+            ballMessage = QStringLiteral("Player used one Ultra Ball!");
+        }else{
+            ballMessage = QStringLiteral("Player used one Master Ball!");
+        }
+        s.append(createTextAction(ballMessage, ms_ballUsed));
+        s.append(createCatchAction(shakes, ms_catchStart, actionIndex));
     }
     if(actionChar == 'F'){
         if (playerMove->priority == opponentMove->priority){
@@ -911,11 +922,12 @@ QVariantMap BattleMoveHandler::createChangeHealthAction(const QString& role, int
     action[QStringLiteral("delay")] = delay;
     return action;
 }
-QVariantMap BattleMoveHandler::createCatchAction(int shakes, int delay) {
+QVariantMap BattleMoveHandler::createCatchAction(int shakes, int delay, int ballId) {
     QVariantMap action;
     action[QStringLiteral("type")] = QStringLiteral("attempt-catch");
     action[QStringLiteral("shakes")] = shakes;
     action[QStringLiteral("delay")] = delay;
+    action[QStringLiteral("ballId")] = ballId;
 
     if (shakes == 0) {
         action[QStringLiteral("message")] = QStringLiteral("Oh no! The Pokémon broke free!");

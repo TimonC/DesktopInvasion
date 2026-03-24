@@ -3,16 +3,14 @@ import QtQuick 2.15
 Item {
     id: root
 
-
-    property  real scale: 1
+    property real scale: 1
     property real frameSize: 32*scale
     property real animationSpeed: 1
-
 
     width: (direction === 0 || direction === 2) ? Math.round(frameSize * 6.5) : Math.round(frameSize * 8)
     height: (direction === 0 || direction === 2) ? Math.round(frameSize * 8) : Math.round(frameSize * 6.5)
 
-    property string textBarFontFamily:  "DotGothic16"
+    property string textBarFontFamily: "DotGothic16"
     property string menuFontFamily: "Press Start 2P"
     property string statusBarFontFamily: "Press Start 2P"
 
@@ -67,12 +65,11 @@ Item {
     property var ballOpenedConnection: null
     property var pokemonInsideBallConnection: null
 
-
-    signal _battleEnded(string endState, bool removeWild);
+    signal _battleEnded(string endState, bool removeWild)
     signal signalToStartActionRound(int actionIndex, string actionState)
     signal switchedPokemon(int pokedexId, int partyIndex)
-    signal requestExperienceSpread();
-    signal requestBallCountUpdate(int delta, int row);
+    signal requestExperienceSpread()
+    signal requestBallCountUpdate(int delta, int row)
 
     function setBalls(n_greatBall, n_ultraBall, n_masterBall){
         battleMenu.nrOfBalls = [1000, n_greatBall, n_ultraBall, n_masterBall]
@@ -124,7 +121,6 @@ Item {
     }
 
     Component.onCompleted: {
-
         positionSpriteAndStatusBar(player)
         positionSpriteAndStatusBar(opponent)
 
@@ -148,6 +144,7 @@ Item {
         border.color: debugLines ? "yellow" : "transparent"
         border.width: 1
     }
+
     StatusBar {
         id: statusBarOpponent
         pokeNameFontSize: root.pokeNameFontSize
@@ -157,6 +154,7 @@ Item {
         animationSpeed: root.animationSpeed
         statusBarRadius: 4*root.scale
     }
+
     PokemonSprite {
         id: opponent
         objectName: "opponent"
@@ -167,6 +165,7 @@ Item {
         property alias statusBar: root.statusBarOpponent
         animationSpeed: root.animationSpeed
     }
+
     StatusBar {
         id: statusBarPlayer
         pokeNameFontSize: root.pokeNameFontSize
@@ -176,6 +175,7 @@ Item {
         animationSpeed: root.animationSpeed
         statusBarRadius: 4*root.scale
     }
+
     PokemonSprite {
         id: player
         objectName: "player"
@@ -215,44 +215,58 @@ Item {
         scaleFactor: root.scale
     }
 
-        function resetPlayerBall() {
-            pokeBallPlayer.reset(root.currentPlayerBallIndex)
-            pokeBallPlayer.visible = true
+    function resetPlayerBall() {
+        pokeBallPlayer.reset(root.currentPlayerBallIndex)
+        pokeBallPlayer.visible = true
 
-            pokeBallPlayer.circleX = player.x + player.width/2
-            pokeBallPlayer.circleY = player.y + player.height/2
+        pokeBallPlayer.circleX = player.x + player.width/2
+        pokeBallPlayer.circleY = player.y + player.height/2
 
-
-            pokeBallPlayer.circleBaseWidth = direction%2!=0 ? Math.max(player.verticalWidth, player.width) : player.width
-            pokeBallPlayer.circleBaseHeight = direction%2!=0 ? Math.min(player.height, player.horizontalHeight) : player.height
-            if (pokeBallPlayer.circleY - pokeBallPlayer.circleBaseHeight/2 < 0) {
-                pokeBallPlayer.circleBaseHeight = pokeBallPlayer.circleY * 2
-            }
-
-            if (root.pokemonInsideBallConnection) {
-                pokeBallPlayer.onPokemonInsideBall.disconnect(root.pokemonInsideBallConnection)
-            }
-            if (root.ballOpenedConnection) {
-                pokeBallPlayer.onBallOpened.disconnect(root.ballOpenedConnection)
-            }
-
-            root.pokemonInsideBallConnection = function() {
-                pokeBallPlayer.circleExpand()
-            }
-            root.ballOpenedConnection = function() {
-                pokeBallPlayer.visible = false
-                player.visible = true
-                statusBarPlayer.visible = true
-                if(root.safePokemonSwitch){
-                    battleMenu.resetToRoot()
-                }else{
-                    root.signalToStartActionRound(battleMenu.selectedIndex, "Switch");
-                }
-            }
-
-            pokeBallPlayer.onPokemonInsideBall.connect(root.pokemonInsideBallConnection)
-            pokeBallPlayer.onBallOpened.connect(root.ballOpenedConnection)
+        pokeBallPlayer.circleBaseWidth = direction%2!=0 ? Math.max(player.verticalWidth, player.width) : player.width
+        pokeBallPlayer.circleBaseHeight = direction%2!=0 ? Math.min(player.height, player.horizontalHeight) : player.height
+        if (pokeBallPlayer.circleY - pokeBallPlayer.circleBaseHeight/2 < 0) {
+            pokeBallPlayer.circleBaseHeight = pokeBallPlayer.circleY * 2
         }
+
+        if (root.pokemonInsideBallConnection) {
+            pokeBallPlayer.onPokemonInsideBall.disconnect(root.pokemonInsideBallConnection)
+        }
+        if (root.ballOpenedConnection) {
+            pokeBallPlayer.onBallOpened.disconnect(root.ballOpenedConnection)
+        }
+
+        root.pokemonInsideBallConnection = function() {
+            pokeBallPlayer.circleExpand()
+        }
+        root.ballOpenedConnection = function() {
+            pokeBallPlayer.visible = false
+            player.visible = true
+            statusBarPlayer.visible = true
+            if(root.safePokemonSwitch){
+                battleMenu.resetToRoot()
+            }else{
+                root.signalToStartActionRound(battleMenu.selectedIndex, "Switch")
+            }
+        }
+
+        pokeBallPlayer.onPokemonInsideBall.connect(root.pokemonInsideBallConnection)
+        pokeBallPlayer.onBallOpened.connect(root.ballOpenedConnection)
+    }
+
+    function resetOpponentBall() {
+        pokeBallOpponent.reset(root.currentOpponentBallIndex)
+        pokeBallOpponent.visible = true
+
+        pokeBallOpponent.circleX = opponent.x + opponent.width/2
+        pokeBallOpponent.circleY = opponent.y + opponent.height/2
+
+        pokeBallOpponent.circleBaseWidth = direction%2!=0 ? Math.max(opponent.width, opponent.verticalWidth) : opponent.width
+        pokeBallOpponent.circleBaseHeight = direction%2!=0 ? Math.min(opponent.height, opponent.horizontalHeight) : opponent.height
+
+        if (pokeBallOpponent.circleY - pokeBallOpponent.circleBaseHeight/2 < 0) {
+            pokeBallOpponent.circleBaseHeight = pokeBallOpponent.circleY * 2
+        }
+    }
 
     BattleMenu {
         id: battleMenu
@@ -428,47 +442,55 @@ Item {
                 break
 
             case "attempt-catch":
+                root.currentOpponentBallIndex = step.ballId
+                resetOpponentBall()
+
+                var newActions
                 if(step.shakes>=4){
-                    step.shakes = 3;
-                    var newActions = [
+                    step.shakes = 3
+                    newActions = [
                         {type: "opponent-caught", delay: root.opponentCaughtDuration},
                         {type: "text", message: "Gotcha! " + opponent.name + " was caught!", delay: root.successCatchTextDuration},
                         {type: "jump", delay: root.successCatchJumpDuration}
                     ]
                 }
                 else{
-                    var newActions = [
+                    newActions = [
                         {type: "reveal-opponent", message: "Aargh! Almost had it!", delay: root.revealOpponentDuration},
                         {type: "fail-catch", delay: root.ballTransitionDuration}
                     ]
                 }
 
                 for (var i = 0; i < step.shakes; i++) {
-                    newActions.push({type: "shake", delay: root.shakeDuration});
+                    newActions.push({type: "shake", delay: root.shakeDuration})
                 }
 
-                root.tempActionSequence = newActions.reverse().concat(root.actionSequence.slice(2));
+                root.tempActionSequence = newActions.reverse().concat(root.actionSequence.slice(2))
                 root.actionSequence = []
 
                 var coords = calculateBallCoords(opponent)
                 pokeBallOpponent.visible = true
                 pokeBallOpponent.throwAt(coords[0], coords[1], coords[2], coords[3], coords[4])
-                break;
+                break
+
             case "shake":
                  pokeBallOpponent.shake()
                  sequenceTimer.interval = step.delay / root.animationSpeed
                  sequenceTimer.start()
                  break
+
             case "jump":
                  pokeBallOpponent.jump()
                  sequenceTimer.interval = step.delay / root.animationSpeed
                  sequenceTimer.start()
                  break
+
             case "fail-catch":
                  pokeBallOpponent.release()
                  sequenceTimer.interval = step.delay / root.animationSpeed
                  sequenceTimer.start()
                  break
+
             case "reveal-opponent":
                 opponent.visible = true
                 pokeBallOpponent.visible = false
@@ -476,22 +498,26 @@ Item {
                 sequenceTimer.interval = step.delay / root.animationSpeed
                 sequenceTimer.start()
                 break
+
             case "opponent-caught":
                 root._battleEnded("OpponentCaught", true)
                 break
+
             case "opponent-won":
                 root._battleEnded("OpponentWon", true)
                 break
+
             case "player-won":
                 root._battleEnded("PlayerWon", true)
                 break
+
             case "end":
                 endActionChain()
                 break
         }
     }
-    function showExperienceSpreadSequence(spread, lvlups, tmName, ballGet, whichBall) {
 
+    function showExperienceSpreadSequence(spread, lvlups, tmName, ballGet, whichBall) {
         var sequence = []
         if(tmName != "NONE"){
             sequence.push({
@@ -535,7 +561,6 @@ Item {
         root.catchAttemptActive = false
         battleMenu.resetToRoot()
     }
-
 
     function calculateBallCoords(sprite){
         var pokeballWidth = pokeBallOpponent.width

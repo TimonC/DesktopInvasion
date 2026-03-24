@@ -4,7 +4,6 @@
 #include <QTimer>
 #include <QQuickItem>
 
-#include "macos_helper.h"
 
 DesktopScene::DesktopScene(QWindow *parent)
     : QQuickView(parent)
