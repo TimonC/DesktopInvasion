@@ -63,66 +63,76 @@ namespace Lookup {
     inline const PokeRoll getRandomPokemonByCatchRate(int pokemonLvl, const std::vector<int>& unavailableTmIds, std::mt19937& rng) {
         static std::uniform_int_distribution<int> pokemonDist(1, kTotalCatchRateWeight);
 
-        while (true) {
-            int roll = pokemonDist(rng);
-            int low = 1, high = 493;
-            while (low < high) {
-                int mid = (low + high) / 2;
-                if (kCatchRateCumulativeWeights[mid] >= roll)
-                    high = mid;
-                else
-                    low = mid + 1;
-            }
-            const Poke* poke = getPoke(low);
+        int roll = pokemonDist(rng);
+        int low = 1, high = 493;
+        while (low < high) {
+            int mid = (low + high) / 2;
+            if (kCatchRateCumulativeWeights[mid] >= roll)
+                high = mid;
+            else
+                low = mid + 1;
+        }
+        const Poke* poke = getPoke(low);
 
-            int threshold = static_cast<int>(255.0 * std::exp(-0.11 * pokemonLvl));
-            threshold = std::clamp(threshold, 3, 255);
+        int threshold = static_cast<int>(255.0 * std::exp(-0.11 * pokemonLvl));
+        threshold = std::clamp(threshold, 3, 255);
 
-            if (poke->catch_rate >= threshold) {
-                int excess = poke->catch_rate - threshold;
-                int range = 255 - threshold;
-                int chancePercent = (range > 0) ? (excess * 100 / range) : 100;
+        int excess = poke->catch_rate - threshold;
+        int range = 255 - threshold;
+        int qualityPercent = (range > 0) ? (excess * 100 / range) : 100;
+        qualityPercent = std::clamp(qualityPercent, 0, 100);
 
-                static std::uniform_int_distribution<int> rewardDist(1, 100);
-                bool giveReward = (rewardDist(rng) <= chancePercent);
+        static std::uniform_int_distribution<int> rewardTypeDist(1, 100);
+        int rewardType = rewardTypeDist(rng);
 
-                int tmId = 0;
-                int ballCount = 0;
-                int ballType = 0;
+        int tmId = 0;
+        int ballCount = 0;
+        int ballType = 0;
 
-                if (giveReward) {
-                    std::vector<int> availableTmIds;
-                    for (int i = 0; i < kTmCount; i++) {
-                        if (std::find(unavailableTmIds.begin(), unavailableTmIds.end(), kAllTmIds[i]) == unavailableTmIds.end()) {
-                            availableTmIds.push_back(kAllTmIds[i]);
-                        }
-                    }
-                    static std::uniform_int_distribution<int> tmOrBallDist(1, 10);
-                    bool isTm = (tmOrBallDist(rng) == 1) && !availableTmIds.empty();
-
-                    if (isTm) {
-                        std::uniform_int_distribution<int> dist(0, (int)availableTmIds.size() - 1);
-                        tmId = availableTmIds[dist(rng)];
-                    } else {
-                        static std::uniform_int_distribution<int> typeDist(1, 100);
-                        int typeRoll = typeDist(rng);
-                        if (typeRoll <= 70)
-                            ballType = 1;
-                        else if (typeRoll <= 95)
-                            ballType = 2;
-                        else
-                            ballType = 3;
-
-                        static std::uniform_int_distribution<int> countDist(1, 3);
-                        ballCount = countDist(rng);
-                    }
+        if (rewardType <= 5) {
+            std::vector<int> availableTmIds;
+            for (int i = 0; i < kTmCount; i++) {
+                if (std::find(unavailableTmIds.begin(), unavailableTmIds.end(), kAllTmIds[i]) == unavailableTmIds.end()) {
+                    availableTmIds.push_back(kAllTmIds[i]);
                 }
+            }
 
-                return PokeRoll{ low, tmId, ballCount, ballType };
+            if (!availableTmIds.empty()) {
+                std::uniform_int_distribution<int> dist(0, (int)availableTmIds.size() - 1);
+                tmId = availableTmIds[dist(rng)];
             }
         }
+        else if (rewardType <= 50) {
+            static std::uniform_int_distribution<int> tierDist(1, 100);
+            int tierRoll = tierDist(rng);
+
+            struct Reward {
+                int ballType;
+                int count;
+            };
+
+            std::vector<Reward> tiers;
+
+            if (qualityPercent <= 20) {
+                tiers = {{1, 1}, {1, 2}, {1, 3}};
+            } else if (qualityPercent <= 40) {
+                tiers = {{1, 1}, {1, 2}, {1, 3}, {2, 1}};
+            } else if (qualityPercent <= 60) {
+                tiers = {{1, 1}, {1, 2}, {1, 3}, {2, 1}, {2, 2}};
+            } else if (qualityPercent <= 80) {
+                tiers = {{1, 1}, {1, 2}, {1, 3}, {2, 1}, {2, 2}, {2, 3}};
+            } else {
+                tiers = {{1, 1}, {1, 2}, {1, 3}, {2, 1}, {2, 2}, {2, 3}, {3, 1}};
+            }
+
+            int tierIndex = tierRoll * tiers.size() / 100;
+            tierIndex = std::clamp(tierIndex, 0, (int)tiers.size() - 1);
+
+            ballType = tiers[tierIndex].ballType;
+            ballCount = tiers[tierIndex].count;
+        }
+
+        return PokeRoll{ low, tmId, ballCount, ballType };
     }
 }
-
-
 #endif

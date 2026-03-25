@@ -21,6 +21,10 @@ BattleMoveHandler::BattleMoveHandler(const PokemonState& wildState, const std::a
         if(_move==nullptr) break;
         n_moves+=1;
     };
+    if(n_moves==0){//fallback for pokemon without moves
+        m_battleOpponent->pokeState.moves[0] = Lookup::getMove(1);
+        n_moves+=1;;
+    }
     m_moveChoiceDist = std::uniform_int_distribution<int>(0, n_moves-1);
 
     for (int i = 0; i < 6; i++) {
