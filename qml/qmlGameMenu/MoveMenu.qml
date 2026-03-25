@@ -796,6 +796,7 @@ Item {
                 onClicked: {
                     if (!spriteImg.isJumping) {
                         spriteImg.isJumping = true
+                        console.log("Yippeee!")
                         jumpAnim.start()
                     }
                 }

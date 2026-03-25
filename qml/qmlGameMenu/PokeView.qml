@@ -47,6 +47,7 @@ Item {
     function spriteJump(){
         if (!sprite.isJumping) {
             sprite.isJumping = true
+            console.log("Yippeee!")
             jumpAnim.start()
         }
     }

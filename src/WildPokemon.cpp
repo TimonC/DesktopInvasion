@@ -107,6 +107,7 @@ void WildPokemon::mouseDoubleClickEvent(QMouseEvent* event){
 
 void WildPokemon::windowJump(){
     if (m_isJumping) return;
+    qDebug() << "Yippeee!";
     m_isJumping = true;
 
     m_moveTimer->stop();
