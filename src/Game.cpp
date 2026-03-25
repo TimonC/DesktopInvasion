@@ -621,7 +621,13 @@ void Game::handleBattleStart() {
 
         for (int m = 0; m < 4; ++m) {
             int moveId = pokemon.moves[m];
-            if (moveId < 1) continue;
+            if (moveId < 1){
+                if(m==0){
+                    const Move* mv = Lookup::getMove(1);
+                    battleParty.moves[slot][m] = {mv->name, PokeTypes::typeToString(mv->type)};
+                }
+                continue;
+            }
             const Move* mv = Lookup::getMove(moveId);
             battleParty.moves[slot][m] = {mv->name, PokeTypes::typeToString(mv->type)};
         }
