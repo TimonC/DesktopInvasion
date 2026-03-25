@@ -92,23 +92,17 @@ void Game::safelyRemoveWildPokemon() {
 }
 
 void Game::setPetMode(bool active){
-    static bool processing = false;
-    if (processing) return;
+    if (active == m_petMode) return;
+    m_petMode = active;
 
     setRandomSpawnPoint();
     if(m_wildPokemon){
-        if(active==m_petMode) return;
-        m_petMode = active;
         safelyRemoveWildPokemon();
         spawnPokemon();
-    }
-    if(m_activeBattle){
-        if(active==m_petMode) return;
-        m_petMode = active;
+    } else if(m_activeBattle){
         safelyRemoveBattleScene();
         spawnPokemon();
     }
-    processing = false;
 }
 
 void Game::setGameActive(bool active) {

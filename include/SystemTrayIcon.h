@@ -15,8 +15,8 @@ public:
     void enabled(bool enabled);
     void createContextMenu(std::vector<std::pair<int, std::string>> trainers, int activeSaveId);
     void setActiveSaveId(int id) { m_activeSaveId = id; }
-    bool   m_gameActive;
-    bool   m_petActive;
+    bool   m_gameActive = true;
+    bool   m_petActive = false;
 
 signals:
     void gameActive(bool active);

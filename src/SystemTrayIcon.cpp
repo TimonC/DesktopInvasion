@@ -8,7 +8,6 @@
 
 SystemTrayIcon::SystemTrayIcon(QObject *parent)
     : QSystemTrayIcon(parent)
-    , m_gameActive(true)
     , m_clickEnabled(true)
     , m_autoStartEnabled(false)
     , m_activeIcon(":/assets/icon/icon.png")
@@ -108,7 +107,9 @@ void SystemTrayIcon::createContextMenu(std::vector<std::pair<int, std::string>> 
 
     m_petAction = new QAction(tr("Pet mode"), m_menu);
     m_petAction->setCheckable(true);
+    m_petAction->blockSignals(true);
     m_petAction->setChecked(m_petActive);
+    m_petAction->blockSignals(false);
     m_petAction->setToolTip(tr("Toggle between viewing caucht pokemon or encountering new ones."));
     connect(m_petAction, &QAction::toggled, this, [this]() {
         togglePetMode();
