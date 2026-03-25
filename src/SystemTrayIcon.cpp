@@ -1,6 +1,9 @@
 #include "SystemTrayIcon.h"
+
 #include <QApplication>
-#include <qdir.h>
+#include <QMenu>
+#include <QActionGroup>
+#include <QDir>
 
 SystemTrayIcon::SystemTrayIcon(QObject *parent)
     : QSystemTrayIcon(parent)
@@ -10,100 +13,115 @@ SystemTrayIcon::SystemTrayIcon(QObject *parent)
     , m_inactiveIcon(":/assets/icon/icon_transparent.png")
     , m_menu(nullptr)
     , m_quitAction(nullptr)
-    , m_menuAction(nullptr)
-{
+    , m_menuAction(nullptr) {
     setIcon(m_activeIcon);
-
     setVisible(true);
-
 }
 
-SystemTrayIcon::~SystemTrayIcon(){
+SystemTrayIcon::~SystemTrayIcon() {
     qDebug() << "SystemTrayIcon destructor called!";
 }
 
-void SystemTrayIcon::enabled(bool enabled){
+void SystemTrayIcon::enabled(bool enabled) {
     m_clickEnabled = enabled;
     m_activeAction->setEnabled(enabled);
     m_menuAction->setEnabled(enabled);
-};
+}
 
-void SystemTrayIcon::toggleGameActive(){
+void SystemTrayIcon::toggleGameActive() {
     m_gameActive = !m_gameActive;
-
     m_activeAction->blockSignals(true);
     m_activeAction->setChecked(m_gameActive);
     m_activeAction->blockSignals(false);
-
     setIconActivityColor(m_gameActive);
     emit gameActive(m_gameActive);
 }
 
-
 void SystemTrayIcon::createContextMenu(std::vector<std::pair<int, std::string>> trainers, int activeSaveId) {
     m_menu = new QMenu();
 
-    m_quitAction = new QAction(tr("Quit DesktopInvasion"), m_menu);
-    m_quitAction->setToolTip(tr("Exit the application"));
-    connect(m_quitAction, &QAction::triggered, qApp, &QApplication::quit);
+    // Game submenu
+    QMenu* gameMenu = new QMenu(tr("Game"), m_menu);
 
-    m_deleteAction = new QAction(tr("Delete current game"));
-    m_deleteAction->setToolTip(tr("Delete the currently active game"));
-    connect(m_deleteAction, &QAction::triggered, qApp, [this](){
-            emit deleteSaveRequested();
-    });
-
-    m_menu->addAction(m_quitAction);
-    m_menu->addAction(m_deleteAction);
-    m_menu->addSeparator();
-
-    m_activeAction = new QAction(tr("Active"), m_menu);
-    m_activeAction->setCheckable(true);
-    m_activeAction->setChecked(m_gameActive);
-    m_activeAction->setToolTip(tr("Toggle game active state"));
-    connect(m_activeAction, &QAction::toggled, qApp, [this]() {
-        toggleGameActive();
-    });
-
-    m_menuAction = new QAction(tr("Menu"), m_menu);
-    m_menuAction->setToolTip(tr("Open game menu"));
-    connect(m_menuAction, &QAction::triggered, qApp, [this]() {
-        emit menuButtonPressed();
-    });
-
-    m_newGameAction = new QAction(tr("New Game"), m_menu);
-    m_newGameAction->setToolTip(tr("Start a new game"));
-    connect(m_newGameAction, &QAction::triggered, this, [this]() {
-        emit newGameRequested();
-    });
-
-
-    QActionGroup* trainerGroup = new QActionGroup(m_menu);
-    trainerGroup->setExclusive(true);
-    if(!trainers.empty()){
-        for (auto& [id, name] : trainers) {
-            QAction* a = new QAction(QString::fromStdString(name), m_menu);
+    // Trainer list (if any)
+    if (!trainers.empty()) {
+        QActionGroup* trainerGroup = new QActionGroup(gameMenu);
+        trainerGroup->setExclusive(true);
+        for (const auto& [id, name] : trainers) {
+            QAction* a = new QAction(QString::fromStdString(name), gameMenu);
             a->setCheckable(true);
             a->setChecked(id == activeSaveId);
             trainerGroup->addAction(a);
-            m_menu->addAction(a);
+            gameMenu->addAction(a);
             connect(a, &QAction::triggered, this, [this, id]() {
                 m_activeSaveId = id;
                 emit saveSelected(id);
             });
         }
+        gameMenu->addSeparator();
     }
 
-    m_menu->addAction(m_newGameAction);
+    // New Game action
+    m_newGameAction = new QAction(tr("New Game"), gameMenu);
+    m_newGameAction->setToolTip(tr("Start a new game"));
+    connect(m_newGameAction, &QAction::triggered, this, [this]() {
+        emit newGameRequested();
+    });
+    gameMenu->addAction(m_newGameAction);
+
+    // Delete Current Game action
+    m_deleteAction = new QAction(tr("Delete Current Game"), gameMenu);
+    m_deleteAction->setToolTip(tr("Delete the currently active game"));
+    connect(m_deleteAction, &QAction::triggered, this, [this]() {
+        emit deleteSaveRequested();
+    });
+    gameMenu->addAction(m_deleteAction);
+
+    m_menu->addMenu(gameMenu);
     m_menu->addSeparator();
-    m_menu->addAction(m_menuAction);
+
+    // Active toggle
+    m_activeAction = new QAction(tr("Active"), m_menu);
+    m_activeAction->setCheckable(true);
+    m_activeAction->setChecked(m_gameActive);
+    m_activeAction->setToolTip(tr("Enable or disable the game"));
+    connect(m_activeAction, &QAction::toggled, this, [this]() {
+        toggleGameActive();
+    });
+
     m_menu->addAction(m_activeAction);
+    // Menu action
+    m_menuAction = new QAction(tr("Menu"), m_menu);
+    m_menuAction->setToolTip(tr("Open the game menu"));
+    connect(m_menuAction, &QAction::triggered, this, [this]() {
+        emit menuButtonPressed();
+    });
+    m_menu->addAction(m_menuAction);
+
+
+    m_menu->addSeparator();
+
+    // Quit action
+    m_quitAction = new QAction(tr("Quit"), m_menu);
+    m_quitAction->setToolTip(tr("Exit the application"));
+    connect(m_quitAction, &QAction::triggered, qApp, [this](){
+                QMessageBox msgBox;
+                msgBox.setWindowTitle("DesktopInvasion - Confirm Quit");
+                msgBox.setText("Are you sure that you want to quit DesktopInvasion? You can also hide the invading sprites by toggling 'active'.");
+                msgBox.setStandardButtons(QMessageBox::Discard | QMessageBox::Cancel);
+                msgBox.setDefaultButton(QMessageBox::Cancel);
+                msgBox.setIcon(QMessageBox::Warning);
+
+                if (msgBox.exec() != QMessageBox::Discard) {
+                    return;
+                }
+                qApp->quit();
+            });
+    m_menu->addAction(m_quitAction);
+
     setContextMenu(m_menu);
 }
 
-void SystemTrayIcon::setIconActivityColor(bool active){
+void SystemTrayIcon::setIconActivityColor(bool active) {
     setIcon(active ? m_activeIcon : m_inactiveIcon);
 }
-
-
-
