@@ -19,7 +19,7 @@ Item {
     property color  highlightHover:        "#6aaef5"
     property color  highlightSwappable:    "#7ab0f5"
     property color  highlightSwappableHover: "#8fc5ff"
-    property color  swapButtonHighlight:   "#ff9933"
+    property color  swapButtonHighlight:   "#e67a00"
     property color  labelColor: "#aaaaaa"
 
     property real   highlightOpacity:      0.4

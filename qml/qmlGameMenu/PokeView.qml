@@ -139,23 +139,23 @@ Item {
                     }
                     Row {
                         width: parent.width*0.9
+                        height: fontSizeLg
                         spacing: rowSpacing
 
                         Text {
+                            width: parent.width*0.4
                             text: pokeData ? pokeData.pokeName : ""
                             font.family: bodyFont
                             font.pixelSize: fontSizeMd
                             color: colorSubtext
-                            width: parent.width*0.4
                             elide: Text.ElideRight
                         }
                         PcButton {
                             width: parent.width*0.6
-                            height: fontSizeLg*1.2
                             visible: pokeData && pokeData.evolves && pokeData.evolves.length > 0
                             enabled: pokeData && pokeData.evolves && pokeData.evolves.length > 0
                             label: "++EVOLVE++"
-                            btnColor: "green"
+                            btnColor: "#e67a00"
                             fontSize: root.fontSizeSm
                             onClicked: pokeView.evolveBtnClicked(pokeData)
                         }
