@@ -38,10 +38,12 @@ private:
     PokemonDatabase&         m_db          = PokemonDatabase::instance();
     WildPokemon*             m_wildPokemon = nullptr;
     Battle*                  m_activeBattle= nullptr;
+    void setRandomSpawnPoint();
     QPoint                   m_spawnPoint  = QPoint(-1,-1);
     int                      m_spawnDirection = -1;
     QTimer*                  m_spawnTimer;
     const int                m_spawnDelay_ms = 500;
+    bool                     m_menuClosing = false;
 
     int m_ballGetCount = 0;
     int m_tmGetId = 0;
