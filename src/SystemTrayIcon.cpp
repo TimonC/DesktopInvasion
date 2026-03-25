@@ -29,6 +29,7 @@ void SystemTrayIcon::enabled(bool enabled) {
 
 void SystemTrayIcon::toggleGameActive() {
     m_gameActive = !m_gameActive;
+    m_petAction->setEnabled(m_gameActive);
     m_activeAction->blockSignals(true);
     m_activeAction->setChecked(m_gameActive);
     m_activeAction->blockSignals(false);
@@ -46,7 +47,6 @@ void SystemTrayIcon::togglePetMode() {
 void SystemTrayIcon::createContextMenu(std::vector<std::pair<int, std::string>> trainers, int activeSaveId) {
     m_menu = new QMenu();
 
-    // Game submenu
     QMenu* gameMenu = new QMenu(tr("Saves"), m_menu);
 
     if (!trainers.empty()) {
