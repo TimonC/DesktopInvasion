@@ -72,7 +72,7 @@ private slots:
     void handleEvolveRequest(int boxIndex, QVariantMap pokeData);
     void setGameActive(bool active = true);
     void deleteCurrentSave();
-    void handleEvolvePokemon(int boxIndex, int slot, int targetPokedexId);
+    void handleEvolvePokemon(int boxIndex, int slot, int targetPokedexId, std::string nickName);
 };
 
 #endif

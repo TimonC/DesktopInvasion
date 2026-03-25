@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import "../Style/PokeColor.js" as PokeColor
 
 Item {
@@ -6,6 +7,10 @@ Item {
 
     property var    pokeData: null
     property int    selectedEvolutionId: -1
+    property var    selectedEvolution: null
+    property string viewState: "grid"   // "grid" or "confirmation"
+    property real   confirmationColumnRatio: 0.5
+    property string headerText: "EVOLVE"
 
     property string mainFont:           "Press Start 2P"
     property string bodyFont:           "DotGothic16"
@@ -34,11 +39,57 @@ Item {
     readonly property int cardWidth:    260
     readonly property int cardHeight:   320
 
-    signal evolutionSelected(int boxId, int slot, var evolveData)
+    signal evolutionSelected(int boxId, int slot, var evolveData, string nickName)
     signal returnClicked()
+
+    // Track connections for cleanup
+    property var confirmConnection: null
+    property var cancelConnection: null
 
     function evolutionList() {
         return pokeData ? pokeData.evolvesList : []
+    }
+
+    function showComparison(baseData, evolveData) {
+        baseSprite.frameX = (baseData.isBig ? 64 : root.frameW) * 4
+        baseSprite.frameY = (baseData.rowId || 0) * (baseData.isBig ? 64 : root.frameH)
+        baseName.text = baseData.pokeName
+        baseTypes.model = [baseData.type1, baseData.type2].filter(function(t) {
+            return t && t !== "None" && t !== "" && t !== "Null" && t !== "null"
+        })
+
+        evoSprite.frameX = (evolveData.isBig ? 64 : root.frameW) * 4
+        evoSprite.frameY = (evolveData.rowId || 0) * (evolveData.isBig ? 64 : root.frameH)
+        evoName.text = evolveData.name || ""
+        evoTypes.model = [evolveData.type1, evolveData.type2].filter(function(t) {
+            return t && t !== "None" && t !== "" && t !== "Null" && t !== "null"
+        })
+    }
+
+    function areYouSure(box, slot, modelData) {
+        root.selectedEvolution = modelData
+        root.viewState = "confirmation"
+        root.headerText = "ARE YOU SURE?"
+        subheader.visible = true
+        showComparison(root.pokeData, modelData)
+
+        if (root.confirmConnection) confirmBtn.clicked.disconnect(root.confirmConnection)
+        if (root.cancelConnection) cancelBtn.clicked.disconnect(root.cancelConnection)
+
+        root.confirmConnection = function() {
+            var name = root.pokeData.name == root.pokeData.pokeName? modelData.name : root.pokeData.name
+            root.evolutionSelected(box, slot, modelData, name)
+            root.returnClicked()
+        }
+        confirmBtn.clicked.connect(root.confirmConnection)
+
+        root.cancelConnection = function() {
+            root.viewState = "grid"
+            root.selectedEvolution = null
+            root.headerText = "EVOLVE"
+            subheader.visible = false
+        }
+        cancelBtn.clicked.connect(root.cancelConnection)
     }
 
     Column {
@@ -55,7 +106,8 @@ Item {
                 onClicked: root.returnClicked()
             }
             Text {
-                text: "EVOLVE"
+                id: evolveHeader
+                text: root.headerText
                 font.family: root.mainFont
                 font.pixelSize: root.fontSizeLg
                 color: root.colorText
@@ -69,10 +121,193 @@ Item {
             color: root.colorDivider
         }
 
+        // Subheader (only visible in confirmation mode)
+        Text {
+            id: subheader
+            width: parent.width
+            text: "Evolutions can't be undone!"
+            font.family: root.bodyFont
+            font.pixelSize: root.fontSizeSm
+            color: root.colorSubtext
+            horizontalAlignment: Text.AlignHCenter
+            visible: false
+        }
+
+        Column {
+            id: confirmationColumn
+            width: parent.width * confirmationColumnRatio
+            anchors.horizontalCenter: parent.horizontalCenter
+            spacing: pad * 2   // Increased vertical spacing
+            visible: root.viewState === "confirmation"
+
+            Row {
+                id: comparisonRow
+                width: parent.width
+                spacing: pad / 2   // Less spacing between elements
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                Item {
+                    width: (parent.width - comparisonRow.spacing * 2) / 3
+                    height: comparisonColumn.implicitHeight
+                    Column {
+                        id: comparisonColumn
+                        anchors.centerIn: parent
+                        spacing: 12   // Space between name/type and sprite
+                        Text {
+                            id: baseName
+                            width: parent.width
+                            text: ""
+                            font.family: root.mainFont
+                            font.pixelSize: root.fontSizeMd
+                            color: root.colorText
+                            horizontalAlignment: Text.AlignHCenter
+                            elide: Text.ElideRight
+                        }
+                        Row {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            spacing: root.typePillSpacing
+                            Repeater {
+                                id: baseTypes
+                                delegate: Rectangle {
+                                    width: root.typePillW
+                                    height: root.typePillH
+                                    radius: 4
+                                    gradient: Gradient {
+                                        GradientStop { position: 0.0; color: PokeColor.lighter(PokeColor.typeColor(modelData)) }
+                                        GradientStop { position: 1.0; color: PokeColor.darker(PokeColor.typeColor(modelData)) }
+                                    }
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: modelData
+                                        font.family: root.bodyFont
+                                        font.bold: true
+                                        font.pixelSize: root.fontSizeMd
+                                        color: "#ffffff"
+                                    }
+                                }
+                            }
+                        }
+                        Item {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            width: (pokeData && pokeData.isBig ? 64 : root.frameW) * root.spriteScale
+                            height: (pokeData && pokeData.isBig ? 64 : root.frameH) * root.spriteScale
+                            AnimatedSprite {
+                                id: baseSprite
+                                width: parent.width
+                                height: parent.height
+                                running: true
+                                source: (pokeData && pokeData.isBig) ? root.spriteSheetBig : root.spriteSheetNormal
+                                frameWidth: (pokeData && pokeData.isBig) ? 64 : root.frameW
+                                frameHeight: (pokeData && pokeData.isBig) ? 64 : root.frameH
+                                frameCount: 2
+                                frameRate: 4
+                                interpolate: false
+                                smooth: false
+                                antialiasing: false
+                            }
+                        }
+                    }
+                }
+
+                // Arrow
+                Text {
+                    text: "→"
+                    font.family: root.mainFont
+                    font.pixelSize: 64
+                    color: "white"
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+
+                // Evolution side
+                Item {
+                    width: (parent.width - comparisonRow.spacing * 2) / 3
+                    height: evolutionColumn.implicitHeight
+                    Column {
+                        id: evolutionColumn
+                        anchors.centerIn: parent
+                        spacing: 12
+                        Text {
+                            id: evoName
+                            width: parent.width
+                            text: ""
+                            font.family: root.mainFont
+                            font.pixelSize: root.fontSizeMd
+                            color: root.colorText
+                            horizontalAlignment: Text.AlignHCenter
+                            elide: Text.ElideRight
+                        }
+                        Row {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            spacing: root.typePillSpacing
+                            Repeater {
+                                id: evoTypes
+                                delegate: Rectangle {
+                                    width: root.typePillW
+                                    height: root.typePillH
+                                    radius: 4
+                                    gradient: Gradient {
+                                        GradientStop { position: 0.0; color: PokeColor.lighter(PokeColor.typeColor(modelData)) }
+                                        GradientStop { position: 1.0; color: PokeColor.darker(PokeColor.typeColor(modelData)) }
+                                    }
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: modelData
+                                        font.family: root.bodyFont
+                                        font.bold: true
+                                        font.pixelSize: root.fontSizeMd
+                                        color: "#ffffff"
+                                    }
+                                }
+                            }
+                        }
+                        Item {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            width: (selectedEvolution && selectedEvolution.isBig ? 64 : root.frameW) * root.spriteScale
+                            height: (selectedEvolution && selectedEvolution.isBig ? 64 : root.frameH) * root.spriteScale
+                            AnimatedSprite {
+                                id: evoSprite
+                                width: parent.width
+                                height: parent.height
+                                running: true
+                                source: (selectedEvolution && selectedEvolution.isBig) ? root.spriteSheetBig : root.spriteSheetNormal
+                                frameWidth: (selectedEvolution && selectedEvolution.isBig) ? 64 : root.frameW
+                                frameHeight: (selectedEvolution && selectedEvolution.isBig) ? 64 : root.frameH
+                                frameCount: 2
+                                frameRate: 4
+                                interpolate: false
+                                smooth: false
+                                antialiasing: false
+                            }
+                        }
+                    }
+                }
+            }
+
+            Row {
+                id: areYouSureRow
+                width: parent.width
+                spacing: pad
+                visible: root.viewState === "confirmation"
+                anchors.horizontalCenter: parent.horizontalCenter
+                PcButton {
+                    id: confirmBtn
+                    width: 48 * 4
+                    label: "CONFIRM"
+                }
+                PcButton {
+                    id: cancelBtn
+                    width: 48 * 4
+                    label: "CANCEL"
+                }
+            }
+        }
+
         Grid {
+            id: evolveOptionsGrid
             width: parent.width
             spacing: cardSpacing
             columns: Math.max(1, Math.floor(parent.width / (cardWidth + cardSpacing)))
+            visible: root.viewState === "grid"
 
             Repeater {
                 model: root.evolutionList()
@@ -111,8 +346,7 @@ Item {
                         cursorShape: undefined
                         onClicked: {
                             root.selectedEvolutionId = modelData.pokedex_id
-                            root.evolutionSelected(pokeData.box, pokeData.slot, modelData)
-                            root.returnClicked()
+                            root.areYouSure(pokeData.box, pokeData.slot, modelData)
                         }
                     }
 
@@ -141,7 +375,7 @@ Item {
                                 height: (modelData.isBig ? 64 : root.frameH) * root.spriteScale
 
                                 AnimatedSprite {
-                                    id: evoSprite
+                                    id: evoSpriteCard
                                     width: parent.width
                                     height: parent.height
                                     running: true
@@ -194,7 +428,7 @@ Item {
 
         Text {
             width: parent.width
-            visible: evolutionList().length === 0
+            visible: evolutionList().length === 0 && root.viewState === "grid"
             text: "No evolutions available"
             font.family: root.bodyFont
             font.pixelSize: root.fontSizeMd

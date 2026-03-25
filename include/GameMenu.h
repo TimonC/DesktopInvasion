@@ -28,7 +28,7 @@ public:
     QQuickItem* m_menuRoot;
 
 public slots:
-    void evolvePokemon(int boxIndex, int slot, int targetPokedexId);
+    void evolvePokemon(int boxIndex, int slot, int targetPokedexId, QString nickName);
 
 signals:
     void menuClosed();
@@ -37,7 +37,7 @@ signals:
     void nameChangeRequested(int xplace, int xpos, QString name);
     void moveChangeRequested(int xplace, int xpos, int moveSlot, int moveId);
     void evolvesRequested(int boxIndex, QVariantMap pokeData);
-    void evolvePokemonRequested(int boxIndex, int slot, int targetPokedexId);
+    void evolvePokemonRequested(int boxIndex, int slot, int targetPokedexId, std::string nickName);
 
     void partyDataReady(QVariantList data, bool displayFirst);
     void boxDataReady(int boxIndex, QVariantList data);

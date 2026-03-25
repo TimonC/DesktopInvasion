@@ -151,6 +151,7 @@ Item {
                             elide: Text.ElideRight
                         }
                         PcButton {
+                            height: parent.height*1.8
                             width: parent.width*0.6
                             visible: pokeData && pokeData.evolves && pokeData.evolves.length > 0
                             enabled: pokeData && pokeData.evolves && pokeData.evolves.length > 0

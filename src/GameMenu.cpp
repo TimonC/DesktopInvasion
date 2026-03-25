@@ -1,4 +1,3 @@
-// GameMenu.cpp (add evolvePokemon slot implementation)
 #include "GameMenu.h"
 #include <QTimer>
 #include <QScreen>
@@ -106,6 +105,6 @@ void GameMenu::_evolvesRequested(int boxIndex, QVariantMap pokeData){
     emit evolvesRequested(boxIndex, pokeData);
 };
 
-void GameMenu::evolvePokemon(int boxIndex, int slot, int targetPokedexId) {
-    emit evolvePokemonRequested(boxIndex, slot, targetPokedexId);
+void GameMenu::evolvePokemon(int boxIndex, int slot, int targetPokedexId, QString nickName) {
+    emit evolvePokemonRequested(boxIndex, slot, targetPokedexId, nickName.toStdString());
 }

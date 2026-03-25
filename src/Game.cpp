@@ -436,6 +436,12 @@ void Game::handleEvolveRequest(int boxIndex, QVariantMap pokeData) {
     QVariantMap evolvesData;
     evolvesData["slot"]       = slot;
     evolvesData["box"]        = boxIndex;
+    evolvesData["pokeName"]   = pokeData["pokeName"];
+    evolvesData["name"]   = pokeData["name"];
+    evolvesData["type1"] = pokeData["type1"];
+    evolvesData["type2"] = pokeData["type2"];
+    evolvesData["rowId"] = pokeData["rowId"];
+    evolvesData["isBig"] = pokeData["isBig"];
     evolvesData["evolvesList"] = evolvesList;
     m_menu->updateEvolveMenu(evolvesData);
 }
@@ -658,8 +664,8 @@ void Game::updatePartyXP(std::array<int, 6> spread) {
     m_activeBattle->showUpdateAndEndBattle(spread, lvlUps, m_tmGetId, m_ballGetCount, m_ballGetId);
 }
 
-void Game::handleEvolvePokemon(int boxIndex, int slot, int targetPokedexId) {
-    m_db.evolvePokemon(boxIndex, slot, targetPokedexId, Lookup::getPoke(targetPokedexId)->name);
+void Game::handleEvolvePokemon(int boxIndex, int slot, int targetPokedexId, std::string nickName) {
+    m_db.evolvePokemon(boxIndex, slot, targetPokedexId, nickName);
 
     if (boxIndex == -1) {
         m_menu->loadParty(partyToVariantList(), false);

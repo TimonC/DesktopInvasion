@@ -333,8 +333,8 @@ Item {
         }
     }
 
-    function handleEvolutionSelected(box, slot, modelData) {
-        menuBridge.evolvePokemon(box, slot, modelData.pokedex_id)
+    function handleEvolutionSelected(box, slot, modelData, nickName) {
+        menuBridge.evolvePokemon(box, slot, modelData.pokedex_id, nickName)
         goToDefaultMenu()
     }
 
