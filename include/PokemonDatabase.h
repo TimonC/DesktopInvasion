@@ -82,6 +82,7 @@ public:
     std::vector<int>  getTechnicalMoveList();
     std::vector<int>   filterKnownTMs(const std::vector<int>& moveIds);
     std::vector<EligibleEntry> filterKnownTMs(const std::vector<EligibleEntry>& entries);
+    bool evolvePokemon(int boxIndex, int slot, int targetPokedexId, std::string name);
 
 private:
     PokemonDatabase() = default;

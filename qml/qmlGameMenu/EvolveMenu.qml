@@ -2,200 +2,187 @@ import QtQuick 2.15
 import "../Style/PokeColor.js" as PokeColor
 
 Item {
-    id: evolveMenu
+    id: root
 
-    property var pokeData: null
-    property real spriteScale: 5
-    property int jumpDistance: 18
+    property var    pokeData: null
+    property int    selectedEvolutionId: -1
 
-    property string mainFont:   "Press Start 2P"
-    property string bodyFont:   "DotGothic16"
-    property int    fontSizeLg: 22
-    property int    fontSizeMd: 18
-    property int    fontSizeSm: 16
+    property string mainFont:           "Press Start 2P"
+    property string bodyFont:           "DotGothic16"
+    property int    fontSizeLg:         22
+    property int    fontSizeMd:         18
+    property int    fontSizeSm:         16
 
-    property color colorText:    "#ffffff"
-    property color colorSubtext: "#aaaaaa"
-    property color colorDivider: "#3d3d3d"
+    property color colorText:           "#ffffff"
+    property color colorSubtext:        "#aaaaaa"
+    property color colorAccent:         "#5294e2"
+    property color colorMoveCard:       "#383838"
+    property color colorDivider:        "#3d3d3d"
 
-    property int margin: 8
-    property int secGap: 16
-    property int gap:    8
+    property string spriteSheetNormal:  "qrc:/assets/HGSS/reordered_sprites.png"
+    property string spriteSheetBig:     "qrc:/assets/HGSS/reordered_sprites_big.png"
+    property int    frameW:             32
+    property int    frameH:             32
+    property int    spriteScale:        6
 
-    property string spriteSheetNormal: "qrc:/assets/HGSS/reordered_sprites.png"
-    property string spriteSheetBig:    "qrc:/assets/HGSS/reordered_sprites_big.png"
-    property int    frameW:            32
-    property int    frameH:            32
-    property int    typePillW: 88
-    property int    typePillH: fontSizeMd + 8
+    property int    typePillW:          88
+    property int    typePillH:          fontSizeMd + 8
+    property int    typePillSpacing:    4
 
-    signal evolutionSelected(int targetPokedexId)
+    readonly property int pad:          30
+    readonly property int cardSpacing:  20
+    readonly property int cardWidth:    260
+    readonly property int cardHeight:   320
+
+    signal evolutionSelected(int boxId, int slot, var evolveData)
     signal returnClicked()
 
+    function evolutionList() {
+        return pokeData ? pokeData.evolvesList : []
+    }
+
     Column {
-        anchors {
-            top: parent.top
-            left: parent.left
-            right: parent.right
-        }
-        anchors.margins: evolveMenu.margin
-        spacing: evolveMenu.secGap
+        anchors.fill: parent
+        anchors.margins: pad
+        spacing: pad
 
-        PcButton {
-            width:  48 * 4
-            label:  "← BACK"
-            onClicked: evolveMenu.returnClicked()
-        }
-
-        Rectangle { width: parent.width; height: 1; color: evolveMenu.colorDivider }
-
-        Text {
-            text:           "EVOLVE"
-            font.family:    evolveMenu.mainFont
-            font.pixelSize: evolveMenu.fontSizeSm - 4
-            color:          evolveMenu.colorSubtext
+        Row {
+            width: parent.width
+            spacing: pad
+            PcButton {
+                width: 48 * 4
+                label: "← BACK"
+                onClicked: root.returnClicked()
+            }
+            Text {
+                text: "EVOLVE"
+                font.family: root.mainFont
+                font.pixelSize: root.fontSizeLg
+                color: root.colorText
+                anchors.verticalCenter: parent.verticalCenter
+            }
         }
 
-        Text {
-            text:           evolveMenu.pokeData ? evolveMenu.pokeData.name : ""
-            font.family:    evolveMenu.mainFont
-            font.pixelSize: evolveMenu.fontSizeSm
-            color:          evolveMenu.colorText
+        Rectangle {
+            width: parent.width
+            height: 1
+            color: root.colorDivider
         }
 
-        Rectangle { width: parent.width; height: 1; color: evolveMenu.colorDivider }
+        Grid {
+            width: parent.width
+            spacing: cardSpacing
+            columns: Math.max(1, Math.floor(parent.width / (cardWidth + cardSpacing)))
 
-        Item {
-            width:  parent.width
-            height: childrenRect.height
+            Repeater {
+                model: root.evolutionList()
 
-            Row {
-                anchors.horizontalCenter: parent.horizontalCenter
-                spacing: 12
+                Item {
+                    width: cardWidth
+                    height: cardHeight
 
-                Repeater {
-                    model: evolveMenu.pokeData ? evolveMenu.pokeData.evolvesList : []
+                    Rectangle {
+                        anchors.fill: parent
+                        color: root.colorMoveCard
+                        radius: 12
+                    }
 
-                    Column {
-                        id: evoCol
-                        width:   112
-                        spacing: 6
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: 12
+                        color: "transparent"
+                        border.width: (mouseArea.containsMouse || root.selectedEvolutionId === (modelData.pokedex_id || -1)) ? 2 : 0
+                        border.color: Qt.rgba(root.colorAccent.r, root.colorAccent.g, root.colorAccent.b,
+                                              (mouseArea.containsMouse ? 0.8 : 0.6))
+                    }
 
-                        Text {
-                            width:               parent.width
-                            text:                modelData.name
-                            font.family:         evolveMenu.mainFont
-                            font.pixelSize:      evolveMenu.fontSizeSm - 2
-                            color:               evolveMenu.colorText
-                            horizontalAlignment: Text.AlignHCenter
-                            wrapMode:            Text.NoWrap
-                            elide:               Text.ElideRight
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: 12
+                        color: mouseArea.containsMouse
+                               ? Qt.rgba(root.colorAccent.r, root.colorAccent.g, root.colorAccent.b, 0.2)
+                               : "transparent"
+                    }
+
+                    MouseArea {
+                        id: mouseArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: undefined
+                        onClicked: {
+                            root.selectedEvolutionId = modelData.pokedex_id
+                            root.evolutionSelected(pokeData.box, pokeData.slot, modelData)
+                            root.returnClicked()
                         }
+                    }
 
-                        Item {
-                            width:  parent.width
-                            height: (modelData.isBig ? 64 : evolveMenu.frameH) * evolveMenu.spriteScale
+                    Item {
+                        anchors.fill: parent
+                        anchors.margins: 12
 
-                            AnimatedSprite {
-                                id: evoSprite
+                        Column {
+                            anchors.centerIn: parent
+                            width: parent.width
+                            spacing: 8
 
-                                readonly property bool isBig: modelData.isBig === true
+                            Text {
+                                width: parent.width
+                                text: modelData.name || ""
+                                font.family: root.mainFont
+                                font.pixelSize: root.fontSizeMd
+                                color: root.colorText
+                                horizontalAlignment: Text.AlignHCenter
+                                elide: Text.ElideRight
+                            }
 
+                            Item {
                                 anchors.horizontalCenter: parent.horizontalCenter
-                                width:        (isBig ? 64 : evolveMenu.frameW) * evolveMenu.spriteScale
-                                height:       (isBig ? 64 : evolveMenu.frameH) * evolveMenu.spriteScale
-                                running:      true
-                                source:       isBig ? evolveMenu.spriteSheetBig : evolveMenu.spriteSheetNormal
-                                frameWidth:   isBig ? 64 : evolveMenu.frameW
-                                frameHeight:  isBig ? 64 : evolveMenu.frameH
-                                frameCount:   2
-                                frameRate:    4
-                                interpolate:  false
-                                smooth:       false
-                                antialiasing: false
-                                frameX:       (isBig ? 64 : evolveMenu.frameW) * 4
-                                frameY:       modelData.rowId * (isBig ? 64 : evolveMenu.frameH)
+                                width: (modelData.isBig ? 64 : root.frameW) * root.spriteScale
+                                height: (modelData.isBig ? 64 : root.frameH) * root.spriteScale
 
-                                property bool isJumping: false
-                                property int  jumpUpDuration:   200
-                                property int  jumpDownDuration: 150
-
-                                MouseArea {
-                                    anchors.fill: parent
-                                    cursorShape:  undefined
-                                    onClicked: {
-                                        if (!evoSprite.isJumping) {
-                                            evoSprite.isJumping = true
-                                            spriteJumpAnim.start()
-                                        }
-                                    }
-                                }
-
-                                SequentialAnimation {
-                                    id: spriteJumpAnim
-                                    PropertyAnimation {
-                                        target:      evoSprite
-                                        property:    "y"
-                                        to:          evoSprite.y - evolveMenu.jumpDistance
-                                        duration:    evoSprite.jumpUpDuration
-                                        easing.type: Easing.OutQuad
-                                    }
-                                    PropertyAnimation {
-                                        target:      evoSprite
-                                        property:    "y"
-                                        to:          evoSprite.y
-                                        duration:    evoSprite.jumpDownDuration
-                                        easing.type: Easing.InQuad
-                                    }
-                                    PropertyAction {
-                                        target:   evoSprite
-                                        property: "isJumping"
-                                        value:    false
-                                    }
-                                    ScriptAction {
-                                        script: {
-                                            evolveMenu.evolutionSelected(modelData.pokedex_id)
-                                            evolveMenu.returnClicked()
-                                        }
-                                    }
+                                AnimatedSprite {
+                                    id: evoSprite
+                                    width: parent.width
+                                    height: parent.height
+                                    running: true
+                                    source: modelData.isBig ? root.spriteSheetBig : root.spriteSheetNormal
+                                    frameWidth: modelData.isBig ? 64 : root.frameW
+                                    frameHeight: modelData.isBig ? 64 : root.frameH
+                                    frameCount: 2
+                                    frameRate: 4
+                                    interpolate: false
+                                    smooth: false
+                                    antialiasing: false
+                                    frameX: (modelData.isBig ? 64 : root.frameW) * 4
+                                    frameY: (modelData.rowId || 0) * (modelData.isBig ? 64 : root.frameH)
                                 }
                             }
-                        }
 
-                        Row {
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            spacing: 4
+                            Row {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                spacing: root.typePillSpacing
 
-                            Repeater {
-                                model: [modelData.type1, modelData.type2].filter(function(t) {
-                                    return t && t !== "None" && t !== ""
-                                })
+                                Repeater {
+                                    model: [modelData.type1, modelData.type2].filter(function(t) {
+                                        return t && t !== "None" && t !== "" && t !== "Null" && t !== "null"
+                                    })
 
-                                Rectangle {
-                                    readonly property int pillW: Math.min(
-                                        evolveMenu.typePillW,
-                                        Math.floor((evoCol.width - 4) / 2)
-                                    )
-                                    width:  pillW
-                                    height: evolveMenu.typePillH
-                                    radius: 4
-                                    gradient: Gradient {
-                                        GradientStop {
-                                            position: 0.0
-                                            color: PokeColor.lighter(PokeColor.typeColor(modelData))
+                                    Rectangle {
+                                        width: root.typePillW
+                                        height: root.typePillH
+                                        radius: 4
+                                        gradient: Gradient {
+                                            GradientStop { position: 0.0; color: PokeColor.lighter(PokeColor.typeColor(modelData)) }
+                                            GradientStop { position: 1.0; color: PokeColor.darker(PokeColor.typeColor(modelData)) }
                                         }
-                                        GradientStop {
-                                            position: 1.0
-                                            color: PokeColor.darker(PokeColor.typeColor(modelData))
+                                        Text {
+                                            anchors.centerIn: parent
+                                            text: modelData
+                                            font.family: root.bodyFont
+                                            font.bold: true
+                                            font.pixelSize: root.fontSizeMd
+                                            color: "#ffffff"
                                         }
-                                    }
-                                    Text {
-                                        anchors.centerIn: parent
-                                        text:           modelData
-                                        font.family:    evolveMenu.bodyFont
-                                        font.bold:      true
-                                        font.pixelSize: evolveMenu.fontSizeMd - 2
-                                        color:          "#ffffff"
                                     }
                                 }
                             }
@@ -203,6 +190,17 @@ Item {
                     }
                 }
             }
+        }
+
+        Text {
+            width: parent.width
+            visible: evolutionList().length === 0
+            text: "No evolutions available"
+            font.family: root.bodyFont
+            font.pixelSize: root.fontSizeMd
+            color: root.colorSubtext
+            horizontalAlignment: Text.AlignHCenter
+            wrapMode: Text.WordWrap
         }
     }
 }

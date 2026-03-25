@@ -322,6 +322,7 @@ Item {
                                 item.bodyFont   = root.dotGothicFont
 
                                 item.returnClicked.connect(root.goToDefaultMenu)
+                                item.evolutionSelected.connect(root.handleEvolutionSelected)
 
                                 item.pokeData = root._pendingPokeData
                             }
@@ -330,6 +331,11 @@ Item {
                 }
             }
         }
+    }
+
+    function handleEvolutionSelected(box, slot, modelData) {
+        menuBridge.evolvePokemon(box, slot, modelData.pokedex_id)
+        goToDefaultMenu()
     }
 
     function goToDefaultMenu(){
@@ -353,7 +359,7 @@ Item {
     }
 
     function evolveButtonClicked(pokeData) {
-        menuBridge.evolvesRequested(root.displayedPokemonBox, pokeData)
+        menuBridge.evolvesRequested(pc.displayedPokemonBox, pokeData)
     }
     function receivedEvolutions(evolveData){
         if (!pokeData) return
@@ -362,4 +368,3 @@ Item {
         root.menuState = "evolveMenu"
     }
 }
-

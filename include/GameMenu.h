@@ -27,13 +27,17 @@ public:
 
     QQuickItem* m_menuRoot;
 
+public slots:
+    void evolvePokemon(int boxIndex, int slot, int targetPokedexId);
+
 signals:
     void menuClosed();
-    void preloadBoxRequested(int boxIndex);  // QML -> Game
+    void preloadBoxRequested(int boxIndex);
     void swapRequested(int xplace, int xpos, int yplace, int ypos);
     void nameChangeRequested(int xplace, int xpos, QString name);
     void moveChangeRequested(int xplace, int xpos, int moveSlot, int moveId);
     void evolvesRequested(int boxIndex, QVariantMap pokeData);
+    void evolvePokemonRequested(int boxIndex, int slot, int targetPokedexId);
 
     void partyDataReady(QVariantList data, bool displayFirst);
     void boxDataReady(int boxIndex, QVariantList data);

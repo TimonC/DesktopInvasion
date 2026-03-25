@@ -1,3 +1,4 @@
+// Game.cpp (add connection and slot implementation)
 #include <Game.h>
 #include <PokeTypes.h>
 #include <SystemTrayIcon.h>
@@ -273,7 +274,7 @@ void Game::spawnPokemon() {
         m_ballGetId=roll.ballId;
 
         PokemonState w;
-        w.pokedex_id = roll.poke_id;
+        w.pokedex_id = roll.poke_id;//roll.poke_id;
         w.name       = wildPoke->name;
         w.lvl        = lvl;
         w.nature     = Nature::Hardy;
@@ -311,11 +312,13 @@ void Game::initMenu() {
     connect(m_menu, &GameMenu::nameChangeRequested,  this, &Game::handleNameChange);
     connect(m_menu, &GameMenu::moveChangeRequested,  this, &Game::handleMoveChange);
     connect(m_menu, &GameMenu::evolvesRequested, this, &Game::handleEvolveRequest);
+    connect(m_menu, &GameMenu::evolvePokemonRequested, this, &Game::handleEvolvePokemon);
 }
 
 QVariantMap Game::pokemonToMenuState(int slot, const PokemonState& p) {
     QVariantMap entry;
     entry["slot"]   = slot;
+    entry["pokedex_id"] = p.pokedex_id;
     entry["iconId"] = p.pokedex_id - 1;
     entry["name"]   = QString::fromStdString(p.name);
     entry["level"]  = p.lvl;
@@ -417,15 +420,17 @@ void Game::handleEvolveRequest(int boxIndex, QVariantMap pokeData) {
 
         PokemonState p;
         p.pokedex_id  = pokedexId;
-        p.name        = poke->name;          // ← target's name, not original
+        p.name        = poke->name;
         p.pokeball_id = originalState.pokeball_id;
         p.lvl         = originalState.lvl;
         p.currentXP   = originalState.currentXP;
         p.nature      = originalState.nature;
-        for (int m = 0; m < 4; m++)          // ← fixed loop
+        for (int m = 0; m < 4; m++)
             p.moves[m] = originalState.moves[m];
-
-        evolvesList.append(pokemonToMenuState(slot, p));
+        QVariantMap entry = pokemonToMenuState(slot, p);
+        entry["box"]  = boxIndex;
+        entry["slot"] = slot;
+        evolvesList.append(entry);
     }
 
     QVariantMap evolvesData;
@@ -651,4 +656,16 @@ void Game::updatePartyXP(std::array<int, 6> spread) {
     m_db.addTechnicalMove(m_tmGetId);
 
     m_activeBattle->showUpdateAndEndBattle(spread, lvlUps, m_tmGetId, m_ballGetCount, m_ballGetId);
+}
+
+void Game::handleEvolvePokemon(int boxIndex, int slot, int targetPokedexId) {
+    m_db.evolvePokemon(boxIndex, slot, targetPokedexId, Lookup::getPoke(targetPokedexId)->name);
+
+    if (boxIndex == -1) {
+        m_menu->loadParty(partyToVariantList(), false);
+    } else {
+        pushBoxToMenu(boxIndex);
+        m_menu->loadParty(partyToVariantList(), false);
+        m_menu->showBox(boxIndex);
+    }
 }

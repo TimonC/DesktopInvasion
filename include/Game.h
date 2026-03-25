@@ -51,7 +51,6 @@ private:
     void safelyRemoveBattleScene();
     void safelyRemoveWildPokemon();
 
-    // Menu <-> DB bridge helpers
     QVariantMap pokemonToMenuState(int slot, const PokemonState& p);
     QVariantList partyToVariantList();
     QVariantList boxToVariantList(int boxIndex);
@@ -73,6 +72,7 @@ private slots:
     void handleEvolveRequest(int boxIndex, QVariantMap pokeData);
     void setGameActive(bool active = true);
     void deleteCurrentSave();
+    void handleEvolvePokemon(int boxIndex, int slot, int targetPokedexId);
 };
 
 #endif

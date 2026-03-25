@@ -1,4 +1,5 @@
-#include <GameMenu.h>
+// GameMenu.cpp (add evolvePokemon slot implementation)
+#include "GameMenu.h"
 #include <QTimer>
 #include <QScreen>
 #include <QQuickItem>
@@ -6,7 +7,6 @@
 #include <QVariant>
 #include <qnamespace.h>
 #include <globals.h>
-
 
 GameMenu::GameMenu()
     : QQuickView()
@@ -19,7 +19,6 @@ GameMenu::GameMenu()
            /* | Qt::FramelessWindowHint */
            );
 
-    // Must be set BEFORE setSource so menuBridge exists when QML loads
     rootContext()->setContextProperty("menuBridge", this);
 
     const char* env = getenv("DOCKER_ENV");
@@ -44,14 +43,12 @@ GameMenu::GameMenu()
 
     if(m_menuRoot){
         m_menuRoot->setProperty("uiScale", uiScale);
-        //The menu doesn't handle resizing well so I just lock it like this
         setMinimumSize( QSize(menuWidth*uiScale, menuHeight*uiScale));
         setMaximumSize( QSize(menuWidth*uiScale, menuHeight*uiScale));
     }
 
     hide();
 }
-
 
 bool GameMenu::event(QEvent* event) {
     if (event->type() == QEvent::WindowDeactivate || event->type() == QEvent::Close) {
@@ -93,10 +90,7 @@ void GameMenu::setTrainer(QString name, int trainerId){
     m_menuRoot->setProperty("trainerId",trainerId);
 }
 
-// These are Q_INVOKABLE so QML can also call them directly if needed,
-// but primarily Game calls them and they emit signals that QML listens to.
-
-void GameMenu::loadParty(const QVariantList& data, bool displayFirst = true) {
+void GameMenu::loadParty(const QVariantList& data, bool displayFirst) {
     emit partyDataReady(data, displayFirst);
 }
 
@@ -112,3 +106,6 @@ void GameMenu::_evolvesRequested(int boxIndex, QVariantMap pokeData){
     emit evolvesRequested(boxIndex, pokeData);
 };
 
+void GameMenu::evolvePokemon(int boxIndex, int slot, int targetPokedexId) {
+    emit evolvePokemonRequested(boxIndex, slot, targetPokedexId);
+}

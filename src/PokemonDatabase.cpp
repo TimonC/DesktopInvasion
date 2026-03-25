@@ -971,3 +971,24 @@ std::vector<EligibleEntry> PokemonDatabase::filterKnownTMs(const std::vector<Eli
     return result;
 }
 
+bool PokemonDatabase::evolvePokemon(int boxIndex, int slot, int targetPokedexId, std::string name) {
+    DB_LOG("evolvePokemon: box=" << boxIndex << " slot=" << slot << " target=" << targetPokedexId);
+    PokemonState* p = cachePtr(boxIndex, slot);
+    if (!p) {
+        DB_WARN("evolvePokemon: invalid slot");
+        return false;
+    }
+    if (p->empty()) {
+        DB_WARN("evolvePokemon: slot empty");
+        return false;
+    }
+
+    p->pokedex_id = targetPokedexId;
+    p->name       = name;
+
+    if (boxIndex == -1) {
+        return dbWritePartySlot(slot, *p);
+    } else {
+        return dbWritePCSlot(boxIndex, slot, *p);
+    }
+}
