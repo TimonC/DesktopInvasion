@@ -10,11 +10,19 @@
 
 BattleMoveHandler::BattleMoveHandler(const PokemonState& wildState, const std::array<PokemonState, 6>& partyStates, std::mt19937 &rng)
     : m_rng(rng)
-    , m_moveChoiceDist(0, 0)
     , m_expShare(Globals::expShare())
 {
     qDebug() << "BattleMoveHandler constructor called!";
+
     m_battleOpponent = createBattler(wildState);
+    bool end = false;
+    int n_moves = 0;
+    for(auto _move : m_battleOpponent->pokeState.moves){
+        if(_move==nullptr) break;
+        n_moves+=1;
+    };
+    m_moveChoiceDist = std::uniform_int_distribution<int>(0, n_moves-1);
+
     for (int i = 0; i < 6; i++) {
         if(partyStates[i].pokedex_id<=0 || partyStates[i].pokedex_id >493){
         //band-aid solution, apparantly my entire code for some reason depends upon empty party slots being filled with an arbitrary pokemon
