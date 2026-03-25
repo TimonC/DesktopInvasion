@@ -296,7 +296,6 @@ Item {
                     id: cancelBtn
                     width: 48 * 4
                     label: "CANCEL"
-                    btnColor: "#e67a00"
                 }
             }
         }

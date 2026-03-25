@@ -501,7 +501,7 @@ Rectangle {
                     label: "START NEW GAME"
                     selectable: root.pokeId !== -1
                     onClicked: root.startGame(root.playerName, root.trainerId, root.pokeId)
-                    btnColor: "green"
+                    btnColor: "#e67a00"
                 }
             }
         }
