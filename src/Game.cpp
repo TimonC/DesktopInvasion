@@ -14,13 +14,14 @@
 #include <cassert>
 #include <algorithm>
 #include <QMessageBox>
+#include <QRandomGenerator>
 
 Game::Game(QWindow* parent)
     : QObject(parent)
     , m_menu()
     , m_trayIcon(new SystemTrayIcon(this))
     , m_spawnTimer(new QTimer(this))
-    , m_rng(std::random_device{}())
+    , m_rng(initializeRNG())
 {
     qApp->setQuitOnLastWindowClosed(false);
     initializeGame();
@@ -60,6 +61,18 @@ void Game::resetGame(){
         delete m_wildPokemon;
         m_wildPokemon = nullptr;
     }
+}
+
+std::mt19937 Game::initializeRNG() {
+    QRandomGenerator* secureGen = QRandomGenerator::system();
+
+    std::vector<unsigned int> seeds;
+    for (int i = 0; i < 8; ++i) {
+        seeds.push_back(secureGen->generate());
+    }
+
+    std::seed_seq seq(seeds.begin(), seeds.end());
+    return std::mt19937(seq);
 }
 
 void Game::safelyRemoveBattleScene() {
