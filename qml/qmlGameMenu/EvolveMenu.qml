@@ -8,7 +8,7 @@ Item {
     property var    pokeData: null
     property int    selectedEvolutionId: -1
     property var    selectedEvolution: null
-    property string viewState: "grid"   // "grid" or "confirmation"
+    property string viewState: "grid"
     property real   confirmationColumnRatio: 0.5
     property string headerText: "EVOLVE"
 
@@ -42,7 +42,6 @@ Item {
     signal evolutionSelected(int boxId, int slot, var evolveData, string nickName)
     signal returnClicked()
 
-    // Track connections for cleanup
     property var confirmConnection: null
     property var cancelConnection: null
 
@@ -121,38 +120,40 @@ Item {
             color: root.colorDivider
         }
 
-        // Subheader (only visible in confirmation mode)
         Text {
             id: subheader
             width: parent.width
             text: "Evolutions can't be undone!"
             font.family: root.bodyFont
-            font.pixelSize: root.fontSizeSm
+            font.pixelSize: root.fontSizeMd
             color: root.colorSubtext
             horizontalAlignment: Text.AlignHCenter
             visible: false
         }
 
+        Rectangle {
+            width: parent.width
+            height: pad
+            color: "transparent"
+        }
+
         Column {
             id: confirmationColumn
-            width: parent.width * confirmationColumnRatio
-            anchors.horizontalCenter: parent.horizontalCenter
-            spacing: pad * 2   // Increased vertical spacing
+            width: parent.width
+            spacing: pad * 2
             visible: root.viewState === "confirmation"
 
             Row {
                 id: comparisonRow
-                width: parent.width
-                spacing: pad / 2   // Less spacing between elements
+                spacing: pad / 2
                 anchors.horizontalCenter: parent.horizontalCenter
 
                 Item {
-                    width: (parent.width - comparisonRow.spacing * 2) / 3
-                    height: comparisonColumn.implicitHeight
+                    width: (root.pokeData && root.pokeData.isBig ? 64 : root.frameW) * root.spriteScale
+                    height: (root.pokeData && root.pokeData.isBig ? 64 : root.frameH) * root.spriteScale
                     Column {
-                        id: comparisonColumn
                         anchors.centerIn: parent
-                        spacing: 12   // Space between name/type and sprite
+                        spacing: 12
                         Text {
                             id: baseName
                             width: parent.width
@@ -189,16 +190,16 @@ Item {
                         }
                         Item {
                             anchors.horizontalCenter: parent.horizontalCenter
-                            width: (pokeData && pokeData.isBig ? 64 : root.frameW) * root.spriteScale
-                            height: (pokeData && pokeData.isBig ? 64 : root.frameH) * root.spriteScale
+                            width: (root.pokeData && root.pokeData.isBig ? 64 : root.frameW) * root.spriteScale
+                            height: (root.pokeData && root.pokeData.isBig ? 64 : root.frameH) * root.spriteScale
                             AnimatedSprite {
                                 id: baseSprite
                                 width: parent.width
                                 height: parent.height
                                 running: true
-                                source: (pokeData && pokeData.isBig) ? root.spriteSheetBig : root.spriteSheetNormal
-                                frameWidth: (pokeData && pokeData.isBig) ? 64 : root.frameW
-                                frameHeight: (pokeData && pokeData.isBig) ? 64 : root.frameH
+                                source: (root.pokeData && root.pokeData.isBig) ? root.spriteSheetBig : root.spriteSheetNormal
+                                frameWidth: (root.pokeData && root.pokeData.isBig) ? 64 : root.frameW
+                                frameHeight: (root.pokeData && root.pokeData.isBig) ? 64 : root.frameH
                                 frameCount: 2
                                 frameRate: 4
                                 interpolate: false
@@ -209,21 +210,18 @@ Item {
                     }
                 }
 
-                // Arrow
                 Text {
                     text: "→"
                     font.family: root.mainFont
-                    font.pixelSize: 64
+                    font.pixelSize: root.fontSizeLg
                     color: "white"
                     anchors.verticalCenter: parent.verticalCenter
                 }
 
-                // Evolution side
                 Item {
-                    width: (parent.width - comparisonRow.spacing * 2) / 3
-                    height: evolutionColumn.implicitHeight
+                    width: (root.selectedEvolution && root.selectedEvolution.isBig ? 64 : root.frameW) * root.spriteScale
+                    height: (root.selectedEvolution && root.selectedEvolution.isBig ? 64 : root.frameH) * root.spriteScale
                     Column {
-                        id: evolutionColumn
                         anchors.centerIn: parent
                         spacing: 12
                         Text {
@@ -262,16 +260,16 @@ Item {
                         }
                         Item {
                             anchors.horizontalCenter: parent.horizontalCenter
-                            width: (selectedEvolution && selectedEvolution.isBig ? 64 : root.frameW) * root.spriteScale
-                            height: (selectedEvolution && selectedEvolution.isBig ? 64 : root.frameH) * root.spriteScale
+                            width: (root.selectedEvolution && root.selectedEvolution.isBig ? 64 : root.frameW) * root.spriteScale
+                            height: (root.selectedEvolution && root.selectedEvolution.isBig ? 64 : root.frameH) * root.spriteScale
                             AnimatedSprite {
                                 id: evoSprite
                                 width: parent.width
                                 height: parent.height
                                 running: true
-                                source: (selectedEvolution && selectedEvolution.isBig) ? root.spriteSheetBig : root.spriteSheetNormal
-                                frameWidth: (selectedEvolution && selectedEvolution.isBig) ? 64 : root.frameW
-                                frameHeight: (selectedEvolution && selectedEvolution.isBig) ? 64 : root.frameH
+                                source: (root.selectedEvolution && root.selectedEvolution.isBig) ? root.spriteSheetBig : root.spriteSheetNormal
+                                frameWidth: (root.selectedEvolution && root.selectedEvolution.isBig) ? 64 : root.frameW
+                                frameHeight: (root.selectedEvolution && root.selectedEvolution.isBig) ? 64 : root.frameH
                                 frameCount: 2
                                 frameRate: 4
                                 interpolate: false
@@ -285,7 +283,6 @@ Item {
 
             Row {
                 id: areYouSureRow
-                width: parent.width
                 spacing: pad
                 visible: root.viewState === "confirmation"
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -293,11 +290,13 @@ Item {
                     id: confirmBtn
                     width: 48 * 4
                     label: "CONFIRM"
+                    btnColor: "#e67a00"
                 }
                 PcButton {
                     id: cancelBtn
                     width: 48 * 4
                     label: "CANCEL"
+                    btnColor: "#e67a00"
                 }
             }
         }
@@ -326,7 +325,7 @@ Item {
                         anchors.fill: parent
                         radius: 12
                         color: "transparent"
-                        border.width: (mouseArea.containsMouse || root.selectedEvolutionId === (modelData.pokedex_id || -1)) ? 2 : 0
+                        border.width:  2
                         border.color: Qt.rgba(root.colorAccent.r, root.colorAccent.g, root.colorAccent.b,
                                               (mouseArea.containsMouse ? 0.8 : 0.6))
                     }
