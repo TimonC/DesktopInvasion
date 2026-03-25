@@ -25,6 +25,7 @@ public slots:
 
 
 private:
+    bool m_petMode = false;
     void resetGame();
     void openStarterMenu();
     void writeDefaults();
@@ -71,6 +72,7 @@ private slots:
     void handleBattleEnd(const char* endState, bool removeWild);
     void handleEvolveRequest(int boxIndex, QVariantMap pokeData);
     void setGameActive(bool active = true);
+    void setPetMode(bool active = true);
     void deleteCurrentSave();
     void handleEvolvePokemon(int boxIndex, int slot, int targetPokedexId, std::string nickName);
 };

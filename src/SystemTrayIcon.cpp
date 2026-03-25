@@ -24,8 +24,7 @@ SystemTrayIcon::~SystemTrayIcon() {
 
 void SystemTrayIcon::enabled(bool enabled) {
     m_clickEnabled = enabled;
-    m_activeAction->setEnabled(enabled);
-    m_menuAction->setEnabled(enabled);
+    m_menu->setEnabled(enabled);
 }
 
 void SystemTrayIcon::toggleGameActive() {
@@ -36,14 +35,20 @@ void SystemTrayIcon::toggleGameActive() {
     setIconActivityColor(m_gameActive);
     emit gameActive(m_gameActive);
 }
+void SystemTrayIcon::togglePetMode() {
+    m_petActive = !m_petActive;
+    m_petAction->blockSignals(true);
+    m_petAction->setChecked(m_petActive);
+    m_petAction->blockSignals(false);
+    emit petActive(m_petActive);
+}
 
 void SystemTrayIcon::createContextMenu(std::vector<std::pair<int, std::string>> trainers, int activeSaveId) {
     m_menu = new QMenu();
 
     // Game submenu
-    QMenu* gameMenu = new QMenu(tr("Game"), m_menu);
+    QMenu* gameMenu = new QMenu(tr("Saves"), m_menu);
 
-    // Trainer list (if any)
     if (!trainers.empty()) {
         QActionGroup* trainerGroup = new QActionGroup(gameMenu);
         trainerGroup->setExclusive(true);
@@ -62,7 +67,7 @@ void SystemTrayIcon::createContextMenu(std::vector<std::pair<int, std::string>> 
     }
 
     // New Game action
-    m_newGameAction = new QAction(tr("New Game"), gameMenu);
+    m_newGameAction = new QAction(tr("New Save"), gameMenu);
     m_newGameAction->setToolTip(tr("Start a new game"));
     connect(m_newGameAction, &QAction::triggered, this, [this]() {
         emit newGameRequested();
@@ -70,7 +75,7 @@ void SystemTrayIcon::createContextMenu(std::vector<std::pair<int, std::string>> 
     gameMenu->addAction(m_newGameAction);
 
     // Delete Current Game action
-    m_deleteAction = new QAction(tr("Delete Current Game"), gameMenu);
+    m_deleteAction = new QAction(tr("Delete currently active save"), gameMenu);
     m_deleteAction->setToolTip(tr("Delete the currently active game"));
     connect(m_deleteAction, &QAction::triggered, this, [this]() {
         emit deleteSaveRequested();
@@ -80,6 +85,17 @@ void SystemTrayIcon::createContextMenu(std::vector<std::pair<int, std::string>> 
     m_menu->addMenu(gameMenu);
     m_menu->addSeparator();
 
+    // Petmode toggle
+    m_petAction = new QAction(tr("Pet mode"), m_menu);
+    m_petAction->setCheckable(true);
+    m_petAction->setChecked(m_petActive);
+    m_petAction->setToolTip(tr("Toggle between viewing caucht pokemon or encountering new ones."));
+    connect(m_petAction, &QAction::toggled, this, [this]() {
+        /* toggleGameActive(); */
+        togglePetMode();
+    });
+    m_menu->addAction(m_petAction);
+
     // Active toggle
     m_activeAction = new QAction(tr("Active"), m_menu);
     m_activeAction->setCheckable(true);
@@ -88,8 +104,8 @@ void SystemTrayIcon::createContextMenu(std::vector<std::pair<int, std::string>> 
     connect(m_activeAction, &QAction::toggled, this, [this]() {
         toggleGameActive();
     });
-
     m_menu->addAction(m_activeAction);
+
     // Menu action
     m_menuAction = new QAction(tr("Menu"), m_menu);
     m_menuAction->setToolTip(tr("Open the game menu"));

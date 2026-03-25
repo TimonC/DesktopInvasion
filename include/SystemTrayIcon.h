@@ -16,9 +16,11 @@ public:
     void createContextMenu(std::vector<std::pair<int, std::string>> trainers, int activeSaveId);
     void setActiveSaveId(int id) { m_activeSaveId = id; }
     bool   m_gameActive;
+    bool   m_petActive;
 
 signals:
     void gameActive(bool active);
+    void petActive(bool active);
     void menuButtonPressed();
     void saveSelected(int saveId);
     void deleteSaveRequested();
@@ -26,6 +28,7 @@ signals:
 
 public slots:
     void toggleGameActive();
+    void togglePetMode();
 
 private:
     bool   m_clickEnabled;
@@ -34,6 +37,7 @@ private:
     QIcon  m_inactiveIcon;
     QMenu*   m_menu;
     QAction* m_quitAction;
+    QAction* m_petAction;
     QAction* m_activeAction;
     QAction* m_menuAction;
     QAction* m_newGameAction;

@@ -81,6 +81,26 @@ void Game::safelyRemoveWildPokemon() {
     m_wildPokemon->deleteLater();
     m_wildPokemon = nullptr;
 }
+void Game::setPetMode(bool active){
+    qDebug() << "Pet mode turned:" << (active ? "ON" : "OFF");
+    static bool processing = false;
+    if (processing) return;
+
+    QTimer::singleShot(0, this, nullptr);
+    if(m_wildPokemon){
+        if(active==m_petMode) return;
+        m_petMode = active;
+        safelyRemoveWildPokemon();
+        spawnPokemon();
+    }
+    if(m_activeBattle){
+        if(active==m_petMode) return;
+        m_petMode = active;
+        safelyRemoveBattleScene();
+        spawnPokemon();
+    }
+    processing = false;
+}
 
 void Game::setGameActive(bool active) {
     static bool processing = false;
@@ -128,6 +148,7 @@ void Game::initializeGame(bool openStarter) {
     m_trayIcon->createContextMenu(trainerNames, m_db.currentSaveId());
 
     connect(m_trayIcon, &SystemTrayIcon::gameActive,        this, &Game::setGameActive,    Qt::UniqueConnection);
+    connect(m_trayIcon, &SystemTrayIcon::petActive,        this, &Game::setPetMode,    Qt::UniqueConnection);
     connect(m_trayIcon, &SystemTrayIcon::menuButtonPressed, this, &Game::handleMenuOpen,   Qt::UniqueConnection);
     connect(m_trayIcon, &SystemTrayIcon::saveSelected, this, &Game::handleSaveSelected,   Qt::UniqueConnection);
     connect(m_trayIcon, &SystemTrayIcon::newGameRequested, this, &Game::openStarterMenu,   Qt::UniqueConnection);
@@ -268,44 +289,49 @@ void Game::onStarterMenuFinished(QString playerName, int trainerId, int starterP
 void Game::spawnPokemon() {
     if (m_wildPokemon) return;
 
-    if (m_db.wild().empty()) {
-        m_spawnDirection = rand() % 4;
-        m_spawnPoint     = QPoint(-1, -1);
 
-        int firstLvl = m_db.party().begin()->lvl;
-        std::uniform_int_distribution<int> distLvl(firstLvl-Globals::encounterLvlLow(), firstLvl+Globals::encounterLvlHigh());
-        int lvl = std::clamp(distLvl(m_rng), 1, 100);
+    if(!m_petMode){
+        if (m_db.wild().empty()) {
+            m_spawnDirection = rand() % 4;
+            m_spawnPoint     = QPoint(-1, -1);
 
-        std::vector<int> unavailableTmList = m_db.getTechnicalMoveList();
-        const PokeRoll roll        = Lookup::getRandomPokemonByCatchRate(lvl, unavailableTmList, m_rng);
-        const Poke* wildPoke = Lookup::getPoke(roll.poke_id);
+            int firstLvl = m_db.party().begin()->lvl;
+            std::uniform_int_distribution<int> distLvl(firstLvl-Globals::encounterLvlLow(), firstLvl+Globals::encounterLvlHigh());
+            int lvl = std::clamp(distLvl(m_rng), 1, 100);
 
-        m_tmGetId=roll.tmId;
-        m_ballGetCount=roll.ballCount;
-        m_ballGetId=roll.ballId;
+            std::vector<int> unavailableTmList = m_db.getTechnicalMoveList();
+            const PokeRoll roll        = Lookup::getRandomPokemonByCatchRate(lvl, unavailableTmList, m_rng);
+            const Poke* wildPoke = Lookup::getPoke(roll.poke_id);
 
-        PokemonState w;
-        w.pokedex_id = roll.poke_id;//roll.poke_id;
-        w.name       = wildPoke->name;
-        w.lvl        = lvl;
-        w.nature     = Nature::Hardy;
+            m_tmGetId=roll.tmId;
+            m_ballGetCount=roll.ballCount;
+            m_ballGetId=roll.ballId;
 
-        const Poke *poke = Lookup::getPoke(roll.poke_id);
-        int moveIndex = 0;
-        for (int i = poke->eligible_move_count - 1; i >= 0 && moveIndex < 4; i--) {
-            int moveLevel = poke->eligible_moves[i].level;
-            if (moveLevel > 0 && moveLevel <= w.lvl) {
-                w.moves[moveIndex] = poke->eligible_moves[i].move_id;
-                moveIndex++;
+            PokemonState w;
+            w.pokedex_id = roll.poke_id;
+            w.name       = wildPoke->name;
+            w.lvl        = lvl;
+            w.nature     = Nature::Hardy;
+
+            const Poke *poke = Lookup::getPoke(roll.poke_id);
+            int moveIndex = 0;
+            for (int i = poke->eligible_move_count - 1; i >= 0 && moveIndex < 4; i--) {
+                int moveLevel = poke->eligible_moves[i].level;
+                if (moveLevel > 0 && moveLevel <= w.lvl) {
+                    w.moves[moveIndex] = poke->eligible_moves[i].move_id;
+                    moveIndex++;
+                }
             }
+            m_db.setWild(w);
+        } else {
+            qDebug() << "Resuming existing wild:" << QString::fromStdString(m_db.wild().name);
         }
-        m_db.setWild(w);
-    } else {
-        qDebug() << "Resuming existing wild:" << QString::fromStdString(m_db.wild().name);
+        m_wildPokemon = new WildPokemon(m_db.wild().pokedex_id, m_spawnPoint, m_spawnDirection);
+        connect(m_wildPokemon, &WildPokemon::startABattle, this, &Game::handleBattleStart);
+    }else{
+        m_wildPokemon = new WildPokemon(m_db.party()[0].pokedex_id, m_spawnPoint, m_spawnDirection);
     }
 
-    m_wildPokemon = new WildPokemon(m_db.wild().pokedex_id, m_spawnPoint, m_spawnDirection);
-    connect(m_wildPokemon, &WildPokemon::startABattle, this, &Game::handleBattleStart);
     m_wildPokemon->show();
     m_spawnTimer->stop();
 }
