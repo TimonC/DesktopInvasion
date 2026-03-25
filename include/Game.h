@@ -74,7 +74,7 @@ private slots:
     void handleMoveChange(int xplace, int xpos, int moveSlot, int moveId);
     void handleBattleStart();
     void handleBattleEnd(const char* endState, bool removeWild);
-    void handleEvolveRequest(int boxIndex, QVariantMap pokeData);
+    void handleEvolveRequest(int boxIndex, int slot, QVariantMap pokeData);
     void setGameActive(bool active = true);
     void setPetMode(bool active = true);
     void deleteCurrentSave();

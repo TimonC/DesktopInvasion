@@ -466,9 +466,7 @@ QVariantMap Game::pokemonToMenuState(int slot, const PokemonState& p) {
 
     return entry;
 }
-void Game::handleEvolveRequest(int boxIndex, QVariantMap pokeData) {
-    int slot    = pokeData["slot"].toInt();
-
+void Game::handleEvolveRequest(int boxIndex, int slot, QVariantMap pokeData) {
     PokemonState originalState;
     if (boxIndex == -1) {
         originalState = m_db.party()[slot];

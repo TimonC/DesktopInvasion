@@ -101,9 +101,6 @@ void GameMenu::showBox(int boxIndex) {
     emit showBoxRequested(boxIndex);
 }
 
-void GameMenu::_evolvesRequested(int boxIndex, QVariantMap pokeData){
-    emit evolvesRequested(boxIndex, pokeData);
-};
 
 void GameMenu::evolvePokemon(int boxIndex, int slot, int targetPokedexId, QString nickName) {
     emit evolvePokemonRequested(boxIndex, slot, targetPokedexId, nickName.toStdString());

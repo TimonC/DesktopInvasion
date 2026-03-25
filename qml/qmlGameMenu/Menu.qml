@@ -50,6 +50,8 @@ Item {
     property int    _pendingFrameWidth:  32
     property int    _pendingFrameHeight: 32
     property real   _pendingScaleFactor: 8
+    property int    _pendingEvolveSourceBox: -1
+    property int    _pendingEvolveSourceSlot: -1
 
     property alias spriteSize:         trainer.spriteSize
     property alias battleSpeed:        trainer.battleSpeed
@@ -160,7 +162,6 @@ Item {
                     }
                 }
             }
-
 
             Item {
                 anchors.fill: parent
@@ -334,7 +335,7 @@ Item {
     }
 
     function handleEvolutionSelected(box, slot, modelData, nickName) {
-        menuBridge.evolvePokemon(box, slot, modelData.pokedex_id, nickName)
+        menuBridge.evolvePokemon(_pendingEvolveSourceBox, _pendingEvolveSourceSlot, modelData.pokedex_id, nickName)
         goToDefaultMenu()
     }
 
@@ -359,12 +360,28 @@ Item {
     }
 
     function evolveButtonClicked(pokeData) {
-        menuBridge.evolvesRequested(pc.displayedPokemonBox, pokeData)
-    }
-    function receivedEvolutions(evolveData){
         if (!pokeData) return
         if (pc.inSwapMode) pc.toggleSwapMode()
-        _pendingPokeData=evolveData
+
+        _pendingPokeData = pokeData
+        _pendingRowId = pokeData.rowId
+        _pendingSheet = pokeData.isBig ? "qrc:/assets/HGSS/reordered_sprites_big.png"
+                                       : "qrc:/assets/HGSS/reordered_sprites.png"
+        _pendingFrameWidth = pokeData.isBig ? 64 : 32
+        _pendingFrameHeight = pokeData.isBig ? 64 : 32
+        _pendingScaleFactor = pokeData.isBig ? root.iconScaleForBig : root.iconScale
+        _pendingEvolveSourceBox = pc.displayedPokemonBox
+        _pendingEvolveSourceSlot = pc.displayedPokemonIndex
+
+        menuBridge.evolvesRequested(pc.displayedPokemonBox, pc.displayedPokemonIndex, pokeData)
+    }
+
+    function receivedEvolutions(evolveData){
+        if (!evolveData) return
+        if (pc.inSwapMode) pc.toggleSwapMode()
+        _pendingPokeData = evolveData
+        _pendingEvolveSourceBox = pc.displayedPokemonBox
+        _pendingEvolveSourceSlot = pc.displayedPokemonIndex
         root.menuState = "evolveMenu"
     }
 }
