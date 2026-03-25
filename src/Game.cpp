@@ -281,6 +281,10 @@ void Game::openStarterMenu(){
     m_starterMenu->setTitle("DesktopInvasion");
     m_starterMenu->setResizeMode(QQuickView::SizeRootObjectToView);
     m_starterMenu->resize(1100, 720);
+
+    int x = (Globals::screenGeometry().width() - m_starterMenu->width()) / 2;
+    int y = (Globals::screenGeometry().height() - m_starterMenu->height()) / 2;
+    m_starterMenu->setPosition(x, y);
     m_starterMenu->show();
 
     QObject* root = m_starterMenu->rootObject();
