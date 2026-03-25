@@ -114,7 +114,7 @@ void WildPokemon::windowJump(){
     m_decisionTimer->stop();
 
     int startY = y();
-    int upTargetY = startY - m_jumpHeight;
+    int upTargetY = startY - m_jumpHeight*Globals::scale();
     const QRect& screen = Globals::screenGeometry();
     if (upTargetY < screen.top()) upTargetY = screen.top();
 

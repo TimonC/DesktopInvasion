@@ -47,7 +47,7 @@ private:
     QList<int> m_jumpPositions;
     int m_jumpStep = 0;
 
-    int m_jumpHeight = 16;
+    int m_jumpHeight = 8;
     int m_jumpUpDuration = 200;
     int m_jumpDownDuration = 200;
     int m_jumpInterval = 20;
