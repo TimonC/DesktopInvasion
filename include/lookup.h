@@ -134,9 +134,9 @@ namespace Lookup {
         int threshold = static_cast<int>(255.0 * std::exp(-0.11 * pokemonLvl));
         threshold = std::clamp(threshold, 3, 255);
 
-        int excess = poke->catch_rate - threshold;
-        int range = 255 - threshold;
-        int qualityPercent = (range > 0) ? (excess * 100 / range) : 100;
+        int deficit = threshold - poke->catch_rate;
+        int range = threshold - 1;
+        int qualityPercent = (range > 0) ? (deficit * 100 / range) : 0;
         qualityPercent = std::clamp(qualityPercent, 0, 100);
 
         static std::uniform_int_distribution<int> rewardTypeDist(1, 100);
@@ -160,7 +160,7 @@ namespace Lookup {
             }
         }
         else if (rewardType <= 50) {
-            static std::uniform_int_distribution<int> tierDist(1, 100);
+            static std::uniform_int_distribution<int> tierDist(1, 1000);
             int tierRoll = tierDist(rng);
 
             struct Reward {
@@ -171,18 +171,18 @@ namespace Lookup {
             std::vector<Reward> tiers;
 
             if (qualityPercent <= 20) {
-                tiers = {{1, 1}, {1, 2}, {1, 3}};
+                tiers = {{1, 1}, {1, 1}, {1, 1}, {1, 2}, {1, 2}, {1, 3}};
             } else if (qualityPercent <= 40) {
-                tiers = {{1, 1}, {1, 2}, {1, 3}, {2, 1}};
+                tiers = {{1, 1}, {1, 1}, {1, 1}, {1, 2}, {1, 2}, {1, 3}, {2, 1}};
             } else if (qualityPercent <= 60) {
-                tiers = {{1, 1}, {1, 2}, {1, 3}, {2, 1}, {2, 2}};
+                tiers = {{1, 1}, {1, 1}, {1, 1}, {1, 2}, {1, 2}, {1, 3}, {2, 1}, {2, 1}};
             } else if (qualityPercent <= 80) {
-                tiers = {{1, 1}, {1, 2}, {1, 3}, {2, 1}, {2, 2}, {2, 3}};
+                tiers = {{1, 1}, {1, 1}, {1, 1}, {1, 2}, {1, 2}, {1, 3}, {2, 1}, {2, 1}, {2, 2}};
             } else {
-                tiers = {{1, 1}, {1, 2}, {1, 3}, {2, 1}, {2, 2}, {2, 3}, {3, 1}};
+                tiers = {{1, 1}, {1, 1}, {1, 1}, {1, 2}, {1, 2}, {1, 3}, {2, 1}, {2, 1}, {2, 2}, {2, 3}, {3, 1}};
             }
 
-            int tierIndex = tierRoll * tiers.size() / 100;
+            int tierIndex = (tierRoll * tiers.size() - 1) / 1000;
             tierIndex = std::clamp(tierIndex, 0, (int)tiers.size() - 1);
 
             ballType = tiers[tierIndex].ballType;
@@ -191,5 +191,6 @@ namespace Lookup {
 
         return PokeRoll{ selectedId, tmId, ballCount, ballType };
     }
+
 }
 #endif
