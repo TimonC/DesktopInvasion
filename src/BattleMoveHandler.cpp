@@ -27,7 +27,7 @@ BattleMoveHandler::BattleMoveHandler(const PokemonState& wildState, const std::a
             m_nrInParty+=1;
         }
     }
-    if(m_expShare) m_includedPartyIndices.insert(m_chosenIndex);
+    m_includedPartyIndices.insert(m_chosenIndex);
 }
 
 BattleMoveHandler::~BattleMoveHandler() {

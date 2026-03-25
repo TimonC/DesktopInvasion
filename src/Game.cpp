@@ -315,7 +315,7 @@ void Game::onStarterMenuFinished(QString playerName, int trainerId, int starterP
     p.name        = poke->name;
     p.pokeball_id = 0;
     p.nature      = Nature::Hardy;
-    p.lvl         = 50;
+    p.lvl         = 10;
 
     int moveIndex = 0;
     for (int i = poke->eligible_move_count - 1; i >= 0 && moveIndex < 4; i--) {
