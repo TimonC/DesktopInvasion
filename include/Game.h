@@ -25,6 +25,8 @@ public slots:
 
 
 private:
+    std::mt19937 initializeRNG();
+
     bool m_petMode = false;
     void resetGame();
     void openStarterMenu();

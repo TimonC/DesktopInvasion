@@ -25,14 +25,17 @@ signals:
     void saveSelected(int saveId);
     void deleteSaveRequested();
     void newGameRequested();
+    void autoStartToggled(bool enabled);
 
 public slots:
     void toggleGameActive();
     void togglePetMode();
+    void toggleAutoStart();
 
 private:
     bool   m_clickEnabled;
     int    m_activeSaveId = -1;
+    bool   m_autoStartEnabled;
     QIcon  m_activeIcon;
     QIcon  m_inactiveIcon;
     QMenu*   m_menu;
@@ -42,5 +45,6 @@ private:
     QAction* m_menuAction;
     QAction* m_newGameAction;
     QAction* m_deleteAction;
+    QAction* m_autoStartAction;
 };
 #endif

@@ -12,6 +12,7 @@
 #include <QFontDatabase>
 #include <QQmlContext>
 #include <QTimer>
+#include <StartupManager.h>
 
 int main(int argc, char *argv[]) {
     SingleInstanceApplication app(argc, argv, "DesktopInvasion");
@@ -63,6 +64,9 @@ int main(int argc, char *argv[]) {
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("pixelFontFamily", pixelFontFamily);
     engine.rootContext()->setContextProperty("dotGothicFontFamily", dotGothicFamily);
+    StartupManager startupManager;
+    engine.rootContext()->setContextProperty("startupManager", &startupManager);
+
 
     int initResult = PokemonDatabase::instance().initialize();
     if (initResult == -1) {

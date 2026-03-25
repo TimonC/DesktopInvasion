@@ -1,4 +1,5 @@
 #include "SystemTrayIcon.h"
+#include "StartupManager.h"
 
 #include <QApplication>
 #include <QMenu>
@@ -9,6 +10,7 @@ SystemTrayIcon::SystemTrayIcon(QObject *parent)
     : QSystemTrayIcon(parent)
     , m_gameActive(true)
     , m_clickEnabled(true)
+    , m_autoStartEnabled(false)
     , m_activeIcon(":/assets/icon/icon.png")
     , m_inactiveIcon(":/assets/icon/icon_transparent.png")
     , m_menu(nullptr)
@@ -16,6 +18,7 @@ SystemTrayIcon::SystemTrayIcon(QObject *parent)
     , m_menuAction(nullptr) {
     setIcon(m_activeIcon);
     setVisible(true);
+    m_autoStartEnabled = StartupManager::instance()->isAutoStartEnabled();
 }
 
 SystemTrayIcon::~SystemTrayIcon() {
@@ -36,6 +39,7 @@ void SystemTrayIcon::toggleGameActive() {
     setIconActivityColor(m_gameActive);
     emit gameActive(m_gameActive);
 }
+
 void SystemTrayIcon::togglePetMode() {
     m_petActive = !m_petActive;
     m_petAction->blockSignals(true);
@@ -44,8 +48,27 @@ void SystemTrayIcon::togglePetMode() {
     emit petActive(m_petActive);
 }
 
+void SystemTrayIcon::toggleAutoStart() {
+    m_autoStartEnabled = !m_autoStartEnabled;
+    m_autoStartAction->blockSignals(true);
+    m_autoStartAction->setChecked(m_autoStartEnabled);
+    m_autoStartAction->blockSignals(false);
+    StartupManager::instance()->setAutoStartEnabled(m_autoStartEnabled);
+    emit autoStartToggled(m_autoStartEnabled);
+}
+
 void SystemTrayIcon::createContextMenu(std::vector<std::pair<int, std::string>> trainers, int activeSaveId) {
     m_menu = new QMenu();
+
+    m_autoStartAction = new QAction(tr("Start on system boot"), m_menu);
+    m_autoStartAction->setCheckable(true);
+    m_autoStartAction->setChecked(m_autoStartEnabled);
+    m_autoStartAction->setToolTip(tr("Launch Desktop Invasion when your computer starts"));
+    connect(m_autoStartAction, &QAction::toggled, this, [this]() {
+        toggleAutoStart();
+    });
+    m_menu->addAction(m_autoStartAction);
+
 
     QMenu* gameMenu = new QMenu(tr("Saves"), m_menu);
 
@@ -66,7 +89,6 @@ void SystemTrayIcon::createContextMenu(std::vector<std::pair<int, std::string>> 
         gameMenu->addSeparator();
     }
 
-    // New Game action
     m_newGameAction = new QAction(tr("New Save"), gameMenu);
     m_newGameAction->setToolTip(tr("Start a new game"));
     connect(m_newGameAction, &QAction::triggered, this, [this]() {
@@ -74,7 +96,6 @@ void SystemTrayIcon::createContextMenu(std::vector<std::pair<int, std::string>> 
     });
     gameMenu->addAction(m_newGameAction);
 
-    // Delete Current Game action
     m_deleteAction = new QAction(tr("Delete currently active save"), gameMenu);
     m_deleteAction->setToolTip(tr("Delete the currently active game"));
     connect(m_deleteAction, &QAction::triggered, this, [this]() {
@@ -85,18 +106,15 @@ void SystemTrayIcon::createContextMenu(std::vector<std::pair<int, std::string>> 
     m_menu->addMenu(gameMenu);
     m_menu->addSeparator();
 
-    // Petmode toggle
     m_petAction = new QAction(tr("Pet mode"), m_menu);
     m_petAction->setCheckable(true);
     m_petAction->setChecked(m_petActive);
     m_petAction->setToolTip(tr("Toggle between viewing caucht pokemon or encountering new ones."));
     connect(m_petAction, &QAction::toggled, this, [this]() {
-        /* toggleGameActive(); */
         togglePetMode();
     });
     m_menu->addAction(m_petAction);
 
-    // Active toggle
     m_activeAction = new QAction(tr("Active"), m_menu);
     m_activeAction->setCheckable(true);
     m_activeAction->setChecked(m_gameActive);
@@ -106,7 +124,6 @@ void SystemTrayIcon::createContextMenu(std::vector<std::pair<int, std::string>> 
     });
     m_menu->addAction(m_activeAction);
 
-    // Menu action
     m_menuAction = new QAction(tr("Menu"), m_menu);
     m_menuAction->setToolTip(tr("Open the game menu"));
     connect(m_menuAction, &QAction::triggered, this, [this]() {
@@ -114,10 +131,8 @@ void SystemTrayIcon::createContextMenu(std::vector<std::pair<int, std::string>> 
     });
     m_menu->addAction(m_menuAction);
 
-
     m_menu->addSeparator();
 
-    // Quit action
     m_quitAction = new QAction(tr("Quit"), m_menu);
     m_quitAction->setToolTip(tr("Exit the application"));
     connect(m_quitAction, &QAction::triggered, qApp, [this](){
