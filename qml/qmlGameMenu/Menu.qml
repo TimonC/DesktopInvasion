@@ -251,7 +251,7 @@ Item {
                                 }
                                 PcButton {
                                     id:    pokeEditButton
-                                    label: "VIEW →"
+                                    label: "EDIT →"
                                     width: pc.buttonWidth * 4
                                     onClicked: editButtonClicked(pokeViewLoader.item ? pokeViewLoader.item.pokeData : null)
                                 }

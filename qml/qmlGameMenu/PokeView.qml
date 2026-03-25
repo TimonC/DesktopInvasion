@@ -125,7 +125,7 @@ Item {
 
                 Column {
                     anchors.centerIn: parent
-                    width:   parent.width * 0.9
+                    width:   parent.width
                     spacing: pokeView.sectionGap/2
 
 
@@ -146,12 +146,12 @@ Item {
                             font.family: bodyFont
                             font.pixelSize: fontSizeMd
                             color: colorSubtext
-                            width: parent.width*1/3
+                            width: parent.width*0.4
                             elide: Text.ElideRight
                         }
                         PcButton {
-                            width: parent.width*2/3
-                            height: fontSizeMd + 8
+                            width: parent.width*0.6
+                            height: fontSizeLg*1.2
                             visible: pokeData && pokeData.evolves && pokeData.evolves.length > 0
                             enabled: pokeData && pokeData.evolves && pokeData.evolves.length > 0
                             label: "++EVOLVE++"
