@@ -61,18 +61,75 @@ namespace Lookup {
     }
 
     inline const PokeRoll getRandomPokemonByCatchRate(int pokemonLvl, const std::vector<int>& unavailableTmIds, std::mt19937& rng) {
-        static std::uniform_int_distribution<int> pokemonDist(1, kTotalCatchRateWeight);
+        static std::vector<std::vector<int>> cachedValidPokemon;
+        static std::vector<std::vector<int>> cachedCumulativeWeights;
+        static std::vector<int> cachedTotalWeights;
+        static bool initialized = false;
 
-        int roll = pokemonDist(rng);
-        int low = 1, high = 493;
-        while (low < high) {
-            int mid = (low + high) / 2;
-            if (kCatchRateCumulativeWeights[mid] >= roll)
-                high = mid;
-            else
-                low = mid + 1;
+        if (!initialized) {
+            cachedValidPokemon.resize(101);
+            cachedCumulativeWeights.resize(101);
+            cachedTotalWeights.resize(101);
+
+            for (int level = 1; level <= 100; level++) {
+                std::vector<int> validPokemon;
+                std::vector<int> cumulativeWeights;
+                int totalWeight = 0;
+
+                for (int pokeId = 1; pokeId <= 493; pokeId++) {
+                    const Poke* poke = getPoke(pokeId);
+
+                    bool isEligible = false;
+                    int parentLevel = kEvolutionParentLevel[pokeId];
+
+                    if (parentLevel == -1) {
+                        isEligible = true;
+                    } else if (parentLevel <= level) {
+                        isEligible = true;
+                    }
+
+                    if (isEligible) {
+                        validPokemon.push_back(pokeId);
+                        totalWeight += poke->catch_rate;
+                        cumulativeWeights.push_back(totalWeight);
+                    }
+                }
+
+                cachedValidPokemon[level] = validPokemon;
+                cachedCumulativeWeights[level] = cumulativeWeights;
+                cachedTotalWeights[level] = totalWeight;
+            }
+            initialized = true;
         }
-        const Poke* poke = getPoke(low);
+
+        int level = pokemonLvl;
+        if (level > 100) level = 100;
+        if (level < 1) level = 1;
+
+        int selectedId = 1;
+
+        if (!cachedValidPokemon[level].empty()) {
+            int totalWeight = cachedTotalWeights[level];
+            std::uniform_int_distribution<int> dist(1, totalWeight);
+            int rollNum = dist(rng);
+
+            const auto& cumulativeWeights = cachedCumulativeWeights[level];
+            int low = 0;
+            int high = cumulativeWeights.size() - 1;
+
+            while (low < high) {
+                int mid = (low + high) / 2;
+                if (cumulativeWeights[mid] >= rollNum) {
+                    high = mid;
+                } else {
+                    low = mid + 1;
+                }
+            }
+
+            selectedId = cachedValidPokemon[level][low];
+        }
+
+        const Poke* poke = getPoke(selectedId);
 
         int threshold = static_cast<int>(255.0 * std::exp(-0.11 * pokemonLvl));
         threshold = std::clamp(threshold, 3, 255);
@@ -132,7 +189,7 @@ namespace Lookup {
             ballCount = tiers[tierIndex].count;
         }
 
-        return PokeRoll{ low, tmId, ballCount, ballType };
+        return PokeRoll{ selectedId, tmId, ballCount, ballType };
     }
 }
 #endif

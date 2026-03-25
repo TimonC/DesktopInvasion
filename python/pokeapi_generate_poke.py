@@ -245,6 +245,17 @@ for pokemon in pokemons:
     if pokemon['id'] in [1, 2, 3, 4, 5, 6, 7, 8, 9, 25, 26, 133, 134, 135, 136, 196, 197, 470, 471]:
         print(f"  {pokemon['id']:03d} - {format_pokemon_name(pokemon['name'])}: {len(pokemon['eligible_moves'])} moves")
 
+print("\nBuilding evolution parent level map...")
+evolution_parent_level = [-1] * (MAX_POKEMON_ID + 1)
+
+for pokemon in pokemons:
+    for evolve in pokemon['eligible_evolves']:
+        child_id = evolve['pokedex_id']
+        if evolution_parent_level[child_id] == -1:
+            evolution_parent_level[child_id] = evolve['level']
+        elif evolve['level'] < evolution_parent_level[child_id]:
+            evolution_parent_level[child_id] = evolve['level']
+
 def generate_pokemon_data_direct():
     source_content = '#include "data_poke.h"\n\n'
 
@@ -306,7 +317,6 @@ def generate_pokemon_data_direct():
         source_content += f"    &poke_{poke_id},\n"
     source_content += "};\n\n"
 
-    # Generate cumulative weights array for inverse catch rate spawning
     source_content += "// Cumulative weights for inverse catch rate spawning\n"
     source_content += "// Weight = 256 - catch_rate (lower catch rate = higher spawn chance)\n"
     source_content += "constexpr int kCatchRateCumulativeWeights[] = {\n"
@@ -320,7 +330,18 @@ def generate_pokemon_data_direct():
         source_content += f"    {cumulative},  // {pokemon['name'].upper()} (catch_rate: {pokemon['catch_rate']}, weight: {weight})\n"
 
     source_content += "};\n\n"
-    source_content += f"const int kTotalCatchRateWeight = {cumulative};\n"
+    source_content += f"const int kTotalCatchRateWeight = {cumulative};\n\n"
+
+    source_content += "// Evolution parent level map\n"
+    source_content += "// For any Pokémon ID, this gives the level at which it evolves from its previous form\n"
+    source_content += "// Returns -1 if the Pokémon has no previous evolution\n"
+    source_content += "constexpr int kEvolutionParentLevel[] = {\n"
+    source_content += "    -1,  // Index 0 unused\n"
+    for poke_id in range(1, MAX_POKEMON_ID + 1):
+        level = evolution_parent_level[poke_id]
+        pokemon = next(p for p in pokemons if p['id'] == poke_id)
+        source_content += f"    {level},  // {pokemon['name'].upper()}\n"
+    source_content += "};\n"
 
     return source_content
 
