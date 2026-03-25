@@ -225,7 +225,7 @@ Rectangle {
 
             Rectangle {
                 anchors.fill: parent
-                radius: height * root.mainButtonRadius
+                radius: Math.max(0, (height * root.mainButtonRadius) - borderWidth)
                 color: gradientButton.enabled ? borderColor : root.disabledBorderColor
                 opacity: gradientButton.enabled ? root.enabledOpacity : root.disabledOpacity
             }
