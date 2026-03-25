@@ -20,6 +20,7 @@ protected:
     int m_width = -1;
     int m_height = -1;
     QPoint m_oldMousePos;
+    bool m_isJumping = false;
 
     virtual void mousePressEvent(QMouseEvent* event) override;
     virtual void mouseReleaseEvent(QMouseEvent* event) override;

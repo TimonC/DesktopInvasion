@@ -332,7 +332,7 @@ void Game::spawnPokemon() {
         m_wildPokemon = new WildPokemon(m_db.wild().pokedex_id, m_spawnPoint, m_spawnDirection);
         connect(m_wildPokemon, &WildPokemon::startABattle, this, &Game::handleBattleStart);
     }else{
-        m_wildPokemon = new WildPokemon(m_db.party()[0].pokedex_id, m_spawnPoint, m_spawnDirection);
+        m_wildPokemon = new WildPokemon(m_db.party()[0].pokedex_id, m_spawnPoint, m_spawnDirection, true);
     }
 
     m_wildPokemon->show();

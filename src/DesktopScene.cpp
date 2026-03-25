@@ -30,6 +30,7 @@ DesktopScene::DesktopScene(QWindow *parent)
 
 
 void DesktopScene::mouseMoveEvent(QMouseEvent* event){
+    if(m_isJumping) return;
     if(!m_isDragged) return;
     setCursor(m_grabCursor);
 

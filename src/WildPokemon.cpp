@@ -7,12 +7,14 @@
 #include <data_poke_asset.h>
 #include <lookup.h>
 
-WildPokemon::WildPokemon(int pokedexId, QPoint spawnPoint, int spawnDirection,  QWindow *parent)
+WildPokemon::WildPokemon(int pokedexId, QPoint spawnPoint, int spawnDirection, bool pet, QWindow *parent)
     : DesktopScene(parent)
     , info(Lookup::getSpriteInfo(pokedexId))
     , m_decisionTimer(new QTimer(this))
     , m_moveTimer(new QTimer(this))
+    , m_jumpTimer(new QTimer(this))
     , m_moveSpeed(1 + std::rand()%2000/1000)
+    , m_pet(pet)
 {
     qDebug() << "WildPokemon constructor called!";
 
@@ -61,18 +63,22 @@ WildPokemon::WildPokemon(int pokedexId, QPoint spawnPoint, int spawnDirection,  
 
     m_decisionTimer->setInterval(2000 + std::rand()%2000);
     m_moveTimer->setInterval(50);
+    m_jumpTimer->setInterval(m_jumpInterval);
 
     roaming(true);
     show();
 
     m_width  = this->width();
     m_height = this->height();
+
+    connect(m_jumpTimer, &QTimer::timeout, this, &WildPokemon::jumpStep);
 }
 
 WildPokemon::~WildPokemon(){
     qDebug() << "WildPokemon destructor called!";
     disconnect(m_decisionTimer, nullptr, this, nullptr);
     disconnect(m_moveTimer, nullptr, this, nullptr);
+    disconnect(m_jumpTimer, nullptr, this, nullptr);
     setSource(QUrl());
     m_sprite = nullptr;
 };
@@ -82,8 +88,8 @@ void WildPokemon::roaming(bool active){
     m_sprite->setProperty("frameRate", 4);
 
     if(active){
-        connect(m_decisionTimer, &QTimer::timeout, this, &WildPokemon::makeRandomDecision);
-        connect(m_moveTimer, &QTimer::timeout, this, &WildPokemon::moveStep);
+        connect(m_decisionTimer, &QTimer::timeout, this, &WildPokemon::makeRandomDecision, Qt::UniqueConnection);
+        connect(m_moveTimer, &QTimer::timeout, this, &WildPokemon::moveStep, Qt::UniqueConnection);
         m_decisionTimer->start();
     }else{
         disconnect(m_decisionTimer, &QTimer::timeout, this, &WildPokemon::makeRandomDecision);
@@ -91,11 +97,68 @@ void WildPokemon::roaming(bool active){
     }
 }
 
-
-
 void WildPokemon::mouseDoubleClickEvent(QMouseEvent* event){
-    startBattle();
+    if(m_pet){
+        if(!m_isJumping) windowJump();
+    }else{
+        startBattle();
+    }
 };
+
+void WildPokemon::windowJump(){
+    if (m_isJumping) return;
+    m_isJumping = true;
+
+    m_moveTimer->stop();
+    m_decisionTimer->stop();
+
+    int startY = y();
+    int upTargetY = startY - m_jumpHeight;
+    const QRect& screen = Globals::screenGeometry();
+    if (upTargetY < screen.top()) upTargetY = screen.top();
+
+    int upSteps = m_jumpUpDuration / m_jumpInterval;
+    int downSteps = m_jumpDownDuration / m_jumpInterval;
+    if (upSteps < 1) upSteps = 1;
+    if (downSteps < 1) downSteps = 1;
+
+    QList<int> yPositions;
+    yPositions.append(startY);
+
+    for (int i = 1; i <= upSteps; ++i) {
+        double t = (double)i / upSteps;
+        double eased = 1 - (1 - t) * (1 - t);
+        int currentY = startY + (upTargetY - startY) * eased;
+        yPositions.append(currentY);
+    }
+
+    for (int i = 1; i <= downSteps; ++i) {
+        double t = (double)i / downSteps;
+        double eased = t * t;
+        int currentY = upTargetY + (startY - upTargetY) * eased;
+        yPositions.append(currentY);
+    }
+
+    yPositions.append(startY);
+
+    m_jumpPositions = yPositions;
+    m_jumpStep = 0;
+    m_jumpTimer->start();
+}
+
+void WildPokemon::jumpStep(){
+    if (m_jumpStep >= m_jumpPositions.size()) {
+        m_jumpTimer->stop();
+        m_isJumping = false;
+        roaming(true);
+        return;
+    }
+
+    int newY = m_jumpPositions[m_jumpStep];
+    setY(newY);
+    m_jumpStep++;
+}
+
 void WildPokemon::handleDrag(bool isDragged){
     m_isDragged = isDragged;
     if(isDragged){
