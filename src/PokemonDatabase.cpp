@@ -185,6 +185,7 @@ bool PokemonDatabase::createTables() {
         lvl_range_up   INTEGER DEFAULT 5,
         lvl_range_down INTEGER DEFAULT 5,
         exp_share_on   INTEGER DEFAULT 0,
+        pet_mode_on    INTEGER DEFAULT 0,
         FOREIGN KEY(save_id) REFERENCES saves(save_id)
     ))");
     run(R"(CREATE TABLE IF NOT EXISTS pokeballs (
@@ -204,6 +205,11 @@ bool PokemonDatabase::createTables() {
 
     run("INSERT OR IGNORE INTO save_id_counter(id, counter) VALUES(1, 0)");
     run("INSERT OR IGNORE INTO current_save(id, current_save_id) VALUES(1, 0)");
+
+    {
+        QSqlQuery alter;
+        alter.exec("ALTER TABLE defaults ADD COLUMN pet_mode_on INTEGER DEFAULT 0");
+    }
 
     if (ok) DB_LOG("Tables ready");
     else    DB_ERR("One or more tables failed to create");
@@ -795,7 +801,7 @@ bool PokemonDatabase::setPokemonMove(int box, int slot, int moveIndex, int moveI
 Defaults PokemonDatabase::loadDefaults() {
     Defaults d;
     QSqlQuery q;
-    q.prepare("SELECT scale, speed, lvl_range_up, lvl_range_down, exp_share_on FROM defaults WHERE save_id=?");
+    q.prepare("SELECT scale, speed, lvl_range_up, lvl_range_down, exp_share_on, pet_mode_on FROM defaults WHERE save_id=?");
     q.addBindValue(m_saveId);
     if (q.exec() && q.next()) {
         d.scale        = q.value("scale").toInt();
@@ -803,9 +809,10 @@ Defaults PokemonDatabase::loadDefaults() {
         d.lvlRangeUp   = q.value("lvl_range_up").toInt();
         d.lvlRangeDown = q.value("lvl_range_down").toInt();
         d.expShareOn   = q.value("exp_share_on").toBool();
+        d.petModeOn    = q.value("pet_mode_on").toBool();
         DB_LOG("loadDefaults: scale=" << d.scale << " speed=" << d.speed
                << " lvlUp=" << d.lvlRangeUp << " lvlDown=" << d.lvlRangeDown
-               << " expShare=" << d.expShareOn);
+               << " expShare=" << d.expShareOn << " petMode=" << d.petModeOn);
     } else {
         DB_WARN("loadDefaults: no row for save_id=" << m_saveId << " — returning defaults");
         logQuery(q);
@@ -816,16 +823,17 @@ Defaults PokemonDatabase::loadDefaults() {
 bool PokemonDatabase::writeDefaults(const Defaults& d) {
     DB_LOG("writeDefaults: scale=" << d.scale << " speed=" << d.speed
            << " lvlUp=" << d.lvlRangeUp << " lvlDown=" << d.lvlRangeDown
-           << " expShare=" << d.expShareOn);
+           << " expShare=" << d.expShareOn << " petMode=" << d.petModeOn);
     QSqlQuery q;
     q.prepare(R"(UPDATE defaults SET
-        scale=?, speed=?, lvl_range_up=?, lvl_range_down=?, exp_share_on=?
+        scale=?, speed=?, lvl_range_up=?, lvl_range_down=?, exp_share_on=?, pet_mode_on=?
         WHERE save_id=?)");
     q.addBindValue(d.scale);
     q.addBindValue(d.speed);
     q.addBindValue(d.lvlRangeUp);
     q.addBindValue(d.lvlRangeDown);
     q.addBindValue(d.expShareOn ? 1 : 0);
+    q.addBindValue(d.petModeOn  ? 1 : 0);
     q.addBindValue(m_saveId);
     bool ok = q.exec();
     if (!ok) logQuery(q);

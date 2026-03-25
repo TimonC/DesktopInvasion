@@ -95,6 +95,10 @@ void Game::setPetMode(bool active){
     if (active == m_petMode) return;
     m_petMode = active;
 
+    Defaults d = m_db.loadDefaults();
+    d.petModeOn = active;
+    m_db.writeDefaults(d);
+
     setRandomSpawnPoint();
     if(m_wildPokemon){
         safelyRemoveWildPokemon();
@@ -227,12 +231,17 @@ void Game::initializeGame(bool openStarter) {
     Globals::expShare(d.expShareOn);
     m_menu->setDefaults(d);
 
+    m_petMode = d.petModeOn;
+    m_trayIcon->m_petActive = !d.petModeOn;
+    m_trayIcon->togglePetMode();
+
     if(m_gameUsedToBeActive) m_spawnTimer->start();
 }
 
 void Game::handleSaveSelected(int saveId){
     if(m_db.currentSaveId()==saveId) return;
     m_db.setCurrentSaveId(saveId);
+    setRandomSpawnPoint();
     resetGame();
     initializeGame();
 }
@@ -593,6 +602,7 @@ void Game::writeDefaults() {
     d.lvlRangeUp   = Globals::encounterLvlHigh();
     d.lvlRangeDown = Globals::encounterLvlLow();
     d.expShareOn   = Globals::expShare();
+    d.petModeOn    = m_petMode;
     m_db.writeDefaults(d);
 }
 

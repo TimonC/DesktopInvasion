@@ -37,6 +37,7 @@ struct Defaults {
     int  lvlRangeUp   = 5;
     int  lvlRangeDown = 5;
     bool expShareOn   = false;
+    bool petModeOn    = false;
 };
 
 struct EligibleEntry { int level; int move_id; };
