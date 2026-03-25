@@ -1,4 +1,3 @@
-// Game.cpp (add connection and slot implementation)
 #include <Game.h>
 #include <PokeTypes.h>
 #include <SystemTrayIcon.h>
@@ -14,6 +13,7 @@
 #include <lookup.h>
 #include <cassert>
 #include <algorithm>
+#include <QMessageBox>
 
 Game::Game(QWindow* parent)
     : QObject(parent)
@@ -155,17 +155,28 @@ void Game::handleSaveSelected(int saveId){
     initializeGame();
 }
 
-void Game::deleteCurrentSave(){
+void Game::deleteCurrentSave() {
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("DesktopInvasion - Confirm Delete");
+    msgBox.setText("Are you sure you want to discard this save? This cannot be undone.");
+    msgBox.setStandardButtons(QMessageBox::Discard | QMessageBox::Cancel);
+    msgBox.setDefaultButton(QMessageBox::Cancel);
+    msgBox.setIcon(QMessageBox::Warning);
+
+    if (msgBox.exec() != QMessageBox::Discard) {
+        return;
+    }
+
     m_db.deleteSave(m_db.currentSaveId());
     auto v = m_db.listSaveIds();
-    if(v.empty()){
+    if (v.empty()) {
         m_db.setCurrentSaveId(0);
         resetGame();
         openStarterMenu();
-    }else{
+    } else {
         m_db.setCurrentSaveId(v.back());
 
-        m_trayIcon->m_gameActive=false;
+        m_trayIcon->m_gameActive = false;
         m_trayIcon->toggleGameActive();
         m_trayIcon->show();
         m_gameUsedToBeActive = true;

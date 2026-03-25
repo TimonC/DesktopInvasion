@@ -43,7 +43,7 @@ void SystemTrayIcon::toggleGameActive(){
 void SystemTrayIcon::createContextMenu(std::vector<std::pair<int, std::string>> trainers, int activeSaveId) {
     m_menu = new QMenu();
 
-    m_quitAction = new QAction(tr("Quit"), m_menu);
+    m_quitAction = new QAction(tr("Quit DesktopInvasion"), m_menu);
     m_quitAction->setToolTip(tr("Exit the application"));
     connect(m_quitAction, &QAction::triggered, qApp, &QApplication::quit);
 
