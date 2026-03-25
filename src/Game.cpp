@@ -179,7 +179,10 @@ void Game::handleSaveSelected(int saveId){
 void Game::deleteCurrentSave() {
     QMessageBox msgBox;
     msgBox.setWindowTitle("DesktopInvasion - Confirm Delete");
-    msgBox.setText("Are you sure that you want to discard this save? This cannot be undone.");
+    const QString text = QString("Are you sure that you want to discard '") +
+                     QString::fromStdString(m_db.loadGameState().name) +
+                     QString("'? This cannot be undone.");
+    msgBox.setText(text);
     msgBox.setStandardButtons(QMessageBox::Discard | QMessageBox::Cancel);
     msgBox.setDefaultButton(QMessageBox::Cancel);
     msgBox.setIcon(QMessageBox::Warning);
