@@ -13,6 +13,7 @@ Rectangle {
     readonly property color dividerColor: "#3d3d3d"
 
     property bool   inNameEditMode:  false
+    property bool   inNickNameEditMode: false
 
     property color  subheaderColor: "#aaaaaa"
     property color  colorVeryFaint: "#999999"
@@ -31,25 +32,26 @@ Rectangle {
     property string dotGothicFont:  "DotGothic16"
 
     property string playerName:      ""
+    property string nickName:      ""
     property int  trainerId: -1
     property int  pokeId: -1
 
-    signal startGame(string playerName, int trainerId, int pokeId)
+    signal startGame(string playerName, string nickName, int trainerId, int pokeId)
 
     property int  slide:         0
 
     property var starterList: [
         { id: 1,  name: "BULBASAUR", type: "Grass" },
-        { id: 4,  name: "CHARMANDER", type: "Fire" },
-        { id: 7,  name: "SQUIRTLE", type: "Water" },
         { id: 152, name: "CHIKORITA", type: "Grass" },
-        { id: 155, name: "CYNDAQUIL", type: "Fire" },
-        { id: 158, name: "TOTODILE", type: "Water" },
         { id: 252, name: "TREECKO", type: "Grass" },
-        { id: 255, name: "TORCHIC", type: "Fire" },
-        { id: 258, name: "MUDKIP", type: "Water" },
         { id: 387, name: "TURTWIG", type: "Grass" },
+        { id: 4,  name: "CHARMANDER", type: "Fire" },
+        { id: 155, name: "CYNDAQUIL", type: "Fire" },
+        { id: 255, name: "TORCHIC", type: "Fire" },
         { id: 390, name: "CHIMCHAR", type: "Fire" },
+        { id: 7,  name: "SQUIRTLE", type: "Water" },
+        { id: 158, name: "TOTODILE", type: "Water" },
+        { id: 258, name: "MUDKIP", type: "Water" },
         { id: 393, name: "PIPLUP", type: "Water" }
     ]
 
@@ -78,6 +80,23 @@ Rectangle {
     function cancelNameEditing() {
         nameField.text = playerName
         inNameEditMode = false
+    }
+
+    function toggleNickNameEditMode() {
+        if (inNickNameEditMode) {
+            finishNickNameEditing()
+        } else {
+            inNickNameEditMode = true
+            nickNameField.forceActiveFocus()
+        }
+    }
+    function finishNickNameEditing() {
+        nickName = nickNameField.text
+        inNickNameEditMode = false
+    }
+    function cancelNickNameEditing() {
+        nickNameField.text = nickName
+        inNickNameEditMode = false
     }
 
     component SpriteTile: Rectangle {
@@ -311,6 +330,7 @@ Rectangle {
             Item { width: parent.width; height: root.pad/1.5 }
 
             Grid {
+                id: trainerGrid
                 width: 64 * 16
                 height: 64 * 5
                 rows: 5
@@ -381,12 +401,13 @@ Rectangle {
 
             Row {
                 width: parent.width
+                height: trainerGrid.height
                 spacing: root.pad
 
                 Grid {
                     id: starterGrid
-                    columns: 3
-                    rows: 4
+                    columns: 4
+                    rows: 3
                     spacing: 16
                     width: parent.width * 0.6
 
@@ -404,7 +425,10 @@ Rectangle {
                             iconScale: 3
                             horizontalOffset: 1
                             verticalOffset: -10
-                            onClicked: { root.pokeId = modelData.id; }
+                            onClicked: {
+                                root.pokeId = modelData.id;
+                                root.nickName = modelData.name
+                            }
                         }
                     }
                 }
@@ -416,7 +440,7 @@ Rectangle {
 
                     Column {
                         anchors.centerIn: parent
-                        spacing: root.pad
+                        spacing: root.pad/2
                         width: parent.width
 
                         Text {
@@ -486,14 +510,91 @@ Rectangle {
             Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
             Item { width: parent.width; height: root.pad }
 
+            Item {
+                width: parent.width
+                height: 44
+
+                Rectangle {
+                    anchors.fill: parent
+                    radius: 4
+                    color: root.inNickNameEditMode ? root.colorNameEdit
+                           : (nickNameMouseArea.containsMouse ? root.colorNameHov : root.colorNameBg)
+                    border.color: root.innickNameEditMode ? root.colorNameEditBdr
+                                  : (nickNameMouseArea.containsMouse ? root.colorAccent : root.colorNameBdr)
+                    border.width: root.inNickNameEditMode ? 2 : 1
+                }
+
+                Text {
+                    anchors { right: parent.right; verticalCenter: parent.verticalCenter; rightMargin: 11 }
+                    text: "✎"
+                    font.pixelSize: root.fontSizeLg
+                    color: root.colorSubtext
+                    opacity: nickNameMouseArea.containsMouse ? 0.9 : 0.4
+                    visible: !root.inNickNameEditMode
+                    transform: Scale { xScale: -1 }
+                }
+
+                TextInput {
+                    id: nickNameField
+                    anchors {
+                        left: parent.left
+                        right: parent.right
+                        leftMargin: 10
+                        rightMargin: root.inNickNameEditMode ? 10 : 36
+                        verticalCenter: parent.verticalCenter
+                    }
+                    text: root.nickName
+                    font.family: root.p2pFont
+                    font.pixelSize: root.fontSizeMd
+                    font.bold: true
+                    color: "#ffffff"
+                    maximumLength: 24
+                    clip: true
+                    enabled: root.inNickNameEditMode
+                    readOnly: !root.inNickNameEditMode
+                    cursorVisible: root.inNickNameEditMode
+                    selectByMouse: root.inNickNameEditMode
+                    Keys.onReturnPressed: root.finishNickNameEditing()
+                    Keys.onEscapePressed: root.cancelNickNameEditing()
+                    onFocusChanged: {
+                        if (!activeFocus && root.inNickNameEditMode)
+                            root.cancelNickNameEditing()
+                    }
+                }
+
+                Text {
+                    anchors { left: parent.left; verticalCenter: parent.verticalCenter; leftMargin: 10 }
+                    text: "Enter a starter nickname..."
+                    font.family: root.dotGothicFont
+                    font.pixelSize: root.fontSizeSm
+                    color: root.colorVeryFaint
+                    visible: !root.inNickNameEditMode && nickNameField.text.length === 0
+                }
+
+                MouseArea {
+                    id: nickNameMouseArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: undefined
+                    onClicked: {
+                        if (!root.inNickNameEditMode)
+                            root.toggleNickNameEditMode()
+                    }
+                }
+            }
+
+            Item { width: parent.width; height: root.pad }
+            Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
+            Item { width: parent.width; height: root.pad }
+
             Row {
                 width: parent.width
                 layoutDirection: Qt.RightToLeft
                 PcButton {
                     width: 2 * 4 * 48
                     label: "START NEW GAME"
-                    selectable: root.pokeId !== -1
-                    onClicked: root.startGame(root.playerName, root.trainerId, root.pokeId)
+                    selectable: (root.pokeId !== -1) && (root.nickName != "")
+                    onClicked: root.startGame(root.playerName, root.nickName, root.trainerId, root.pokeId)
                     btnColor: "#e67a00"
                 }
             }

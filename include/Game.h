@@ -64,7 +64,7 @@ private:
 
 private slots:
     void handleSaveSelected(int saveId);
-    void onStarterMenuFinished(QString playerName, int trainerId, int starterPokedexId);
+    void onStarterMenuFinished(QString playerName, QString nickName, int trainerId, int starterPokedexId);
     void updatePartyXP(std::array<int,6> spread);
     void handleMenuOpen();
     void handleMenuClosed();

@@ -309,7 +309,7 @@ void Game::openStarterMenu(){
 
     QObject* root = m_starterMenu->rootObject();
     if (root)
-        connect(root, SIGNAL(startGame(QString, int, int)), this, SLOT(onStarterMenuFinished(QString, int, int)));
+        connect(root, SIGNAL(startGame(QString, QString, int, int)), this, SLOT(onStarterMenuFinished(QString, QString, int, int)));
 
     connect(m_starterMenu, &QQuickView::closing, this, [this](QQuickCloseEvent*){
         auto saves = m_db.listSaveIds();
@@ -330,13 +330,13 @@ void Game::openStarterMenu(){
     });
 }
 
-void Game::onStarterMenuFinished(QString playerName, int trainerId, int starterPokedexId){
+void Game::onStarterMenuFinished(QString playerName, QString nickName, int trainerId, int starterPokedexId){
     qDebug() << playerName << trainerId << starterPokedexId;
 
     PokemonState p;
     const Poke* poke = Lookup::getPoke(starterPokedexId);
     p.pokedex_id  = starterPokedexId;
-    p.name        = poke->name;
+    p.name        = nickName.toStdString();
     p.pokeball_id = 0;
     p.nature      = Lookup::getRandomNature(m_rng);
     p.lvl         = 20;
