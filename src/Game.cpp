@@ -335,7 +335,7 @@ void Game::onStarterMenuFinished(QString playerName, int trainerId, int starterP
     p.name        = poke->name;
     p.pokeball_id = 0;
     p.nature      = Lookup::getRandomNature(m_rng);
-    p.lvl         = 15;
+    p.lvl         = 20;
 
     int moveIndex = 0;
     for (int i = poke->eligible_move_count - 1; i >= 0 && moveIndex < 4; i--) {

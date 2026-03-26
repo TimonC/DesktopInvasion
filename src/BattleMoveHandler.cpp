@@ -290,11 +290,18 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
             turnResult.effects.reserve(turnResult.effects.size() + playerResult.effects.size());
             turnResult.effects.insert(turnResult.effects.end(), playerResult.effects.begin(), playerResult.effects.end());
 
-            if(m_battleOpponent->battleState.currentHealth > 0 && !m_battleOpponent->delta.flinched) {
-                BattleActionResult opponentResult = applyMove(opponentMove, m_battleOpponent, player, true);
-                applyBattleResult(opponentResult);
-                turnResult.effects.reserve(turnResult.effects.size() + opponentResult.effects.size());
-                turnResult.effects.insert(turnResult.effects.end(), opponentResult.effects.begin(), opponentResult.effects.end());
+            if(m_battleOpponent->battleState.currentHealth > 0) {
+                if (!m_battleOpponent->delta.flinched) {
+                    BattleActionResult opponentResult = applyMove(opponentMove, m_battleOpponent, player, true);
+                    applyBattleResult(opponentResult);
+                    turnResult.effects.reserve(turnResult.effects.size() + opponentResult.effects.size());
+                    turnResult.effects.insert(turnResult.effects.end(), opponentResult.effects.begin(), opponentResult.effects.end());
+                } else {
+                    BattleActionResult flinchResult;
+                    flinchResult.addEffect(BattleActionResult::FLINCH, m_battleOpponent, nullptr);
+                    turnResult.effects.reserve(turnResult.effects.size() + flinchResult.effects.size());
+                    turnResult.effects.insert(turnResult.effects.end(), flinchResult.effects.begin(), flinchResult.effects.end());
+                }
             }
         } else {
             BattleActionResult opponentResult = applyMove(opponentMove, m_battleOpponent, player);
@@ -302,11 +309,18 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
             turnResult.effects.reserve(turnResult.effects.size() + opponentResult.effects.size());
             turnResult.effects.insert(turnResult.effects.end(), opponentResult.effects.begin(), opponentResult.effects.end());
 
-            if(player->battleState.currentHealth > 0 && !player->delta.flinched) {
-                BattleActionResult playerResult = applyMove(playerMove, player, m_battleOpponent, true);
-                applyBattleResult(playerResult);
-                turnResult.effects.reserve(turnResult.effects.size() + playerResult.effects.size());
-                turnResult.effects.insert(turnResult.effects.end(), playerResult.effects.begin(), playerResult.effects.end());
+            if(player->battleState.currentHealth > 0) {
+                if (!player->delta.flinched) {
+                    BattleActionResult playerResult = applyMove(playerMove, player, m_battleOpponent, true);
+                    applyBattleResult(playerResult);
+                    turnResult.effects.reserve(turnResult.effects.size() + playerResult.effects.size());
+                    turnResult.effects.insert(turnResult.effects.end(), playerResult.effects.begin(), playerResult.effects.end());
+                } else {
+                    BattleActionResult flinchResult;
+                    flinchResult.addEffect(BattleActionResult::FLINCH, player, nullptr);
+                    turnResult.effects.reserve(turnResult.effects.size() + flinchResult.effects.size());
+                    turnResult.effects.insert(turnResult.effects.end(), flinchResult.effects.begin(), flinchResult.effects.end());
+                }
             }
         }
 
@@ -788,7 +802,7 @@ QVariantList BattleMoveHandler::generateSequenceFromResult(const BattleActionRes
                 break;
 
             case BattleActionResult::FLINCH:
-                sequence.append(createTextAction(targetName + QStringLiteral(" flinched!"), ms_statusConditionText));
+                sequence.append(createTextAction(sourceName + QStringLiteral(" flinched!"), ms_statusConditionText));
                 break;
 
             case BattleActionResult::STATUS_APPLIED:
