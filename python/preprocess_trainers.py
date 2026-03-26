@@ -91,6 +91,7 @@ def extract_bc_frames(img, n_block_rows, n_block_cols, frame_size, skip_blocks):
     block_width = 3 * frame_size  # 3 frames wide
     block_height = 4 * frame_size  # 4 frames tall
 
+
     block_idx = 0
     for block_row in range(n_block_rows):
         for block_col in range(n_block_cols):
@@ -127,6 +128,18 @@ def extract_bc_frames(img, n_block_rows, n_block_cols, frame_size, skip_blocks):
 
             block_idx += 1
 
+    extra_row_y = n_block_rows * block_height
+    if extra_row_y + frame_size <= img.height:
+        frame1 = img.crop((0, extra_row_y, frame_size, extra_row_y + frame_size))
+        frame2 = img.crop((frame_size, extra_row_y, 2 * frame_size, extra_row_y + frame_size))
+        extra_frames = []
+        for frame in (frame2, frame1):
+            if frame.mode != 'RGBA':
+                frame = frame.convert('RGBA')
+            if has_visible_content(frame):
+                centered_frame = center_frame_content(frame, frame_size)
+                extra_frames.append(centered_frame)
+        return extra_frames + bc_frames
     return bc_frames
 
 def process_trainer_image(image_path, n_block_rows, n_block_cols, frame_size, skip_blocks):
@@ -169,7 +182,7 @@ if __name__ == "__main__":
                         help="Number of block columns")
     parser.add_argument("--frame_size", type=int, default=32,
                         help="Size of individual frame (32x32)")
-    parser.add_argument("--skip_blocks", nargs='*', type=int, default=[4],
+    parser.add_argument("--skip_blocks", nargs='*', type=int, default=[4, 54],
                         help="Block indices to skip (0-79, row-major order)")
 
     args = parser.parse_args()

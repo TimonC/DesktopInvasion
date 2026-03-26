@@ -179,6 +179,48 @@ Rectangle {
             Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
             Item { width: parent.width; height: root.pad }
 
+
+            Item { width: parent.width; height: root.pad }
+            Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
+            Item { width: parent.width; height: root.pad }
+
+            Row {
+                width: parent.width
+                layoutDirection: Qt.RightToLeft
+                PcButton {
+                    width: 4 * 48
+                    label: "NEXT →"
+                    selectable: true
+                    onClicked: root.slide = 1
+                }
+            }
+        }
+    }
+
+    Item {
+        id: slide1
+        anchors.fill: parent
+        anchors.margins: root.pad
+        visible: root.slide === 1
+
+        Column {
+            width: parent.width
+            spacing: 0
+
+            Row {
+                width: parent.width
+                PcButton {
+                    width: 4 * 48
+                    label: "← BACK"
+                    selectable: true
+                    onClicked: root.slide = 0
+                }
+            }
+
+            Item { width: parent.width; height: root.pad/1.5 }
+            Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
+            Item { width: parent.width; height: root.pad/1.5 }
+
             Item {
                 width: parent.width
                 height: 44
@@ -252,56 +294,9 @@ Rectangle {
                 }
             }
 
-            Item { width: parent.width; height: root.pad }
-            Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
-            Item { width: parent.width; height: root.pad }
-
-            Row {
-                width: parent.width
-                layoutDirection: Qt.RightToLeft
-                PcButton {
-                    width: 4 * 48
-                    label: "NEXT →"
-                    selectable: root.playerName !== ""
-                    onClicked: root.slide = 1
-                }
-            }
-        }
-    }
-
-    Item {
-        id: slide1
-        anchors.fill: parent
-        anchors.margins: root.pad
-        visible: root.slide === 1
-
-        Column {
-            width: parent.width
-            spacing: 0
-
-            Row {
-                width: parent.width
-                PcButton {
-                    width: 4 * 48
-                    label: "← BACK"
-                    selectable: true
-                    onClicked: root.slide = 0
-                }
-            }
 
             Item { width: parent.width; height: root.pad/1.5 }
             Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
-            Item { width: parent.width; height: root.pad/1.5 }
-
-            Text {
-                width: parent.width
-                text: "Hello " + (nameField.text ?? "") + "!"
-                font.family: root.p2pFont
-                font.pixelSize: root.fontSizeMd
-                color: "#ffffff"
-                wrapMode: Text.Wrap
-            }
-
             Item { width: parent.width; height: root.pad/1.5 }
 
             Text {
@@ -314,8 +309,6 @@ Rectangle {
             }
 
             Item { width: parent.width; height: root.pad/1.5 }
-            Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
-            Item { width: parent.width; height: root.pad/1.5 }
 
             Grid {
                 width: 64 * 16
@@ -327,7 +320,7 @@ Rectangle {
 
                 Repeater {
                     id: trainerRepeater
-                    model: 79
+                    model: 80
 
                     SpriteTile {
                         spriteSource: "qrc:/assets/HGSS/reordered_trainers.png"
@@ -352,7 +345,7 @@ Rectangle {
                 PcButton {
                     width: 4 * 48
                     label: "NEXT →"
-                    selectable: root.trainerId !== -1
+                    selectable: root.playerName !== "" && root.trainerId !== -1
                     onClicked: root.slide = 2
                 }
             }
