@@ -224,6 +224,8 @@ namespace {
         category_enum = format_category_enum(move['damage_class'])
         accuracy = move['accuracy'] if move['accuracy'] is not None else -1
         power = move['power'] if move['power'] is not None else -1
+        if formatted_name == "Magnitude" or formatted_name == "Magni-tude":
+           power =  70
 
         #Stat changes are Atk/SpAtk/Def/SpDef in PokeApi, DesktopInvasion has Atk/Def/S;atk/SpDef so need to swap
         stat_changes  = move['stat_changes']
