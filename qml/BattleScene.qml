@@ -85,6 +85,11 @@ Item {
     }
 
     function positionSpriteAndStatusBar(sprite) {
+    //Beware, ye who enter here, for ye will find a  disgustingly baroque logic, an alloy of
+    // purposeful tuning and mindless trial and error, calcified over months of despair.
+
+    //The purpose of this funtion is to position a pokemon sprite in a battle, based on its looking direction.
+    // It uses static positions + sprite size information + padding. It seems to work :D.
         var hPad = root.menuWidth/15
         switch(sprite.direction) {
             case 0:
