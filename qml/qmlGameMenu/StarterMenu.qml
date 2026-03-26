@@ -187,7 +187,7 @@ Rectangle {
 
             Text {
                 width: parent.width
-                text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi aliquip ex ea commodo consequat."
+                text: "[bunch of introductory text here and also link to website+credit]"
                 font.family: root.dotGothicFont
                 font.pixelSize: root.fontSizeMd
                 color: "#ffffff"
@@ -197,6 +197,15 @@ Rectangle {
             Item { width: parent.width; height: root.pad }
             Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
             Item { width: parent.width; height: root.pad }
+
+            Text {
+                width: parent.width
+                text: "--------"
+                font.family: root.dotGothicFont
+                font.pixelSize: root.fontSizeMd
+                color: "#ffffff"
+                wrapMode: Text.Wrap
+            }
 
 
             Item { width: parent.width; height: root.pad }
