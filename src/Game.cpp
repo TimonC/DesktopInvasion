@@ -161,7 +161,7 @@ void Game::spawnPokemon() {
             w.pokedex_id = roll.poke_id;
             w.name       = wildPoke->name;
             w.lvl        = lvl;
-            w.nature     = Nature::Hardy;
+            w.nature     = Lookup::getRandomNature(m_rng);
 
             const Poke *poke = Lookup::getPoke(roll.poke_id);
             int moveIndex = 0;
@@ -334,7 +334,7 @@ void Game::onStarterMenuFinished(QString playerName, int trainerId, int starterP
     p.pokedex_id  = starterPokedexId;
     p.name        = poke->name;
     p.pokeball_id = 0;
-    p.nature      = Nature::Hardy;
+    p.nature      = Lookup::getRandomNature(m_rng);
     p.lvl         = 10;
 
     int moveIndex = 0;

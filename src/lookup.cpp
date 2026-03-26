@@ -184,4 +184,9 @@ QString getRandomFlavorText(int pokeDexId, std::mt19937& rng) {
     return QString::fromUtf8(flavor.data(), flavor.size());
 }
 
+    Nature getRandomNature(std::mt19937 &rng){
+       static std::uniform_int_distribution<int> dist(0, 24);
+       return static_cast<Nature>(dist(rng));
+    }
+
 }
