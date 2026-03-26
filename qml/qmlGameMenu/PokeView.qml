@@ -162,17 +162,37 @@ Item {
                             onClicked: pokeView.evolveBtnClicked(pokeData)
                         }
                     }
-                    Row {
-                        spacing: rowSpacing
-                        Text {
-                            text: pokeData ? "Lv. " + pokeData.level : ""
-                            font.family: bodyFont; font.pixelSize: fontSizeMd
-                            color: colorText; anchors.verticalCenter: parent.verticalCenter
+                    Column{
+                        Row {
+                            spacing: rowSpacing
+                            Text {
+                                text: pokeData ? "Lv. " + pokeData.level : ""
+                                font.family: bodyFont; font.pixelSize: fontSizeMd
+                                color: colorText; anchors.verticalCenter: parent.verticalCenter
+                            }
+                            Text {
+                                text: pokeData ? pokeData.nature : ""
+                                font.family: bodyFont; font.pixelSize: fontSizeSm
+                                color: colorSubtext; anchors.verticalCenter: parent.verticalCenter
+                            }
                         }
-                        Text {
-                            text: pokeData ? pokeData.nature : ""
-                            font.family: bodyFont; font.pixelSize: fontSizeSm
-                            color: colorSubtext; anchors.verticalCenter: parent.verticalCenter
+                        Row {
+                            // width: 32
+                            Text {
+                                text: "XP: "
+                                font.family: bodyFont; font.pixelSize: fontSizeSm
+                                color: colorSubtext;
+                            }
+                            Text {
+                                text: (pokeData && pokeData.currentXP!==null) ?  pokeData.currentXP : ""
+                                font.family: bodyFont; font.pixelSize: fontSizeSm
+                                color: colorText
+                            }
+                            Text {
+                                text: " / " + ((pokeData && pokeData.requiredXP!==null) ? pokeData.requiredXP : "")
+                                font.family: bodyFont; font.pixelSize: fontSizeSm
+                                color: colorSubtext
+                            }
                         }
                     }
                     Row {
@@ -220,24 +240,6 @@ Item {
                         }
                     }
 
-                    Row {
-                        width: 32
-                        Text {
-                            text: "XP: "
-                            font.family: bodyFont; font.pixelSize: fontSizeSm
-                            color: colorSubtext;
-                        }
-                        Text {
-                            text: (pokeData && pokeData.currentXP!==null) ?  pokeData.currentXP : ""
-                            font.family: bodyFont; font.pixelSize: fontSizeSm
-                            color: colorText
-                        }
-                        Text {
-                            text: " / " + ((pokeData && pokeData.requiredXP!==null) ? pokeData.requiredXP : "")
-                            font.family: bodyFont; font.pixelSize: fontSizeSm
-                            color: colorSubtext
-                        }
-                    }
 
                 }
             }
