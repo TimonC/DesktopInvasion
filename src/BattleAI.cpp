@@ -13,6 +13,16 @@ int BattleAI::selectMove(const Battler& opponent, const Battler& player) {
         const Move* _move = opponent.pokeState.moves[i];
         if (!_move) continue;
         int score = evaluateMove(_move, opponent, player);
+
+        // --- TEMP DEBUG ---
+        int dmg = estimateDamage(_move, opponent, player);
+        qDebug() << "Move" << i << QString::fromStdString(_move->name)
+                 << "score=" << score
+                 << "estimatedDmg=" << dmg
+                 << "targetHP=" << player.battleState.currentHealth
+                 << "canFaint=" << canFaint(_move, opponent, player);
+        // ------------------
+
         if (score > bestScore) {
             bestScore = score;
             bestIndex = i;
@@ -76,13 +86,10 @@ int BattleAI::flag0BadMove(const Move* _move, const Battler& caster, const Battl
         }
     }
 
-    // Damaging moves – check type immunity
+    // Damaging moves – check type immunity, mirroring BattleMoveHandler logic
     if (_move->category != MoveCategory::NonDamaging) {
-        if (PokeTypes::getTypeEffectiveness(_move->type,
-                target.pokeState.types[0] ? *target.pokeState.types[0] : Type::Null,
-                target.pokeState.types[1] ? *target.pokeState.types[1] : Type::Null) == 0) {
+        if (getEffectivenessInt(_move, target) == 0)
             return -10;
-        }
     }
 
     return 0;
@@ -91,37 +98,36 @@ int BattleAI::flag0BadMove(const Move* _move, const Battler& caster, const Battl
 int BattleAI::flag1TryToFaint(const Move* _move, const Battler& caster, const Battler& target) {
     int score = 0;
 
+    if (_move->category == MoveCategory::NonDamaging) {
+        // Status moves get a flat baseline — no faint/priority/damage bonuses
+        score += 2;
+        return score;
+    }
+
     // Can faint?
     if (canFaint(_move, caster, target))
         score += 4;
-    else
-        score += 2;
+    // No bonus if can't faint — don't reward weak moves equally
 
-    // Priority
+    // Small priority bonus as tiebreaker only
     if (_move->priority > 0)
-        score += 6;
-    else
-        score += 4;
+        score += 2;
 
     // 4x effective bonus
-    double eff = getEffectiveness(_move, target);
-    if (eff >= 3.9 && random255() < 176)  // 176/256 ≈ 68.75%
+    int effInt = getEffectivenessInt(_move, target);
+    if (effInt >= 40000 && random255() < 176)  // 4x = 200*200 = 40000
         score += 2;
 
-    // ---- Damage comparison ----
-    // Find the highest damage among all damaging moves the caster knows
+    // Reward the highest-damage move
+    int myDamage = estimateDamage(_move, caster, target);
     int highestDamage = 0;
     for (int i = 0; i < 4; ++i) {
-        const Move* otherMove = caster.pokeState.moves[i];
-        if (!otherMove) continue;
-        if (otherMove->category == MoveCategory::NonDamaging) continue;
-        int dmg = estimateDamage(otherMove, caster, target);
-        if (dmg > highestDamage)
-            highestDamage = dmg;
+        const Move* other = caster.pokeState.moves[i];
+        if (!other || other->category == MoveCategory::NonDamaging) continue;
+        highestDamage = std::max(highestDamage, estimateDamage(other, caster, target));
     }
-    int myDamage = estimateDamage(_move, caster, target);
-    if (myDamage < highestDamage)
-        score -= 1;   // Penalty if not the strongest damaging move
+    if (highestDamage > 0 && myDamage >= highestDamage)
+        score += 3;
 
     return score;
 }
@@ -377,47 +383,55 @@ int BattleAI::flag2Viability(const Move* _move, const Battler& caster, const Bat
     return score;
 }
 
+// Mirrors BattleMoveHandler exactly: single-type overload for t1, skip t2 if Null
+int BattleAI::getEffectivenessInt(const Move* _move, const Battler& target) const {
+    const Type* t1 = target.pokeState.types[0];
+    const Type* t2 = target.pokeState.types[1];
+
+    int eff1 = PokeTypes::getTypeEffectiveness(_move->type, t1 ? *t1 : Type::Null);
+    int eff2 = 100;
+    if (t2 && *t2 != Type::Null)
+        eff2 = PokeTypes::getTypeEffectiveness(_move->type, *t2);
+
+    return eff1 * eff2; // e.g. 200*100=20000 for 2x, 200*200=40000 for 4x, 0 for immune
+}
+
 int BattleAI::estimateDamage(const Move* _move, const Battler& caster, const Battler& target) const {
     if (_move->category == MoveCategory::NonDamaging) return 0;
 
     int attack = 0, defense = 0;
     if (_move->category == MoveCategory::PhysicalAtk) {
-        attack = caster.pokeState.stats[1];
-        defense = target.pokeState.stats[2];
-        attack = PokeMath::applyStatModifier(attack, caster.battleState.statModifiers[0]);
-        defense = PokeMath::applyStatModifier(defense, target.battleState.statModifiers[1]);
-    } else { // SpecialAtk
-        attack = caster.pokeState.stats[3];
-        defense = target.pokeState.stats[4];
-        attack = PokeMath::applyStatModifier(attack, caster.battleState.statModifiers[2]);
-        defense = PokeMath::applyStatModifier(defense, target.battleState.statModifiers[3]);
+        attack = PokeMath::applyStatModifier(caster.pokeState.stats[1], caster.battleState.statModifiers[0]);
+        defense = PokeMath::applyStatModifier(target.pokeState.stats[2], target.battleState.statModifiers[1]);
+    } else {
+        attack = PokeMath::applyStatModifier(caster.pokeState.stats[3], caster.battleState.statModifiers[2]);
+        defense = PokeMath::applyStatModifier(target.pokeState.stats[4], target.battleState.statModifiers[3]);
     }
 
     int level = caster.pokeState.lvl;
     int power = _move->power;
-    double stab = 1.0;
-    for (int i = 0; i < 2; ++i) {
-        if (caster.pokeState.types[i] && *caster.pokeState.types[i] == _move->type)
-            stab = 1.5;
-    }
-    double effectiveness = getEffectiveness(_move, target);
-    if (effectiveness == 0) return 0;
 
-    // Use the average random factor (100) instead of random
-    int damage = static_cast<int>((((2 * level / 5 + 2) * power * attack / defense) / 50 + 2) * stab * effectiveness);
-    return damage;
+    int stab = 100;
+    for (int i = 0; i < 2; ++i) {
+        if (caster.pokeState.types[i] && *caster.pokeState.types[i] == _move->type) {
+            stab = 150;
+            break;
+        }
+    }
+
+    int combinedEff = getEffectivenessInt(_move, target); // e.g. 20000 for 2x
+    if (combinedEff == 0) return 0;
+
+    // Mirror BattleMoveHandler's formula exactly, using int64 to avoid overflow
+    // No random factor — use average (92/100 ≈ no modifier for AI estimation)
+    int64_t base = (int64_t)(2 * level / 5 + 2) * power * attack / defense;
+    int64_t damage = (base / 50 + 2) * stab / 100 * combinedEff / 10000;
+    return static_cast<int>(damage);
 }
 
 bool BattleAI::canFaint(const Move* _move, const Battler& caster, const Battler& target) const {
     if (_move->category == MoveCategory::NonDamaging) return false;
     return estimateDamage(_move, caster, target) >= target.battleState.currentHealth;
-}
-
-double BattleAI::getEffectiveness(const Move* _move, const Battler& target) const {
-    int eff = PokeTypes::getTypeEffectiveness(_move->type,
-                target.pokeState.types[0] ? *target.pokeState.types[0] : Type::Null,
-                target.pokeState.types[1] ? *target.pokeState.types[1] : Type::Null);
-    return eff / 100.0;
 }
 
 int BattleAI::random255() const {

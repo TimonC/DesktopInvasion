@@ -47,8 +47,8 @@ private:
     // Check if the move would be immune due to typing (ignoring abilities)
     bool isTypeImmune(const Move* _move, const Battler& target) const;
 
-    // Return effectiveness multiplier (0.0, 0.5, 1.0, 2.0, 4.0)
-    double getEffectiveness(const Move* _move, const Battler& target) const;
+    // Return effectiveness multiplier
+    int getEffectivenessInt(const Move* _move, const Battler& target) const;
 
     // Estimate if the move can faint the target (damage > current HP)
     bool canFaint(const Move* _move, const Battler& caster, const Battler& target) const;
