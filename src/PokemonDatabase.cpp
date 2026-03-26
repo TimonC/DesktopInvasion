@@ -837,7 +837,6 @@ bool PokemonDatabase::writeDefaults(const Defaults& d) {
     q.addBindValue(m_saveId);
     bool ok = q.exec();
     if (!ok) logQuery(q);
-    else DB_LOG("Defaults written for save_id=" << m_saveId);
     return ok;
 }
 
