@@ -14,15 +14,6 @@ int BattleAI::selectMove(const Battler& opponent, const Battler& player) {
         if (!_move) continue;
         int score = evaluateMove(_move, opponent, player);
 
-        // --- TEMP DEBUG ---
-        int dmg = estimateDamage(_move, opponent, player);
-        qDebug() << "Move" << i << QString::fromStdString(_move->name)
-                 << "score=" << score
-                 << "estimatedDmg=" << dmg
-                 << "targetHP=" << player.battleState.currentHealth
-                 << "canFaint=" << canFaint(_move, opponent, player);
-        // ------------------
-
         if (score > bestScore) {
             bestScore = score;
             bestIndex = i;
