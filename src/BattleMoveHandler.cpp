@@ -12,6 +12,7 @@ BattleMoveHandler::BattleMoveHandler(const PokemonState& wildState, const std::a
     : m_rng(rng)
     , m_expShare(Globals::expShare())
     , m_playerName(QString::fromStdString(playerName))
+    , m_battleAI(rng)
 {
     qDebug() << "BattleMoveHandler constructor called!";
 
@@ -177,7 +178,7 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
     resetDeltaState(m_battleOpponent->delta);
     resetDeltaState(m_battleParty[m_chosenIndex]->delta);
 
-    int opponentMoveIndex = m_moveChoiceDist(m_rng);
+    int opponentMoveIndex = m_battleAI.selectMove(*m_battleOpponent, *m_battleParty[m_chosenIndex]);
 
     const Move* opponentMove = m_battleOpponent->pokeState.moves[opponentMoveIndex];
     Battler* player = m_battleParty[m_chosenIndex];

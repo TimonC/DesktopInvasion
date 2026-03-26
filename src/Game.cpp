@@ -151,19 +151,19 @@ void Game::spawnPokemon() {
 
             std::vector<int> unavailableTmList = m_db.getTechnicalMoveList();
             const PokeRoll roll = Lookup::weightedSamplePokemon(lvl, unavailableTmList, m_rng);
-            const Poke* wildPoke = Lookup::getPoke(roll.poke_id);
+            const Poke* wildPoke = Lookup::getPoke(76);
 
             m_tmGetId=roll.tmId;
             m_ballGetCount=roll.ballCount;
             m_ballGetId=roll.ballId;
 
             PokemonState w;
-            w.pokedex_id = roll.poke_id;
+            w.pokedex_id = 76;
             w.name       = wildPoke->name;
             w.lvl        = lvl;
             w.nature     = Lookup::getRandomNature(m_rng);
 
-            const Poke *poke = Lookup::getPoke(roll.poke_id);
+            const Poke *poke = Lookup::getPoke(76);
             int moveIndex = 0;
             for (int i = poke->eligible_move_count - 1; i >= 0 && moveIndex < 4; i--) {
                 int moveLevel = poke->eligible_moves[i].level;
@@ -172,6 +172,10 @@ void Game::spawnPokemon() {
                     moveIndex++;
                 }
             }
+            w.moves[0] = 79; //sleep powder
+            w.moves[1] = 98 ; //quick attack
+            w.moves[2] = 14; //swords dance
+            w.moves[3] = 89; //earth quake
             m_db.setWild(w);
         }
 
