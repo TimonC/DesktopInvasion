@@ -16,6 +16,7 @@ Item {
     property int    fontSizeLg: 22
     property int    fontSizeMd: 18
     property int    fontSizeSm: 16
+    property int maximumNicknameLength: 10
 
 
     property int displayedPokemonPos: -1
@@ -263,7 +264,6 @@ Item {
             onClicked: {
                 var newSelectedIdx = (moveMenu.selectedEligibleIdx === emr.eligIdx) ? -1 : emr.eligIdx
                 moveMenu.selectedEligibleIdx = newSelectedIdx
-
                 if (moveMenu.inNameEditMode) moveMenu.toggleNameEditMode()
             }
         }
@@ -350,7 +350,7 @@ Item {
                             font.pixelSize: moveMenu.fontSizeMd
                             font.bold:      true
                             color:          moveMenu.colorText
-                            maximumLength:  12
+                            maximumLength:  moveMenu.maximumNicknameLength
                             clip:           true
                             enabled:        moveMenu.inNameEditMode
                             readOnly:       !moveMenu.inNameEditMode

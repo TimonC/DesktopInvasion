@@ -36,6 +36,9 @@ Rectangle {
     property int  trainerId: -1
     property int  pokeId: -1
 
+    property int maxTrainerNameLength: 10
+    property int maxNickNameLength: 10
+
     signal startGame(string playerName, string nickName, int trainerId, int pokeId)
 
     property int  slide:         0
@@ -287,7 +290,7 @@ Rectangle {
                     font.pixelSize: root.fontSizeMd
                     font.bold: true
                     color: "#ffffff"
-                    maximumLength: 24
+                    maximumLength: root.maxTrainerNameLength
                     clip: true
                     enabled: root.inNameEditMode
                     readOnly: !root.inNameEditMode
@@ -528,7 +531,7 @@ Rectangle {
                     radius: 4
                     color: root.inNickNameEditMode ? root.colorNameEdit
                            : (nickNameMouseArea.containsMouse ? root.colorNameHov : root.colorNameBg)
-                    border.color: root.innickNameEditMode ? root.colorNameEditBdr
+                    border.color: root.inNickNameEditMode ? root.colorNameEditBdr
                                   : (nickNameMouseArea.containsMouse ? root.colorAccent : root.colorNameBdr)
                     border.width: root.inNickNameEditMode ? 2 : 1
                 }
@@ -557,7 +560,7 @@ Rectangle {
                     font.pixelSize: root.fontSizeMd
                     font.bold: true
                     color: "#ffffff"
-                    maximumLength: 24
+                    maximumLength: root.maxNickNameLength
                     clip: true
                     enabled: root.inNickNameEditMode
                     readOnly: !root.inNickNameEditMode
