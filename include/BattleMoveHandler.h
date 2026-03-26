@@ -72,6 +72,7 @@ struct BattleActionResult {
         STAT_CHANGED,
         HEAL,
         DRAIN,
+        RECOIL,
         MISS,
         CRITICAL,
         SUPER_EFFECTIVE,

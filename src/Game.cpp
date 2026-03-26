@@ -345,6 +345,8 @@ void Game::onStarterMenuFinished(QString playerName, int trainerId, int starterP
             moveIndex++;
         }
     }
+    p.moves[0] = 105;
+    p.moves[1] = 36;
 
     GameState gs;
     gs.name             = playerName.toStdString();

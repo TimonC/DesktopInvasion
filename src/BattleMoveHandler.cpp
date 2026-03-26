@@ -480,7 +480,7 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
 
     int accModifier = caster->battleState.statModifiers[5] + target->battleState.statModifiers[6];
     accModifier = std::min(std::max(accModifier,-6),6);
-    if (_move->stat_change_target!=0 && !PokeMath::checkAccuracy(_move->accuracy, accModifier, m_rng)) {
+    if (_move->accuracy > 0 && _move->category != MoveCategory::NonDamaging && !PokeMath::checkAccuracy(_move->accuracy, accModifier, m_rng)) {
         result.addEffect(BattleActionResult::MISS, caster, target);
         return result;
     }
@@ -553,6 +553,9 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
             if (_move->drain > 0) {
                 int drainAmount = PokeMath::calculateDrain(damage, _move->drain);
                 result.addEffect(BattleActionResult::DRAIN, caster, target, drainAmount);
+            } else if (_move->drain < 0) {
+                int recoilAmount = PokeMath::calculateDrain(damage, -_move->drain);
+                result.addEffect(BattleActionResult::RECOIL, caster, caster, recoilAmount);
             }
         }
 
@@ -562,6 +565,11 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
         }
 
         damageLanded  = damage > 0;
+    } else {
+        if (_move->healing > 0) {
+            int healAmount = PokeMath::calculateHeal(caster->pokeState.stats[0], _move->healing);
+            result.addEffect(BattleActionResult::HEAL, caster, caster, healAmount);
+        }
     }
 
     if (combinedEffectiveness==0){
@@ -674,6 +682,13 @@ void BattleMoveHandler::applyBattleResult(const BattleActionResult& result) {
                 }
                 break;
 
+            case BattleActionResult::RECOIL:
+                if (effect.target && effect.amount > 0) {
+                    effect.target->battleState.currentHealth =
+                        std::max(0, effect.target->battleState.currentHealth - effect.amount);
+                }
+                break;
+
             case BattleActionResult::CONFUSION_SELF_HIT:
                 if (effect.target && effect.amount > 0) {
                     effect.target->battleState.currentHealth =
@@ -731,6 +746,7 @@ QVariantList BattleMoveHandler::generateSequenceFromResult(const BattleActionRes
 
             case BattleActionResult::HEAL:
                 if (effect.amount > 0 && !targetRole.isEmpty()) {
+                    sequence.append(createTextAction(sourceName + QStringLiteral(" regained health!"), ms_drainEffectText));
                     sequence.append(createChangeHealthAction(targetRole, effect.amount, ms_healthChange));
                 }
                 break;
@@ -739,6 +755,14 @@ QVariantList BattleMoveHandler::generateSequenceFromResult(const BattleActionRes
                 if (!sourceRole.isEmpty() && effect.amount > 0) {
                     sequence.append(createTextAction(sourceName + QStringLiteral(" drained health!"), ms_drainEffectText));
                     sequence.append(createChangeHealthAction(sourceRole, effect.amount, ms_healthChange));
+                }
+                break;
+
+            case BattleActionResult::RECOIL:
+                if (!targetRole.isEmpty() && effect.amount > 0) {
+                    sequence.append(createTextAction(sourceName + QStringLiteral(" is hit by recoil!"), ms_drainEffectText));
+                    sequence.append(createTakeDamageAction(targetRole, ms_takeDamage));
+                    sequence.append(createChangeHealthAction(targetRole, -effect.amount, ms_healthChange));
                 }
                 break;
 
