@@ -100,7 +100,7 @@ Item {
         background: Rectangle {
             anchors.fill: progressBar
             color: "darkgrey"
-            radius: root.statusBarRadius
+            radius: Math.min(width/2, root.statusBarRadius)
             border.width: 1
             border.color: "black"
         }
@@ -108,7 +108,7 @@ Item {
             anchors.left: progressBar.left
             anchors.bottom: progressBar.bottom
             height: progressBar.height
-            width: progressBar.width * progressBar.value
+            width: progressBar.width * progressBar.value + root.statusBarRadius
             gradient: Gradient {
                 GradientStop {
                     position: 0
@@ -119,7 +119,7 @@ Item {
                     color: PokeColor.darker(PokeColor.healthColor(progressBar.value))
                 }
             }
-            radius: root.statusBarRadius
+            radius: Math.min(width/2, root.statusBarRadius)
         }
     }
 
@@ -159,5 +159,8 @@ Item {
         id: healthAnimation
         target: progressBar
         property: "value"
+        onStopped: {
+            progressBar.contentItem.visible = progressBar.value > 0
+        }
     }
 }
