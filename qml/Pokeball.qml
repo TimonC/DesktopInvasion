@@ -122,7 +122,7 @@ Item {
         PropertyAnimation {
             target: pokeballSprite
             property: "y"
-            to: pokeballSprite.y - 20*root.scale
+            to: pokeballSprite.y - 12*root.scale
             duration: Math.round(200 / speed)
             easing.type: Easing.OutQuad
         }

@@ -567,17 +567,17 @@ Item {
         battleMenu.resetToRoot()
     }
 
-    function calculateBallCoords(sprite){
-        var pokeballWidth = pokeBallOpponent.width
+    function calculateBallCoords(sprite) {
+        var pokeballWidth  = pokeBallOpponent.width
         var pokeballHeight = pokeBallOpponent.height
 
-        var x1 = sprite.x + (sprite.width / 2) - (pokeballWidth/2)
-        var x0 = x1 + (sprite.direction == 3 ? -sprite.width : sprite.width)
+        var x1      = sprite.x + (sprite.width / 2) - (pokeballWidth / 2)
+        var x0      = x1 + (sprite.direction == 3 ? -sprite.width : sprite.width)
 
-        var y0 = Math.max(pokeballHeight/2, sprite.y - pokeballHeight)
-        var y1 = sprite.y + sprite.height/2 - pokeballHeight
+        var y0      = Math.max(pokeballHeight / 2, sprite.y - pokeballHeight)
+        var y1      = sprite.y + sprite.height / 2 - pokeballHeight
 
-        var groundY = sprite.y + sprite.height - pokeballHeight
+        var groundY = sprite.y + Math.min(sprite.height, sprite.horizontalHeight) - pokeballHeight
 
         return [x0, x1, y0, y1, groundY]
     }
