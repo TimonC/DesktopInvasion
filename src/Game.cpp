@@ -388,6 +388,8 @@ QVariantMap Game::pokemonToMenuState(int slot, const PokemonState& p) {
     entry["name"]   = QString::fromStdString(p.name);
     entry["level"]  = p.lvl;
     entry["nature"] = QString::fromStdString(PokeTypes::natureToString(p.nature));
+    entry["currentXP"] = p.currentXP;
+    entry["requiredXP"] = PokeMath::xpToNextLevel(p.lvl);
 
     const AssetInfo* info = Lookup::getSpriteInfo(p.pokedex_id);
     entry["rowId"] = info->rowId;
@@ -496,10 +498,13 @@ void Game::handleEvolveRequest(int boxIndex, int slot, QVariantMap pokeData) {
         evolvesList.append(entry);
     }
 
+    //This contains the base pokemon's relevant display data, plus that of all its possible evolutions
     QVariantMap evolvesData;
     evolvesData["slot"]       = slot;
     evolvesData["box"]        = boxIndex;
     evolvesData["pokeName"]   = pokeData["pokeName"];
+    evolvesData["currentXP"] = pokeData["currentXP"];
+    evolvesData["requiredXP"] = pokeData["requiredXP"];
     evolvesData["name"]   = pokeData["name"];
     evolvesData["type1"] = pokeData["type1"];
     evolvesData["type2"] = pokeData["type2"];

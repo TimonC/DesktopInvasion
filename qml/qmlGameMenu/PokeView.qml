@@ -197,7 +197,6 @@ Item {
                         }
                     }
 
-                    Item { width: 1; height: 2 }
 
                     Grid {
                         id: statsGrid
@@ -220,6 +219,26 @@ Item {
                             }
                         }
                     }
+
+                    Row {
+                        width: 32
+                        Text {
+                            text: "XP: "
+                            font.family: bodyFont; font.pixelSize: fontSizeSm
+                            color: colorSubtext;
+                        }
+                        Text {
+                            text: pokeData.currentXP
+                            font.family: bodyFont; font.pixelSize: fontSizeSm
+                            color: colorText
+                        }
+                        Text {
+                            text: " / " + pokeData.requiredXP
+                            font.family: bodyFont; font.pixelSize: fontSizeSm
+                            color: colorSubtext
+                        }
+                    }
+
                 }
             }
         }
