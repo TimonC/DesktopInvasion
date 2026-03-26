@@ -27,8 +27,7 @@ struct Poke {
 };
 
 extern const Poke* const kPokesByIndex[];
-extern const int kCatchRateCumulativeWeights[];
-extern const int kTotalCatchRateWeight;
+
 extern const int kEvolutionParentLevel[];
 
 #endif

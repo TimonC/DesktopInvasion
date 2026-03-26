@@ -310,27 +310,13 @@ def generate_pokemon_data_direct():
 }};
 
 """
-
     source_content += f"const Poke* const kPokesByIndex[{MAX_POKEMON_ID + 1}] = {{\n"
     source_content += "    nullptr,\n"
     for poke_id in range(1, MAX_POKEMON_ID + 1):
         source_content += f"    &poke_{poke_id},\n"
     source_content += "};\n\n"
 
-    source_content += "// Cumulative weights for inverse catch rate spawning\n"
-    source_content += "// Weight = 256 - catch_rate (lower catch rate = higher spawn chance)\n"
-    source_content += "constexpr int kCatchRateCumulativeWeights[] = {\n"
-    source_content += "    0,  // Index 0 unused\n"
 
-    cumulative = 0
-    for poke_id in range(1, MAX_POKEMON_ID + 1):
-        pokemon = next(p for p in pokemons if p['id'] == poke_id)
-        weight = pokemon['catch_rate'] + 1
-        cumulative += weight
-        source_content += f"    {cumulative},  // {pokemon['name'].upper()} (catch_rate: {pokemon['catch_rate']}, weight: {weight})\n"
-
-    source_content += "};\n\n"
-    source_content += f"const int kTotalCatchRateWeight = {cumulative};\n\n"
 
     source_content += "// Evolution parent level map\n"
     source_content += "// For any Pokémon ID, this gives the level at which it evolves from its previous form\n"
