@@ -38,16 +38,24 @@ const PokeRoll getRandomPokemonByCatchRate(int pokemonLvl, const std::vector<int
             int totalWeight = 0;
 
             for (int pokeId = 1; pokeId <= 493; ++pokeId) {
+                /* A Pokemon is valid if it isn't the result of an evolution
+                   that happens at a higher level than the given pokemonLvl.,
+                   nor has a higher evolution below that level. */
                 const Poke* poke = getPoke(pokeId);
                 bool isEligible = false;
                 int parentLevel = kEvolutionParentLevel[pokeId];
+                int eligibleEvolveLevel = -1;
+                if(poke->eligible_evolve_count>0){
+                    eligibleEvolveLevel = poke->eligible_evolves[0].level;
+                }
 
-                /* A Pokemon is valid if it isn't the result of an evolution
-                   that happens at a higher level than the given pokemonLvl. */
                 if (parentLevel == -1) {
                     isEligible = true;
                 } else if (parentLevel <= level) {
                     isEligible = true;
+                }
+                if (eligibleEvolveLevel != -1 && eligibleEvolveLevel <= level){
+                    isEligible = false;
                 }
 
                 if (isEligible) {

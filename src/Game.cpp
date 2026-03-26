@@ -567,6 +567,7 @@ void Game::handleMoveChange(int placex, int posx, int moveSlot, int moveId) {
 
 void Game::handleMenuOpen() {
     bool usedToBeActive = m_gameUsedToBeActive;
+    m_spawnTimer->stop();
     setGameActive(false);
     m_gameUsedToBeActive = usedToBeActive;
 
