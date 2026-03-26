@@ -8,9 +8,10 @@
 #include <random>
 #include <lookup.h>
 
-BattleMoveHandler::BattleMoveHandler(const PokemonState& wildState, const std::array<PokemonState, 6>& partyStates, std::mt19937 &rng)
+BattleMoveHandler::BattleMoveHandler(const PokemonState& wildState, const std::array<PokemonState, 6>& partyStates, std::string playerName, std::mt19937 &rng)
     : m_rng(rng)
     , m_expShare(Globals::expShare())
+    , m_playerName(QString::fromStdString(playerName))
 {
     qDebug() << "BattleMoveHandler constructor called!";
 
@@ -245,13 +246,13 @@ void BattleMoveHandler::startActionRound(int actionIndex, QString _action){
 
         QString ballMessage = "";
         if(actionIndex==0){
-            ballMessage = QStringLiteral("Player used one Poké Ball!");
+            ballMessage = m_playerName + QStringLiteral(" used one Poké Ball!");
         }else if(actionIndex==1){
-            ballMessage = QStringLiteral("Player used one Great Ball!");
+            ballMessage = m_playerName + QStringLiteral(" used one Great Ball!");
         }else if(actionIndex==2){
-            ballMessage = QStringLiteral("Player used one Ultra Ball!");
+            ballMessage = m_playerName + QStringLiteral(" used one Ultra Ball!");
         }else{
-            ballMessage = QStringLiteral("Player used one Master Ball!");
+            ballMessage = m_playerName + QStringLiteral(" used one Master Ball!");
         }
         s.append(createTextAction(ballMessage, ms_ballUsed));
         s.append(createCatchAction(shakes, ms_catchStart, actionIndex));
@@ -792,6 +793,7 @@ QVariantList BattleMoveHandler::generateSequenceFromResult(const BattleActionRes
 
             case BattleActionResult::STATUS_APPLIED:
                 if (effect.target) {
+                    sequence.append(createSideToSideAction(targetRole, ms_attackAnimation));
                     sequence.append(createStatusCondition(targetRole, effect.ailment, false));
                     QString ailmentText = ailmentToApplicationText(effect.ailment);
                     sequence.append(createTextAction(targetName + QStringLiteral(" ") + ailmentText, ms_statusConditionText));
@@ -807,6 +809,7 @@ QVariantList BattleMoveHandler::generateSequenceFromResult(const BattleActionRes
                 break;
 
             case BattleActionResult::CONFUSION_ADDED:
+                sequence.append(createSideToSideAction(targetRole, ms_attackAnimation));
                 sequence.append(createTextAction(targetName + QStringLiteral(" became confused!"), ms_statusConditionText));
                 break;
 
@@ -818,6 +821,7 @@ QVariantList BattleMoveHandler::generateSequenceFromResult(const BattleActionRes
                 if (effect.amount > 0) {
                     sequence.append(createTextAction(QStringLiteral("It hurt itself in its confusion!"), ms_ailmentText));
                     if (!targetRole.isEmpty()) {
+                        sequence.append(createTakeDamageAction(targetRole, ms_takeDamage));
                         sequence.append(createChangeHealthAction(targetRole, -effect.amount, ms_healthChange));
                     }
                 } else {
@@ -830,12 +834,16 @@ QVariantList BattleMoveHandler::generateSequenceFromResult(const BattleActionRes
                 if (effect.statIndex >= 0 && effect.statIndex < 7) {
                     QString statName = getStatName(effect.statIndex);
                     if(effect.statChange == 1) {
+                        sequence.append(createJumpAction(targetRole, ms_attackAnimation));
                         sequence.append(createTextAction(targetName + QStringLiteral("'s ") + statName + QStringLiteral(" rose!"), ms_statusConditionText));
                     } else if(effect.statChange >= 2) {
+                        sequence.append(createJumpAction(targetRole, ms_attackAnimation));
                         sequence.append(createTextAction(targetName + QStringLiteral("'s ") + statName + QStringLiteral(" rose sharply!"), ms_statusConditionText));
                     } else if(effect.statChange == -1) {
+                        sequence.append(createSideToSideAction(targetRole, ms_attackAnimation));
                         sequence.append(createTextAction(targetName + QStringLiteral("'s ") + statName + QStringLiteral(" fell!"), ms_statusConditionText));
                     } else if(effect.statChange <= -2) {
+                        sequence.append(createSideToSideAction(targetRole, ms_attackAnimation));
                         sequence.append(createTextAction(targetName + QStringLiteral("'s ") + statName + QStringLiteral(" harshly fell!"), ms_statusConditionText));
                     }
                 }
@@ -942,6 +950,22 @@ QVariantMap BattleMoveHandler::createAttackAction(const QString& role, int delay
     return action;
 }
 
+QVariantMap BattleMoveHandler::createSideToSideAction(const QString& role, int delay) {
+    QVariantMap action;
+    action[QStringLiteral("type")] = QStringLiteral("side-to-side");
+    action[QStringLiteral("role")] = role;
+    action[QStringLiteral("delay")] = delay;
+    return action;
+}
+
+QVariantMap BattleMoveHandler::createJumpAction(const QString& role, int delay) {
+    QVariantMap action;
+    action[QStringLiteral("type")] = QStringLiteral("jump-action");
+    action[QStringLiteral("role")] = role;
+    action[QStringLiteral("delay")] = delay;
+    return action;
+}
+
 QVariantMap BattleMoveHandler::createTakeDamageAction(const QString& role, int delay) {
     QVariantMap action;
     action[QStringLiteral("type")] = QStringLiteral("take-damage");
@@ -975,3 +999,4 @@ QVariantMap BattleMoveHandler::createCatchAction(int shakes, int delay, int ball
 
     return action;
 }
+

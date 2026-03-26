@@ -109,7 +109,7 @@ struct BattleActionResult {
 class BattleMoveHandler : public QObject{
     Q_OBJECT
 public:
-    BattleMoveHandler(const PokemonState& wildState, const std::array<PokemonState, 6>& partyStates, std::mt19937 &rng);
+    BattleMoveHandler(const PokemonState& wildState, const std::array<PokemonState, 6>& partyStates, std::string playerName, std::mt19937 &rng);
     ~BattleMoveHandler();
     BattleMoveHandler(const BattleMoveHandler&) = delete;
     BattleMoveHandler& operator=(const BattleMoveHandler&) = delete;
@@ -125,6 +125,8 @@ public slots:
 private:
     int m_chosenIndex = 0;
     std::unordered_set<int> m_includedPartyIndices;
+
+    QString m_playerName;
 
     Battler* createBattler(const PokemonState& state);
     BattleActionResult applyMove(const Move* _move, Battler* caster, Battler* target, bool otherHasHadTurn = false);
@@ -143,6 +145,8 @@ private:
 
     QVariantMap createTextAction(const QString& message, int delay);
     QVariantMap createAttackAction(const QString& role, int delay);
+    QVariantMap createSideToSideAction(const QString& role, int delay);
+    QVariantMap createJumpAction(const QString& role, int delay);
     QVariantMap createTakeDamageAction(const QString& role, int delay);
     QVariantMap createChangeHealthAction(const QString& role, int amount, int delay);
     QVariantMap createCatchAction(int shakes, int delay, int ballId);

@@ -228,12 +228,12 @@ Item {
                             color: colorSubtext;
                         }
                         Text {
-                            text: pokeData.currentXP
+                            text: (pokeData && pokeData.currentXP!==null) ?  pokeData.currentXP : ""
                             font.family: bodyFont; font.pixelSize: fontSizeSm
                             color: colorText
                         }
                         Text {
-                            text: " / " + pokeData.requiredXP
+                            text: " / " + ((pokeData && pokeData.requiredXP!==null) ? pokeData.requiredXP : "")
                             font.family: bodyFont; font.pixelSize: fontSizeSm
                             color: colorSubtext
                         }

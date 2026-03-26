@@ -335,7 +335,7 @@ void Game::onStarterMenuFinished(QString playerName, int trainerId, int starterP
     p.name        = poke->name;
     p.pokeball_id = 0;
     p.nature      = Lookup::getRandomNature(m_rng);
-    p.lvl         = 10;
+    p.lvl         = 15;
 
     int moveIndex = 0;
     for (int i = poke->eligible_move_count - 1; i >= 0 && moveIndex < 4; i--) {
@@ -345,8 +345,6 @@ void Game::onStarterMenuFinished(QString playerName, int trainerId, int starterP
             moveIndex++;
         }
     }
-    p.moves[0] = 105;
-    p.moves[1] = 36;
 
     GameState gs;
     gs.name             = playerName.toStdString();
@@ -625,8 +623,8 @@ void Game::handleBattleStart() {
 
     const PokemonState& wildState = m_db.wild();
     const auto&         party     = m_db.party();
-
-    auto battleMoveHandler = std::make_unique<BattleMoveHandler>(wildState, party, m_rng);
+    std::string playerName = m_db.loadGameState().name;
+    auto battleMoveHandler = std::make_unique<BattleMoveHandler>(wildState, party, playerName, m_rng);
 
     Party battleParty;
     for (int slot = 0; slot < PARTY_SIZE; ++slot) {

@@ -18,7 +18,9 @@ Item {
     property double hCenterUp: 0
     property double hCenterDown: 0
 
-    property int attackDistance: 10*scaleFactor
+    property int attackDistance: 8*scaleFactor
+    property int sidesDistance: 2*scaleFactor
+    property int jumpDistance: 6*scaleFactor
 
     property int itemWidth: 0
     property int itemHeight: 0
@@ -26,12 +28,17 @@ Item {
     property bool debugLines: false
     property string name: "emptyname"
     property alias actionForward: actionForward
+    property alias actionSides: actionSides
+    property alias actionJump: actionJump
     property alias takeDamage: takeDamage
 
     property int animationSpeed: 1
 
     property int damageFlashDuration: 50 / animationSpeed
     property int attackForwardDuration: 50 / animationSpeed
+    property int sideToSideDuration: 50 / animationSpeed
+    property int jumpUpDuration: 150 / animationSpeed;
+    property int jumpDownDuration: 100 / animationSpeed;
     property int attackReturnDuration: 100 / animationSpeed
 
     width: itemWidth > 0 ? itemWidth : frameWidth * scaleFactor
@@ -143,6 +150,56 @@ Item {
             to: root.startingY
             duration: root.attackReturnDuration
             easing.type: Easing.OutQuad
+        }
+    }
+
+    SequentialAnimation {
+        id: actionSides
+        loops: 2
+        running: false
+        property int sidesDistance: root.sidesDistance
+        PropertyAnimation {
+            target: root
+            property: "x"
+            to: root.startingX + actionSides.sidesDistance
+            duration: root.sideToSideDuration
+        }
+        PropertyAnimation {
+            target: root
+            property: "x"
+            to: root.startingX
+            duration: root.sideToSideDuration
+        }
+        PropertyAnimation {
+            target: root
+            property: "x"
+            to: root.startingX - actionSides.sidesDistance
+            duration: root.sideToSideDuration
+        }
+        PropertyAnimation {
+            target: root
+            property: "x"
+            to: root.startingX
+            duration: root.sideToSideDuration
+        }
+    }
+
+    SequentialAnimation {
+        id: actionJump
+        property int jumpDistance: root.jumpDistance
+        PropertyAnimation {
+            target: root;
+            property: "y"
+            to: root.startingY - actionJump.jumpDistance
+            duration: root.jumpUpDuration;
+            easing.type: Easing.OutQuad
+        }
+        PropertyAnimation {
+            target: root;
+            property: "y"
+            to: root.startingY
+            duration: root.jumpDownDuration;
+            easing.type: Easing.InQuad
         }
     }
 

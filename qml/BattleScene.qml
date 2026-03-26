@@ -370,8 +370,22 @@ Item {
                 break
 
             case "attack":
-                var attacker = (step.role === "player") ? player : opponent
-                attacker.actionForward.running = true
+                var actionTaker = (step.role === "player") ? player : opponent
+                actionTaker.actionForward.running = true
+                sequenceTimer.interval = step.delay / root.animationSpeed
+                sequenceTimer.start()
+                break
+
+            case "side-to-side":
+                var actionTaker = (step.role === "player") ? player : opponent
+                actionTaker.actionSides.running = true
+                sequenceTimer.interval = step.delay / root.animationSpeed
+                sequenceTimer.start()
+                break
+
+            case "jump-action":
+                var actionTaker = (step.role === "player") ? player : opponent
+                actionTaker.actionJump.running = true
                 sequenceTimer.interval = step.delay / root.animationSpeed
                 sequenceTimer.start()
                 break
@@ -529,7 +543,7 @@ Item {
         if(tmName != "NONE"){
             sequence.push({
                 type: "text",
-                message: "Got the TM: '" + tmName + "'!",
+                message: "You got the TM: '" + tmName + "'!",
                 delay: root.lvlUpDuration
             })
         }
@@ -537,7 +551,7 @@ Item {
             var ballName = whichBall == 1 ? "Great Ball" : ((whichBall == 2) ? "Ultra Ball" : "Master Ball")
             sequence.push({
                 type: "text",
-                message: "Got " + ballGet + " " + ballName + "!",
+                message: "You got " + ballGet + " " + ballName + "!",
                 delay: root.lvlUpDuration
             })
         }
