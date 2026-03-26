@@ -118,7 +118,6 @@ namespace PokeMath{
         int ballMod = 100,
         int statusMod = 100
     ) {
-        return 4;
         if (ballMod>=10000 || ballMod == 255) return 4;
 
         if (HP_max <= 0 || catchRate <= 0) return 0;
