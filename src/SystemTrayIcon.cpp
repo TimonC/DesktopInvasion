@@ -139,7 +139,7 @@ void SystemTrayIcon::createContextMenu(std::vector<std::pair<int, std::string>> 
     connect(m_quitAction, &QAction::triggered, qApp, [this](){
                 QMessageBox msgBox;
                 msgBox.setWindowTitle("DesktopInvasion - Confirm Quit");
-                msgBox.setText("Are you sure that you want to quit DesktopInvasion? You can also hide the invading sprites by toggling 'active'.");
+                msgBox.setText("Are you sure that you want to quit DesktopInvasion? You can also toggle 'active' to hide the invading sprites.");
                 msgBox.setStandardButtons(QMessageBox::Discard | QMessageBox::Cancel);
                 msgBox.setDefaultButton(QMessageBox::Cancel);
                 msgBox.setIcon(QMessageBox::Warning);
