@@ -321,6 +321,7 @@ Item {
             statusBarPlayer.currentHealthRatio = battleMenu.party.healthRatios[newPartyId]
             statusBarPlayer.totalHealth = battleMenu.party.healthTotals[newPartyId]
             statusBarPlayer.setLevelText(battleMenu.party.lvls[newPartyId])
+            statusBarPlayer.healthValueVisible = true
 
             root.currentPlayerBallIndex = battleMenu.party.ballIds[newPartyId]
             root.safePokemonSwitch = battleMenu.forceSwitchMode

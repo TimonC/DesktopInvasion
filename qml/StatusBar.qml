@@ -19,6 +19,8 @@ Item {
     property int statusPadding: pokeNameFontSize/2
     property int statusBarRadius: 0
 
+    property alias healthValueVisible: progressBar.contentItem.visible
+
 
     component PopoutText: Text {
         color: "white"
@@ -160,7 +162,7 @@ Item {
         target: progressBar
         property: "value"
         onStopped: {
-            progressBar.contentItem.visible = progressBar.value > 0
+            root.healthValueVisible = progressBar.value > 0
         }
     }
 }

@@ -17,7 +17,7 @@ Rectangle {
     readonly property real spriteSizeStep:        0.5
 
     readonly property real battleSpeedMin:        1.0
-    readonly property real battleSpeedMax:        6.0
+    readonly property real battleSpeedMax:        4.0
     readonly property real battleSpeedStep:       0.5
 
     readonly property int  encounterHighMin:      0
