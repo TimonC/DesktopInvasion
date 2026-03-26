@@ -29,7 +29,7 @@ namespace Lookup {
         return (pokeDexId >= 1 && pokeDexId <= MAX_POKEDEX_ID) ? kAssetInfo[pokeDexId - 1] : nullptr;
     }
 
-    const PokeRoll getRandomPokemonByCatchRate(int pokemonLvl, const std::vector<int>& unavailableTmIds, std::mt19937& rng);
+    const PokeRoll weightedSamplePokemon(int pokemonLvl, const std::vector<int>& unavailableTmIds, std::mt19937& rng);
 
     QString getRandomFlavorText(int pokeDexId, std::mt19937& rng);
 }

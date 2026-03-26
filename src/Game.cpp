@@ -150,7 +150,7 @@ void Game::spawnPokemon() {
             int lvl = std::clamp(distLvl(m_rng), 1, 100);
 
             std::vector<int> unavailableTmList = m_db.getTechnicalMoveList();
-            const PokeRoll roll = Lookup::getRandomPokemonByCatchRate(lvl, unavailableTmList, m_rng);
+            const PokeRoll roll = Lookup::weightedSamplePokemon(lvl, unavailableTmList, m_rng);
             const Poke* wildPoke = Lookup::getPoke(roll.poke_id);
 
             m_tmGetId=roll.tmId;

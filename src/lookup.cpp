@@ -22,7 +22,7 @@ static int calculatePokeWeight(int catchRate, int level) {
     return catchRate * catchRate / threshold;
 }
 
-const PokeRoll getRandomPokemonByCatchRate(int pokemonLvl, const std::vector<int>& unavailableTmIds, std::mt19937& rng) {
+const PokeRoll weightedSamplePokemon(int pokemonLvl, const std::vector<int>& unavailableTmIds, std::mt19937& rng) {
     static std::array<std::vector<int>, 101> precomputedValidPokemon;
     static std::array<std::vector<int>, 101> precomputedCumulativeWeights;
     static std::array<int, 101> precomputedTotalWeights;
