@@ -101,7 +101,7 @@ Item {
                 break
             case 2:
                 sprite.x = (root.statusBarWidth + root.width - sprite.width)/2 + hPad + (sprite.verticalWidth/2 - sprite.hCenterDown)
-                sprite.y = 0
+                sprite.y = Math.max(0, root.height/2 - root.menuHeight/2 - sprite.height - root.statusBarHeight/2)
                 sprite.statusBar.x = hPad
                 sprite.statusBar.y = 0
                 break
@@ -121,9 +121,6 @@ Item {
     }
 
     Component.onCompleted: {
-        positionSpriteAndStatusBar(player)
-        positionSpriteAndStatusBar(opponent)
-
         Qt.callLater(function() {
             root.currentPlayerBallIndex = battleMenu.party.ballIds[0]
             root.resetPlayerBall()
