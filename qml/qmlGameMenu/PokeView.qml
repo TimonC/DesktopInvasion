@@ -65,7 +65,7 @@ Item {
                 right: parent.right
             }
             height: innerH * ratioTop
-            spacing: 0
+            spacing: pokeView.sectionGap*2
 
             Item {
                 width:  parent.width / 2
@@ -127,7 +127,7 @@ Item {
                 Column {
                     anchors.centerIn: parent
                     width:   parent.width
-                    spacing: pokeView.sectionGap/2
+                    spacing: pokeView.sectionGap
 
 
                    Text {
