@@ -358,7 +358,7 @@ Item {
         if (step.role) logStr += " (" + step.role + ")"
         if (step.message) logStr += " [\"" + step.message + "\"]"
         if (step.amount) logStr += " [" + step.amount + "]"
-        if (step.delay > 0) logStr += " [" + step.delay + "ms]"
+        if (step.delay > 0) logStr += " [" + Math.round(step.delay / root.animationSpeed) + "ms]"
         console.log(logStr)
 
         root.currentActionIndex++
