@@ -52,6 +52,98 @@ Item {
         }
     }
 
+    component TypePill: Rectangle {
+        property string typeName: ""
+        property string typeColor: PokeColor.typeColor(typeName)
+        property bool isVisible: typeColor !== "transparent"
+        property color lighterColor: isVisible ? PokeColor.lighter(typeColor) : "transparent"
+        property color darkerColor: isVisible ? PokeColor.darker(typeColor) : "transparent"
+        width:  pokeView.typePillW
+        height: pokeView.typePillH
+        radius: 3
+        border.width: isVisible ? 1 : 0
+        border.color: lighterColor
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: lighterColor }
+            GradientStop { position: 1.0; color: darkerColor  }
+        }
+        Text {
+            anchors.centerIn: parent
+            text:             isVisible ? typeName : ""
+            font.family:      pokeView.bodyFont
+            font.pixelSize:   pokeView.fontSizeSm
+            font.bold:        true
+            color:            pokeView.colorTypePillText
+        }
+    }
+
+    component MoveStatRow: Row {
+        property int  moveCat: 0
+        property int  movePow: 0
+        property int  moveAcc: 0
+        property bool isEmpty: false
+
+        readonly property string _catLabel:
+            moveCat === 0 ? "Physical" : (moveCat === 1 ? "Special" : "Status")
+        readonly property int _catLabelW: 56
+        readonly property int _powNumW:   24
+        readonly property int _accNumW:   24
+        readonly property int _unitGap:   6
+        readonly property int _secGap:    12
+
+        spacing: 0
+        visible: !isEmpty
+
+        Text {
+            text:           "Pow."
+            font.family:    pokeView.bodyFont
+            font.pixelSize: pokeView.fontSizeSm
+            color:          pokeView.colorSubtext
+        }
+
+        Item { width: parent._unitGap; height: 1 }
+
+        Text {
+            width:               parent._powNumW
+            text:                parent.movePow > 0 ? parent.movePow : "—"
+            font.family:         pokeView.bodyFont
+            font.pixelSize:      pokeView.fontSizeSm
+            color:               pokeView.colorText
+            horizontalAlignment: Text.AlignRight
+        }
+
+        Item { width: parent._secGap; height: 1 }
+
+        Text {
+            text:           "Acc."
+            font.family:    pokeView.bodyFont
+            font.pixelSize: pokeView.fontSizeSm
+            color:          pokeView.colorSubtext
+        }
+
+        Item { width: parent._unitGap; height: 1 }
+
+        Text {
+            width:               parent._accNumW
+            text:                parent.moveAcc > 0 ? parent.moveAcc : "—"
+            font.family:         pokeView.bodyFont
+            font.pixelSize:      pokeView.fontSizeSm
+            color:               pokeView.colorText
+            horizontalAlignment: Text.AlignRight
+        }
+
+        Item { width: parent._secGap; height: 1 }
+
+        Text {
+            width:          parent._catLabelW
+            text:           parent._catLabel
+            font.family:    pokeView.bodyFont
+            font.pixelSize: pokeView.fontSizeSm
+            color:          pokeView.colorSubtext
+            horizontalAlignment: Text.AlignLeft
+        }
+    }
+
     Item {
         anchors.centerIn: parent
         width:  parent.width  - pokeView.margin * 2
@@ -129,7 +221,6 @@ Item {
                     width:   parent.width
                     spacing: pokeView.sectionGap
 
-
                    Text {
                         text: pokeData ? pokeData.name : ""
                         font.family: mainFont
@@ -140,7 +231,7 @@ Item {
                     }
                     Row {
                         width: parent.width*0.9
-                        height: fontSizeLg
+                        height: fontSizeLg*0.9
                         spacing: rowSpacing
 
                         Text {
@@ -152,7 +243,7 @@ Item {
                             elide: Text.ElideRight
                         }
                         PcButton {
-                            height: parent.height*1.8
+                            height: parent.height*1.6
                             width: parent.width*0.6
                             visible: pokeData && pokeData.evolves && pokeData.evolves.length > 0
                             enabled: pokeData && pokeData.evolves && pokeData.evolves.length > 0
@@ -163,6 +254,10 @@ Item {
                         }
                     }
                     Column{
+                        Item{
+                            width: 1
+                            height: rowSpacing/2
+                        }
                         Row {
                             Text {
                                 text: "Lv."
@@ -170,19 +265,20 @@ Item {
                                 color: colorSubtext; anchors.verticalCenter: parent.verticalCenter
                             }
                             Rectangle{
-                                width: rowSpacing/2
+                                width: rowSpacing
                                 height:1
                                 color: "transparent"
                             }
                             Text {
+                                width: 40
                                 text: pokeData ? pokeData.level : ""
                                 font.family: bodyFont; font.pixelSize: fontSizeMd
                                 color: colorText; anchors.verticalCenter: parent.verticalCenter
+                                horizontalAlignment: Text.AlignRight
                             }
-                            Rectangle{
+                            Item{
                                 width: rowSpacing*2
                                 height:1
-                                color: "transparent"
                             }
                             Text {
                                 text: pokeData ? pokeData.nature : ""
@@ -197,14 +293,23 @@ Item {
                                 color: colorSubtext;
                             }
                             Text {
-                                text: (pokeData && pokeData.currentXP!==null) ?  pokeData.currentXP : ""
+                                width: 40
+                                text: (pokeData && pokeData.currentXP!==null && pokeData.lvl<100) ?  pokeData.currentXP : "0"
                                 font.family: bodyFont; font.pixelSize: fontSizeSm
                                 color: colorText
+                                horizontalAlignment: Text.AlignRight
                             }
                             Text {
-                                text: " / " + ((pokeData && pokeData.requiredXP!==null) ? pokeData.requiredXP : "")
+                                text: " / "
                                 font.family: bodyFont; font.pixelSize: fontSizeSm
                                 color: colorSubtext
+                            }
+                            Text {
+                                width: 40
+                                text: ((pokeData && pokeData.requiredXP!==null) ? pokeData.requiredXP : "")
+                                font.family: bodyFont; font.pixelSize: fontSizeSm
+                                color: colorSubtext
+                                horizontalAlignment: Text.AlignRight
                             }
                         }
                     }
@@ -213,21 +318,7 @@ Item {
                         spacing: rowSpacing
                         Repeater {
                             model: pokeData ? [pokeData.type1, pokeData.type2].filter(t => t && t !== "None") : []
-                            Rectangle {
-                                width: typePillW; height: typePillH; radius: 4
-                                gradient: Gradient {
-                                    GradientStop { position: 0.0; color: PokeColor.lighter(PokeColor.typeColor(modelData)) }
-                                    GradientStop { position: 1.0; color: PokeColor.darker(PokeColor.typeColor(modelData)) }
-                                }
-                                Text {
-                                    anchors.centerIn: parent
-                                    text: PokeColor.typeColor(modelData) === "transparent" ? "" : modelData
-                                    font.family: bodyFont
-                                    font.bold: true
-                                    font.pixelSize: fontSizeMd
-                                    color: colorTypePillText
-                                }
-                            }
+                            TypePill { typeName: modelData }
                         }
                     }
 
@@ -245,9 +336,11 @@ Item {
                                     color: colorSubtext; width: 32
                                 }
                                 Text {
+                                    width: 30
                                     text: modelData
                                     font.family: bodyFont; font.pixelSize: fontSizeSm
                                     color: colorText
+                                    horizontalAlignment: Text.AlignRight
                                 }
                             }
                         }
@@ -322,67 +415,37 @@ Item {
                         height: moveInner.implicitHeight + moveCardPad * 2
                         color:  colorMoveCard
                         radius: 5
+                        border.color: pokeView.colorDivider
+                        border.width: 1
 
                         Column {
                             id: moveInner
                             anchors { left: parent.left; right: parent.right; top: parent.top; margins: moveCardPad }
                             spacing: 4
 
-                            Item {
-                                width:  parent.width
-                                height: Math.max(typeContainer.height, nameContainer.height, powerContainer.height)
+                            Row {
+                                width: parent.width
+                                spacing: movePillGap
 
-                                Row {
+                                TypePill { typeName: modelData.type }
+
+                                Text {
+                                    width: parent.width*0.4
+                                    text: modelData.name
+                                    font.family: mainFont
+                                    font.pixelSize: fontSizeMd
+                                    color: colorText
+                                    elide: Text.ElideRight
                                     anchors.verticalCenter: parent.verticalCenter
-                                    spacing: movePillGap
+                                }
 
-                                    Item {
-                                        id: typeContainer
-                                        width: typePillW; height: fontSizeMd + 8
-                                        Rectangle {
-                                            anchors.centerIn: parent
-                                            width: typePillW; height: typePillH; radius: 3
-                                            gradient: Gradient {
-                                                GradientStop { position: 0.0; color: PokeColor.lighter(PokeColor.typeColor(modelData.type)) }
-                                                GradientStop { position: 1.0; color: PokeColor.darker(PokeColor.typeColor(modelData.type)) }
-                                            }
-                                            Text {
-                                                anchors.centerIn: parent
-                                                text: modelData.type
-                                                font.family: bodyFont
-                                                font.bold:  true
-                                                font.pixelSize: fontSizeMd
-                                                color: colorTypePillText
-                                            }
-                                        }
-                                    }
-
-                                    Item {
-                                        id: nameContainer
-                                        width: moveNameW; height: typeContainer.height
-                                        Text {
-                                            anchors.centerIn: parent
-                                            width: parent.width
-                                            text: modelData.name
-                                            font.family: mainFont; font.pixelSize: fontSizeMd
-                                            color: colorText
-                                            horizontalAlignment: Text.AlignLeft
-                                            verticalAlignment:   Text.AlignVCenter
-                                            elide: Text.ElideRight
-                                        }
-                                    }
-
-                                    Item {
-                                        id: powerContainer
-                                        width: powerText.implicitWidth; height: typeContainer.height
-                                        Text {
-                                            id: powerText
-                                            anchors.centerIn: parent
-                                            text: "Pow: " + modelData.power + "   Acc: " + modelData.accuracy
-                                            font.family: bodyFont; font.pixelSize: fontSizeSm
-                                            color: colorSubtext; verticalAlignment: Text.AlignVCenter
-                                        }
-                                    }
+                                MoveStatRow {
+                                    id: statRow
+                                    moveCat: modelData.category !== undefined ? modelData.category : -1
+                                    movePow: modelData.power !== undefined ? modelData.power : -1
+                                    moveAcc: modelData.accuracy !== undefined ? modelData.accuracy : -1
+                                    isEmpty: false
+                                    anchors.verticalCenter: parent.verticalCenter
                                 }
                             }
 

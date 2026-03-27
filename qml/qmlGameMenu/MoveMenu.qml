@@ -90,8 +90,8 @@ Item {
         property color darkerColor: isVisible ? PokeColor.darker(typeColor) : "transparent"
         width:  moveMenu.pillW
         height: moveMenu.pillH
-        radius: 4
-        border.width: isVisible ? 2 : 0
+        radius: 3
+        border.width: isVisible ? 1 : 0
         border.color: lighterColor
         gradient: Gradient {
             GradientStop { position: 0.0; color: lighterColor }
@@ -211,7 +211,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 text:           cmc.moveName
                 font.family:    moveMenu.mainFont
-                font.pixelSize: moveMenu.fontSizeSm - 1
+                font.pixelSize: moveMenu.fontSizeSm
                 color:          cmc.isEmpty ? moveMenu.colorVeryFaint : moveMenu.colorText
                 elide:          Text.ElideRight
             }
@@ -314,7 +314,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 text:           emr.moveName
                 font.family:    moveMenu.mainFont
-                font.pixelSize: moveMenu.fontSizeSm - 1
+                font.pixelSize: moveMenu.fontSizeSm
                 color:          isMoveKnown ? moveMenu.colorVeryFaint : moveMenu.colorText
                 elide:          Text.ElideRight
             }
