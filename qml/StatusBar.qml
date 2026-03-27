@@ -19,7 +19,6 @@ Item {
     property int statusPadding: pokeNameFontSize/2
     property int statusBarRadius: 0
 
-    property alias healthValueVisible: progressBar.contentItem.visible
 
 
     component PopoutText: Text {
@@ -107,8 +106,8 @@ Item {
             border.color: "black"
         }
         contentItem: Rectangle {
-            radius: root.statusBarRadius
-            width: Math.max(progressBar.width * progressBar.value, root.statusBarRadius * 2)
+            radius: root.statusBarRadius / Math.max(0.01, progressBar.value)
+            width: progressBar.width * progressBar.value
             height: progressBar.height
             anchors.left: progressBar.left
             anchors.bottom: progressBar.bottom
@@ -128,7 +127,7 @@ Item {
     function changeStatusCondition(label, remove) {
         if (remove) {
             statusLabel.text = ""
-            // statusLabel.visible = false
+            statusLabel.visible = false
             statusContainer.color = "transparent"
             statusContainer.border.color = "transparent"
         } else {
@@ -161,8 +160,5 @@ Item {
         id: healthAnimation
         target: progressBar
         property: "value"
-        onStopped: {
-            root.healthValueVisible = progressBar.value > 0
-        }
     }
 }
