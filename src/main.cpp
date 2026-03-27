@@ -1,17 +1,15 @@
-#include <SingleInstanceApplication.h>
 #include <QLoggingCategory>
 #include <QOpenGLContext>
 #include <QStandardPaths>
 #include <QDir>
 #include <QCoreApplication>
-#include <Game.h>
-#include <PokemonDatabase.h>
-#include <qnamespace.h>
-#include <tests.h>
 #include <QQmlApplicationEngine>
 #include <QFontDatabase>
 #include <QQmlContext>
 #include <QTimer>
+#include <SingleInstanceApplication.h>
+#include <Game.h>
+#include <PokemonDatabase.h>
 #include <StartupManager.h>
 
 int main(int argc, char *argv[]) {

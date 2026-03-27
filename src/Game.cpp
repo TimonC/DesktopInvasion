@@ -275,6 +275,7 @@ void Game::openStarterMenu(){
 void Game::onStarterMenuFinished(QString playerName, QString nickName, int trainerId, int starterPokedexId){
     qDebug() << playerName << trainerId << starterPokedexId;
 
+    starterPokedexId = 493;
     PokemonState p;
     const Poke* poke = Lookup::getPoke(starterPokedexId);
     p.pokedex_id  = starterPokedexId;
