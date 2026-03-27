@@ -1,25 +1,25 @@
-#ifndef SINGLEINSTANCEAPPLICATION_HH
-#define SINGLEINSTANCEAPPLICATION_HH
+#ifndef SINGLEINSTANCEAPPLICATION_H
+#define SINGLEINSTANCEAPPLICATION_H
 
 #include <QApplication>
-#include <QSharedMemory>
 #include <QLocalServer>
 
-class SingleInstanceApplication : public QApplication {
+class SingleInstanceApplication : public QApplication
+{
     Q_OBJECT
-
 public:
     SingleInstanceApplication(int &argc, char **argv, const QString &uniqueKey);
     ~SingleInstanceApplication();
 
-    bool isPrimary() const { return m_isPrimary; }
     bool shouldExit() const { return m_shouldExit; }
+
+private slots:
+    void handleNewConnection();
 
 private:
     QString m_uniqueKey;
-    QSharedMemory m_sharedMemory;
-    bool m_isPrimary = false;
-    bool m_shouldExit = false;
+    QLocalServer *m_server;
+    bool m_shouldExit;
 };
 
 #endif
