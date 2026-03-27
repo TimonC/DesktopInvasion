@@ -64,6 +64,7 @@ void Game::resetGame(){
 }
 
 std::mt19937 Game::initializeRNG() {
+    //Use system RNG for true random gameplay
     QRandomGenerator* secureGen = QRandomGenerator::system();
 
     std::vector<unsigned int> seeds;
@@ -134,64 +135,6 @@ void Game::setGameActive(bool active) {
     processing = false;
 }
 
-void Game::spawnPokemon() {
-    if (m_wildPokemon) return;
-
-    if (m_spawnPoint == QPoint(-1, -1)) {
-        setRandomSpawnPoint();
-    }
-
-    if(!m_petMode){
-        if (m_db.wild().empty()) {
-            m_spawnDirection = rand() % 4;
-
-            int firstLvl = m_db.party().begin()->lvl;
-            std::uniform_int_distribution<int> distLvl(firstLvl-Globals::encounterLvlLow(), firstLvl+Globals::encounterLvlHigh());
-            int lvl = std::clamp(distLvl(m_rng), 1, 100);
-
-            std::vector<int> unavailableTmList = m_db.getTechnicalMoveList();
-            const PokeRoll roll = Lookup::weightedSamplePokemon(lvl, unavailableTmList, m_rng);
-            const Poke* wildPoke = Lookup::getPoke(roll.poke_id);
-
-            m_tmGetId=roll.tmId;
-            m_ballGetCount=roll.ballCount;
-            m_ballGetId=roll.ballId;
-
-            PokemonState w;
-            w.pokedex_id = roll.poke_id;
-            w.name       = wildPoke->name;
-            w.lvl        = lvl;
-            w.nature     = Lookup::getRandomNature(m_rng);
-
-            const Poke *poke = Lookup::getPoke(roll.poke_id);
-            int moveIndex = 0;
-            for (int i = poke->eligible_move_count - 1; i >= 0 && moveIndex < 4; i--) {
-                int moveLevel = poke->eligible_moves[i].level;
-                if (moveLevel > 0 && moveLevel <= w.lvl) {
-                    w.moves[moveIndex] = poke->eligible_moves[i].move_id;
-                    moveIndex++;
-                }
-            }
-            m_db.setWild(w);
-        }
-
-        m_wildPokemon = new WildPokemon(m_db.wild().pokedex_id, m_spawnPoint, m_spawnDirection);
-        connect(m_wildPokemon, &WildPokemon::startABattle, this, &Game::handleBattleStart);
-    }else{
-        m_wildPokemon = new WildPokemon(m_db.party()[0].pokedex_id, m_spawnPoint, m_spawnDirection, true);
-    }
-
-    m_wildPokemon->show();
-    m_spawnTimer->stop();
-}
-
-void Game::setRandomSpawnPoint(){
-    const QRect screen = Globals::screenGeometry();
-    std::uniform_int_distribution<int> distX(0, screen.width()-64*Globals::scale());
-    std::uniform_int_distribution<int> distY(0, screen.height()-64*Globals::scale());
-    m_spawnPoint = QPoint(distX(m_rng), distY(m_rng));
-}
-
 void Game::initializeGame(bool openStarter) {
     bool hasParty = false;
     for (const auto& p : m_db.party())
@@ -238,45 +181,48 @@ void Game::initializeGame(bool openStarter) {
     if(m_gameUsedToBeActive) m_spawnTimer->start();
 }
 
-void Game::handleSaveSelected(int saveId){
-    if(m_db.currentSaveId()==saveId) return;
-    m_db.setCurrentSaveId(saveId);
-    setRandomSpawnPoint();
-    resetGame();
-    initializeGame();
+void Game::initMenu() {
+    m_menu = new GameMenu();
+    auto gs = m_db.loadGameState();
+
+    std::string upperName = gs.name;
+    std::transform(upperName.begin(), upperName.end(), upperName.begin(),
+                   [](unsigned char c) { return std::toupper(c); });
+    m_menu->setTrainer(QString::fromStdString(upperName), gs.player_sprite_id);
+    connect(m_menu, &GameMenu::menuClosed,          this, &Game::handleMenuClosed);
+    connect(m_menu, &GameMenu::preloadBoxRequested,  this, &Game::handleMenuPreloadBox);
+    connect(m_menu, &GameMenu::swapRequested,        this, &Game::handlePCSwap);
+    connect(m_menu, &GameMenu::nameChangeRequested,  this, &Game::handleNameChange);
+    connect(m_menu, &GameMenu::moveChangeRequested,  this, &Game::handleMoveChange);
+    connect(m_menu, &GameMenu::evolvesRequested, this, &Game::handleEvolveRequest);
+    connect(m_menu, &GameMenu::evolvePokemonRequested, this, &Game::handleEvolvePokemon);
 }
 
-void Game::deleteCurrentSave() {
-    QMessageBox msgBox;
-    msgBox.setWindowTitle("DesktopInvasion - Confirm Delete");
-    const QString text = QString("Are you sure that you want to discard '") +
-                     QString::fromStdString(m_db.loadGameState().name) +
-                     QString("'? This cannot be undone.");
-    msgBox.setText(text);
-    msgBox.setStandardButtons(QMessageBox::Discard | QMessageBox::Cancel);
-    msgBox.setDefaultButton(QMessageBox::Cancel);
-    msgBox.setIcon(QMessageBox::Warning);
+void Game::handleMenuOpen() {
+    bool usedToBeActive = m_gameUsedToBeActive;
+    m_spawnTimer->stop();
+    setGameActive(false);
+    m_gameUsedToBeActive = usedToBeActive;
 
-    if (msgBox.exec() != QMessageBox::Discard) {
-        return;
-    }
+    Defaults d = m_db.loadDefaults();
+    m_menu->setDefaults(d);
 
-    m_db.deleteSave(m_db.currentSaveId());
-    auto v = m_db.listSaveIds();
-    if (v.empty()) {
-        m_db.setCurrentSaveId(0);
-        resetGame();
-        openStarterMenu();
-    } else {
-        m_db.setCurrentSaveId(v.back());
+    m_menu->activate();
 
-        m_trayIcon->m_gameActive = false;
-        m_trayIcon->toggleGameActive();
-        m_trayIcon->show();
-        m_gameUsedToBeActive = true;
+    m_menu->loadParty(partyToVariantList(), true);
+    pushBoxToMenu(0);
+    pushBoxToMenu(1);
+    pushBoxToMenu(98);
+    m_menu->showBox(0);
 
-        resetGame();
-        initializeGame();
+    m_trayIcon->enabled(false);
+}
+
+void Game::handleMenuClosed() {
+    writeDefaults();
+    m_trayIcon->enabled(true);
+    if (m_gameUsedToBeActive){
+        m_menuClosing = true;
         setGameActive(true);
     }
 }
@@ -362,24 +308,128 @@ void Game::onStarterMenuFinished(QString playerName, QString nickName, int train
     m_trayIcon->show();
 }
 
+void Game::spawnPokemon() {
+    if (m_wildPokemon) return;
 
-void Game::initMenu() {
-    m_menu = new GameMenu();
-    auto gs = m_db.loadGameState();
+    if (m_spawnPoint == QPoint(-1, -1)) {
+        setRandomSpawnPoint();
+    }
 
-    std::string upperName = gs.name;
-    std::transform(upperName.begin(), upperName.end(), upperName.begin(),
-                   [](unsigned char c) { return std::toupper(c); });
-    m_menu->setTrainer(QString::fromStdString(upperName), gs.player_sprite_id);
-    connect(m_menu, &GameMenu::menuClosed,          this, &Game::handleMenuClosed);
-    connect(m_menu, &GameMenu::preloadBoxRequested,  this, &Game::handleMenuPreloadBox);
-    connect(m_menu, &GameMenu::swapRequested,        this, &Game::handlePCSwap);
-    connect(m_menu, &GameMenu::nameChangeRequested,  this, &Game::handleNameChange);
-    connect(m_menu, &GameMenu::moveChangeRequested,  this, &Game::handleMoveChange);
-    connect(m_menu, &GameMenu::evolvesRequested, this, &Game::handleEvolveRequest);
-    connect(m_menu, &GameMenu::evolvePokemonRequested, this, &Game::handleEvolvePokemon);
+    if(!m_petMode){
+        if (m_db.wild().empty()) {
+            m_spawnDirection = rand() % 4;
+
+            int firstLvl = m_db.party().begin()->lvl;
+            std::uniform_int_distribution<int> distLvl(firstLvl-Globals::encounterLvlLow(), firstLvl+Globals::encounterLvlHigh());
+            int lvl = std::clamp(distLvl(m_rng), 1, 100);
+
+            std::vector<int> unavailableTmList = m_db.getTechnicalMoveList();
+            const PokeRoll roll = Lookup::weightedSamplePokemon(lvl, unavailableTmList, m_rng);
+            const Poke* wildPoke = Lookup::getPoke(roll.poke_id);
+
+            m_tmGetId=roll.tmId;
+            m_ballGetCount=roll.ballCount;
+            m_ballGetId=roll.ballId;
+
+            PokemonState w;
+            w.pokedex_id = roll.poke_id;
+            w.name       = wildPoke->name;
+            w.lvl        = lvl;
+            w.nature     = Lookup::getRandomNature(m_rng);
+
+            const Poke *poke = Lookup::getPoke(roll.poke_id);
+            int moveIndex = 0;
+            for (int i = poke->eligible_move_count - 1; i >= 0 && moveIndex < 4; i--) {
+                int moveLevel = poke->eligible_moves[i].level;
+                if (moveLevel > 0 && moveLevel <= w.lvl) {
+                    w.moves[moveIndex] = poke->eligible_moves[i].move_id;
+                    moveIndex++;
+                }
+            }
+            m_db.setWild(w);
+        }
+
+        m_wildPokemon = new WildPokemon(m_db.wild().pokedex_id, m_spawnPoint, m_spawnDirection);
+        connect(m_wildPokemon, &WildPokemon::startABattle, this, &Game::handleBattleStart);
+    }else{
+        m_wildPokemon = new WildPokemon(m_db.party()[0].pokedex_id, m_spawnPoint, m_spawnDirection, true);
+    }
+
+    m_wildPokemon->show();
+    m_spawnTimer->stop();
 }
 
+void Game::setRandomSpawnPoint(){
+    const QRect screen = Globals::screenGeometry();
+    std::uniform_int_distribution<int> distX(0, screen.width()-64*Globals::scale());
+    std::uniform_int_distribution<int> distY(0, screen.height()-64*Globals::scale());
+    m_spawnPoint = QPoint(distX(m_rng), distY(m_rng));
+}
+
+
+void Game::handleSaveSelected(int saveId){
+    if(m_db.currentSaveId()==saveId) return;
+    m_db.setCurrentSaveId(saveId);
+    setRandomSpawnPoint();
+    resetGame();
+    initializeGame();
+}
+
+void Game::deleteCurrentSave() {
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("DesktopInvasion - Confirm Delete");
+    const QString text = QString("Are you sure that you want to discard '") +
+                     QString::fromStdString(m_db.loadGameState().name) +
+                     QString("'? This cannot be undone.");
+    msgBox.setText(text);
+    msgBox.setStandardButtons(QMessageBox::Discard | QMessageBox::Cancel);
+    msgBox.setDefaultButton(QMessageBox::Cancel);
+    msgBox.setIcon(QMessageBox::Warning);
+
+    if (msgBox.exec() != QMessageBox::Discard) {
+        return;
+    }
+
+    m_db.deleteSave(m_db.currentSaveId());
+    auto v = m_db.listSaveIds();
+    if (v.empty()) {
+        m_db.setCurrentSaveId(0);
+        resetGame();
+        openStarterMenu();
+    } else {
+        m_db.setCurrentSaveId(v.back());
+
+        m_trayIcon->m_gameActive = false;
+        m_trayIcon->toggleGameActive();
+        m_trayIcon->show();
+        m_gameUsedToBeActive = true;
+
+        resetGame();
+        initializeGame();
+        setGameActive(true);
+    }
+}
+
+
+
+
+
+//Below method sends a QMap for each pokemon in party and box,
+//with all the data needed for display, editing, and evolving.
+//
+//Some of this method must be duplicated in the
+//"handleEvolveRequest" that is defined below.
+//That is because I dont load all pokemon-evolution data in at menu build,
+//but rather I send it as a signal once the evolve menu is opened.
+//
+//In retrospect, it might have just been cleaner to pass evolve data
+//immediately so that there was no need for this ugly duplicate multi-step
+//signal passing.... but hey at least now if you have 500 pokemon that are
+//all able to evolve, there is no added load!
+//k
+//And don't tell me there's some kind of QContext/Q data view thingie
+//that would have worked better, I have chosen for annoying multi-signal
+//passes to plug up holes in my game, and I will god damn stand by it!
 QVariantMap Game::pokemonToMenuState(int slot, const PokemonState& p) {
     QVariantMap entry;
     entry["slot"]   = slot;
@@ -444,6 +494,7 @@ QVariantMap Game::pokemonToMenuState(int slot, const PokemonState& p) {
         moveData["type"]     = QString::fromStdString(PokeTypes::typeToString(mv->type));
         moveData["power"]    = mv->power;
         moveData["accuracy"] = mv->accuracy;
+        moveData["category"] = static_cast<int>(mv->category);
         eligibleMoves.append(moveData);
     }
     entry["eligibleMoves"] = eligibleMoves;
@@ -462,12 +513,17 @@ QVariantMap Game::pokemonToMenuState(int slot, const PokemonState& p) {
         moveData["flavor"]   = QString::fromStdString(mv->flavor_text);
         moveData["power"]    = mv->power;
         moveData["accuracy"] = mv->accuracy;
+        moveData["category"] = static_cast<int>(mv->category);
         moves.append(moveData);
     }
     entry["moves"] = moves;
 
     return entry;
 }
+
+//Below method contains the base pokemon's menu-relevant data,
+//and that of its possible evolutions in "evolvesList"
+//(See comment in above method "pokemonToMenuState")
 void Game::handleEvolveRequest(int boxIndex, int slot, QVariantMap pokeData) {
     PokemonState originalState;
     if (boxIndex == -1) {
@@ -498,7 +554,6 @@ void Game::handleEvolveRequest(int boxIndex, int slot, QVariantMap pokeData) {
         evolvesList.append(entry);
     }
 
-    //This contains the base pokemon's relevant display data, plus that of all its possible evolutions
     QVariantMap evolvesData;
     evolvesData["slot"]       = slot;
     evolvesData["box"]        = boxIndex;
@@ -567,35 +622,6 @@ void Game::handleMoveChange(int placex, int posx, int moveSlot, int moveId) {
     } else {
         pushBoxToMenu(placex);
         m_menu->showBox(placex);
-    }
-}
-
-void Game::handleMenuOpen() {
-    bool usedToBeActive = m_gameUsedToBeActive;
-    m_spawnTimer->stop();
-    setGameActive(false);
-    m_gameUsedToBeActive = usedToBeActive;
-
-    Defaults d = m_db.loadDefaults();
-    m_menu->setDefaults(d);
-
-    m_menu->activate();
-
-    m_menu->loadParty(partyToVariantList(), true);
-    pushBoxToMenu(0);
-    pushBoxToMenu(1);
-    pushBoxToMenu(98);
-    m_menu->showBox(0);
-
-    m_trayIcon->enabled(false);
-}
-
-void Game::handleMenuClosed() {
-    writeDefaults();
-    m_trayIcon->enabled(true);
-    if (m_gameUsedToBeActive){
-        m_menuClosing = true;
-        setGameActive(true);
     }
 }
 
