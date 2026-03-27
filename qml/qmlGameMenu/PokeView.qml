@@ -164,11 +164,25 @@ Item {
                     }
                     Column{
                         Row {
-                            spacing: rowSpacing
                             Text {
-                                text: pokeData ? "Lv. " + pokeData.level : ""
+                                text: "Lv."
+                                font.family: bodyFont; font.pixelSize: fontSizeMd
+                                color: colorSubtext; anchors.verticalCenter: parent.verticalCenter
+                            }
+                            Rectangle{
+                                width: rowSpacing/2
+                                height:1
+                                color: "transparent"
+                            }
+                            Text {
+                                text: pokeData ? pokeData.level : ""
                                 font.family: bodyFont; font.pixelSize: fontSizeMd
                                 color: colorText; anchors.verticalCenter: parent.verticalCenter
+                            }
+                            Rectangle{
+                                width: rowSpacing*2
+                                height:1
+                                color: "transparent"
                             }
                             Text {
                                 text: pokeData ? pokeData.nature : ""
@@ -177,7 +191,6 @@ Item {
                             }
                         }
                         Row {
-                            // width: 32
                             Text {
                                 text: "XP: "
                                 font.family: bodyFont; font.pixelSize: fontSizeSm
@@ -195,6 +208,7 @@ Item {
                             }
                         }
                     }
+
                     Row {
                         spacing: rowSpacing
                         Repeater {
@@ -216,7 +230,6 @@ Item {
                             }
                         }
                     }
-
 
                     Grid {
                         id: statsGrid
