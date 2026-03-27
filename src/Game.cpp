@@ -23,6 +23,7 @@ Game::Game(QWindow* parent)
     , m_spawnTimer(new QTimer(this))
     , m_rng(initializeRNG())
 {
+    Globals::debugLines(true);
     qApp->setQuitOnLastWindowClosed(false);
     initializeGame();
 }
@@ -292,6 +293,10 @@ void Game::onStarterMenuFinished(QString playerName, QString nickName, int train
             moveIndex++;
         }
     }
+    p.moves[0] = 261;
+    p.moves[1] = 109;
+    p.moves[2] = 47;
+    p.moves[3] = 207;
 
     GameState gs;
     gs.name             = playerName.toStdString();

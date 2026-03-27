@@ -60,6 +60,7 @@ struct Battler{
 struct BattleActionResult {
     enum EffectType {
         CHANGE_HEALTH,
+        CHANGE_HEALTH_END_OF_TURN,
         STATUS_APPLIED,
         STATUS_REMOVED,
         STAT_CHANGED,
@@ -74,6 +75,7 @@ struct BattleActionResult {
         TEXT,
         CONFUSION_ADDED,
         CONFUSION_REMOVED,
+        CONFUSED_TURN,
         CONFUSION_SELF_HIT,
         FLINCH
     };

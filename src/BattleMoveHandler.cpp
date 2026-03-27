@@ -416,7 +416,7 @@ BattleActionResult BattleMoveHandler::canBattlerMove(Battler* caster) {
     }
 
     if (caster->battleState.confused == Ailment::Confusion) {
-        result.addEffect(BattleActionResult::TEXT, caster, nullptr, 0, Ailment::Null, -1, 0,
+        result.addEffect(BattleActionResult::CONFUSED_TURN, caster, nullptr, 0, Ailment::Null, -1, 0,
                         (caster->pokeState.name + " is confused!").c_str());
 
         if (PokeMath::calculateConfusionHit(m_rng)) {
@@ -453,22 +453,27 @@ BattleActionResult BattleMoveHandler::applyEndOfTurnEffects(Battler* battler) {
 
     switch(battler->battleState.statusCondition) {
         case Ailment::Burn: {
-            int burnDamage = PokeMath::calculateBurnDamage(battler->pokeState.stats[0]);
-            result.addEffect(BattleActionResult::CHANGE_HEALTH, nullptr, battler, burnDamage);
             result.addEffect(BattleActionResult::TEXT, battler, nullptr, 0, Ailment::Null, -1, 0,
                             (battler->pokeState.name + " is hurt by its burn!").c_str());
+
+            int burnDamage = PokeMath::calculateBurnDamage(battler->pokeState.stats[0]);
+            result.addEffect(BattleActionResult::CHANGE_HEALTH_END_OF_TURN, nullptr, battler, burnDamage);
             break;
         }
         case Ailment::Poison:
         case Ailment::Toxic: {
             int counter = (battler->battleState.statusCondition == Ailment::Toxic) ?
                          battler->battleState.conditionCounter : -1;
+            std::string text;
+            if(battler->battleState.statusCondition == Ailment::Toxic){
+                text = battler->pokeState.name + " is hurt by poison!";
+            }else{
+                text = battler->pokeState.name + " is badly hurt by poison!";
+            }
+            result.addEffect(BattleActionResult::TEXT, battler, nullptr, 0, Ailment::Null, -1, 0, text);
+
             int poisonDamage = PokeMath::calculatePoisonDamage(battler->pokeState.stats[0], counter);
-            result.addEffect(BattleActionResult::CHANGE_HEALTH, nullptr, battler, poisonDamage);
-            std::string ailment = (battler->battleState.statusCondition == Ailment::Toxic) ?
-                                 "bad poison" : "poison";
-            result.addEffect(BattleActionResult::TEXT, battler, nullptr, 0, Ailment::Null, -1, 0,
-                            (battler->pokeState.name + " is hurt by its " + ailment + "!").c_str());
+            result.addEffect(BattleActionResult::CHANGE_HEALTH_END_OF_TURN, nullptr, battler, poisonDamage);
             break;
         }
         default:
@@ -682,6 +687,13 @@ void BattleMoveHandler::applyBattleResult(const BattleActionResult& result) {
                 }
                 break;
 
+            case BattleActionResult::CHANGE_HEALTH_END_OF_TURN:
+                if (effect.target && effect.amount > 0) {
+                    effect.target->battleState.currentHealth =
+                        std::max(0, effect.target->battleState.currentHealth - effect.amount);
+                }
+                break;
+
             case BattleActionResult::HEAL:
                 if (effect.target && effect.amount > 0) {
                     effect.target->battleState.currentHealth =
@@ -759,6 +771,13 @@ QVariantList BattleMoveHandler::generateSequenceFromResult(const BattleActionRes
                     }
                 }
                 break;
+            case BattleActionResult::CHANGE_HEALTH_END_OF_TURN:
+                if (effect.amount > 0 && !targetRole.isEmpty()) {
+                    sequence.append(createSideToSideAction(targetRole, ms_attackAnimation));
+                    sequence.append(createTakeDamageAction(targetRole, ms_takeDamage));
+                    sequence.append(createChangeHealthAction(targetRole, -effect.amount, ms_healthChange));
+                }
+                break;
 
             case BattleActionResult::HEAL:
                 if (effect.amount > 0 && !targetRole.isEmpty()) {
@@ -830,6 +849,11 @@ QVariantList BattleMoveHandler::generateSequenceFromResult(const BattleActionRes
 
             case BattleActionResult::CONFUSION_REMOVED:
                 sequence.append(createTextAction(targetName + QStringLiteral(" snapped out of confusion!"), ms_statusConditionText));
+                break;
+
+            case BattleActionResult::CONFUSED_TURN:
+                sequence.append(createTextAction(QString::fromStdString(effect.text), ms_moveUsedText));
+                sequence.append(createSideToSideAction(sourceRole, ms_attackAnimation));
                 break;
 
             case BattleActionResult::CONFUSION_SELF_HIT:
