@@ -10,6 +10,8 @@ Item {
     property int    frameHeight: 32
     property real   scaleFactor: 6
     property int    rowId:       0
+    property color colorText:          "#ffffff"
+    property color colorSubtext:       "#aaaaaa"
 
     property string mainFont:   "Press Start 2P"
     property string bodyFont:   "DotGothic16"
@@ -27,8 +29,6 @@ Item {
 
     property int jumpDistance:  24
 
-    property color colorText:         "#ffffff"
-    property color colorSubtext:      "#aaaaaa"
     property color colorVeryFaint:    "#999999"
     property color colorDivider:      "#3d3d3d"
     property color colorSurface:      "#383838"
@@ -84,21 +84,95 @@ Item {
 
     component TypePill: Rectangle {
         property string typeName: ""
+        property string typeColor: PokeColor.typeColor(typeName)
+        property bool isVisible: typeColor !== "transparent"
+        property color lighterColor: isVisible ? PokeColor.lighter(typeColor) : "transparent"
+        property color darkerColor: isVisible ? PokeColor.darker(typeColor) : "transparent"
         width:  moveMenu.pillW
         height: moveMenu.pillH
-        radius: 3
+        radius: 4
+        border.width: isVisible ? 2 : 0
+        border.color: lighterColor
         gradient: Gradient {
-            GradientStop { position: 0.0; color: PokeColor.lighter(PokeColor.typeColor(typeName)) }
-            GradientStop { position: 1.0; color: PokeColor.darker(PokeColor.typeColor(typeName))  }
+            GradientStop { position: 0.0; color: lighterColor }
+            GradientStop { position: 1.0; color: darkerColor  }
         }
         Text {
             anchors.centerIn: parent
-            text:             PokeColor.typeColor(typeName) === "transparent" ? "" : typeName
+            text:             isVisible ? typeName : ""
             font.family:      moveMenu.bodyFont
             font.pixelSize:   moveMenu.fontSizeSm
             font.bold:        true
             color:            moveMenu.colorTypePillText
         }
+    }
+
+    component MoveStatRow: Row {
+        property int  moveCat: 0
+        property int  movePow: 0
+        property int  moveAcc: 0
+        property bool isEmpty: false
+
+        readonly property string _catLabel:
+            moveCat === 0 ? "Physical" : (moveCat === 1 ? "Special" : "Status")
+        readonly property int _catLabelW: 56
+        readonly property int _powNumW:   24
+        readonly property int _accNumW:   24
+        readonly property int _unitGap:   6
+        readonly property int _secGap:    12
+
+        spacing: 0
+        visible: !isEmpty
+
+        Text {
+            text:           "Pow."
+            font.family:    moveMenu.bodyFont
+            font.pixelSize: moveMenu.fontSizeSm
+            color:          moveMenu.colorSubtext
+        }
+
+        Item { width: parent._unitGap; height: 1 }
+
+        Text {
+            width:               parent._powNumW
+            text:                parent.movePow > 0 ? parent.movePow : "—"
+            font.family:         moveMenu.bodyFont
+            font.pixelSize:      moveMenu.fontSizeSm
+            color:               moveMenu.colorText
+            horizontalAlignment: Text.AlignRight
+        }
+
+        Item { width: parent._secGap; height: 1 }
+
+        Text {
+            text:           "Acc."
+            font.family:    moveMenu.bodyFont
+            font.pixelSize: moveMenu.fontSizeSm
+            color:          moveMenu.colorSubtext
+        }
+
+        Item { width: parent._unitGap; height: 1 }
+
+        Text {
+            width:               parent._accNumW
+            text:                parent.moveAcc > 0 ? parent.moveAcc : "—"
+            font.family:         moveMenu.bodyFont
+            font.pixelSize:      moveMenu.fontSizeSm
+            color:               moveMenu.colorText
+            horizontalAlignment: Text.AlignRight
+        }
+
+        Item { width: parent._secGap; height: 1 }
+
+        Text {
+            width:          parent._catLabelW
+            text:           parent._catLabel
+            font.family:    moveMenu.bodyFont
+            font.pixelSize: moveMenu.fontSizeSm
+            color:          moveMenu.colorSubtext
+            horizontalAlignment: Text.AlignLeft
+        }
+
     }
 
     component CurrentMoveCard: Rectangle {
@@ -107,6 +181,7 @@ Item {
         property string moveType:  ""
         property int    movePow:   0
         property int    moveAcc:   0
+        property int    moveCat: 0
         property int    slotIndex: 0
 
         readonly property bool swapReady: moveMenu.selectedEligibleIdx !== -1
@@ -132,7 +207,7 @@ Item {
             TypePill { typeName: cmc.isEmpty ? "" : cmc.moveType }
 
             Text {
-                width: parent.width - moveMenu.pillW - cmcPower.implicitWidth - 20
+                width: parent.width - moveMenu.pillW - cmcStats.implicitWidth - 24
                 anchors.verticalCenter: parent.verticalCenter
                 text:           cmc.moveName
                 font.family:    moveMenu.mainFont
@@ -141,15 +216,13 @@ Item {
                 elide:          Text.ElideRight
             }
 
-            Text {
-                id: cmcPower
+            MoveStatRow {
+                id: cmcStats
                 anchors.verticalCenter: parent.verticalCenter
-                text:           cmc.isEmpty ? ""
-                                : ((cmc.movePow > 0 ? cmc.movePow : "—") + "  " +
-                                   (cmc.moveAcc > 0 ? cmc.moveAcc + "%" : "—"))
-                font.family:    moveMenu.bodyFont
-                font.pixelSize: moveMenu.fontSizeSm
-                color:          moveMenu.colorSubtext
+                moveCat: cmc.moveCat
+                movePow: cmc.movePow
+                moveAcc: cmc.moveAcc
+                isEmpty: cmc.isEmpty
             }
         }
 
@@ -171,7 +244,8 @@ Item {
                     name:     eligMove.name,
                     type:     eligMove.type,
                     power:    eligMove.power,
-                    accuracy: eligMove.accuracy
+                    accuracy: eligMove.accuracy,
+                    category: eligMove.category
                 }
                 moveMenu.pokeData.moves = newMoves
                 moveMenu._updateCounter++
@@ -180,6 +254,7 @@ Item {
 
                 moveName = eligMove.name
                 moveType = eligMove.type
+                moveCat = eligMove.category
                 movePow = eligMove.power !== undefined ? eligMove.power : -1
                 moveAcc = eligMove.accuracy !== undefined ? eligMove.accuracy : -1
 
@@ -194,6 +269,7 @@ Item {
         property string moveType: ""
         property int    movePow:  0
         property int    moveAcc:  0
+        property int    moveCat:  0
         property int    eligIdx:  -1
 
         readonly property bool isSelected: moveMenu.selectedEligibleIdx === eligIdx
@@ -234,7 +310,7 @@ Item {
             TypePill { typeName: emr.moveType }
 
             Text {
-                width: parent.width - moveMenu.pillW - emrPower.implicitWidth - 20
+                width: parent.width - moveMenu.pillW - emrStats.implicitWidth - 24
                 anchors.verticalCenter: parent.verticalCenter
                 text:           emr.moveName
                 font.family:    moveMenu.mainFont
@@ -243,14 +319,13 @@ Item {
                 elide:          Text.ElideRight
             }
 
-            Text {
-                id: emrPower
+            MoveStatRow {
+                id: emrStats
                 anchors.verticalCenter: parent.verticalCenter
-                text:           (emr.movePow > 0 ? emr.movePow : "—") + "  " +
-                                (emr.moveAcc > 0 ? emr.moveAcc + "%" : "—")
-                font.family:    moveMenu.bodyFont
-                font.pixelSize: moveMenu.fontSizeSm
-                color:          isMoveKnown ? moveMenu.colorVeryFaint : moveMenu.colorSubtext
+                moveCat: emr.moveCat
+                movePow: emr.movePow
+                moveAcc: emr.moveAcc
+                isEmpty: false
             }
         }
 
@@ -433,6 +508,9 @@ Item {
                             moveAcc:   (pokeData && pokeData.moves && index < pokeData.moves.length
                                         && pokeData.moves[index].accuracy !== undefined)
                                        ? pokeData.moves[index].accuracy : -1
+                            moveCat:   (pokeData && pokeData.moves && index < pokeData.moves.length
+                                        && pokeData.moves[index].category !== undefined)
+                                        ? pokeData.moves[index].category : -1
                         }
                     }
                 }
@@ -545,6 +623,7 @@ Item {
                                     moveType: modelData.type
                                     movePow:  modelData.power    !== undefined ? modelData.power    : -1
                                     moveAcc:  modelData.accuracy !== undefined ? modelData.accuracy : -1
+                                    moveCat:  modelData.category !== undefined ? modelData.category : -1
                                 }
                             }
                         }
@@ -804,3 +883,4 @@ Item {
         }
     }
 }
+
