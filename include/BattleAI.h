@@ -6,14 +6,13 @@
 #include <BattlerMoveHandlerTypes.h>
 
 //NOTE: this whole thing was generated with DeepSeek (v3, 26th of March 2026)
-//      I just wanna finish the damn game, forgive my lazyness. I figured I'd keep in
-//      the AI-style comments!
-//
+//      I just wanna finish the damn game, forgive my lazyness. And I thought it
+//      would be fitting to let an LLM write (replicate, really) the Battle AI!
 //      What I did is I showed how my current battlemovehandler works,
 //      then compared it with the Pokemon Emerald battle AI (default "Trainer" AI, tier 7)
 //      and asked it to generate this handler class for me.
 //
-//      The wonderful folks of Emerald Kaizo have figured out how the AI works,
+//      The wonderful folks of Emerald Kaizo have figured out how the (gen3) AI works,
 //      and compiled it in this document which is what I used for reference:
 //      https://docs.google.com/document/d/1_FP5FMyyZQkL93jEf6288WtMxOBLPd-Bsemg5HxMbR4/edit?tab=t.0
 class BattleAI {
