@@ -460,19 +460,15 @@ BattleActionResult BattleMoveHandler::applyEndOfTurnEffects(Battler* battler) {
             result.addEffect(BattleActionResult::CHANGE_HEALTH_END_OF_TURN, nullptr, battler, burnDamage);
             break;
         }
-        case Ailment::Poison:
+        case Ailment::Poison: {
+            result.addEffect(BattleActionResult::TEXT, battler, nullptr, 0, Ailment::Null, -1, 0, (battler->pokeState.name + " is hurt by poison!").c_str());
+            int poisonDamage = PokeMath::calculatePoisonDamage(battler->pokeState.stats[0], -1);
+            result.addEffect(BattleActionResult::CHANGE_HEALTH_END_OF_TURN, nullptr, battler, poisonDamage);
+            break;
+        }
         case Ailment::Toxic: {
-            int counter = (battler->battleState.statusCondition == Ailment::Toxic) ?
-                         battler->battleState.conditionCounter : -1;
-            std::string text;
-            if(battler->battleState.statusCondition == Ailment::Toxic){
-                text = battler->pokeState.name + " is hurt by poison!";
-            }else{
-                text = battler->pokeState.name + " is badly hurt by poison!";
-            }
-            result.addEffect(BattleActionResult::TEXT, battler, nullptr, 0, Ailment::Null, -1, 0, text);
-
-            int poisonDamage = PokeMath::calculatePoisonDamage(battler->pokeState.stats[0], counter);
+            result.addEffect(BattleActionResult::TEXT, battler, nullptr, 0, Ailment::Null, -1, 0, (battler->pokeState.name + " is badly hurt by poison!").c_str());
+            int poisonDamage = PokeMath::calculatePoisonDamage(battler->pokeState.stats[0], battler->battleState.conditionCounter);
             result.addEffect(BattleActionResult::CHANGE_HEALTH_END_OF_TURN, nullptr, battler, poisonDamage);
             break;
         }
