@@ -588,7 +588,7 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
         }
     }
 
-    if (combinedEffectiveness==0){
+    if (combinedEffectiveness==0 && (_move->ailment!=Ailment::Confusion)){
         result.addEffect(BattleActionResult::NO_EFFECT, caster, target);
     }else{
         BattleActionResult secondaryResult = applySecondaryEffects(_move, caster, target, true, otherHasHadTurn);
@@ -840,7 +840,6 @@ QVariantList BattleMoveHandler::generateSequenceFromResult(const BattleActionRes
                         sequence.append(createChangeHealthAction(targetRole, -effect.amount, ms_healthChange));
                     }
                 } else {
-                    sequence.append(createTextAction(QStringLiteral("It hurt itself in its confusion!"), ms_ailmentText));
                     sequence.append(createTextAction(QStringLiteral("But it had no effect!"), ms_statusConditionText));
                 }
                 break;
