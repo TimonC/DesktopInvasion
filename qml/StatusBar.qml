@@ -102,15 +102,16 @@ Item {
         background: Rectangle {
             anchors.fill: progressBar
             color: "darkgrey"
-            radius: Math.min(width/2, root.statusBarRadius)
+            radius: root.statusBarRadius
             border.width: 1
             border.color: "black"
         }
         contentItem: Rectangle {
+            radius: root.statusBarRadius
+            width: Math.max(progressBar.width * progressBar.value, root.statusBarRadius * 2)
+            height: progressBar.height
             anchors.left: progressBar.left
             anchors.bottom: progressBar.bottom
-            height: progressBar.height
-            width: progressBar.width * progressBar.value + root.statusBarRadius
             gradient: Gradient {
                 GradientStop {
                     position: 0
@@ -121,14 +122,13 @@ Item {
                     color: PokeColor.darker(PokeColor.healthColor(progressBar.value))
                 }
             }
-            radius: Math.min(width/2, root.statusBarRadius)
         }
     }
 
     function changeStatusCondition(label, remove) {
         if (remove) {
             statusLabel.text = ""
-            statusLabel.visible = false
+            // statusLabel.visible = false
             statusContainer.color = "transparent"
             statusContainer.border.color = "transparent"
         } else {
