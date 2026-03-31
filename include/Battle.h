@@ -55,7 +55,7 @@ public:
                value.value<T>() : defaultValue;
     }
 
-    void showUpdateAndEndBattle(std::array<int,6> spread, std::array<int,6> lvlups, int tmGet, int ballGet, int whichBall);
+    void showUpdateAndEndBattle(std::array<int,6> spread, std::array<int,6> lvlups, std::array<QString,6> evolves, int tmGet, int ballGet, int whichBall);
 
 signals:
     void battleEnded(const char* endState, bool removeWild);

@@ -106,13 +106,15 @@ void Battle::handleGettingExperience(){
     emit _updatePartyXP(spread);
 }
 
-void Battle::showUpdateAndEndBattle(std::array<int,6> spread, std::array<int,6> lvlUps, int tmGet, int ballGet, int whichBall){
+void Battle::showUpdateAndEndBattle(std::array<int,6> spread, std::array<int,6> lvlUps, std::array<QString,6> evolves, int tmGet, int ballGet, int whichBall){
     QVector<int> qmlSpread;
     QVector<int> qmlLvlUps;
+    QVector<QString> qmlEvolves;
 
     for (int i = 0; i < 6; i++) {
         qmlSpread.append(spread[i]);
         qmlLvlUps.append(lvlUps[i]);
+        qmlEvolves.append(evolves[i]);
     }
 
 
@@ -121,6 +123,7 @@ void Battle::showUpdateAndEndBattle(std::array<int,6> spread, std::array<int,6> 
     QMetaObject::invokeMethod(m_battleScene, "showExperienceSpreadSequence",
                               Q_ARG(QVariant, QVariant::fromValue(qmlSpread)),
                               Q_ARG(QVariant, QVariant::fromValue(qmlLvlUps)),
+                              Q_ARG(QVariant, QVariant::fromValue(qmlEvolves)),
                               Q_ARG(QVariant, QString::fromStdString(tmName)),
                               Q_ARG(QVariant, ballGet),
                               Q_ARG(QVariant, whichBall)

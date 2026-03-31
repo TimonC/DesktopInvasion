@@ -538,7 +538,7 @@ Item {
         }
     }
 
-    function showExperienceSpreadSequence(spread, lvlups, tmName, ballGet, whichBall) {
+    function showExperienceSpreadSequence(spread, lvlups, evolves, tmName, ballGet, whichBall) {
         var sequence = []
         if(tmName != "NONE"){
             sequence.push({
@@ -556,12 +556,19 @@ Item {
             })
         }
         for (var i = 0; i < 6; i++) {
-            if (lvlups[i] >0){
+            if (lvlups[i] > 0){
                 sequence.push({
                     type: "text",
-                    message: battleMenu.party.names[i] + " grew to Lv." + lvlups[i] + "!",
+                    message: battleMenu.party.names[i] + " grew to Lv. " + lvlups[i] + "!",
                     delay: root.lvlUpDuration
                 })
+                if (evolves[i] !== ""){
+                    sequence.push({
+                        type: "text",
+                        message: battleMenu.party.names[i] + " can now evolve into " + evolves[i] + "!",
+                        delay: root.lvlUpDuration
+                    })
+                }
             }else if (spread[i] > 0){
                 sequence.push({
                     type: "text",

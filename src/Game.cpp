@@ -728,6 +728,7 @@ void Game::updatePartyXP(std::array<int, 6> spread) {
     if (!m_activeBattle) return;
 
     std::array<int, 6> lvlUps = {-1, -1, -1, -1, -1, -1};
+    std::array<QString,6> evolves = {"", "", "", "", "", ""};
 
     for (int i = 0; i < PARTY_SIZE; ++i) {
         if (spread[i] <= 0) continue;
@@ -747,6 +748,11 @@ void Game::updatePartyXP(std::array<int, 6> spread) {
                 p.currentXP -= xpNeeded;
                 p.lvl++;
                 lvlUps[i] = p.lvl;
+
+                const Poke* poke = Lookup::getPoke(p.pokedex_id);
+                if(poke->eligible_evolve_count>0){
+                    evolves[i] = Lookup::getPoke(poke->eligible_evolves[0].pokedex_id)->name;
+                }
             } else {
                 break;
             }
@@ -766,7 +772,7 @@ void Game::updatePartyXP(std::array<int, 6> spread) {
     m_db.changePokeball(m_ballGetCount, m_ballGetId);
     m_db.addTechnicalMove(m_tmGetId);
 
-    m_activeBattle->showUpdateAndEndBattle(spread, lvlUps, m_tmGetId, m_ballGetCount, m_ballGetId);
+    m_activeBattle->showUpdateAndEndBattle(spread, lvlUps, evolves, m_tmGetId, m_ballGetCount, m_ballGetId);
 }
 
 void Game::handleEvolvePokemon(int boxIndex, int slot, int targetPokedexId, std::string nickName) {

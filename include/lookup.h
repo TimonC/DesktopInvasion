@@ -5,7 +5,6 @@
 #include <data_poke.h>
 #include <data_move.h>
 #include <data_poke_flavor.h>
-#include <cassert>
 
 struct PokeRoll{
     const int poke_id;
