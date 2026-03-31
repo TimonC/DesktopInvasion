@@ -51,7 +51,7 @@ private:
 
     QVariantList generateActionSequence(Battler& opponent, Battler& player, bool playerFirst, int switchedIn, int shakes);
 
-    QVariantMap createTextAction(const QString& message, int delay);
+    QVariantMap createTextAction(const QString& message, int delay, bool isAttackTag = false);
     QVariantMap createAttackAction(const QString& role, int delay);
     QVariantMap createSideToSideAction(const QString& role, int delay);
     QVariantMap createJumpAction(const QString& role, int delay);

@@ -417,9 +417,20 @@ Item {
                 }
 
                 if(currentHealthRatio<=0){
-                    root.actionSequence = [
-                        {type: "faint", message: target.name + " fainted!", role: step.role, delay: root.faintDuration },
-                    ]
+                    var faintSequence = []
+                    var attackTags = true;
+                    while(attackTags){
+                        var next = root.actionSequence[root.currentActionIndex]
+                        if(next && next.isAttackTag){
+                            faintSequence.push(next)
+                            root.currentActionIndex+=1
+                        }else{
+                            attackTags=false;
+                        }
+                    }
+
+                    faintSequence.push({type: "faint", message: target.name + " fainted!", role: step.role, delay: root.faintDuration })
+                    root.actionSequence = faintSequence
                     root.currentActionIndex = 0
                 }
                 sequenceTimer.interval = step.delay / root.animationSpeed

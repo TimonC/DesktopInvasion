@@ -798,19 +798,19 @@ QVariantList BattleMoveHandler::generateSequenceFromResult(const BattleActionRes
                 break;
 
             case BattleActionResult::CRITICAL:
-                sequence.append(createTextAction(QStringLiteral("A critical hit!"), ms_criticalHitText));
+                sequence.append(createTextAction(QStringLiteral("A critical hit!"), ms_criticalHitText, true));
                 break;
 
             case BattleActionResult::SUPER_EFFECTIVE:
-                sequence.append(createTextAction(QStringLiteral("It's super effective!"), ms_effectivenessText));
+                sequence.append(createTextAction(QStringLiteral("It's super effective!"), ms_effectivenessText, true));
                 break;
 
             case BattleActionResult::NOT_VERY_EFFECTIVE:
-                sequence.append(createTextAction(QStringLiteral("It's not very effective..."), ms_effectivenessText));
+                sequence.append(createTextAction(QStringLiteral("It's not very effective..."), ms_effectivenessText, true));
                 break;
 
             case BattleActionResult::NO_EFFECT:
-                sequence.append(createTextAction(QStringLiteral("It doesn't affect ") + targetName + QStringLiteral("..."), ms_effectivenessText));
+                sequence.append(createTextAction(QStringLiteral("It doesn't affect ") + targetName + QStringLiteral("..."), ms_effectivenessText, true));
                 break;
 
             case BattleActionResult::MISS:
@@ -968,11 +968,12 @@ QVariantMap BattleMoveHandler::createEndAction() {
     return action;
 }
 
-QVariantMap BattleMoveHandler::createTextAction(const QString& message, int delay) {
+QVariantMap BattleMoveHandler::createTextAction(const QString& message, int delay, bool isAttackTag) {
     QVariantMap action;
     action[QStringLiteral("type")] = QStringLiteral("text");
     action[QStringLiteral("message")] = message;
     action[QStringLiteral("delay")] = delay;
+    action[QStringLiteral("isAttackTag")] = isAttackTag;
     return action;
 }
 
