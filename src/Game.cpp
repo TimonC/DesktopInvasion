@@ -372,6 +372,7 @@ void Game::setRandomSpawnPoint(){
 
 void Game::handleSaveSelected(int saveId){
     if(m_db.currentSaveId()==saveId) return;
+    m_db.clearCache();
     m_db.setCurrentSaveId(saveId);
     setRandomSpawnPoint();
     resetGame();
@@ -394,6 +395,7 @@ void Game::deleteCurrentSave() {
     }
 
     m_db.deleteSave(m_db.currentSaveId());
+    m_db.clearCache();
     auto v = m_db.listSaveIds();
     if (v.empty()) {
         m_db.setCurrentSaveId(0);

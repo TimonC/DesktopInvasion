@@ -46,6 +46,7 @@ class PokemonDatabase {
 
 public:
     static PokemonDatabase& instance();
+    void clearCache();
     int  initialize();
     void shutdown();
     int  currentSaveId() const { return m_saveId; }

@@ -24,6 +24,14 @@ PokemonDatabase& PokemonDatabase::instance() {
     return inst;
 }
 
+void PokemonDatabase::clearCache() {
+    m_wild = PokemonState();
+    for (int i = 0; i < PARTY_SIZE; ++i) {
+        m_party[i] = PokemonState();
+    }
+    m_boxCache.clear();
+}
+
 PokemonDatabase::~PokemonDatabase() { shutdown(); }
 
 int PokemonDatabase::initialize() {
