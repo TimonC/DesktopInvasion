@@ -13,7 +13,19 @@
 #include <StartupManager.h>
 
 int main(int argc, char *argv[]) {
+
+#ifdef Q_OS_LINUX
+    qputenv("QT_QPA_PLATFORM", "xcb");
+#endif
+
     SingleInstanceApplication app(argc, argv, "DesktopInvasion");
+
+#ifdef Q_OS_LINUX
+        if (QGuiApplication::platformName() != "xcb") {
+            qCritical() << "DesktopInvasion requires X11/XWayland for GNU Linux. Could not load XCB platform plugin.";
+        return 1;
+        }
+#endif
 
     const char* env =  getenv("DOCKER_ENV");
     bool isDev = (env && strcmp(env, "dev") == 0);

@@ -291,7 +291,6 @@ void Game::onStarterMenuFinished(QString playerName, QString nickName, int train
             moveIndex++;
         }
     }
-    p.moves[0] = 150;
 
     GameState gs;
     gs.name             = playerName.toStdString();
