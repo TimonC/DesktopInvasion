@@ -411,108 +411,121 @@ Rectangle {
             Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
             Item { width: parent.width; height: root.pad }
 
-            Row {
+            Column {
                 width: parent.width
-                height: trainerGrid.height
+                height: trainerGrid.height*1.1
                 spacing: root.pad
-
-                Grid {
-                    id: starterGrid
-                    columns: 4
-                    rows: 3
-                    spacing: 16
-                    width: parent.width * 0.6
-
-                    Repeater {
-                        id: starterRepeater
-                        model: root.starterList
-
-                        SpriteTile {
-                            spriteSource: "qrc:/assets/HGSS/reordered_icons.png"
-                            spriteWidth: 40
-                            spriteHeight: 30
-                            frameIndex: modelData.id - 1
-                            selected: root.pokeId === modelData.id
-                            hoverEnabled: true
-                            iconScale: 3
-                            horizontalOffset: 1
-                            verticalOffset: -10
-                            onClicked: {
-                                root.pokeId = modelData.id;
-                                root.nickName = modelData.name
-                            }
-                        }
-                    }
+                Text {
+                    width: parent.width
+                    text: "Choose your starter:"
+                    font.family: root.dotGothicFont
+                    font.pixelSize: root.fontSizeMd
+                    color: "#ffffff"
+                    wrapMode: Text.Wrap
                 }
 
-                Item {
-                    width: parent.width * 0.4
-                    height: starterGrid.height
-                    clip: true
+                Row {
+                    width: parent.width
+                    height: trainerGrid.height
+                    spacing: root.pad
 
-                    Column {
-                        anchors.centerIn: parent
-                        spacing: root.pad/2
-                        width: parent.width
+                        Grid {
+                            id: starterGrid
+                            columns: 4
+                            rows: 3
+                            spacing: 16
+                            width: parent.width * 0.55
 
-                        Text {
-                            width: parent.width
-                            text: root.playerName !== "" ? root.playerName : "TRAINER"
-                            font.family: root.p2pFont
-                            font.pixelSize: root.fontSizeLg
-                            color: "#ffffff"
-                            horizontalAlignment: Text.AlignHCenter
-                            wrapMode: Text.WordWrap
-                        }
+                            Repeater {
+                                id: starterRepeater
+                                model: root.starterList
 
-                        Image {
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            visible: root.trainerId !== -1
-                            width: 32 * 6
-                            height: 32 * 6
-                            source: "qrc:/assets/HGSS/reordered_trainers.png"
-                            sourceClipRect: Qt.rect(0, root.trainerId * 32, 32, 32)
-                            smooth: false
-                            antialiasing: false
-                        }
-                        Text {
-                            width: parent.width
-                            text: "YOUR STARTER"
-                            font.family: root.p2pFont
-                            font.pixelSize: root.fontSizeMd
-                            color: "#aaaaaa"
-                            horizontalAlignment: Text.AlignHCenter
-                            wrapMode: Text.WordWrap
-                        }
-
-                        Text {
-                            width: parent.width
-                            text: {
-                                if (slide2.hoveredStarterIndex !== -1)
-                                    return root.starterList[slide2.hoveredStarterIndex].name
-                                if (root.pokeId !== -1) {
-                                    for (var i = 0; i < root.starterList.length; ++i) {
-                                        if (root.starterList[i].id === root.pokeId)
-                                            return root.starterList[i].name
+                                SpriteTile {
+                                    spriteSource: "qrc:/assets/HGSS/reordered_icons.png"
+                                    spriteWidth: 40
+                                    spriteHeight: 30
+                                    frameIndex: modelData.id - 1
+                                    selected: root.pokeId === modelData.id
+                                    hoverEnabled: true
+                                    iconScale: 3
+                                    horizontalOffset: 1
+                                    verticalOffset: -10
+                                    onClicked: {
+                                        root.pokeId = modelData.id;
+                                        root.nickName = modelData.name
                                     }
                                 }
-                                return ""
                             }
-                            font.family: root.p2pFont
-                            font.pixelSize: root.fontSizeLg
-                            color: {
-                                if (slide2.hoveredStarterIndex !== -1)
-                                    return PokeColor.typeColor(root.starterList[slide2.hoveredStarterIndex].type)
-                                if (root.pokeId !== -1) {
-                                    for (var i = 0; i < root.starterList.length; ++i) {
-                                        if (root.starterList[i].id === root.pokeId)
-                                            return PokeColor.typeColor(root.starterList[i].type)
+                        }
+                    Item {
+                        width: parent.width * 0.4
+                        height: starterGrid.height
+                        clip: true
+
+                        Column {
+                            anchors.centerIn: parent
+                            spacing: root.pad/2
+                            width: parent.width
+
+                            Text {
+                                width: parent.width
+                                text: root.playerName !== "" ? root.playerName : "TRAINER"
+                                font.family: root.p2pFont
+                                font.pixelSize: root.fontSizeLg
+                                color: "#ffffff"
+                                horizontalAlignment: Text.AlignHCenter
+                                wrapMode: Text.WordWrap
+                            }
+
+                            Image {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                visible: root.trainerId !== -1
+                                width: 32 * 6
+                                height: 32 * 6
+                                source: "qrc:/assets/HGSS/reordered_trainers.png"
+                                sourceClipRect: Qt.rect(0, root.trainerId * 32, 32, 32)
+                                smooth: false
+                                antialiasing: false
+                            }
+                            Text {
+                                width: parent.width
+                                text: "YOUR STARTER"
+                                font.family: root.p2pFont
+                                font.pixelSize: root.fontSizeMd
+                                color: "#aaaaaa"
+                                horizontalAlignment: Text.AlignHCenter
+                                wrapMode: Text.WordWrap
+                            }
+
+                            Text {
+                                width: parent.width
+                                text: {
+                                    if (slide2.hoveredStarterIndex !== -1)
+                                        return root.starterList[slide2.hoveredStarterIndex].name
+                                    if (root.pokeId !== -1) {
+                                        for (var i = 0; i < root.starterList.length; ++i) {
+                                            if (root.starterList[i].id === root.pokeId)
+                                                return root.starterList[i].name
+                                        }
                                     }
+                                    return ""
                                 }
-                                return root.colorAccent
+                                font.family: root.p2pFont
+                                font.pixelSize: root.fontSizeLg
+                                color: {
+                                    if (slide2.hoveredStarterIndex !== -1)
+                                        return PokeColor.typeColor(root.starterList[slide2.hoveredStarterIndex].type)
+                                    if (root.pokeId !== -1) {
+                                        for (var i = 0; i < root.starterList.length; ++i) {
+                                            if (root.starterList[i].id === root.pokeId)
+                                                return PokeColor.typeColor(root.starterList[i].type)
+                                        }
+                                    }
+                                    return root.colorAccent
+                                }
+                                horizontalAlignment: Text.AlignHCenter
+                                wrapMode: Text.WordWrap
                             }
-                            horizontalAlignment: Text.AlignHCenter
-                            wrapMode: Text.WordWrap
                         }
                     }
                 }
