@@ -826,6 +826,7 @@ QVariantList BattleMoveHandler::generateSequenceFromResult(const BattleActionRes
                 sequence.append(createTextAction(sourceName + QStringLiteral(" flinched!"), ms_statusConditionText));
                 break;
 
+            case BattleActionResult::STATUS_APPLIED:
                 if (effect.target) {
                     sequence.append(createSideToSideAction(targetRole, ms_attackAnimation));
                     sequence.append(createStatusCondition(targetRole, effect.ailment, false));
