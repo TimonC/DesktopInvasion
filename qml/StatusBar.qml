@@ -105,10 +105,10 @@ Item {
             border.width: 1
             border.color: "black"
         }
-        contentItem: Rectangle {
-            radius: root.statusBarRadius / Math.max(0.01, progressBar.value)
-            width: progressBar.width * progressBar.value
-            height: progressBar.height
+       contentItem: Rectangle {
+            width: (progressBar.width - 4) * progressBar.value
+            height: progressBar.height - 4
+            radius: root.statusBarRadius - 1
             anchors.left: progressBar.left
             anchors.bottom: progressBar.bottom
             gradient: Gradient {
