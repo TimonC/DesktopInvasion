@@ -294,7 +294,7 @@ Item {
                             }
                             Text {
                                 width: 40
-                                text: (pokeData && pokeData.currentXP!==null && pokeData.lvl<100) ?  pokeData.currentXP : "0"
+                                text: (pokeData && pokeData.currentXP!==null && pokeData.level<100) ?  pokeData.currentXP : "0"
                                 font.family: bodyFont; font.pixelSize: fontSizeSm
                                 color: colorText
                                 horizontalAlignment: Text.AlignRight
