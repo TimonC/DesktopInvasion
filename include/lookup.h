@@ -6,6 +6,29 @@
 #include <data_move.h>
 #include <data_poke_flavor.h>
 
+//All accessing of pregenerated Pokemon data happens
+//through the Lookup namespace.
+//
+//This data is generated using Python scripts that create
+//static arrays that can then be indexed based on their ID.
+//This "hardcoded" approach is suitable for this project,
+//and is nice and cache-friendly.
+//
+//All the arrays are "extern const", and originally I had planned
+//to access them directly whenever they were used. However, at some point
+//I decided to add Lookup as a wrapper, for clarity, central bounds checking,
+//and to avoid mistakes in accessing very large global arrays.
+//
+//If I were to refactor I would probably make the Python scripts write to one
+//giant file with all the arrays without "extern const", and then expose global
+//lookup methods in that file's header. That would be cleaner seperation.
+//However, the Python scripts and the data structures were the result of
+//many months of iteration, and the current approach were the result of that,
+//and it's not really worth a refactor at this point. I simply wrote the code
+//as if the arrays were not extern const, and only used the Lookup to access it.
+
+
+
 struct PokeRoll{
     const int poke_id;
     const int tmId;
