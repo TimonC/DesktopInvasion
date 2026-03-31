@@ -4,6 +4,8 @@
 # src/data_poke_asset.cpp
 # src/data_poke_flavor.cpp
 
+wipe_github_actions.sh
+
 cppresults.txt
 tags
 
