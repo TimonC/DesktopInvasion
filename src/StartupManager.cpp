@@ -1,4 +1,3 @@
-// StartupManager.cpp
 #include "StartupManager.h"
 #include <QCoreApplication>
 #include <QDir>
@@ -11,6 +10,11 @@
 #endif
 
 #ifdef Q_OS_LINUX
+#include <QProcess>
+#include <QFileInfo>
+#endif
+
+#ifdef Q_OS_MAC
 #include <QProcess>
 #include <QFileInfo>
 #endif
@@ -99,17 +103,18 @@ void StartupManager::enableAutoStart()
 {
     QString bundlePath = QCoreApplication::applicationDirPath();
 
-    // Navigate to the .app bundle
-    while (!bundlePath.endsWith(".app") && !bundlePath.isEmpty()) {
+    for (int i = 0; i < 3; ++i) {
         bundlePath = QFileInfo(bundlePath).path();
+        if (bundlePath.endsWith(".app")) {
+            break;
+        }
     }
 
-    if (bundlePath.isEmpty()) {
+    if (!bundlePath.endsWith(".app")) {
         qWarning() << "Could not find .app bundle";
         return;
     }
 
-    // Create launch agent plist
     QString plistDir = QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
                        + "/Library/LaunchAgents";
     QDir().mkpath(plistDir);
@@ -141,7 +146,6 @@ void StartupManager::enableAutoStart()
         plistFile.write(plistContent.toUtf8());
         plistFile.close();
 
-        // Load the launch agent
         QProcess::execute("launchctl", {"load", plistPath});
         qDebug() << "Added to macOS LaunchAgents";
     } else {
@@ -171,17 +175,14 @@ void StartupManager::enableAutoStart()
 
     QString desktopFilePath = autostartDir + "/desktopinvasion.desktop";
 
-    // Get actual AppImage path from environment variable
     QString appPath;
     QByteArray appImagePath = qgetenv("APPIMAGE");
     if (!appImagePath.isEmpty()) {
         appPath = QString::fromLocal8Bit(appImagePath);
     } else {
-        // Fallback for non-AppImage builds
         appPath = QCoreApplication::applicationFilePath();
     }
 
-    // Find icon - look in the AppImage directory first
     QString iconPath;
     if (!appImagePath.isEmpty()) {
         QString appImageDir = QFileInfo(appPath).path();
@@ -199,7 +200,6 @@ void StartupManager::enableAutoStart()
         }
     }
 
-    // Fallback icon locations if not found in AppImage
     if (iconPath.isEmpty()) {
         QStringList iconLocations = {
             QCoreApplication::applicationDirPath() + "/../share/icons/hicolor/256x256/apps/desktop-invasion.png",
@@ -257,7 +257,6 @@ void StartupManager::disableAutoStart()
 }
 #endif
 
-// Fallback implementations for unsupported platforms
 #ifndef Q_OS_WIN
 #ifndef Q_OS_MAC
 #ifndef Q_OS_LINUX
