@@ -49,7 +49,7 @@ private:
 
     int m_jumpHeight = 8;
     int m_jumpUpDuration = 200;
-    int m_jumpDownDuration = 200;
+    int m_jumpDownDuration = 150;
     int m_jumpInterval = 20;
 };
 

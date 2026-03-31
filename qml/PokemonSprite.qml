@@ -36,10 +36,10 @@ Item {
 
     property int damageFlashDuration: 50 / animationSpeed
     property int attackForwardDuration: 50 / animationSpeed
+    property int attackReturnDuration: 100 / animationSpeed
     property int sideToSideDuration: 50 / animationSpeed
     property int jumpUpDuration: 150 / animationSpeed;
     property int jumpDownDuration: 100 / animationSpeed;
-    property int attackReturnDuration: 100 / animationSpeed
 
     width: itemWidth > 0 ? itemWidth : frameWidth * scaleFactor
     height: itemHeight > 0 ? itemHeight : frameHeight * scaleFactor
