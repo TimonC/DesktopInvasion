@@ -81,13 +81,6 @@ Battle::~Battle(){
 
     setSource(QUrl());
 
-    if (m_corners) {
-        m_corners->setSource(QUrl());  // Clear its QML source
-        m_corners->close();
-        delete m_corners;
-        m_corners = nullptr;
-    }
-
     m_battleScene = nullptr;
     m_opp = nullptr;
     m_chosen = nullptr;

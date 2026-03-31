@@ -33,8 +33,6 @@ public:
     explicit Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildState, const Party& party, std::array<int, 3> balls, std::unique_ptr<BattleMoveHandler> battleMoveHandler, QWindow *parent = nullptr);
     ~Battle();
     void updateTextbar(const std::string& text);
-    QQuickView* initCorners();
-    QQuickView *m_corners = nullptr;
     void direction(int direction) override;
 
     // Store initial positions position swap with WildPokemon
