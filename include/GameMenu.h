@@ -11,9 +11,8 @@ class GameMenu : public QQuickView {
     Q_OBJECT
 public:
     GameMenu();
-    ~GameMenu(){
-        qDebug() << "GameMenu destructor called!";
-    };
+    ~GameMenu();
+
     void activate();
 
     void loadParty(const QVariantList& data, bool displayFirst);

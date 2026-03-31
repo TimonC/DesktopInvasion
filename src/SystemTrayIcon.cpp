@@ -22,6 +22,8 @@ SystemTrayIcon::SystemTrayIcon(QObject *parent)
 
 SystemTrayIcon::~SystemTrayIcon() {
     qDebug() << "SystemTrayIcon destructor called!";
+    delete m_menu;
+    m_menu = nullptr;
 }
 
 void SystemTrayIcon::enabled(bool enabled) {

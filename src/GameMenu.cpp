@@ -49,6 +49,11 @@ GameMenu::GameMenu()
     hide();
 }
 
+GameMenu::~GameMenu(){
+    rootContext()->setContextProperty("menuBridge", nullptr);
+    qDebug() << "GameMenu destructor called!";
+}
+
 bool GameMenu::event(QEvent* event) {
     if (event->type() == QEvent::WindowDeactivate || event->type() == QEvent::Close) {
         QMetaObject::invokeMethod(m_menuRoot, "goToDefaultMenu");

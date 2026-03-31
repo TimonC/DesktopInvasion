@@ -72,10 +72,15 @@ int main(int argc, char *argv[]) {
     }
 
     QQmlApplicationEngine engine;
+    StartupManager startupManager;
     engine.rootContext()->setContextProperty("pixelFontFamily", pixelFontFamily);
     engine.rootContext()->setContextProperty("dotGothicFontFamily", dotGothicFamily);
-    StartupManager startupManager;
     engine.rootContext()->setContextProperty("startupManager", &startupManager);
+    QObject::connect(&app, &QCoreApplication::aboutToQuit, [&engine]() {
+        engine.rootContext()->setContextProperty("pixelFontFamily", QVariant());
+        engine.rootContext()->setContextProperty("dotGothicFontFamily", QVariant());
+        engine.rootContext()->setContextProperty("startupManager", QVariant());
+    });
 
 
     int initResult = PokemonDatabase::instance().initialize();
