@@ -78,7 +78,6 @@ Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildS
 Battle::~Battle(){
     qDebug() << "Battle destructor called!";
 
-
     setSource(QUrl());
 
     m_battleScene = nullptr;

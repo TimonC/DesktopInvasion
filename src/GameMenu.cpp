@@ -51,6 +51,7 @@ GameMenu::GameMenu()
 
 GameMenu::~GameMenu(){
     rootContext()->setContextProperty("menuBridge", nullptr);
+    setSource(QUrl());
     qDebug() << "GameMenu destructor called!";
 }
 

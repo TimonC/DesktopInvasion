@@ -42,6 +42,7 @@ void Game::resetGame(){
     }
 
     if (m_starterMenu){
+        m_starterMenu->setSource(QUrl());
         disconnect(m_starterMenu, nullptr, this, nullptr);
         disconnect(this, nullptr, m_starterMenu, nullptr);
         delete m_starterMenu;
@@ -254,6 +255,7 @@ void Game::openStarterMenu(){
         connect(root, SIGNAL(startGame(QString, QString, int, int)), this, SLOT(onStarterMenuFinished(QString, QString, int, int)));
 
     connect(m_starterMenu, &QQuickView::closing, this, [this](QQuickCloseEvent*){
+        m_starterMenu->setSource(QUrl());
         auto saves = m_db.listSaveIds();
         if (!saves.empty()) {
             if(m_trayIcon){
@@ -266,6 +268,7 @@ void Game::openStarterMenu(){
             resetGame();
             initializeGame(false);
             setGameActive(true);
+
         } else {
             qApp->quit();
         }
