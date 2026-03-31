@@ -550,6 +550,12 @@ Item {
 
     function showExperienceSpreadSequence(spread, lvlups, evolves, tmName, ballGet, whichBall) {
         var sequence = []
+        sequence.push({
+            type: "text",
+            message: "The wild " + root.opponentName + " fainted!",
+            delay: root.lvlUpDuration
+        })
+
         if(tmName != "NONE"){
             sequence.push({
                 type: "text",
