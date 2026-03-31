@@ -77,7 +77,8 @@ struct BattleActionResult {
         CONFUSION_REMOVED,
         CONFUSED_TURN,
         CONFUSION_SELF_HIT,
-        FLINCH
+        FLINCH,
+        SPLASH
     };
 
     struct Effect {

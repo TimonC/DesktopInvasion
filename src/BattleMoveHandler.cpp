@@ -502,6 +502,11 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
         return result;
     }
 
+    if(_move->id==150){ //Splash exception!
+        result.addEffect(BattleActionResult::SPLASH, caster, target);
+        return result;
+    }
+
 
     const Type* targetType1 = target->pokeState.types[0];
     const Type* targetType2 = target->pokeState.types[1];
@@ -821,13 +826,16 @@ QVariantList BattleMoveHandler::generateSequenceFromResult(const BattleActionRes
                 sequence.append(createTextAction(sourceName + QStringLiteral(" flinched!"), ms_statusConditionText));
                 break;
 
-            case BattleActionResult::STATUS_APPLIED:
                 if (effect.target) {
                     sequence.append(createSideToSideAction(targetRole, ms_attackAnimation));
                     sequence.append(createStatusCondition(targetRole, effect.ailment, false));
                     QString ailmentText = ailmentToApplicationText(effect.ailment);
                     sequence.append(createTextAction(targetName + QStringLiteral(" ") + ailmentText, ms_statusConditionText));
                 }
+                break;
+
+            case BattleActionResult::SPLASH:
+                sequence.append(createTextAction(QStringLiteral("But nothing happened!"), ms_statusConditionText));
                 break;
 
             case BattleActionResult::STATUS_REMOVED:
