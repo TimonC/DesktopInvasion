@@ -13,7 +13,7 @@ public:
     ~SystemTrayIcon();
     void setIconActivityColor(bool active);
     void enabled(bool enabled);
-    void createContextMenu(std::vector<std::pair<int, std::string>> trainers, int activeSaveId);
+    void createContextMenu(const std::vector<std::pair<int, std::string>>& trainers, int activeSaveId);
     void setActiveSaveId(int id) { m_activeSaveId = id; }
     bool   m_gameActive = true;
     bool   m_petActive = false;

@@ -64,21 +64,21 @@ private:
 
 private slots:
     void handleSaveSelected(int saveId);
-    void onStarterMenuFinished(QString playerName, QString nickName, int trainerId, int starterPokedexId);
-    void updatePartyXP(std::array<int,6> spread);
+    void onStarterMenuFinished(const QString& playerName, const QString& nickName, int trainerId, int starterPokedexId);
+    void updatePartyXP(const std::array<int,6>& spread);
     void handleMenuOpen();
     void handleMenuClosed();
     void handleMenuPreloadBox(int boxIndex);
     void handlePCSwap(int xplace, int xpos, int yplace, int ypos);
-    void handleNameChange(int xplace, int xpos, QString name);
+    void handleNameChange(int xplace, int xpos, const QString& name);
     void handleMoveChange(int xplace, int xpos, int moveSlot, int moveId);
     void handleBattleStart();
     void handleBattleEnd(const char* endState, bool removeWild);
-    void handleEvolveRequest(int boxIndex, int slot, QVariantMap pokeData);
+    void handleEvolveRequest(int boxIndex, int slot, const QVariantMap& pokeData);
     void setGameActive(bool active = true);
     void setPetMode(bool active = true);
     void deleteCurrentSave();
-    void handleEvolvePokemon(int boxIndex, int slot, int targetPokedexId, std::string nickName);
+    void handleEvolvePokemon(int boxIndex, int slot, int targetPokedexId, const std::string& nickName);
 };
 
 #endif

@@ -30,7 +30,7 @@ class Battle : public DesktopScene{
     Q_DISABLE_COPY(Battle)
 
 public:
-    explicit Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildState, Party party, std::array<int, 3> balls, std::unique_ptr<BattleMoveHandler> battleMoveHandler, QWindow *parent = nullptr);
+    explicit Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildState, const Party& party, std::array<int, 3> balls, std::unique_ptr<BattleMoveHandler> battleMoveHandler, QWindow *parent = nullptr);
     ~Battle();
     void updateTextbar(const std::string& text);
     QQuickView* initCorners();
@@ -75,13 +75,13 @@ private slots:
 
 
 private:
-    void setupParty(Party party);
+    void setupParty(const Party& party);
     std::unique_ptr<BattleMoveHandler> m_battleMoveHandler;
     int m_pokeMargin = 2;
     void initPosition();
 
 
-    QQuickItem* setupPokemon(int pokedexId, std::string name, int level, const char* role = "opponent");
+    QQuickItem* setupPokemon(int pokedexId, const std::string& name, int level, const char* role = "opponent");
     QQuickItem* m_battleScene;
     QQuickItem* m_opp;
     QQuickItem* m_chosen;

@@ -21,25 +21,25 @@ public:
     void showBox(int boxIndex);
     void updateEvolveMenu(QVariantMap evolvesData);
 
-    void setDefaults(Defaults &d);
-    void setTrainer(QString name, int trainerId);
+    void setDefaults(const Defaults &d);
+    void setTrainer(const QString& name, int trainerId);
 
     QQuickItem* m_menuRoot;
 
 public slots:
-    void evolvePokemon(int boxIndex, int slot, int targetPokedexId, QString nickName);
+    void evolvePokemon(int boxIndex, int slot, int targetPokedexId, const QString& nickName);
 
 signals:
     void menuClosed();
     void preloadBoxRequested(int boxIndex);
     void swapRequested(int xplace, int xpos, int yplace, int ypos);
-    void nameChangeRequested(int xplace, int xpos, QString name);
+    void nameChangeRequested(int xplace, int xpos, const QString& name);
     void moveChangeRequested(int xplace, int xpos, int moveSlot, int moveId);
     void evolvesRequested(int boxIndex, int slot, QVariantMap pokeData);
-    void evolvePokemonRequested(int boxIndex, int slot, int targetPokedexId, std::string nickName);
+    void evolvePokemonRequested(int boxIndex, int slot, int targetPokedexId, const std::string& nickName);
 
-    void partyDataReady(QVariantList data, bool displayFirst);
-    void boxDataReady(int boxIndex, QVariantList data);
+    void partyDataReady(const QVariantList& data, bool displayFirst);
+    void boxDataReady(int boxIndex, const QVariantList& data);
     void showBoxRequested(int boxIndex);
 
 protected:

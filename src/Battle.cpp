@@ -8,7 +8,7 @@
 #include <qobjectdefs.h>
 #include <lookup.h>
 
-Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildState, Party party, std::array<int, 3> balls, std::unique_ptr<BattleMoveHandler> battleMoveHandler, QWindow *parent)
+Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildState, const Party& party, std::array<int, 3> balls, std::unique_ptr<BattleMoveHandler> battleMoveHandler, QWindow *parent)
     : DesktopScene(parent)
     , m_oppPos(initialOppPos)
     , m_battleMoveHandler(std::move(battleMoveHandler))
@@ -146,7 +146,7 @@ void Battle::handleBattleEnded(QString endState, bool removeWild){
     emit battleEnded(endState.toStdString().data(), removeWild);
 }
 
-void Battle::setupParty(Party party) {
+void Battle::setupParty(const Party& party) {
     for(size_t i = 0; i < party.spriteIds.size(); i++) {
 
         QVariantList moves;
@@ -170,7 +170,7 @@ void Battle::setupParty(Party party) {
     }
 }
 
-QQuickItem* Battle::setupPokemon(int pokedexId, std::string name, int level, const char* role) {
+QQuickItem* Battle::setupPokemon(int pokedexId, const std::string& name, int level, const char* role) {
     m_battleScene->setProperty((QString(role) + "Name").toUtf8(), QString::fromStdString(name));
     m_battleScene->setProperty((QString(role) + "LevelText").toUtf8(), QString("Lv" + QString::number(level)));
     QQuickItem* pokemonSprite = updateSprite(pokedexId, role);

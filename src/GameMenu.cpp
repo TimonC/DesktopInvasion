@@ -76,7 +76,7 @@ void GameMenu::updateEvolveMenu(QVariantMap evolvesData){
     QMetaObject::invokeMethod(m_menuRoot, "_updateEvolvesMenu",
         Q_ARG(QVariant, QVariant::fromValue(evolvesData)));}
 
-void GameMenu::setDefaults(Defaults &d){
+void GameMenu::setDefaults(const Defaults &d){
     QMetaObject::invokeMethod(m_menuRoot, "updateDefaults",
                               Q_ARG(QVariant, d.scale),
                               Q_ARG(QVariant, d.speed),
@@ -84,7 +84,7 @@ void GameMenu::setDefaults(Defaults &d){
                               Q_ARG(QVariant, d.lvlRangeUp),
                               Q_ARG(QVariant, d.expShareOn));
 }
-void GameMenu::setTrainer(QString name, int trainerId){
+void GameMenu::setTrainer(const QString& name, int trainerId){
     m_menuRoot->setProperty("trainerName", name);
     m_menuRoot->setProperty("trainerId",trainerId);
 }
@@ -102,6 +102,6 @@ void GameMenu::showBox(int boxIndex) {
 }
 
 
-void GameMenu::evolvePokemon(int boxIndex, int slot, int targetPokedexId, QString nickName) {
+void GameMenu::evolvePokemon(int boxIndex, int slot, int targetPokedexId, const QString& nickName) {
     emit evolvePokemonRequested(boxIndex, slot, targetPokedexId, nickName.toStdString());
 }

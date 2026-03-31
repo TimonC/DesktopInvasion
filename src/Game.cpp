@@ -272,7 +272,7 @@ void Game::openStarterMenu(){
     });
 }
 
-void Game::onStarterMenuFinished(QString playerName, QString nickName, int trainerId, int starterPokedexId){
+void Game::onStarterMenuFinished(const QString& playerName, const QString& nickName, int trainerId, int starterPokedexId){
     qDebug() << playerName << trainerId << starterPokedexId;
 
     PokemonState p;
@@ -524,7 +524,7 @@ QVariantMap Game::pokemonToMenuState(int slot, const PokemonState& p) {
 //Below method contains the base pokemon's menu-relevant data,
 //and that of its possible evolutions in "evolvesList"
 //(See comment in above method "pokemonToMenuState")
-void Game::handleEvolveRequest(int boxIndex, int slot, QVariantMap pokeData) {
+void Game::handleEvolveRequest(int boxIndex, int slot, const QVariantMap& pokeData) {
     PokemonState originalState;
     if (boxIndex == -1) {
         originalState = m_db.party()[slot];
@@ -605,7 +605,7 @@ void Game::handlePCSwap(int placex, int posx, int placey, int posy) {
     m_db.swapByPos(placex, posx, placey, posy);
 }
 
-void Game::handleNameChange(int placex, int posx, QString name) {
+void Game::handleNameChange(int placex, int posx, const QString& name) {
     m_db.renamePokemon(placex, posx, name.toStdString());
     if (placex == -1) {
         m_menu->loadParty(partyToVariantList(), false);
@@ -724,7 +724,7 @@ void Game::handleBattleEnd(const char* endState, bool removeWild) {
     }
 }
 
-void Game::updatePartyXP(std::array<int, 6> spread) {
+void Game::updatePartyXP(const std::array<int,6>& spread) {
     if (!m_activeBattle) return;
 
     std::array<int, 6> lvlUps = {-1, -1, -1, -1, -1, -1};
@@ -775,7 +775,7 @@ void Game::updatePartyXP(std::array<int, 6> spread) {
     m_activeBattle->showUpdateAndEndBattle(spread, lvlUps, evolves, m_tmGetId, m_ballGetCount, m_ballGetId);
 }
 
-void Game::handleEvolvePokemon(int boxIndex, int slot, int targetPokedexId, std::string nickName) {
+void Game::handleEvolvePokemon(int boxIndex, int slot, int targetPokedexId, const std::string& nickName) {
     m_db.evolvePokemon(boxIndex, slot, targetPokedexId, nickName);
 
     if (boxIndex == -1) {

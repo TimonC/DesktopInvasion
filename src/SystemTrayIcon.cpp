@@ -56,7 +56,7 @@ void SystemTrayIcon::toggleAutoStart() {
     emit autoStartToggled(m_autoStartEnabled);
 }
 
-void SystemTrayIcon::createContextMenu(std::vector<std::pair<int, std::string>> trainers, int activeSaveId) {
+void SystemTrayIcon::createContextMenu(const std::vector<std::pair<int, std::string>>& trainers, int activeSaveId) {
     m_menu = new QMenu();
 
     m_autoStartAction = new QAction(tr("Start on system boot"), m_menu);
