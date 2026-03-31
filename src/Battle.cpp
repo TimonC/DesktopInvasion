@@ -8,10 +8,11 @@
 #include <qobjectdefs.h>
 #include <lookup.h>
 
-Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildState, const Party& party, std::array<int, 3> balls, std::unique_ptr<BattleMoveHandler> battleMoveHandler, QWindow *parent)
+Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildState, const Party& party, std::array<int, 3> balls, std::string trainerName, std::unique_ptr<BattleMoveHandler> battleMoveHandler, QWindow *parent)
     : DesktopScene(parent)
     , m_oppPos(initialOppPos)
     , m_battleMoveHandler(std::move(battleMoveHandler))
+    , m_trainerName(QString::fromStdString(trainerName))
 {
     qDebug() << "Battle constructor called!";
 
@@ -55,6 +56,7 @@ Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildS
     m_battleScene->setProperty("debugLines", Globals::debugLines());
     m_battleScene->setProperty("animationSpeed", Globals::animationSpeed());
     m_battleScene->setProperty("scale", Globals::scale());
+    m_battleScene->setProperty("trainerName", m_trainerName);
     m_opp = setupPokemon(wildState.pokedex_id, wildState.name,wildState.lvl, "opponent");
     m_chosen = setupPokemon(party.pokedexIds[0], party.names[0], party.lvls[0], "player");
     initPosition();

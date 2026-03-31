@@ -30,7 +30,7 @@ class Battle : public DesktopScene{
     Q_DISABLE_COPY(Battle)
 
 public:
-    explicit Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildState, const Party& party, std::array<int, 3> balls, std::unique_ptr<BattleMoveHandler> battleMoveHandler, QWindow *parent = nullptr);
+    explicit Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildState, const Party& party, std::array<int, 3> balls, std::string trainerName,  std::unique_ptr<BattleMoveHandler> battleMoveHandler, QWindow *parent = nullptr);
     ~Battle();
     void updateTextbar(const std::string& text);
     void direction(int direction) override;
@@ -77,6 +77,7 @@ private:
     std::unique_ptr<BattleMoveHandler> m_battleMoveHandler;
     int m_pokeMargin = 2;
     void initPosition();
+    QString m_trainerName;
 
 
     QQuickItem* setupPokemon(int pokedexId, const std::string& name, int level, const char* role = "opponent");

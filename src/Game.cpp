@@ -654,8 +654,8 @@ void Game::handleBattleStart() {
 
     const PokemonState& wildState = m_db.wild();
     const auto&         party     = m_db.party();
-    std::string playerName = m_db.loadGameState().name;
-    auto battleMoveHandler = std::make_unique<BattleMoveHandler>(wildState, party, playerName, m_rng);
+    std::string trainerName = m_db.loadGameState().name;
+    auto battleMoveHandler = std::make_unique<BattleMoveHandler>(wildState, party, trainerName, m_rng);
 
     Party battleParty;
     for (int slot = 0; slot < PARTY_SIZE; ++slot) {
@@ -686,7 +686,7 @@ void Game::handleBattleStart() {
     }
 
     std::array<int, 3> ballCount = m_db.loadPokeballs();
-    m_activeBattle = new Battle(m_spawnPoint, m_spawnDirection, wildState, battleParty, ballCount, std::move(battleMoveHandler));
+    m_activeBattle = new Battle(m_spawnPoint, m_spawnDirection, wildState, battleParty, ballCount, trainerName, std::move(battleMoveHandler));
 
     connect(m_activeBattle, &Battle::battleEnded,    this, &Game::handleBattleEnd);
     connect(m_activeBattle, &Battle::_updatePartyXP, this, &Game::updatePartyXP);

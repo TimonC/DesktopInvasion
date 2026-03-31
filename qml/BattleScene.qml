@@ -13,6 +13,7 @@ Item {
     property string textBarFontFamily: "DotGothic16"
     property string menuFontFamily: "Press Start 2P"
     property string statusBarFontFamily: "Press Start 2P"
+    property string trainerName: "Trainer"
 
     property int menuWidth: Math.round(frameSize * 6.5)
     property int menuHeight: Math.round(frameSize * 2)
@@ -24,7 +25,7 @@ Item {
     property int switchGridSpacing: Math.round(frameSize * 0.05)
     property int borderWidth: Math.max(1, Math.round(frameSize * 0.05))
 
-    property int pokeNameFontSize: Math.round(9*scale)
+    property int pokeNameFontSize: Math.round(8*scale)
     property int buttonFontSize: Math.round(9*scale)
     property int moveFontSize: Math.round(8*scale)
     property int textBarFontSize: Math.round(15*scale)
@@ -461,7 +462,7 @@ Item {
                     battleMenu.forceSwitch();
                 }else{
                     root.actionSequence = [
-                        {type: "text", message: "Player is out of usable pokemon!", delay: root.outOfPokemonTextDuration},
+                        {type: "text", message: root.trainerName + " is out of usable pokemon!", delay: root.outOfPokemonTextDuration},
                         {type: "opponent-won", delay: root.opponentWonDuration}
                     ]
                     sequenceTimer.start()
