@@ -207,8 +207,9 @@ bool PokemonDatabase::createTables() {
     run("INSERT OR IGNORE INTO current_save(id, current_save_id) VALUES(1, 0)");
 
     {
-        QSqlQuery alter;
-        alter.exec("ALTER TABLE defaults ADD COLUMN pet_mode_on INTEGER DEFAULT 0");
+        QSqlQuery alter(QSqlDatabase::database());
+        alter.prepare("ALTER TABLE defaults ADD COLUMN pet_mode_on INTEGER DEFAULT 0");
+        alter.exec();
     }
 
     if (ok) DB_LOG("Tables ready");
