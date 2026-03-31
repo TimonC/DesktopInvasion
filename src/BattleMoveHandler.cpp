@@ -1022,15 +1022,6 @@ QVariantMap BattleMoveHandler::createCatchAction(int shakes, int delay, int ball
     action[QStringLiteral("shakes")] = shakes;
     action[QStringLiteral("delay")] = delay;
     action[QStringLiteral("ballId")] = ballId;
-
-    if (shakes == 0) {
-        action[QStringLiteral("message")] = QStringLiteral("Oh no! The Pokémon broke free!");
-    } else if (shakes < 4) {
-        action[QStringLiteral("message")] = QStringLiteral("Aww! It appeared to be caught!");
-    } else {
-        action[QStringLiteral("message")] = QStringLiteral("Gotcha! ") + QString::fromStdString(m_battleOpponent->pokeState.name) + QStringLiteral(" was caught!");
-    }
-
     return action;
 }
 

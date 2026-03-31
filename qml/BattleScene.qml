@@ -53,7 +53,7 @@ Item {
     property int opponentWonDuration: 100 / animationSpeed
     property int opponentCaughtDuration: 100 / animationSpeed
     property int successCatchTextDuration: 2000 / animationSpeed
-    property int successCatchJumpDuration: 2000 / animationSpeed
+    property int successCatchJumpDuration: 1000 / animationSpeed
     property int revealOpponentDuration: 1000 / animationSpeed
     property int shakeDuration: 2000 / animationSpeed
     property int catchShakeInterval: 1500 / animationSpeed
@@ -475,9 +475,19 @@ Item {
                         {type: "jump", delay: root.successCatchJumpDuration}
                     ]
                 }
-                else{
+                else if (step.shakes==4){
                     newActions = [
                         {type: "reveal-opponent", message: "Aargh! Almost had it!", delay: root.revealOpponentDuration},
+                        {type: "fail-catch", delay: root.ballTransitionDuration}
+                    ]
+                }else if (step.shakes == 1){
+                    newActions = [
+                        {type: "reveal-opponent", message: "Oh no! The Pokémon broke free!", delay: root.revealOpponentDuration},
+                        {type: "fail-catch", delay: root.ballTransitionDuration}
+                    ]
+                }else{
+                    newActions = [
+                        {type: "reveal-opponent", message: "Aww! It appeared to be caught!", delay: root.revealOpponentDuration},
                         {type: "fail-catch", delay: root.ballTransitionDuration}
                     ]
                 }
@@ -551,7 +561,7 @@ Item {
             var ballName = whichBall == 1 ? "Great Ball" : ((whichBall == 2) ? "Ultra Ball" : "Master Ball")
             sequence.push({
                 type: "text",
-                message: "You got " + ballGet + " " + ballName + "!",
+                message: "You got " + ballGet + " " + ballName + (ballGet>1 ? "s!" :  "!"),
                 delay: root.lvlUpDuration
             })
         }
