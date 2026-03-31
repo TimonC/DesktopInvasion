@@ -75,15 +75,15 @@ private:
     bool m_expShare = false;
     int m_nrInParty = 0;
 
-    static constexpr int ms_moveUsedText = 600;
-    static constexpr int ms_ailmentText = 600;
-    static constexpr int ms_statusConditionText = 600;
-    static constexpr int ms_attackAnimation = 600;
+    static constexpr int ms_moveUsedText = 800;
+    static constexpr int ms_ailmentText = 800;
+    static constexpr int ms_statusConditionText = 800;
+    static constexpr int ms_attackAnimation = 800;
     static constexpr int ms_healthChange = 800;
     static constexpr int ms_takeDamage = 400;
-    static constexpr int ms_criticalHitText = 600;
-    static constexpr int ms_effectivenessText = 600;
-    static constexpr int ms_drainEffectText = 600;
+    static constexpr int ms_criticalHitText = 800;
+    static constexpr int ms_effectivenessText = 800;
+    static constexpr int ms_drainEffectText = 800;
     static constexpr int ms_catchStart = 800;
     static constexpr int ms_ballUsed = 400;
     static constexpr int ms_failCatch = 800;
