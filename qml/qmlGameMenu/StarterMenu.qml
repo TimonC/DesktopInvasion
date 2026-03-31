@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import QtQuick.Controls 2.15
 import "../Style/PokeColor.js" as PokeColor
 
 Rectangle {
@@ -11,6 +12,9 @@ Rectangle {
     readonly property int labelHeight:   30
     readonly property int contentSpacing:8
     readonly property color dividerColor: "#3d3d3d"
+
+    property string linkText: "google.com"
+    property string linkURL: "https://www.google.com"
 
     property bool   inNameEditMode:  false
     property bool   inNickNameEditMode: false
@@ -189,12 +193,13 @@ Rectangle {
             Item { width: parent.width; height: root.pad }
 
             Text {
-                width: parent.width
-                text: "[bunch of introductory text here and also link to website+credit]"
+                width: parent.width*0.75
+                text: "DesktopInvasion is a desktop pet game that spawns sprites on top of your desktop screen. Battle wild sprites with a MOUSE DOUBLE CLICK. In a battle you can catch wild sprites or train those that you have already caught. DesktopInvasion can be controlled from the \"system tray bar\"; that's that section in the corner of your desktop where you have the icons for your Wifi, Bluetooth, etc. If you RIGHT CLICK the DesktopInvasion icon, you can:\n\n• Open the game menu\n• Toggle whether the sprites are active \n• Toggle \"Pet mode\" to interact with your caught sprites\n• Manage your saved games\n• Quit DesktopInvasion"
                 font.family: root.dotGothicFont
                 font.pixelSize: root.fontSizeMd
                 color: "#ffffff"
                 wrapMode: Text.Wrap
+                horizontalAlignment: Text.AlignJustify
             }
 
             Item { width: parent.width; height: root.pad }
@@ -202,14 +207,41 @@ Rectangle {
             Item { width: parent.width; height: root.pad }
 
             Text {
-                width: parent.width
-                text: "--------"
+                width: parent.width*0.8
+                text: "DesktopInvasion is a passion project that is available for free. I have never and will never seek any fees or donations for this game. This game makes extensive use of material that I do not own, namely the Pokémon sprite assets as well as the Pokémon gameplay. It is my sincere belief that I have used this material in a spirit of appreciation. Apart from moderate use of LLM's, all code is written by me, with gameplay based on widely available sources on gen-4 Pokémon gameplay. Note that I have simplified the gameplay somewhat, namely by excluding abilities, a large number of moves, and items."
                 font.family: root.dotGothicFont
                 font.pixelSize: root.fontSizeMd
                 color: "#ffffff"
                 wrapMode: Text.Wrap
             }
 
+            Item { width: parent.width; height: root.pad/2 + 3 }
+            Row {
+                spacing: 5
+                width: parent.width*0.8
+
+                Text {
+                    text: "For a full list of credits, see:"
+                    font.family: root.dotGothicFont
+                    font.pixelSize: root.fontSizeMd
+                    color: "#ffffff"
+                    wrapMode: Text.Wrap
+                }
+
+                Text {
+                    text: root.linkText
+                    font.family: root.dotGothicFont
+                    font.pixelSize: root.fontSizeMd
+                    color: "#ffffff"
+                    font.underline: true
+
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: undefined
+                        onClicked: Qt.openUrlExternally(root.linkURL)
+                    }
+                }
+            }
 
             Item { width: parent.width; height: root.pad }
             Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
@@ -248,9 +280,20 @@ Rectangle {
                 }
             }
 
-            Item { width: parent.width; height: root.pad/1.5 }
+            Item { width: parent.width; height: root.pad }
             Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
-            Item { width: parent.width; height: root.pad/1.5 }
+            Item { width: parent.width; height: root.pad }
+
+            Text {
+                width: parent.width
+                text: "Choose your trainer name:"
+                font.family: root.dotGothicFont
+                font.pixelSize: root.fontSizeMd
+                color: "#ffffff"
+                wrapMode: Text.Wrap
+            }
+
+            Item { width: parent.width; height: root.pad }
 
             Item {
                 width: parent.width
@@ -306,7 +349,7 @@ Rectangle {
 
                 Text {
                     anchors { left: parent.left; verticalCenter: parent.verticalCenter; leftMargin: 10 }
-                    text: "Enter your name..."
+                    text: "Enter name..."
                     font.family: root.dotGothicFont
                     font.pixelSize: root.fontSizeSm
                     color: root.colorVeryFaint
@@ -326,9 +369,9 @@ Rectangle {
             }
 
 
-            Item { width: parent.width; height: root.pad/1.5 }
+            Item { width: parent.width; height: root.pad }
             Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
-            Item { width: parent.width; height: root.pad/1.5 }
+            Item { width: parent.width; height: root.pad }
 
             Text {
                 width: parent.width
@@ -339,7 +382,7 @@ Rectangle {
                 wrapMode: Text.Wrap
             }
 
-            Item { width: parent.width; height: root.pad/1.5 }
+            Item { width: parent.width; height: root.pad }
 
             Grid {
                 id: trainerGrid
@@ -411,121 +454,118 @@ Rectangle {
             Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
             Item { width: parent.width; height: root.pad }
 
-            Column {
+            Text {
                 width: parent.width
-                height: trainerGrid.height*1.1
+                text: "Choose your starter:"
+                font.family: root.dotGothicFont
+                font.pixelSize: root.fontSizeMd
+                color: "#ffffff"
+                wrapMode: Text.Wrap
+            }
+
+            Item { width: parent.width; height: root.pad }
+
+            Row {
+                width: parent.width
+                height: trainerGrid.height
                 spacing: root.pad
-                Text {
-                    width: parent.width
-                    text: "Choose your starter:"
-                    font.family: root.dotGothicFont
-                    font.pixelSize: root.fontSizeMd
-                    color: "#ffffff"
-                    wrapMode: Text.Wrap
-                }
 
-                Row {
-                    width: parent.width
-                    height: trainerGrid.height
-                    spacing: root.pad
+                    Grid {
+                        id: starterGrid
+                        columns: 4
+                        rows: 3
+                        spacing: 16
+                        width: parent.width * 0.55
 
-                        Grid {
-                            id: starterGrid
-                            columns: 4
-                            rows: 3
-                            spacing: 16
-                            width: parent.width * 0.55
+                        Repeater {
+                            id: starterRepeater
+                            model: root.starterList
 
-                            Repeater {
-                                id: starterRepeater
-                                model: root.starterList
-
-                                SpriteTile {
-                                    spriteSource: "qrc:/assets/HGSS/reordered_icons.png"
-                                    spriteWidth: 40
-                                    spriteHeight: 30
-                                    frameIndex: modelData.id - 1
-                                    selected: root.pokeId === modelData.id
-                                    hoverEnabled: true
-                                    iconScale: 3
-                                    horizontalOffset: 1
-                                    verticalOffset: -10
-                                    onClicked: {
-                                        root.pokeId = modelData.id;
-                                        root.nickName = modelData.name
-                                    }
+                            SpriteTile {
+                                spriteSource: "qrc:/assets/HGSS/reordered_icons.png"
+                                spriteWidth: 40
+                                spriteHeight: 30
+                                frameIndex: modelData.id - 1
+                                selected: root.pokeId === modelData.id
+                                hoverEnabled: true
+                                iconScale: 3
+                                horizontalOffset: 1
+                                verticalOffset: -10
+                                onClicked: {
+                                    root.pokeId = modelData.id;
+                                    root.nickName = modelData.name
                                 }
                             }
                         }
-                    Item {
-                        width: parent.width * 0.4
-                        height: starterGrid.height
-                        clip: true
+                    }
+                Item {
+                    width: parent.width * 0.4
+                    height: starterGrid.height
+                    clip: true
 
-                        Column {
-                            anchors.centerIn: parent
-                            spacing: root.pad/2
+                    Column {
+                        anchors.centerIn: parent
+                        spacing: root.pad/2
+                        width: parent.width
+
+                        Text {
                             width: parent.width
+                            text: root.playerName !== "" ? root.playerName : "TRAINER"
+                            font.family: root.p2pFont
+                            font.pixelSize: root.fontSizeLg
+                            color: "#ffffff"
+                            horizontalAlignment: Text.AlignHCenter
+                            wrapMode: Text.WordWrap
+                        }
 
-                            Text {
-                                width: parent.width
-                                text: root.playerName !== "" ? root.playerName : "TRAINER"
-                                font.family: root.p2pFont
-                                font.pixelSize: root.fontSizeLg
-                                color: "#ffffff"
-                                horizontalAlignment: Text.AlignHCenter
-                                wrapMode: Text.WordWrap
-                            }
+                        Image {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            visible: root.trainerId !== -1
+                            width: 32 * 6
+                            height: 32 * 6
+                            source: "qrc:/assets/HGSS/reordered_trainers.png"
+                            sourceClipRect: Qt.rect(0, root.trainerId * 32, 32, 32)
+                            smooth: false
+                            antialiasing: false
+                        }
+                        Text {
+                            width: parent.width
+                            text: "YOUR STARTER"
+                            font.family: root.p2pFont
+                            font.pixelSize: root.fontSizeMd
+                            color: "#aaaaaa"
+                            horizontalAlignment: Text.AlignHCenter
+                            wrapMode: Text.WordWrap
+                        }
 
-                            Image {
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                visible: root.trainerId !== -1
-                                width: 32 * 6
-                                height: 32 * 6
-                                source: "qrc:/assets/HGSS/reordered_trainers.png"
-                                sourceClipRect: Qt.rect(0, root.trainerId * 32, 32, 32)
-                                smooth: false
-                                antialiasing: false
-                            }
-                            Text {
-                                width: parent.width
-                                text: "YOUR STARTER"
-                                font.family: root.p2pFont
-                                font.pixelSize: root.fontSizeMd
-                                color: "#aaaaaa"
-                                horizontalAlignment: Text.AlignHCenter
-                                wrapMode: Text.WordWrap
-                            }
-
-                            Text {
-                                width: parent.width
-                                text: {
-                                    if (slide2.hoveredStarterIndex !== -1)
-                                        return root.starterList[slide2.hoveredStarterIndex].name
-                                    if (root.pokeId !== -1) {
-                                        for (var i = 0; i < root.starterList.length; ++i) {
-                                            if (root.starterList[i].id === root.pokeId)
-                                                return root.starterList[i].name
-                                        }
+                        Text {
+                            width: parent.width
+                            text: {
+                                if (slide2.hoveredStarterIndex !== -1)
+                                    return root.starterList[slide2.hoveredStarterIndex].name
+                                if (root.pokeId !== -1) {
+                                    for (var i = 0; i < root.starterList.length; ++i) {
+                                        if (root.starterList[i].id === root.pokeId)
+                                            return root.starterList[i].name
                                     }
-                                    return ""
                                 }
-                                font.family: root.p2pFont
-                                font.pixelSize: root.fontSizeLg
-                                color: {
-                                    if (slide2.hoveredStarterIndex !== -1)
-                                        return PokeColor.typeColor(root.starterList[slide2.hoveredStarterIndex].type)
-                                    if (root.pokeId !== -1) {
-                                        for (var i = 0; i < root.starterList.length; ++i) {
-                                            if (root.starterList[i].id === root.pokeId)
-                                                return PokeColor.typeColor(root.starterList[i].type)
-                                        }
-                                    }
-                                    return root.colorAccent
-                                }
-                                horizontalAlignment: Text.AlignHCenter
-                                wrapMode: Text.WordWrap
+                                return ""
                             }
+                            font.family: root.p2pFont
+                            font.pixelSize: root.fontSizeLg
+                            color: {
+                                if (slide2.hoveredStarterIndex !== -1)
+                                    return PokeColor.typeColor(root.starterList[slide2.hoveredStarterIndex].type)
+                                if (root.pokeId !== -1) {
+                                    for (var i = 0; i < root.starterList.length; ++i) {
+                                        if (root.starterList[i].id === root.pokeId)
+                                            return PokeColor.typeColor(root.starterList[i].type)
+                                    }
+                                }
+                                return root.colorAccent
+                            }
+                            horizontalAlignment: Text.AlignHCenter
+                            wrapMode: Text.WordWrap
                         }
                     }
                 }
@@ -533,6 +573,17 @@ Rectangle {
 
             Item { width: parent.width; height: root.pad }
             Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
+            Item { width: parent.width; height: root.pad }
+
+            Text {
+                width: parent.width
+                text: "(Optional) choose a nickname for your starter:"
+                font.family: root.dotGothicFont
+                font.pixelSize: root.fontSizeMd
+                color: "#ffffff"
+                wrapMode: Text.Wrap
+            }
+
             Item { width: parent.width; height: root.pad }
 
             Item {

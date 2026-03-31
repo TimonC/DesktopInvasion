@@ -243,7 +243,7 @@ void Game::openStarterMenu(){
     m_starterMenu->setCursor(QCursor(QPixmap(":/assets/XY/pointer.png"), 6, 6));
     m_starterMenu->setTitle("DesktopInvasion");
     m_starterMenu->setResizeMode(QQuickView::SizeRootObjectToView);
-    m_starterMenu->resize(1100, 720);
+    m_starterMenu->resize(1200, 800);
 
     int x = (Globals::screenGeometry().width() - m_starterMenu->width()) / 2;
     int y = (Globals::screenGeometry().height() - m_starterMenu->height()) / 2;
