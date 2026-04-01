@@ -596,7 +596,7 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
         }
     }
 
-    if (combinedEffectiveness==0 && (_move->ailment!=Ailment::Confusion)){
+    if (combinedEffectiveness==0 && (_move->ailment!=Ailment::Confusion && _move->ailment!=Ailment::Null)){
         result.addEffect(BattleActionResult::NO_EFFECT, caster, target);
     }else{
         BattleActionResult secondaryResult = applySecondaryEffects(_move, caster, target, true, otherHasHadTurn);
