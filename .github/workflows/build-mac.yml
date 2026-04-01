@@ -1,116 +1,74 @@
 name: Build macOS
-
 on:
   workflow_dispatch:
-
 jobs:
   build:
     runs-on: macos-latest
-
+    env:
+      APP_NAME: DesktopInvasion
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-    - name: Install Qt (macOS)
-      uses: jurplel/install-qt-action@v4
+    - uses: jurplel/install-qt-action@v4
       with:
         version: '6.8.0'
-        host: 'mac'
-        target: 'desktop'
-        arch: 'clang_64'
+        host: mac
+        target: desktop
+        arch: clang_64
         cache: true
 
-    - name: Configure CMake
-      run: cmake -B build -DCMAKE_BUILD_TYPE=Release
-      shell: bash
-
-    - name: Build
-      run: cmake --build build --parallel
-      shell: bash
+    - run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+    - run: cmake --build build --parallel
 
     - name: Package
       run: |
-        APP_PATH=$(find build -name "DesktopInvasion.app" -type d | head -1)
-        if [ -z "$APP_PATH" ]; then
-          echo "Error: .app bundle not found"
-          find build -type f
-          exit 1
-        fi
-        echo "Found app at: $APP_PATH"
+        APP_PATH=$(find build -name "$APP_NAME.app" -type d | head -1)
+        [ -z "$APP_PATH" ] && { echo "Error: .app not found"; find build -type f; exit 1; }
+        echo "Found: $APP_PATH"
 
-        macdeployqt "$APP_PATH" -qmldir=qml -verbose=2
+        macdeployqt "$APP_PATH" -qmldir=qml
 
         INFO_PLIST="$APP_PATH/Contents/Info.plist"
-        if [ -f "$INFO_PLIST" ]; then
-          echo "Checking Info.plist..."
-
-          if ! /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$INFO_PLIST" 2>/dev/null; then
-            echo "Adding CFBundleIdentifier to Info.plist"
-            /usr/libexec/PlistBuddy -c "Add :CFBundleIdentifier string com.github.${GITHUB_ACTOR}.DesktopInvasion" "$INFO_PLIST"
-          fi
-
-          if ! /usr/libexec/PlistBuddy -c "Print :LSMinimumSystemVersion" "$INFO_PLIST" 2>/dev/null; then
-            /usr/libexec/PlistBuddy -c "Add :LSMinimumSystemVersion string 11.0" "$INFO_PLIST"
-          fi
-
-          echo "Final Info.plist contents:"
-          cat "$INFO_PLIST"
-        fi
+        /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$INFO_PLIST" 2>/dev/null || \
+          /usr/libexec/PlistBuddy -c "Add :CFBundleIdentifier string com.github.${GITHUB_ACTOR}.$APP_NAME" "$INFO_PLIST"
+        /usr/libexec/PlistBuddy -c "Print :LSMinimumSystemVersion" "$INFO_PLIST" 2>/dev/null || \
+          /usr/libexec/PlistBuddy -c "Add :LSMinimumSystemVersion string 11.0" "$INFO_PLIST"
 
         xattr -cr "$APP_PATH"
-
-        echo "Codesigning app..."
         codesign --force --deep --sign - "$APP_PATH"
-
         codesign --verify --verbose "$APP_PATH"
 
-        hdiutil create -volname "DesktopInvasion" \
-          -srcfolder "$APP_PATH" \
-          -ov -format UDZO \
-          DesktopInvasion-macOS.dmg
+        hdiutil create -volname "$APP_NAME" -srcfolder "$APP_PATH" -ov -format UDZO "$APP_NAME-macOS.dmg"
+        codesign --force --sign - "$APP_NAME-macOS.dmg" 2>/dev/null || true
 
-        codesign --force --sign - DesktopInvasion-macOS.dmg 2>/dev/null || true
+    - name: Smoke test
+      timeout-minutes: 1
+      run: |
+        APP_PATH=$(find build -name "$APP_NAME.app" -type d | head -1)
+        [ -z "$APP_PATH" ] && { echo "Error: .app not found"; exit 1; }
 
-    # - name: Smoke test
-    #   timeout-minutes: 1
-    #   run: |
-    #     APP_PATH=$(find build -name "DesktopInvasion.app" -type d | head -1)
-    #     if [ -z "$APP_PATH" ]; then
-    #       echo "Error: .app bundle not found for smoke test"
-    #       exit 1
-    #     fi
+        QT_QPA_PLATFORM=offscreen "$APP_PATH/Contents/MacOS/$APP_NAME" > smoke.log 2>&1 &
+        APP_PID=$!
+        sleep 5
 
-    #     echo "Smoke testing: $APP_PATH"
+        if kill -0 $APP_PID 2>/dev/null; then
+          echo "Smoke test passed"
+          kill $APP_PID
+          wait $APP_PID 2>/dev/null || true
+        else
+          wait $APP_PID; EXIT_CODE=$?
+          cat smoke.log
+          [ $EXIT_CODE -eq 0 ] && echo "App exited cleanly" || { echo "Crashed. Exit: $EXIT_CODE"; exit 1; }
+        fi
 
-    #     QT_QPA_PLATFORM=offscreen "$APP_PATH/Contents/MacOS/DesktopInvasion" &
-    #     APP_PID=$!
-
-    #     { sleep 8; kill $APP_PID 2>/dev/null; } &
-    #     WATCHDOG_PID=$!
-
-    #     sleep 5
-
-    #     if kill -0 $APP_PID 2>/dev/null; then
-    #       echo "Smoke test passed"
-    #       kill $WATCHDOG_PID 2>/dev/null || true
-    #       kill $APP_PID
-    #       wait $APP_PID 2>/dev/null || true
-    #       exit 0
-    #     else
-    #       wait $APP_PID
-    #       EXIT_CODE=$?
-    #       kill $WATCHDOG_PID 2>/dev/null || true
-    #       if [ $EXIT_CODE -eq 0 ]; then
-    #         echo "App exited with code 0 within 5 seconds"
-    #         exit 0
-    #       else
-    #         echo "App crashed on startup. Exit code: $EXIT_CODE"
-    #         exit 1
-    #       fi
-    #     fi
-
-    - name: Upload DMG
+    - name: Upload smoke log
+      if: always()
       uses: actions/upload-artifact@v4
+      with:
+        name: smoke-log-macos
+        path: smoke.log
+
+    - uses: actions/upload-artifact@v4
       with:
         name: DesktopInvasion-macOS
         path: DesktopInvasion-macOS.dmg

@@ -1,100 +1,62 @@
 name: Build Windows (MSVC)
-
 on:
   workflow_dispatch:
-
 jobs:
   build:
     runs-on: windows-latest
-
+    env:
+      OUT_DIR: output\DesktopInvasion-Windows
+      EXE_PATH: build\bin\Release\DesktopInvasion.exe
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-    - name: Install Qt (MSVC)
-      uses: jurplel/install-qt-action@v4
+    - uses: jurplel/install-qt-action@v4
       with:
         version: '6.8.0'
-        host: 'windows'
-        target: 'desktop'
-        arch: 'win64_msvc2022_64'
+        host: windows
+        target: desktop
+        arch: win64_msvc2022_64
         cache: true
 
-    - name: Configure CMake
-      run: cmake -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
+    - run: cmake -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
       shell: bash
 
-    - name: Build
-      run: cmake --build build --config Release --parallel
+    - run: cmake --build build --config Release --parallel
       shell: bash
 
     - name: Package
-      shell: powershell
+      shell: pwsh
       run: |
-        $outputDir = "output\DesktopInvasion-Windows"
-        New-Item -ItemType Directory -Force -Path $outputDir
-
-        $exePath = Get-ChildItem -Path build -Recurse -Filter "DesktopInvasion.exe" |
-                   Where-Object { $_.FullName -match "Release" } |
-                   Select-Object -First 1 -ExpandProperty FullName
-
-        if (-not $exePath) {
-          $exePath = Get-ChildItem -Path build -Recurse -Filter "DesktopInvasion.exe" |
-                     Select-Object -First 1 -ExpandProperty FullName
+        New-Item -ItemType Directory -Force -Path $env:OUT_DIR
+        Copy-Item $env:EXE_PATH $env:OUT_DIR\
+        windeployqt6 --release --compiler-runtime --no-translations --qmldir "$pwd\qml" "$env:OUT_DIR\DesktopInvasion.exe"
+        $vcRedist = "${env:VCToolsRedistDir}x64\Microsoft.VC143.CRT"
+        if (Test-Path $vcRedist) {
+          Copy-Item "$vcRedist\*.dll" $env:OUT_DIR\ -Force
         }
-
-        if (-not $exePath) {
-          Write-Error "Executable not found!"
-          Get-ChildItem -Path build -Recurse -Filter "*.exe"
-          exit 1
-        }
-
-        Write-Host "Found exe: $exePath"
-        Copy-Item $exePath "$outputDir\"
-
-        windeployqt6 --release --compiler-runtime --no-translations --verbose 2 --qmldir "$pwd\qml" "$outputDir\DesktopInvasion.exe"
-
-        $vcRedistDir = "${env:VCToolsRedistDir}x64\Microsoft.VC143.CRT"
-        if (Test-Path $vcRedistDir) {
-          Get-ChildItem "$vcRedistDir\*.dll" | ForEach-Object {
-            Copy-Item $_.FullName "$outputDir\" -Force
-          }
-        }
-
-        Get-ChildItem $outputDir | Select-Object Name, Length
-
 
     - name: Smoke test
-      shell: powershell
+      shell: pwsh
       timeout-minutes: 1
       run: |
-        $exe = "output\DesktopInvasion-Windows\DesktopInvasion.exe"
-
-        if (-not (Test-Path $exe)) {
-          Write-Error "Exe not found for smoke test: $exe"
-          exit 1
-        }
-
-        $proc = Start-Process -FilePath $exe -PassThru -NoNewWindow
-
+        $log = "smoke.log"
+        $proc = Start-Process -FilePath "$env:OUT_DIR\DesktopInvasion.exe" `
+          -PassThru -NoNewWindow -RedirectStandardOutput $log -RedirectStandardError $log
         Start-Sleep -Seconds 5
-
-
-        if ($proc.HasExited) {
-          $code = $proc.ExitCode
-          if ($code -ne 0) {
-            Write-Error "App crashed on startup. Exit code: $code"
-            exit 1
-          } else {
-            Write-Host "App exited with code 0 within 5 seconds"
-          }
-        } else {
-          Write-Host "Smoke test passed"
-          $proc.Kill()
+        if ($proc.HasExited -and $proc.ExitCode -ne 0) {
+          Get-Content $log -ErrorAction SilentlyContinue
+          Write-Error "App crashed. Exit code: $($proc.ExitCode)"; exit 1
         }
+        if (-not $proc.HasExited) { $proc.Kill() }
 
-    - name: Upload artifact
+    - name: Upload smoke log
+      if: always()
       uses: actions/upload-artifact@v4
+      with:
+        name: smoke-log
+        path: smoke.log
+
+    - uses: actions/upload-artifact@v4
       with:
         name: DesktopInvasion-Windows
         path: output/DesktopInvasion-Windows/
