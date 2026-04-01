@@ -78,7 +78,7 @@ jobs:
           exit 1
         }
 
-        $proc = Start-Process -FilePath $exe -PassThru -NoNewWindow
+        $proc = Start-Process -FilePath $exe -PassThru -WindowStyle Hidden
 
         Start-Sleep -Seconds 5
 

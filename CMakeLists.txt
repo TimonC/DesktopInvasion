@@ -60,7 +60,11 @@ endif()
 
 if(WIN32)
     set_target_properties(DesktopInvasion PROPERTIES
-        WIN32_EXECUTABLE TRUE
+        WIN32_EXECUTABLE ON
+    )
+
+    target_link_options(DesktopInvasion PRIVATE
+        /SUBSYSTEM:WINDOWS
     )
 
     add_custom_command(TARGET DesktopInvasion POST_BUILD
