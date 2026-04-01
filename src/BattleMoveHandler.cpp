@@ -559,11 +559,13 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
         params.type1 = typeEffectiveness1;
         params.type2 = typeEffectiveness2;
 
-        int damage = PokeMath::calculateDamage(params, m_rng);
+        bool noEffect = combinedEffectiveness==0;
+        int damage = 0;
+        if(!noEffect) damage = PokeMath::calculateDamage(params, m_rng);
 
         result.addEffect(BattleActionResult::CHANGE_HEALTH, caster, target, damage);
 
-        if (combinedEffectiveness==0){
+        if (noEffect){
             result.addEffect(BattleActionResult::NO_EFFECT, caster, target);
         }else{
             if(isCritical) result.addEffect(BattleActionResult::CRITICAL, caster, target);
