@@ -61,10 +61,10 @@ void SystemTrayIcon::toggleAutoStart() {
 void SystemTrayIcon::createContextMenu(const std::vector<std::pair<int, std::string>>& trainers, int activeSaveId) {
     m_menu = new QMenu();
 
-    m_autoStartAction = new QAction(tr("Start on system boot"), m_menu);
+    m_autoStartAction = new QAction(tr("Launch DesktopInvasion on pc startup"), m_menu);
     m_autoStartAction->setCheckable(true);
     m_autoStartAction->setChecked(m_autoStartEnabled);
-    m_autoStartAction->setToolTip(tr("Launch Desktop Invasion when your computer starts"));
+    m_autoStartAction->setToolTip(tr("Launch DesktopInvasion when your computer starts"));
     connect(m_autoStartAction, &QAction::toggled, this, [this]() {
         toggleAutoStart();
     });
