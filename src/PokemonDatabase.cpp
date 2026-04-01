@@ -45,16 +45,22 @@ int PokemonDatabase::initialize() {
         return -1;
     }
 
-    QString appDataLocation = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QString basePath;
 
-    QString basePath = appDataLocation;
+#ifdef Q_OS_WIN
+    basePath = QCoreApplication::applicationDirPath() + "/db";
+    DB_LOG("Windows mode — using local db folder: " << basePath);
+#else
+    QString appDataLocation = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    basePath = appDataLocation;
     if (basePath.isEmpty()) {
         basePath = QCoreApplication::applicationDirPath();
         DB_WARN("AppDataLocation empty, falling back to applicationDirPath");
     }
+#endif
 
     QDir dbDir(basePath);
-    if (!dbDir.exists() && !dbDir.mkpath("basePath")) {
+    if (!dbDir.exists() && !dbDir.mkpath(basePath)) {
         DB_ERR("Failed to create database directory: " << dbDir.path());
         return -1;
     }
@@ -64,7 +70,7 @@ int PokemonDatabase::initialize() {
 
     QFile testFile(dbDir.filePath("test.tmp"));
     if (!testFile.open(QIODevice::WriteOnly)) {
-        DB_ERR("Database directory not writable: " << dbDir.path());
+        DB_ERR("Database directory not writable: " << dbDir.path() << " - " << testFile.errorString());
         return -1;
     }
     testFile.remove();
@@ -81,7 +87,7 @@ int PokemonDatabase::initialize() {
         return -1;
     }
 
-    m_dbPath      = path;
+    m_dbPath = path;
     m_initialized = true;
 
     if (!createTables()) {
