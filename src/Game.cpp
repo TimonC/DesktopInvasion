@@ -755,7 +755,7 @@ void Game::updatePartyXP(const std::array<int,6>& spread) {
                 lvlUps[i] = p.lvl;
 
                 const Poke* poke = Lookup::getPoke(p.pokedex_id);
-                if(poke->eligible_evolve_count>0){
+                if(poke->eligible_evolve_count>0 && p.lvl >= poke->eligible_evolves[0].level){
                     evolves[i] = Lookup::getPoke(poke->eligible_evolves[0].pokedex_id)->name;
                 }
             } else {
