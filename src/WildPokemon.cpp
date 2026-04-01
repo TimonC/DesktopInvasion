@@ -115,8 +115,6 @@ void WildPokemon::windowJump(){
 
     int startY = y();
     int upTargetY = startY - m_jumpHeight*Globals::scale();
-    const QRect& screen = Globals::screenGeometry();
-    if (upTargetY < screen.top()) upTargetY = screen.top();
 
     int upSteps = m_jumpUpDuration / m_jumpInterval;
     int downSteps = m_jumpDownDuration / m_jumpInterval;
@@ -146,7 +144,6 @@ void WildPokemon::windowJump(){
     m_jumpStep = 0;
     m_jumpTimer->start();
 }
-
 void WildPokemon::jumpStep(){
     if (m_jumpStep >= m_jumpPositions.size()) {
         m_jumpTimer->stop();
