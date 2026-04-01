@@ -3,6 +3,13 @@ import QtQuick.Controls 2.15
 import "../Style/PokeColor.js" as PokeColor
 
 Rectangle {
+    MouseArea {
+        anchors.fill: parent
+        cursorShape: undefined
+        onClicked: {
+            if (root.inNameEditMode) root.toggleNameEditMode()
+        }
+    }
     id: root
     color: "#2b2b2b"
     property double uiScale: 1
@@ -140,13 +147,6 @@ Rectangle {
             antialiasing: false
         }
     }
-    MouseArea {
-        anchors.fill: parent
-        cursorShape: undefined
-        onClicked: {
-            if (root.inNameEditMode) root.toggleNameEditMode()
-        }
-    }
     Item {
         id: slide0
         anchors.fill: parent
@@ -165,7 +165,7 @@ Rectangle {
                 id: column0
                 spacing: 0
                 Text {
-                    width: root.width/2 - 2 * root.pad
+                    width: root.width - 2 * root.pad
                     text: "Welcome to DesktopInvasion!"
                     font.family: root.p2pFont
                     font.pixelSize: root.fontSizeLg
@@ -176,7 +176,7 @@ Rectangle {
                 Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
                 Item { width: parent.width; height: root.pad }
                 Text {
-                    width: root.width*0.9
+                    width: root.width*0.8
                     text: "DesktopInvasion is a desktop pet game that spawns sprites on top of your desktop screen. Battle wild sprites with a MOUSE DOUBLE CLICK. In a battle you can catch wild sprites or train those that you have already caught. DesktopInvasion can be controlled from the SYSTEM TRAY; that's that section in the corner of your desktop where you have the icons for your Wifi, Bluetooth, etc. If you RIGHT CLICK the DesktopInvasion icon, you can:\n\n• Open the game menu\n• Toggle whether the sprites are active \n• Toggle \"Pet mode\" to interact with your sprites\n• Manage your saved games\n• Quit DesktopInvasion"
                     font.family: root.dotGothicFont
                     font.pixelSize: root.fontSizeMd
@@ -188,7 +188,7 @@ Rectangle {
                 Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
                 Item { width: parent.width; height: root.pad }
                 Text {
-                    width: root.width*0.9
+                    width: root.width*0.8
                     text: "DesktopInvasion is a passion project that is available for free. I have never and will never seek any fees or donations for this game. This game makes extensive use of material that I do not own, namely the Pokémon sprite assets as well as the Pokémon gameplay. It is my sincere belief that I have used this material in a spirit of fair use. Apart from moderate use of LLM's, all source code is written by me, with gameplay based on widely available sources on gen-4 gameplay. Note that I have simplified the gameplay by, among other things, excluding items, abilities and a large number of moves."
                     font.family: root.dotGothicFont
                     font.pixelSize: root.fontSizeMd
