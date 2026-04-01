@@ -36,7 +36,7 @@ namespace PokeMath{
         int64_t damage = (baseDamage / 50) + 2;
         damage = (damage * combinedModifier) / MODIFIER_DIVISOR;
 
-        return static_cast<int>(damage);
+        return static_cast<int>(std::max<int64_t>(1,damage));
     }
 
 // https://bulbapedia.bulbagarden.net/wiki/Stat_modifier#Stage_multipliers
