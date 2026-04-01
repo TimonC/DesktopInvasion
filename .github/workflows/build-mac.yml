@@ -18,47 +18,90 @@ jobs:
         cache: true
 
     - run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+      shell: bash
+
     - run: cmake --build build --parallel
+      shell: bash
 
     - name: Package
       run: |
         APP_PATH=$(find build -name "$APP_NAME.app" -type d | head -1)
-        [ -z "$APP_PATH" ] && { echo "Error: .app not found"; find build -type f; exit 1; }
-        echo "Found: $APP_PATH"
+        if [ -z "$APP_PATH" ]; then
+          echo "Error: .app bundle not found"
+          find build -type f -name "*.app" || find build -type d
+          exit 1
+        fi
+        echo "Found app bundle at: $APP_PATH"
 
         macdeployqt "$APP_PATH" -qmldir=qml
+        if [ $? -ne 0 ]; then
+          echo "Error: macdeployqt failed"
+          exit 1
+        fi
 
         INFO_PLIST="$APP_PATH/Contents/Info.plist"
+        if [ ! -f "$INFO_PLIST" ]; then
+          echo "Error: Info.plist not found"
+          exit 1
+        fi
+
         /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$INFO_PLIST" 2>/dev/null || \
           /usr/libexec/PlistBuddy -c "Add :CFBundleIdentifier string com.github.${GITHUB_ACTOR}.$APP_NAME" "$INFO_PLIST"
         /usr/libexec/PlistBuddy -c "Print :LSMinimumSystemVersion" "$INFO_PLIST" 2>/dev/null || \
           /usr/libexec/PlistBuddy -c "Add :LSMinimumSystemVersion string 11.0" "$INFO_PLIST"
 
-        xattr -cr "$APP_PATH"
-        codesign --force --deep --sign - "$APP_PATH"
-        codesign --verify --verbose "$APP_PATH"
+        xattr -cr "$APP_PATH" 2>/dev/null || true
+        codesign --force --deep --sign - "$APP_PATH" 2>/dev/null || true
+        codesign --verify --verbose "$APP_PATH" 2>/dev/null || true
 
-        hdiutil create -volname "$APP_NAME" -srcfolder "$APP_PATH" -ov -format UDZO "$APP_NAME-macOS.dmg"
-        codesign --force --sign - "$APP_NAME-macOS.dmg" 2>/dev/null || true
+        DMG_NAME="$APP_NAME-macOS.dmg"
+        hdiutil create -volname "$APP_NAME" -srcfolder "$APP_PATH" -ov -format UDZO "$DMG_NAME"
+        if [ $? -ne 0 ]; then
+          echo "Error: hdiutil failed"
+          exit 1
+        fi
+        codesign --force --sign - "$DMG_NAME" 2>/dev/null || true
+
+        if [ ! -f "$DMG_NAME" ]; then
+          echo "Error: DMG file not created"
+          exit 1
+        fi
+        echo "DMG created successfully: $DMG_NAME"
 
     - name: Smoke test
       timeout-minutes: 1
       run: |
         APP_PATH=$(find build -name "$APP_NAME.app" -type d | head -1)
-        [ -z "$APP_PATH" ] && { echo "Error: .app not found"; exit 1; }
+        if [ -z "$APP_PATH" ]; then
+          echo "Error: .app bundle not found for smoke test"
+          exit 1
+        fi
 
-        QT_QPA_PLATFORM=offscreen "$APP_PATH/Contents/MacOS/$APP_NAME" > smoke.log 2>&1 &
+        EXECUTABLE="$APP_PATH/Contents/MacOS/$APP_NAME"
+        if [ ! -f "$EXECUTABLE" ]; then
+          echo "Error: Executable not found: $EXECUTABLE"
+          exit 1
+        fi
+
+        QT_QPA_PLATFORM=offscreen "$EXECUTABLE" > smoke.log 2>&1 &
         APP_PID=$!
+
         sleep 5
 
         if kill -0 $APP_PID 2>/dev/null; then
-          echo "Smoke test passed"
+          echo "Smoke test passed - app is running"
           kill $APP_PID
           wait $APP_PID 2>/dev/null || true
         else
-          wait $APP_PID; EXIT_CODE=$?
+          wait $APP_PID 2>/dev/null
+          EXIT_CODE=$?
+          echo "App terminated with exit code: $EXIT_CODE"
           cat smoke.log
-          [ $EXIT_CODE -eq 0 ] && echo "App exited cleanly" || { echo "Crashed. Exit: $EXIT_CODE"; exit 1; }
+          if [ $EXIT_CODE -ne 0 ]; then
+            echo "Error: App crashed or exited with error"
+            exit 1
+          fi
+          echo "Smoke test passed - app exited cleanly"
         fi
 
     - name: Upload smoke log

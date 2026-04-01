@@ -6,7 +6,6 @@ jobs:
     runs-on: windows-latest
     env:
       OUT_DIR: output\DesktopInvasion-Windows
-      EXE_PATH: build\bin\Release\DesktopInvasion.exe
     steps:
     - uses: actions/checkout@v4
 
@@ -27,35 +26,97 @@ jobs:
     - name: Package
       shell: pwsh
       run: |
-        New-Item -ItemType Directory -Force -Path $env:OUT_DIR
-        Copy-Item $env:EXE_PATH $env:OUT_DIR\
-        windeployqt6 --release --compiler-runtime --no-translations --qmldir "$pwd\qml" "$env:OUT_DIR\DesktopInvasion.exe"
-        $vcRedist = "${env:VCToolsRedistDir}x64\Microsoft.VC143.CRT"
-        if (Test-Path $vcRedist) {
-          Copy-Item "$vcRedist\*.dll" $env:OUT_DIR\ -Force
+        $exePath = Get-ChildItem -Recurse build | Where-Object { $_.Name -eq "DesktopInvasion.exe" } | Select-Object -First 1
+        if (-not $exePath) {
+          Write-Error "Could not find DesktopInvasion.exe"
+          Get-ChildItem -Recurse build
+          exit 1
+        }
+        New-Item -ItemType Directory -Force -Path $env:OUT_DIR | Out-Null
+        Copy-Item $exePath.FullName $env:OUT_DIR\
+        $qmlDir = "$pwd\qml"
+        if (Test-Path $qmlDir) {
+          windeployqt6 --verbose 0 --release --compiler-runtime --no-translations --qmldir $qmlDir "$env:OUT_DIR\DesktopInvasion.exe"
+        } else {
+          Write-Warning "QML directory not found at $qmlDir, deploying without QML"
+          windeployqt6 --verbose 0 --release --compiler-runtime --no-translations "$env:OUT_DIR\DesktopInvasion.exe"
+        }
+        if ($LASTEXITCODE -ne 0) {
+          Write-Error "windeployqt6 failed with exit code $LASTEXITCODE"
+          exit 1
+        }
+        $vsPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
+        if ($vsPath) {
+          $vcRedist = "$vsPath\VC\Redist\MSVC\v143\Microsoft.VC143.CRT"
+          if (Test-Path $vcRedist) {
+            Copy-Item "$vcRedist\*.dll" $env:OUT_DIR\ -Force -ErrorAction SilentlyContinue
+          }
+        }
+
+    - name: Debug package contents
+      shell: pwsh
+      run: |
+        if (-not (Test-Path $env:OUT_DIR)) {
+          Write-Error "Package directory does not exist: $env:OUT_DIR"
+          exit 1
+        }
+        $files = Get-ChildItem -Recurse $env:OUT_DIR
+        if ($files.Count -eq 0) {
+          Write-Error "Package directory is empty"
+          exit 1
+        }
+        $missingFiles = @()
+        if (-not ($files | Where-Object { $_.Name -eq "DesktopInvasion.exe" })) {
+          $missingFiles += "DesktopInvasion.exe"
+        }
+        if (-not ($files | Where-Object { $_.Name -like "Qt6*.dll" })) {
+          $missingFiles += "Qt6*.dll"
+        }
+        if ($missingFiles.Count -gt 0) {
+          Write-Error "Missing required files: $($missingFiles -join ', ')"
+          Get-ChildItem -Recurse $env:OUT_DIR | ForEach-Object { Write-Host $_.FullName }
+          exit 1
         }
 
     - name: Smoke test
       shell: pwsh
       timeout-minutes: 1
       run: |
+        $exePath = "$env:OUT_DIR\DesktopInvasion.exe"
+        if (-not (Test-Path $exePath)) {
+          Write-Error "Executable not found: $exePath"
+          exit 1
+        }
         $out = "smoke_stdout.log"
         $err = "smoke_stderr.log"
-        $proc = Start-Process -FilePath "$env:OUT_DIR\DesktopInvasion.exe" `
-          -PassThru -NoNewWindow -RedirectStandardOutput $out -RedirectStandardError $err
-        Start-Sleep -Seconds 5
-        Get-Content $out, $err -ErrorAction SilentlyContinue | Set-Content smoke.log
-        if ($proc.HasExited -and $proc.ExitCode -ne 0) {
-          Get-Content smoke.log
-          Write-Error "App crashed. Exit code: $($proc.ExitCode)"; exit 1
+        try {
+          $proc = Start-Process -FilePath $exePath -PassThru -NoNewWindow -RedirectStandardOutput $out -RedirectStandardError $err -Wait -Timeout 10
+          if (Test-Path $out) {
+            Get-Content $out | Out-File smoke.log -Append
+          }
+          if (Test-Path $err) {
+            Get-Content $err | Out-File smoke.log -Append
+          }
+          if (-not (Test-Path smoke.log)) {
+            "No output captured" | Out-File smoke.log
+          }
+          if ($proc.ExitCode -ne 0) {
+            Write-Error "Process exited with code $($proc.ExitCode)"
+            Get-Content smoke.log
+            exit 1
+          }
         }
-        if (-not $proc.HasExited) { $proc.Kill() }
+        catch {
+          "Error: $_" | Out-File smoke.log
+          Write-Error $_
+          exit 1
+        }
 
     - name: Upload smoke log
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: smoke-log
+        name: smoke-log-windows
         path: smoke.log
 
     - uses: actions/upload-artifact@v4
