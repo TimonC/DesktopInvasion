@@ -9,6 +9,7 @@ Rectangle {
         hoverEnabled: false
         onClicked: {
             if (root.inNameEditMode) root.toggleNameEditMode()
+            if (root.inNickNameEditMode) root.toggleNickNameEditMode()
         }
     }
     id: root
@@ -311,7 +312,7 @@ Rectangle {
                         color: "#ffffff"
                         maximumLength: root.maxTrainerNameLength
                         clip: true
-                        enabled: root.inNameEditMode
+                        enabled: true
                         readOnly: !root.inNameEditMode
                         cursorVisible: root.inNameEditMode
                         selectByMouse: root.inNameEditMode
@@ -336,8 +337,11 @@ Rectangle {
                         hoverEnabled: true
                         cursorShape: undefined
                         onClicked: {
-                            if (!root.inNameEditMode)
+                            if (!root.inNameEditMode) {
                                 root.toggleNameEditMode()
+                            } else {
+                                nameField.forceActiveFocus()
+                            }
                         }
                     }
                 }
@@ -452,6 +456,8 @@ Rectangle {
                                 iconScale: 3
                                 horizontalOffset: 1
                                 verticalOffset: -10
+                                onHovered: slide2.hoveredStarterIndex = index
+                                onUnhovered: slide2.hoveredStarterIndex = -1
                                 onClicked: {
                                     root.pokeId = modelData.id;
                                     root.nickName = modelData.name
@@ -576,7 +582,7 @@ Rectangle {
                         color: "#ffffff"
                         maximumLength: root.maxNickNameLength
                         clip: true
-                        enabled: root.inNickNameEditMode
+                        enabled: true
                         readOnly: !root.inNickNameEditMode
                         cursorVisible: root.inNickNameEditMode
                         selectByMouse: root.inNickNameEditMode
@@ -601,8 +607,11 @@ Rectangle {
                         hoverEnabled: true
                         cursorShape: undefined
                         onClicked: {
-                            if (!root.inNickNameEditMode)
+                            if (!root.inNickNameEditMode) {
                                 root.toggleNickNameEditMode()
+                            } else {
+                                nickNameField.forceActiveFocus()
+                            }
                         }
                     }
                 }
