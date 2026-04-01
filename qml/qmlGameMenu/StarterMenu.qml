@@ -152,75 +152,84 @@ Rectangle {
         anchors.fill: parent
         anchors.margins: root.pad
         visible: root.slide === 0
-        Column {
-            width: parent.width
-            spacing: 0
-            Text {
+
+        Flickable {
+            anchors.fill: parent
+            contentHeight: column0.implicitHeight
+            clip: true
+            ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
+
+            Column {
+                id: column0
                 width: parent.width
-                text: "Welcome to DesktopInvasion!"
-                font.family: root.p2pFont
-                font.pixelSize: root.fontSizeLg
-                color: "#ffffff"
-                wrapMode: Text.Wrap
-            }
-            Item { width: parent.width; height: root.pad }
-            Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
-            Item { width: parent.width; height: root.pad }
-            Text {
-                width: parent.width * 0.75
-                text: "DesktopInvasion is a desktop pet game that spawns sprites on top of your desktop screen. Battle wild sprites with a MOUSE DOUBLE CLICK. In a battle you can catch wild sprites or train those that you have already caught. DesktopInvasion can be controlled from the SYSTEM TRAY; that's that section in the corner of your desktop where you have the icons for your Wifi, Bluetooth, etc. If you RIGHT CLICK the DesktopInvasion icon, you can:\n\n• Open the game menu\n• Toggle whether the sprites are active \n• Toggle \"Pet mode\" to interact with your sprites\n• Manage your saved games\n• Quit DesktopInvasion"
-                font.family: root.dotGothicFont
-                font.pixelSize: root.fontSizeMd
-                color: "#ffffff"
-                wrapMode: Text.Wrap
-                horizontalAlignment: Text.AlignJustify
-            }
-            Item { width: parent.width; height: root.pad }
-            Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
-            Item { width: parent.width; height: root.pad }
-            Text {
-                width: parent.width * 0.8
-                text: "DesktopInvasion is a passion project that is available for free. I have never and will never seek any fees or donations for this game. This game makes extensive use of material that I do not own, namely the Pokémon sprite assets as well as the Pokémon gameplay. It is my sincere belief that I have used this material in a spirit of fair use. Apart from moderate use of LLM's, all source code is written by me, with gameplay based on widely available sources on gen-4 gameplay. Note that I have simplified the gameplay by, among other things, excluding items, abilities and a large number of moves."
-                font.family: root.dotGothicFont
-                font.pixelSize: root.fontSizeMd
-                color: "#ffffff"
-                wrapMode: Text.Wrap
-            }
-            Item { width: parent.width; height: root.pad / 2 + Math.round(3 * uiScale) }
-            Row {
-                spacing: Math.round(5 * uiScale)
-                width: parent.width * 0.8
+                spacing: 0
                 Text {
-                    text: "For a full list of credits, see:"
+                    width: parent.width
+                    text: "Welcome to DesktopInvasion!"
+                    font.family: root.p2pFont
+                    font.pixelSize: root.fontSizeLg
+                    color: "#ffffff"
+                    wrapMode: Text.Wrap
+                }
+                Item { width: parent.width; height: root.pad }
+                Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
+                Item { width: parent.width; height: root.pad }
+                Text {
+                    width: parent.width * 0.75
+                    text: "DesktopInvasion is a desktop pet game that spawns sprites on top of your desktop screen. Battle wild sprites with a MOUSE DOUBLE CLICK. In a battle you can catch wild sprites or train those that you have already caught. DesktopInvasion can be controlled from the SYSTEM TRAY; that's that section in the corner of your desktop where you have the icons for your Wifi, Bluetooth, etc. If you RIGHT CLICK the DesktopInvasion icon, you can:\n\n• Open the game menu\n• Toggle whether the sprites are active \n• Toggle \"Pet mode\" to interact with your sprites\n• Manage your saved games\n• Quit DesktopInvasion"
+                    font.family: root.dotGothicFont
+                    font.pixelSize: root.fontSizeMd
+                    color: "#ffffff"
+                    wrapMode: Text.Wrap
+                    horizontalAlignment: Text.AlignJustify
+                }
+                Item { width: parent.width; height: root.pad }
+                Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
+                Item { width: parent.width; height: root.pad }
+                Text {
+                    width: parent.width * 0.8
+                    text: "DesktopInvasion is a passion project that is available for free. I have never and will never seek any fees or donations for this game. This game makes extensive use of material that I do not own, namely the Pokémon sprite assets as well as the Pokémon gameplay. It is my sincere belief that I have used this material in a spirit of fair use. Apart from moderate use of LLM's, all source code is written by me, with gameplay based on widely available sources on gen-4 gameplay. Note that I have simplified the gameplay by, among other things, excluding items, abilities and a large number of moves."
                     font.family: root.dotGothicFont
                     font.pixelSize: root.fontSizeMd
                     color: "#ffffff"
                     wrapMode: Text.Wrap
                 }
-                Text {
-                    text: root.linkText
-                    font.family: root.dotGothicFont
-                    font.pixelSize: root.fontSizeMd
-                    color: "#ffffff"
-                    font.underline: true
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: undefined
-                        onClicked: Qt.openUrlExternally(root.linkURL)
+                Item { width: parent.width; height: root.pad / 2 + Math.round(3 * uiScale) }
+                Row {
+                    spacing: Math.round(5 * uiScale)
+                    width: parent.width * 0.8
+                    Text {
+                        text: "For a full list of credits, see:"
+                        font.family: root.dotGothicFont
+                        font.pixelSize: root.fontSizeMd
+                        color: "#ffffff"
+                        wrapMode: Text.Wrap
+                    }
+                    Text {
+                        text: root.linkText
+                        font.family: root.dotGothicFont
+                        font.pixelSize: root.fontSizeMd
+                        color: "#ffffff"
+                        font.underline: true
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: undefined
+                            onClicked: Qt.openUrlExternally(root.linkURL)
+                        }
                     }
                 }
-            }
-            Item { width: parent.width; height: root.pad }
-            Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
-            Item { width: parent.width; height: root.pad }
-            Row {
-                width: parent.width
-                layoutDirection: Qt.RightToLeft
-                PcButton {
-                    width: Math.round(4 * 48 * uiScale)
-                    label: "NEXT →"
-                    selectable: true
-                    onClicked: root.slide = 1
+                Item { width: parent.width; height: root.pad }
+                Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
+                Item { width: parent.width; height: root.pad }
+                Row {
+                    width: parent.width
+                    layoutDirection: Qt.RightToLeft
+                    PcButton {
+                        width: Math.round(4 * 48 * uiScale)
+                        label: "NEXT →"
+                        selectable: true
+                        onClicked: root.slide = 1
+                    }
                 }
             }
         }
@@ -230,143 +239,152 @@ Rectangle {
         anchors.fill: parent
         anchors.margins: root.pad
         visible: root.slide === 1
-        Column {
-            width: parent.width
-            spacing: 0
-            Row {
+
+        Flickable {
+            anchors.fill: parent
+            contentHeight: column1.implicitHeight
+            clip: true
+            ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
+
+            Column {
+                id: column1
                 width: parent.width
-                PcButton {
-                    width: Math.round(4 * 48 * uiScale)
-                    label: "← BACK"
-                    selectable: true
-                    onClicked: root.slide = 0
-                }
-            }
-            Item { width: parent.width; height: root.pad }
-            Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
-            Item { width: parent.width; height: root.pad }
-            Text {
-                width: parent.width
-                text: "Choose your trainer name:"
-                font.family: root.dotGothicFont
-                font.pixelSize: root.fontSizeMd
-                color: "#ffffff"
-                wrapMode: Text.Wrap
-            }
-            Item { width: parent.width; height: root.pad }
-            Item {
-                width: parent.width
-                height: Math.round(44 * uiScale)
-                Rectangle {
-                    anchors.fill: parent
-                    radius: 4
-                    color: root.inNameEditMode ? root.colorNameEdit
-                           : (nameMouseArea.containsMouse ? root.colorNameHov : root.colorNameBg)
-                    border.color: root.inNameEditMode ? root.colorNameEditBdr
-                                  : (nameMouseArea.containsMouse ? root.colorAccent : root.colorNameBdr)
-                    border.width: root.inNameEditMode ? 2 : 1
-                }
-                Text {
-                    anchors { right: parent.right; verticalCenter: parent.verticalCenter; rightMargin: Math.round(11 * uiScale) }
-                    text: "✎"
-                    font.pixelSize: root.fontSizeLg
-                    color: root.colorSubtext
-                    opacity: nameMouseArea.containsMouse ? 0.9 : 0.4
-                    visible: !root.inNameEditMode
-                    transform: Scale { xScale: -1 }
-                }
-                TextInput {
-                    id: nameField
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                        leftMargin: Math.round(10 * uiScale)
-                        rightMargin: root.inNameEditMode ? Math.round(10 * uiScale) : Math.round(36 * uiScale)
-                        verticalCenter: parent.verticalCenter
-                    }
-                    text: root.playerName
-                    font.family: root.p2pFont
-                    font.pixelSize: root.fontSizeMd
-                    font.bold: true
-                    color: "#ffffff"
-                    maximumLength: root.maxTrainerNameLength
-                    clip: true
-                    enabled: root.inNameEditMode
-                    readOnly: !root.inNameEditMode
-                    cursorVisible: root.inNameEditMode
-                    selectByMouse: root.inNameEditMode
-                    Keys.onReturnPressed: root.finishNameEditing()
-                    Keys.onEscapePressed: root.cancelNameEditing()
-                    onFocusChanged: {
-                        if (!activeFocus && root.inNameEditMode)
-                            root.cancelNameEditing()
+                spacing: 0
+                Row {
+                    width: parent.width
+                    PcButton {
+                        width: Math.round(4 * 48 * uiScale)
+                        label: "← BACK"
+                        selectable: true
+                        onClicked: root.slide = 0
                     }
                 }
+                Item { width: parent.width; height: root.pad }
+                Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
+                Item { width: parent.width; height: root.pad }
                 Text {
-                    anchors { left: parent.left; verticalCenter: parent.verticalCenter; leftMargin: Math.round(10 * uiScale) }
-                    text: "Enter name..."
+                    width: parent.width
+                    text: "Choose your trainer name:"
                     font.family: root.dotGothicFont
-                    font.pixelSize: root.fontSizeSm
-                    color: root.colorVeryFaint
-                    visible: !root.inNameEditMode && nameField.text.length === 0
+                    font.pixelSize: root.fontSizeMd
+                    color: "#ffffff"
+                    wrapMode: Text.Wrap
                 }
-                MouseArea {
-                    id: nameMouseArea
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: undefined
-                    onClicked: {
-                        if (!root.inNameEditMode)
-                            root.toggleNameEditMode()
+                Item { width: parent.width; height: root.pad }
+                Item {
+                    width: parent.width
+                    height: Math.round(44 * uiScale)
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: 4
+                        color: root.inNameEditMode ? root.colorNameEdit
+                               : (nameMouseArea.containsMouse ? root.colorNameHov : root.colorNameBg)
+                        border.color: root.inNameEditMode ? root.colorNameEditBdr
+                                      : (nameMouseArea.containsMouse ? root.colorAccent : root.colorNameBdr)
+                        border.width: root.inNameEditMode ? 2 : 1
                     }
-                }
-            }
-            Item { width: parent.width; height: root.pad }
-            Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
-            Item { width: parent.width; height: root.pad }
-            Text {
-                width: parent.width
-                text: "Choose your trainer avatar:"
-                font.family: root.dotGothicFont
-                font.pixelSize: root.fontSizeMd
-                color: "#ffffff"
-                wrapMode: Text.Wrap
-            }
-            Item { width: parent.width; height: root.pad }
-            Grid {
-                id: trainerGrid
-                width: Math.round(64 * 16 * uiScale)
-                height: Math.round(64 * 5 * uiScale)
-                rows: 5
-                columns: 16
-                rowSpacing: 0
-                columnSpacing: 0
-                Repeater {
-                    id: trainerRepeater
-                    model: 80
-                    SpriteTile {
-                        spriteSource: "qrc:/assets/HGSS/reordered_trainers.png"
-                        spriteWidth: 32
-                        spriteHeight: 32
-                        frameIndex: index
-                        selected: root.trainerId === index
+                    Text {
+                        anchors { right: parent.right; verticalCenter: parent.verticalCenter; rightMargin: Math.round(11 * uiScale) }
+                        text: "✎"
+                        font.pixelSize: root.fontSizeLg
+                        color: root.colorSubtext
+                        opacity: nameMouseArea.containsMouse ? 0.9 : 0.4
+                        visible: !root.inNameEditMode
+                        transform: Scale { xScale: -1 }
+                    }
+                    TextInput {
+                        id: nameField
+                        anchors {
+                            left: parent.left
+                            right: parent.right
+                            leftMargin: Math.round(10 * uiScale)
+                            rightMargin: root.inNameEditMode ? Math.round(10 * uiScale) : Math.round(36 * uiScale)
+                            verticalCenter: parent.verticalCenter
+                        }
+                        text: root.playerName
+                        font.family: root.p2pFont
+                        font.pixelSize: root.fontSizeMd
+                        font.bold: true
+                        color: "#ffffff"
+                        maximumLength: root.maxTrainerNameLength
+                        clip: true
+                        enabled: root.inNameEditMode
+                        readOnly: !root.inNameEditMode
+                        cursorVisible: root.inNameEditMode
+                        selectByMouse: root.inNameEditMode
+                        Keys.onReturnPressed: root.finishNameEditing()
+                        Keys.onEscapePressed: root.cancelNameEditing()
+                        onFocusChanged: {
+                            if (!activeFocus && root.inNameEditMode)
+                                root.cancelNameEditing()
+                        }
+                    }
+                    Text {
+                        anchors { left: parent.left; verticalCenter: parent.verticalCenter; leftMargin: Math.round(10 * uiScale) }
+                        text: "Enter name..."
+                        font.family: root.dotGothicFont
+                        font.pixelSize: root.fontSizeSm
+                        color: root.colorVeryFaint
+                        visible: !root.inNameEditMode && nameField.text.length === 0
+                    }
+                    MouseArea {
+                        id: nameMouseArea
+                        anchors.fill: parent
                         hoverEnabled: true
-                        iconScale: 2
-                        onClicked: { root.trainerId = index; }
+                        cursorShape: undefined
+                        onClicked: {
+                            if (!root.inNameEditMode)
+                                root.toggleNameEditMode()
+                        }
                     }
                 }
-            }
-            Item { width: parent.width; height: root.pad }
-            Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
-            Item { width: parent.width; height: root.pad }
-            Row {
-                width: parent.width
-                layoutDirection: Qt.RightToLeft
-                PcButton {
-                    width: Math.round(4 * 48 * uiScale)
-                    label: "NEXT →"
-                    selectable: root.playerName !== "" && root.trainerId !== -1
-                    onClicked: root.slide = 2
+                Item { width: parent.width; height: root.pad }
+                Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
+                Item { width: parent.width; height: root.pad }
+                Text {
+                    width: parent.width
+                    text: "Choose your trainer avatar:"
+                    font.family: root.dotGothicFont
+                    font.pixelSize: root.fontSizeMd
+                    color: "#ffffff"
+                    wrapMode: Text.Wrap
+                }
+                Item { width: parent.width; height: root.pad }
+                Grid {
+                    id: trainerGrid
+                    width: Math.round(64 * 16 * uiScale)
+                    height: Math.round(64 * 5 * uiScale)
+                    rows: 5
+                    columns: 16
+                    rowSpacing: 0
+                    columnSpacing: 0
+                    Repeater {
+                        id: trainerRepeater
+                        model: 80
+                        SpriteTile {
+                            spriteSource: "qrc:/assets/HGSS/reordered_trainers.png"
+                            spriteWidth: 32
+                            spriteHeight: 32
+                            frameIndex: index
+                            selected: root.trainerId === index
+                            hoverEnabled: true
+                            iconScale: 2
+                            onClicked: { root.trainerId = index; }
+                        }
+                    }
+                }
+                Item { width: parent.width; height: root.pad }
+                Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
+                Item { width: parent.width; height: root.pad }
+                Row {
+                    width: parent.width
+                    layoutDirection: Qt.RightToLeft
+                    PcButton {
+                        width: Math.round(4 * 48 * uiScale)
+                        label: "NEXT →"
+                        selectable: root.playerName !== "" && root.trainerId !== -1
+                        onClicked: root.slide = 2
+                    }
                 }
             }
         }
@@ -378,219 +396,228 @@ Rectangle {
         visible: root.slide === 2
         property int hoveredStarterIndex: -1
         property var selectedStarter: root.getSelectedStarter()
-        Column {
-            width: parent.width
-            spacing: 0
-            Row {
+
+        Flickable {
+            anchors.fill: parent
+            contentHeight: column2.implicitHeight
+            clip: true
+            ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
+
+            Column {
+                id: column2
                 width: parent.width
-                PcButton {
-                    width: Math.round(4 * 48 * uiScale)
-                    label: "← BACK"
-                    selectable: true
-                    onClicked: root.slide = 1
-                }
-            }
-            Item { width: parent.width; height: root.pad }
-            Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
-            Item { width: parent.width; height: root.pad }
-            Text {
-                width: parent.width
-                text: "Choose your starter:"
-                font.family: root.dotGothicFont
-                font.pixelSize: root.fontSizeMd
-                color: "#ffffff"
-                wrapMode: Text.Wrap
-            }
-            Item { width: parent.width; height: root.pad }
-            Row {
-                width: parent.width
-                height: trainerGrid.height
-                spacing: root.pad
-                Grid {
-                    id: starterGrid
-                    columns: 4
-                    rows: 3
-                    spacing: Math.round(16 * uiScale)
-                    width: parent.width * 0.55
-                    Repeater {
-                        id: starterRepeater
-                        model: root.starterList
-                        SpriteTile {
-                            spriteSource: "qrc:/assets/HGSS/reordered_icons.png"
-                            spriteWidth: 40
-                            spriteHeight: 30
-                            frameIndex: modelData.id - 1
-                            selected: root.pokeId === modelData.id
-                            hoverEnabled: true
-                            iconScale: 3
-                            horizontalOffset: 1
-                            verticalOffset: -10
-                            onClicked: {
-                                root.pokeId = modelData.id;
-                                root.nickName = modelData.name
-                            }
-                        }
+                spacing: 0
+                Row {
+                    width: parent.width
+                    PcButton {
+                        width: Math.round(4 * 48 * uiScale)
+                        label: "← BACK"
+                        selectable: true
+                        onClicked: root.slide = 1
                     }
                 }
-                Item {
-                    width: parent.width * 0.4
-                    height: starterGrid.height
-                    clip: true
-                    Column {
-                        anchors.centerIn: parent
-                        spacing: root.pad / 2
-                        width: parent.width
-                        Text {
-                            width: parent.width
-                            text: root.playerName !== "" ? root.playerName : "TRAINER"
-                            font.family: root.p2pFont
-                            font.pixelSize: root.fontSizeLg
-                            color: "#ffffff"
-                            horizontalAlignment: Text.AlignHCenter
-                            wrapMode: Text.WordWrap
-                        }
-                        Image {
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            visible: root.trainerId !== -1
-                            width: Math.round(32 * 6 * uiScale)
-                            height: Math.round(32 * 6 * uiScale)
-                            source: "qrc:/assets/HGSS/reordered_trainers.png"
-                            sourceClipRect: Qt.rect(0, root.trainerId * 32, 32, 32)
-                            smooth: false
-                            antialiasing: false
-                        }
-                        Text {
-                            width: parent.width
-                            text: "YOUR STARTER"
-                            font.family: root.p2pFont
-                            font.pixelSize: root.fontSizeMd
-                            color: "#aaaaaa"
-                            horizontalAlignment: Text.AlignHCenter
-                            wrapMode: Text.WordWrap
-                        }
-                        Text {
-                            width: parent.width
-                            text: {
-                                if (slide2.hoveredStarterIndex !== -1)
-                                    return root.starterList[slide2.hoveredStarterIndex].name
-                                if (root.pokeId !== -1) {
-                                    for (var i = 0; i < root.starterList.length; ++i) {
-                                        if (root.starterList[i].id === root.pokeId)
-                                            return root.starterList[i].name
-                                    }
-                                }
-                                return ""
-                            }
-                            font.family: root.p2pFont
-                            font.pixelSize: root.fontSizeLg
-                            color: {
-                                if (slide2.hoveredStarterIndex !== -1)
-                                    return PokeColor.typeColor(root.starterList[slide2.hoveredStarterIndex].type)
-                                if (root.pokeId !== -1) {
-                                    for (var i = 0; i < root.starterList.length; ++i) {
-                                        if (root.starterList[i].id === root.pokeId)
-                                            return PokeColor.typeColor(root.starterList[i].type)
-                                    }
-                                }
-                                return root.colorAccent
-                            }
-                            horizontalAlignment: Text.AlignHCenter
-                            wrapMode: Text.WordWrap
-                        }
-                    }
-                }
-            }
-            Item { width: parent.width; height: root.pad }
-            Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
-            Item { width: parent.width; height: root.pad }
-            Text {
-                width: parent.width
-                text: "(Optional) choose a nickname for your starter:"
-                font.family: root.dotGothicFont
-                font.pixelSize: root.fontSizeMd
-                color: "#ffffff"
-                wrapMode: Text.Wrap
-            }
-            Item { width: parent.width; height: root.pad }
-            Item {
-                width: parent.width
-                height: Math.round(44 * uiScale)
-                Rectangle {
-                    anchors.fill: parent
-                    radius: 4
-                    color: root.inNickNameEditMode ? root.colorNameEdit
-                           : (nickNameMouseArea.containsMouse ? root.colorNameHov : root.colorNameBg)
-                    border.color: root.inNickNameEditMode ? root.colorNameEditBdr
-                                  : (nickNameMouseArea.containsMouse ? root.colorAccent : root.colorNameBdr)
-                    border.width: root.inNickNameEditMode ? 2 : 1
-                }
+                Item { width: parent.width; height: root.pad }
+                Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
+                Item { width: parent.width; height: root.pad }
                 Text {
-                    anchors { right: parent.right; verticalCenter: parent.verticalCenter; rightMargin: Math.round(11 * uiScale) }
-                    text: "✎"
-                    font.pixelSize: root.fontSizeLg
-                    color: root.colorSubtext
-                    opacity: nickNameMouseArea.containsMouse ? 0.9 : 0.4
-                    visible: !root.inNickNameEditMode
-                    transform: Scale { xScale: -1 }
-                }
-                TextInput {
-                    id: nickNameField
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                        leftMargin: Math.round(10 * uiScale)
-                        rightMargin: root.inNickNameEditMode ? Math.round(10 * uiScale) : Math.round(36 * uiScale)
-                        verticalCenter: parent.verticalCenter
-                    }
-                    text: root.nickName
-                    font.family: root.p2pFont
-                    font.pixelSize: root.fontSizeMd
-                    font.bold: true
-                    color: "#ffffff"
-                    maximumLength: root.maxNickNameLength
-                    clip: true
-                    enabled: root.inNickNameEditMode
-                    readOnly: !root.inNickNameEditMode
-                    cursorVisible: root.inNickNameEditMode
-                    selectByMouse: root.inNickNameEditMode
-                    Keys.onReturnPressed: root.finishNickNameEditing()
-                    Keys.onEscapePressed: root.cancelNickNameEditing()
-                    onFocusChanged: {
-                        if (!activeFocus && root.inNickNameEditMode)
-                            root.cancelNickNameEditing()
-                    }
-                }
-                Text {
-                    anchors { left: parent.left; verticalCenter: parent.verticalCenter; leftMargin: Math.round(10 * uiScale) }
-                    text: "Enter a starter nickname..."
+                    width: parent.width
+                    text: "Choose your starter:"
                     font.family: root.dotGothicFont
-                    font.pixelSize: root.fontSizeSm
-                    color: root.colorVeryFaint
-                    visible: !root.inNickNameEditMode && nickNameField.text.length === 0
+                    font.pixelSize: root.fontSizeMd
+                    color: "#ffffff"
+                    wrapMode: Text.Wrap
                 }
-                MouseArea {
-                    id: nickNameMouseArea
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: undefined
-                    onClicked: {
-                        if (!root.inNickNameEditMode)
-                            root.toggleNickNameEditMode()
+                Item { width: parent.width; height: root.pad }
+                Row {
+                    width: parent.width
+                    height: trainerGrid.height
+                    spacing: root.pad
+                    Grid {
+                        id: starterGrid
+                        columns: 4
+                        rows: 3
+                        spacing: Math.round(16 * uiScale)
+                        width: parent.width * 0.55
+                        Repeater {
+                            id: starterRepeater
+                            model: root.starterList
+                            SpriteTile {
+                                spriteSource: "qrc:/assets/HGSS/reordered_icons.png"
+                                spriteWidth: 40
+                                spriteHeight: 30
+                                frameIndex: modelData.id - 1
+                                selected: root.pokeId === modelData.id
+                                hoverEnabled: true
+                                iconScale: 3
+                                horizontalOffset: 1
+                                verticalOffset: -10
+                                onClicked: {
+                                    root.pokeId = modelData.id;
+                                    root.nickName = modelData.name
+                                }
+                            }
+                        }
+                    }
+                    Item {
+                        width: parent.width * 0.4
+                        height: starterGrid.height
+                        clip: true
+                        Column {
+                            anchors.centerIn: parent
+                            spacing: root.pad / 2
+                            width: parent.width
+                            Text {
+                                width: parent.width
+                                text: root.playerName !== "" ? root.playerName : "TRAINER"
+                                font.family: root.p2pFont
+                                font.pixelSize: root.fontSizeLg
+                                color: "#ffffff"
+                                horizontalAlignment: Text.AlignHCenter
+                                wrapMode: Text.WordWrap
+                            }
+                            Image {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                visible: root.trainerId !== -1
+                                width: Math.round(32 * 6 * uiScale)
+                                height: Math.round(32 * 6 * uiScale)
+                                source: "qrc:/assets/HGSS/reordered_trainers.png"
+                                sourceClipRect: Qt.rect(0, root.trainerId * 32, 32, 32)
+                                smooth: false
+                                antialiasing: false
+                            }
+                            Text {
+                                width: parent.width
+                                text: "YOUR STARTER"
+                                font.family: root.p2pFont
+                                font.pixelSize: root.fontSizeMd
+                                color: "#aaaaaa"
+                                horizontalAlignment: Text.AlignHCenter
+                                wrapMode: Text.WordWrap
+                            }
+                            Text {
+                                width: parent.width
+                                text: {
+                                    if (slide2.hoveredStarterIndex !== -1)
+                                        return root.starterList[slide2.hoveredStarterIndex].name
+                                    if (root.pokeId !== -1) {
+                                        for (var i = 0; i < root.starterList.length; ++i) {
+                                            if (root.starterList[i].id === root.pokeId)
+                                                return root.starterList[i].name
+                                        }
+                                    }
+                                    return ""
+                                }
+                                font.family: root.p2pFont
+                                font.pixelSize: root.fontSizeLg
+                                color: {
+                                    if (slide2.hoveredStarterIndex !== -1)
+                                        return PokeColor.typeColor(root.starterList[slide2.hoveredStarterIndex].type)
+                                    if (root.pokeId !== -1) {
+                                        for (var i = 0; i < root.starterList.length; ++i) {
+                                            if (root.starterList[i].id === root.pokeId)
+                                                return PokeColor.typeColor(root.starterList[i].type)
+                                        }
+                                    }
+                                    return root.colorAccent
+                                }
+                                horizontalAlignment: Text.AlignHCenter
+                                wrapMode: Text.WordWrap
+                            }
+                        }
                     }
                 }
-            }
-            Item { width: parent.width; height: root.pad }
-            Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
-            Item { width: parent.width; height: root.pad }
-            Row {
-                width: parent.width
-                layoutDirection: Qt.RightToLeft
-                PcButton {
-                    width: Math.round(2 * 4 * 48 * uiScale)
-                    label: "START NEW GAME"
-                    selectable: (root.pokeId !== -1) && (root.nickName != "")
-                    onClicked: root.startGame(root.playerName, root.nickName, root.trainerId, root.pokeId)
-                    btnColor: "#e67a00"
+                Item { width: parent.width; height: root.pad }
+                Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
+                Item { width: parent.width; height: root.pad }
+                Text {
+                    width: parent.width
+                    text: "(Optional) choose a nickname for your starter:"
+                    font.family: root.dotGothicFont
+                    font.pixelSize: root.fontSizeMd
+                    color: "#ffffff"
+                    wrapMode: Text.Wrap
+                }
+                Item { width: parent.width; height: root.pad }
+                Item {
+                    width: parent.width
+                    height: Math.round(44 * uiScale)
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: 4
+                        color: root.inNickNameEditMode ? root.colorNameEdit
+                               : (nickNameMouseArea.containsMouse ? root.colorNameHov : root.colorNameBg)
+                        border.color: root.inNickNameEditMode ? root.colorNameEditBdr
+                                      : (nickNameMouseArea.containsMouse ? root.colorAccent : root.colorNameBdr)
+                        border.width: root.inNickNameEditMode ? 2 : 1
+                    }
+                    Text {
+                        anchors { right: parent.right; verticalCenter: parent.verticalCenter; rightMargin: Math.round(11 * uiScale) }
+                        text: "✎"
+                        font.pixelSize: root.fontSizeLg
+                        color: root.colorSubtext
+                        opacity: nickNameMouseArea.containsMouse ? 0.9 : 0.4
+                        visible: !root.inNickNameEditMode
+                        transform: Scale { xScale: -1 }
+                    }
+                    TextInput {
+                        id: nickNameField
+                        anchors {
+                            left: parent.left
+                            right: parent.right
+                            leftMargin: Math.round(10 * uiScale)
+                            rightMargin: root.inNickNameEditMode ? Math.round(10 * uiScale) : Math.round(36 * uiScale)
+                            verticalCenter: parent.verticalCenter
+                        }
+                        text: root.nickName
+                        font.family: root.p2pFont
+                        font.pixelSize: root.fontSizeMd
+                        font.bold: true
+                        color: "#ffffff"
+                        maximumLength: root.maxNickNameLength
+                        clip: true
+                        enabled: root.inNickNameEditMode
+                        readOnly: !root.inNickNameEditMode
+                        cursorVisible: root.inNickNameEditMode
+                        selectByMouse: root.inNickNameEditMode
+                        Keys.onReturnPressed: root.finishNickNameEditing()
+                        Keys.onEscapePressed: root.cancelNickNameEditing()
+                        onFocusChanged: {
+                            if (!activeFocus && root.inNickNameEditMode)
+                                root.cancelNickNameEditing()
+                        }
+                    }
+                    Text {
+                        anchors { left: parent.left; verticalCenter: parent.verticalCenter; leftMargin: Math.round(10 * uiScale) }
+                        text: "Enter a starter nickname..."
+                        font.family: root.dotGothicFont
+                        font.pixelSize: root.fontSizeSm
+                        color: root.colorVeryFaint
+                        visible: !root.inNickNameEditMode && nickNameField.text.length === 0
+                    }
+                    MouseArea {
+                        id: nickNameMouseArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: undefined
+                        onClicked: {
+                            if (!root.inNickNameEditMode)
+                                root.toggleNickNameEditMode()
+                        }
+                    }
+                }
+                Item { width: parent.width; height: root.pad }
+                Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
+                Item { width: parent.width; height: root.pad }
+                Row {
+                    width: parent.width
+                    layoutDirection: Qt.RightToLeft
+                    PcButton {
+                        width: Math.round(2 * 4 * 48 * uiScale)
+                        label: "START NEW GAME"
+                        selectable: (root.pokeId !== -1) && (root.nickName != "")
+                        onClicked: root.startGame(root.playerName, root.nickName, root.trainerId, root.pokeId)
+                        btnColor: "#e67a00"
+                    }
                 }
             }
         }

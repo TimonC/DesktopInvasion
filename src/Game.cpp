@@ -245,7 +245,7 @@ void Game::openStarterMenu(){
     m_starterMenu->setResizeMode(QQuickView::SizeRootObjectToView);
 
     const double menuWidth =  1200;
-    const double menuHeight = 800;
+    const double menuHeight = 820;
     QRect availableGeometry = QGuiApplication::primaryScreen()->availableGeometry();
 
     const double scaleW = std::min(1.0, static_cast<double>(availableGeometry.width()) / menuWidth);
