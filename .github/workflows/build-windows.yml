@@ -89,28 +89,45 @@ jobs:
         }
         $out = "smoke_stdout.log"
         $err = "smoke_stderr.log"
+        $timeoutSeconds = 10
         try {
-          $proc = Start-Process -FilePath $exePath -PassThru -NoNewWindow -RedirectStandardOutput $out -RedirectStandardError $err -Wait -Timeout 10
-          if (Test-Path $out) {
-            Get-Content $out | Out-File smoke.log -Append
-          }
-          if (Test-Path $err) {
-            Get-Content $err | Out-File smoke.log -Append
-          }
-          if (-not (Test-Path smoke.log)) {
-            "No output captured" | Out-File smoke.log
-          }
-          if ($proc.ExitCode -ne 0) {
-            Write-Error "Process exited with code $($proc.ExitCode)"
-            Get-Content smoke.log
+          $proc = New-Object System.Diagnostics.Process
+          $proc.StartInfo.FileName = $exePath
+          $proc.StartInfo.UseShellExecute = $false
+          $proc.StartInfo.RedirectStandardOutput = $true
+          $proc.StartInfo.RedirectStandardError = $true
+          $proc.StartInfo.CreateNoWindow = $true
+          $proc.Start() | Out-Null
+          $output = $proc.StandardOutput.ReadToEnd()
+          $errorOutput = $proc.StandardError.ReadToEnd()
+          if ($proc.WaitForExit($timeoutSeconds * 1000)) {
+            $exitCode = $proc.ExitCode
+            if ($output) { $output | Out-File $out -Encoding utf8 }
+            if ($errorOutput) { $errorOutput | Out-File $err -Encoding utf8 }
+            if ($exitCode -ne 0) {
+              Write-Error "Process exited with code $exitCode"
+              if ($output) { Write-Host "STDOUT:"; Write-Host $output }
+              if ($errorOutput) { Write-Host "STDERR:"; Write-Host $errorOutput }
+              exit 1
+            }
+          } else {
+            $proc.Kill()
+            $proc.WaitForExit()
+            Write-Error "Process timed out after ${timeoutSeconds} seconds"
+            if ($output) { $output | Out-File $out -Encoding utf8 }
+            if ($errorOutput) { $errorOutput | Out-File $err -Encoding utf8 }
             exit 1
           }
         }
         catch {
-          "Error: $_" | Out-File smoke.log
-          Write-Error $_
+          $errMsg = "Exception: $_"
+          Write-Error $errMsg
+          $errMsg | Out-File smoke.log
           exit 1
         }
+        if (Test-Path $out) { Get-Content $out | Out-File smoke.log -Append }
+        if (Test-Path $err) { Get-Content $err | Out-File smoke.log -Append }
+        if (-not (Test-Path smoke.log)) { "No output captured" | Out-File smoke.log }
 
     - name: Upload smoke log
       if: always()
