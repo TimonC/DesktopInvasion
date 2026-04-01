@@ -46,26 +46,35 @@ int PokemonDatabase::initialize() {
     }
 
     QString appDataLocation = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-    QString path = appDataLocation + "/app.db";
 
-    DB_LOG("Initializing — path:" << path);
+    QString basePath = appDataLocation;
+    if (basePath.isEmpty()) {
+        basePath = QCoreApplication::applicationDirPath();
+        DB_WARN("AppDataLocation empty, falling back to applicationDirPath");
+    }
 
-    QDir dbDir(appDataLocation);
+    QDir dbDir(basePath);
     if (!dbDir.exists() && !dbDir.mkpath(".")) {
         DB_ERR("Failed to create database directory: " << dbDir.path());
         return -1;
     }
 
-    if (!QFileInfo(dbDir.path()).isWritable()) {
+    QString path = dbDir.filePath("app.db");
+    DB_LOG("Initializing — path:" << path);
+
+    QFile testFile(dbDir.filePath("test.tmp"));
+    if (!testFile.open(QIODevice::WriteOnly)) {
         DB_ERR("Database directory not writable: " << dbDir.path());
         return -1;
     }
+    testFile.remove();
 
     if (QSqlDatabase::contains(QSqlDatabase::defaultConnection))
         QSqlDatabase::removeDatabase(QSqlDatabase::defaultConnection);
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName(path);
+
     if (!db.open()) {
         DB_ERR("Failed to open DB: " << db.lastError().text());
         QSqlDatabase::removeDatabase(QSqlDatabase::defaultConnection);
@@ -75,7 +84,11 @@ int PokemonDatabase::initialize() {
     m_dbPath      = path;
     m_initialized = true;
 
-    if (!createTables())     { DB_ERR("Failed to create tables");          shutdown(); return -1; }
+    if (!createTables()) {
+        DB_ERR("Failed to create tables");
+        shutdown();
+        return -1;
+    }
 
     {
         QSqlQuery cleanup;
@@ -88,10 +101,20 @@ int PokemonDatabase::initialize() {
     }
 
     m_saveId = readCurrentSaveId();
-    if (m_saveId == 0)       return 0;
+    if (m_saveId == 0)
+        return 0;
 
-    if (!initFixedSlots())   { DB_ERR("Failed to initialize fixed slots"); shutdown(); return -1; }
-    if (!loadWildAndParty()) { DB_ERR("Failed to load wild and party");    shutdown(); return -1; }
+    if (!initFixedSlots()) {
+        DB_ERR("Failed to initialize fixed slots");
+        shutdown();
+        return -1;
+    }
+
+    if (!loadWildAndParty()) {
+        DB_ERR("Failed to load wild and party");
+        shutdown();
+        return -1;
+    }
 
     DB_LOG("Initialization complete");
     return 1;

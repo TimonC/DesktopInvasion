@@ -1,6 +1,5 @@
 #include <QLoggingCategory>
 #include <QOpenGLContext>
-#include <QStandardPaths>
 #include <QDir>
 #include <QCoreApplication>
 #include <QQmlApplicationEngine>
