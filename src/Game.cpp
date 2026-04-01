@@ -253,7 +253,7 @@ void Game::openStarterMenu(){
     const double uiScale = std::min(scaleW, scaleH);
 
     m_starterMenu->setProperty("uiScale", uiScale);
-    m_starterMenu->resize(menuWidth, menuHeight);
+    m_starterMenu->resize(menuWidth*uiScale, menuHeight*uiScale);
 
     int x = (Globals::screenGeometry().width() - m_starterMenu->width()) / 2;
     int y = (Globals::screenGeometry().height() - m_starterMenu->height()) / 2;
