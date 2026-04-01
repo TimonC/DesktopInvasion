@@ -1,11 +1,15 @@
 name: Build Windows (MSVC)
+
 on:
   workflow_dispatch:
+
 jobs:
   build:
     runs-on: windows-latest
+
     env:
       OUT_DIR: output\DesktopInvasion-Windows
+
     steps:
     - uses: actions/checkout@v4
 
@@ -17,104 +21,77 @@ jobs:
         arch: win64_msvc2022_64
         cache: true
 
-    - run: cmake -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
+    - name: Configure
       shell: bash
+      run: cmake -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
 
-    - run: cmake --build build --config Release --parallel
+    - name: Build
       shell: bash
+      run: cmake --build build --config Release --parallel
 
     - name: Package
       shell: pwsh
       run: |
         $exePath = Get-ChildItem -Recurse build | Where-Object { $_.Name -eq "DesktopInvasion.exe" } | Select-Object -First 1
-        if (-not $exePath) {
-          Write-Error "Could not find DesktopInvasion.exe"
-          Get-ChildItem -Recurse build
-          exit 1
-        }
+        if (-not $exePath) { exit 1 }
+
         New-Item -ItemType Directory -Force -Path $env:OUT_DIR | Out-Null
         Copy-Item $exePath.FullName $env:OUT_DIR\
+
         $qmlDir = "$pwd\qml"
+
         if (Test-Path $qmlDir) {
-          windeployqt6 --verbose 1 --release --compiler-runtime --no-translations --qmldir $qmlDir "$env:OUT_DIR\DesktopInvasion.exe"
+          windeployqt6 --release --compiler-runtime --no-translations --qmldir $qmlDir "$env:OUT_DIR\DesktopInvasion.exe"
         } else {
-          Write-Warning "QML directory not found at $qmlDir, deploying without QML"
-          windeployqt6 --verbose 1 --release --compiler-runtime --no-translations "$env:OUT_DIR\DesktopInvasion.exe"
-        }
-        if ($LASTEXITCODE -ne 0) {
-          Write-Error "windeployqt6 failed with exit code $LASTEXITCODE"
-          exit 1
-        }
-        $vsPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
-        if ($vsPath) {
-          $vcRedist = "$vsPath\VC\Redist\MSVC\v143\Microsoft.VC143.CRT"
-          if (Test-Path $vcRedist) {
-            Copy-Item "$vcRedist\*.dll" $env:OUT_DIR\ -Force -ErrorAction SilentlyContinue
-          }
+          windeployqt6 --release --compiler-runtime --no-translations "$env:OUT_DIR\DesktopInvasion.exe"
         }
 
-    - name: Verify dependencies
+        $qtPath = $env:Qt6_DIR
+        $sqlSrc = Get-ChildItem -Recurse "$qtPath" -Filter qsqlite.dll | Select-Object -First 1
+        if ($sqlSrc) {
+          New-Item -ItemType Directory -Force -Path "$env:OUT_DIR\sqldrivers" | Out-Null
+          Copy-Item $sqlSrc.FullName "$env:OUT_DIR\sqldrivers\" -Force
+        }
+
+    - name: Verify
       shell: pwsh
       run: |
-        $missing = @()
-        @("Qt6Core.dll", "Qt6Gui.dll", "Qt6Widgets.dll") | ForEach-Object {
-          if (-not (Test-Path "$env:OUT_DIR\$_")) { $missing += $_ }
-        }
-        if ($missing) {
-          Write-Warning "Missing DLLs: $($missing -join ', ')"
-          Write-Host "Contents of $env:OUT_DIR :"
-          Get-ChildItem $env:OUT_DIR
-        } else {
-          Write-Host "All required Qt DLLs present."
-        }
+        Get-ChildItem -Recurse $env:OUT_DIR
 
     - name: Smoke test
       shell: pwsh
       timeout-minutes: 1
       run: |
+        $env:QT_QPA_PLATFORM="offscreen"
+        $env:QT_DEBUG_PLUGINS="1"
+
         $exePath = "$env:OUT_DIR\DesktopInvasion.exe"
-        if (-not (Test-Path $exePath)) {
-          Write-Error "Executable not found: $exePath"
-          exit 1
-        }
+
         $outFile = "smoke_stdout.log"
         $errFile = "smoke_stderr.log"
-        $timeoutSec = 10
 
-        $proc = Start-Process -FilePath $exePath -PassThru -NoNewWindow `
-          -RedirectStandardOutput $outFile -RedirectStandardError $errFile
+        $proc = Start-Process -FilePath $exePath `
+          -ArgumentList "--smoke-test" `
+          -PassThru `
+          -NoNewWindow `
+          -RedirectStandardOutput $outFile `
+          -RedirectStandardError $errFile
 
-        try {
-          if ($proc.WaitForExit($timeoutSec * 1000)) {
-            $exitCode = $proc.ExitCode
-            if ($exitCode -ne 0) {
-              Write-Host "Process exited with code $exitCode"
-              Get-Content $outFile, $errFile -ErrorAction SilentlyContinue
-              Write-Error "Non-zero exit code: $exitCode"
-              exit 1
-            }
-          } else {
-            Write-Host "Process did not exit within $timeoutSec seconds – terminating"
-            Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
-            $proc.WaitForExit()
-            Start-Sleep -Milliseconds 500
-            if (-not $proc.HasExited) {
-              Write-Error "Failed to terminate process"
-              exit 1
-            }
-          }
-        } catch {
-          Write-Error "Error while managing process: $_"
-          exit 1
-        } finally {
-          $stdout = if (Test-Path $outFile) { Get-Content $outFile -ErrorAction SilentlyContinue } else { $null }
-          $stderr = if (Test-Path $errFile) { Get-Content $errFile -ErrorAction SilentlyContinue } else { $null }
-          $logContent = @()
-          if ($stdout) { $logContent += "--- STDOUT ---"; $logContent += $stdout }
-          if ($stderr) { $logContent += "--- STDERR ---"; $logContent += $stderr }
-          if ($logContent.Count -eq 0) { $logContent = "No output captured (process may have produced no console output)" }
-          $logContent | Out-File -FilePath smoke.log -Encoding utf8
+        Start-Sleep -Seconds 10
+
+        if (!$proc.HasExited) {
+          Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
         }
+
+        $stdout = if (Test-Path $outFile) { Get-Content $outFile } else { @() }
+        $stderr = if (Test-Path $errFile) { Get-Content $errFile } else { @() }
+
+        $log = @()
+        if ($stdout.Count -gt 0) { $log += "--- STDOUT ---"; $log += $stdout }
+        if ($stderr.Count -gt 0) { $log += "--- STDERR ---"; $log += $stderr }
+        if ($log.Count -eq 0) { $log = "NO OUTPUT" }
+
+        $log | Out-File -FilePath smoke.log -Encoding utf8
 
     - name: Upload smoke log
       if: always()
@@ -123,7 +100,8 @@ jobs:
         name: smoke-log-windows
         path: smoke.log
 
-    - uses: actions/upload-artifact@v4
+    - name: Upload build
+      uses: actions/upload-artifact@v4
       with:
         name: DesktopInvasion-Windows
         path: output/DesktopInvasion-Windows/
