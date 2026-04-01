@@ -6,6 +6,7 @@ Rectangle {
     MouseArea {
         anchors.fill: parent
         cursorShape: undefined
+        hoverEnabled: false
         onClicked: {
             if (root.inNameEditMode) root.toggleNameEditMode()
         }
