@@ -7,10 +7,12 @@ Rectangle {
 
     color: "#2b2b2b"
 
-    readonly property int pad:           30
-    readonly property int dividerW:      1
-    readonly property int labelHeight:   30
-    readonly property int contentSpacing:8
+    property double uiScale:   1
+
+    readonly property int pad:           Math.round(30 * uiScale)
+    readonly property int dividerW:      Math.round(1 * uiScale)
+    readonly property int labelHeight:   Math.round(30 * uiScale)
+    readonly property int contentSpacing: Math.round(8 * uiScale)
     readonly property color dividerColor: "#3d3d3d"
 
     property string linkText: "google.com"
@@ -29,9 +31,9 @@ Rectangle {
     property color  colorAccent:    "#5294e2"
     property color  colorSubtext:   "#aaaaaa"
 
-    property int    fontSizeLg:     22
-    property int    fontSizeMd:     18
-    property int    fontSizeSm:     16
+    property int    fontSizeLg:     Math.round(22 * uiScale)
+    property int    fontSizeMd:     Math.round(18 * uiScale)
+    property int    fontSizeSm:     Math.round(16 * uiScale)
     property string p2pFont:        "Press Start 2P"
     property string dotGothicFont:  "DotGothic16"
 
@@ -297,7 +299,7 @@ Rectangle {
 
             Item {
                 width: parent.width
-                height: 44
+                height: 44 * uiScale
 
                 Rectangle {
                     anchors.fill: parent
@@ -310,7 +312,7 @@ Rectangle {
                 }
 
                 Text {
-                    anchors { right: parent.right; verticalCenter: parent.verticalCenter; rightMargin: 11 }
+                    anchors { right: parent.right; verticalCenter: parent.verticalCenter; rightMargin: 11 * uiScale }
                     text: "✎"
                     font.pixelSize: root.fontSizeLg
                     color: root.colorSubtext
@@ -324,8 +326,8 @@ Rectangle {
                     anchors {
                         left: parent.left
                         right: parent.right
-                        leftMargin: 10
-                        rightMargin: root.inNameEditMode ? 10 : 36
+                        leftMargin: 10 * uiScale
+                        rightMargin: root.inNameEditMode ? 10 * uiScale : 36 * uiScale
                         verticalCenter: parent.verticalCenter
                     }
                     text: root.playerName
@@ -348,7 +350,7 @@ Rectangle {
                 }
 
                 Text {
-                    anchors { left: parent.left; verticalCenter: parent.verticalCenter; leftMargin: 10 }
+                    anchors { left: parent.left; verticalCenter: parent.verticalCenter; leftMargin: 10 * uiScale }
                     text: "Enter name..."
                     font.family: root.dotGothicFont
                     font.pixelSize: root.fontSizeSm
@@ -367,7 +369,6 @@ Rectangle {
                     }
                 }
             }
-
 
             Item { width: parent.width; height: root.pad }
             Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
@@ -474,7 +475,7 @@ Rectangle {
                         id: starterGrid
                         columns: 4
                         rows: 3
-                        spacing: 16
+                        spacing: 16 * uiScale
                         width: parent.width * 0.55
 
                         Repeater {
@@ -588,7 +589,7 @@ Rectangle {
 
             Item {
                 width: parent.width
-                height: 44
+                height: 44 * uiScale
 
                 Rectangle {
                     anchors.fill: parent
@@ -601,7 +602,7 @@ Rectangle {
                 }
 
                 Text {
-                    anchors { right: parent.right; verticalCenter: parent.verticalCenter; rightMargin: 11 }
+                    anchors { right: parent.right; verticalCenter: parent.verticalCenter; rightMargin: 11 * uiScale }
                     text: "✎"
                     font.pixelSize: root.fontSizeLg
                     color: root.colorSubtext
@@ -615,8 +616,8 @@ Rectangle {
                     anchors {
                         left: parent.left
                         right: parent.right
-                        leftMargin: 10
-                        rightMargin: root.inNickNameEditMode ? 10 : 36
+                        leftMargin: 10 * uiScale
+                        rightMargin: root.inNickNameEditMode ? 10 * uiScale : 36 * uiScale
                         verticalCenter: parent.verticalCenter
                     }
                     text: root.nickName
@@ -639,7 +640,7 @@ Rectangle {
                 }
 
                 Text {
-                    anchors { left: parent.left; verticalCenter: parent.verticalCenter; leftMargin: 10 }
+                    anchors { left: parent.left; verticalCenter: parent.verticalCenter; leftMargin: 10 * uiScale }
                     text: "Enter a starter nickname..."
                     font.family: root.dotGothicFont
                     font.pixelSize: root.fontSizeSm
