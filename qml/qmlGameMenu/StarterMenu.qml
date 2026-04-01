@@ -156,15 +156,16 @@ Rectangle {
         Flickable {
             anchors.fill: parent
             contentHeight: column0.implicitHeight
+            contentWidth: Math.max(column0.implicitWidth, parent.width)
             clip: true
             ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
+            ScrollBar.horizontal: ScrollBar { policy: ScrollBar.AsNeeded }
 
             Column {
                 id: column0
-                width: parent.width
                 spacing: 0
                 Text {
-                    width: parent.width
+                    width: root.width/2 - 2 * root.pad
                     text: "Welcome to DesktopInvasion!"
                     font.family: root.p2pFont
                     font.pixelSize: root.fontSizeLg
@@ -175,7 +176,7 @@ Rectangle {
                 Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
                 Item { width: parent.width; height: root.pad }
                 Text {
-                    width: parent.width * 0.75
+                    width: root.width*0.9
                     text: "DesktopInvasion is a desktop pet game that spawns sprites on top of your desktop screen. Battle wild sprites with a MOUSE DOUBLE CLICK. In a battle you can catch wild sprites or train those that you have already caught. DesktopInvasion can be controlled from the SYSTEM TRAY; that's that section in the corner of your desktop where you have the icons for your Wifi, Bluetooth, etc. If you RIGHT CLICK the DesktopInvasion icon, you can:\n\n• Open the game menu\n• Toggle whether the sprites are active \n• Toggle \"Pet mode\" to interact with your sprites\n• Manage your saved games\n• Quit DesktopInvasion"
                     font.family: root.dotGothicFont
                     font.pixelSize: root.fontSizeMd
@@ -187,7 +188,7 @@ Rectangle {
                 Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
                 Item { width: parent.width; height: root.pad }
                 Text {
-                    width: parent.width * 0.8
+                    width: root.width*0.9
                     text: "DesktopInvasion is a passion project that is available for free. I have never and will never seek any fees or donations for this game. This game makes extensive use of material that I do not own, namely the Pokémon sprite assets as well as the Pokémon gameplay. It is my sincere belief that I have used this material in a spirit of fair use. Apart from moderate use of LLM's, all source code is written by me, with gameplay based on widely available sources on gen-4 gameplay. Note that I have simplified the gameplay by, among other things, excluding items, abilities and a large number of moves."
                     font.family: root.dotGothicFont
                     font.pixelSize: root.fontSizeMd
@@ -197,7 +198,7 @@ Rectangle {
                 Item { width: parent.width; height: root.pad / 2 + Math.round(3 * uiScale) }
                 Row {
                     spacing: Math.round(5 * uiScale)
-                    width: parent.width * 0.8
+                    width: root.width - 2 * root.pad
                     Text {
                         text: "For a full list of credits, see:"
                         font.family: root.dotGothicFont
@@ -243,15 +244,16 @@ Rectangle {
         Flickable {
             anchors.fill: parent
             contentHeight: column1.implicitHeight
+            contentWidth: Math.max(column1.implicitWidth, parent.width)
             clip: true
             ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
+            ScrollBar.horizontal: ScrollBar { policy: ScrollBar.AsNeeded }
 
             Column {
                 id: column1
-                width: parent.width
                 spacing: 0
                 Row {
-                    width: parent.width
+                    width: root.width - 2 * root.pad
                     PcButton {
                         width: Math.round(4 * 48 * uiScale)
                         label: "← BACK"
@@ -263,7 +265,7 @@ Rectangle {
                 Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
                 Item { width: parent.width; height: root.pad }
                 Text {
-                    width: parent.width
+                    width: root.width - 2 * root.pad
                     text: "Choose your trainer name:"
                     font.family: root.dotGothicFont
                     font.pixelSize: root.fontSizeMd
@@ -342,7 +344,7 @@ Rectangle {
                 Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
                 Item { width: parent.width; height: root.pad }
                 Text {
-                    width: parent.width
+                    width: root.width - 2 * root.pad
                     text: "Choose your trainer avatar:"
                     font.family: root.dotGothicFont
                     font.pixelSize: root.fontSizeMd
@@ -400,15 +402,16 @@ Rectangle {
         Flickable {
             anchors.fill: parent
             contentHeight: column2.implicitHeight
+            contentWidth: Math.max(column2.implicitWidth, parent.width)
             clip: true
             ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
+            ScrollBar.horizontal: ScrollBar { policy: ScrollBar.AsNeeded }
 
             Column {
                 id: column2
-                width: parent.width
                 spacing: 0
                 Row {
-                    width: parent.width
+                    width: root.width - 2 * root.pad
                     PcButton {
                         width: Math.round(4 * 48 * uiScale)
                         label: "← BACK"
@@ -420,7 +423,7 @@ Rectangle {
                 Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
                 Item { width: parent.width; height: root.pad }
                 Text {
-                    width: parent.width
+                    width: root.width - 2 * root.pad
                     text: "Choose your starter:"
                     font.family: root.dotGothicFont
                     font.pixelSize: root.fontSizeMd
@@ -429,15 +432,12 @@ Rectangle {
                 }
                 Item { width: parent.width; height: root.pad }
                 Row {
-                    width: parent.width
-                    height: trainerGrid.height
                     spacing: root.pad
                     Grid {
                         id: starterGrid
                         columns: 4
                         rows: 3
                         spacing: Math.round(16 * uiScale)
-                        width: parent.width * 0.55
                         Repeater {
                             id: starterRepeater
                             model: root.starterList
@@ -459,7 +459,7 @@ Rectangle {
                         }
                     }
                     Item {
-                        width: parent.width * 0.4
+                        width: root.width - 2 * root.pad - starterGrid.width - root.pad
                         height: starterGrid.height
                         clip: true
                         Column {
@@ -530,7 +530,7 @@ Rectangle {
                 Rectangle { width: parent.width; height: root.dividerW; color: root.dividerColor }
                 Item { width: parent.width; height: root.pad }
                 Text {
-                    width: parent.width
+                    width: root.width - 2 * root.pad
                     text: "(Optional) choose a nickname for your starter:"
                     font.family: root.dotGothicFont
                     font.pixelSize: root.fontSizeMd
