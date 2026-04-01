@@ -239,7 +239,7 @@ namespace PokeMath{
         if (nrParticipated <= 0) return 0;
 
         // Precompute constant factors
-        constexpr float TRAINER_MULTIPLIER = 1.5f;
+        constexpr float TRAINER_MULTIPLIER = 3;//1.5f;
         constexpr float PARTICIPANT_DIVISOR = 7.0f;
 
         // Use integer arithmetic where possible
