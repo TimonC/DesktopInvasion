@@ -25,7 +25,7 @@ set(ALL_SRC ${CPP_SRC} ${ALL_HEADERS} ${RESOURCES_RCC})
 if(APPLE)
     add_executable(DesktopInvasion ${ALL_SRC} ${MM_SRC})
 else()
-    add_executable(DesktopInvasion ${ALL_SRC})
+    add_executable(DesktopInvasion WIN32 ${ALL_SRC})
 endif()
 
 set_target_properties(DesktopInvasion PROPERTIES
