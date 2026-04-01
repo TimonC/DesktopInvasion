@@ -41,16 +41,6 @@ int main(int argc, char *argv[]) {
     icon = QIcon(":/assets/icon/icon.png");
     app.setWindowIcon(icon);
 
-    QOpenGLContext context;
-    if (context.create()) {
-        qDebug() << "OpenGL IS WORKING! Version:"
-                 << context.format().majorVersion() << "." << context.format().minorVersion();
-        qDebug() << "OpenGL profile:" << context.format().profile();
-        qDebug() << "OpenGL renderable:" << context.format().renderableType();
-    } else {
-        qDebug() << "OpenGL FAILED - using software rendering";
-    }
-
     int pixelFontId = QFontDatabase::addApplicationFont(":/assets/fonts/PressStart2P-Regular.ttf");
     int dotGothicId = QFontDatabase::addApplicationFont(":/assets/fonts/DotGothic16-Regular.ttf");
 
