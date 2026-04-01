@@ -251,12 +251,9 @@ void Game::openStarterMenu(){
     const double scaleW = std::min(1.0, static_cast<double>(availableGeometry.width()) / menuWidth);
     const double scaleH = std::min(1.0, static_cast<double>(availableGeometry.height()) / menuHeight);
     const double uiScale = std::min(scaleW, scaleH);
-    qDebug() << uiScale;
 
     m_starterMenu->setProperty("uiScale", uiScale);
     m_starterMenu->resize(menuWidth, menuHeight);
-    m_starterMenu->setMinimumSize(QSize(menuWidth * uiScale, menuHeight * uiScale));
-    m_starterMenu->setMaximumSize(QSize(menuWidth * uiScale, menuHeight * uiScale));
 
     int x = (Globals::screenGeometry().width() - m_starterMenu->width()) / 2;
     int y = (Globals::screenGeometry().height() - m_starterMenu->height()) / 2;
