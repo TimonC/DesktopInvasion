@@ -47,7 +47,7 @@ Item {
     function spriteJump(){
         if (!sprite.isJumping) {
             sprite.isJumping = true
-            console.log("Yippeee!")
+            console.log(`[${pokeData.name}]: Yippeee!`)
             jumpAnim.start()
         }
     }

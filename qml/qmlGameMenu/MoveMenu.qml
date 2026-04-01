@@ -875,7 +875,7 @@ Item {
                 onClicked: {
                     if (!spriteImg.isJumping) {
                         spriteImg.isJumping = true
-                        console.log("Yippeee!")
+                        console.log(`[${nameField.text}]: Yippeee!`)
                         jumpAnim.start()
                     }
                 }
