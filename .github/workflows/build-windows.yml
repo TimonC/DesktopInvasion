@@ -48,11 +48,17 @@ jobs:
 
         $qtPath = $env:Qt6_DIR
         $sqlSrc = Get-ChildItem -Recurse "$qtPath" -Filter qsqlite.dll | Select-Object -First 1
-        if ($sqlSrc) {
-          New-Item -ItemType Directory -Force -Path "$env:OUT_DIR\sqldrivers" | Out-Null
-          Copy-Item $sqlSrc.FullName "$env:OUT_DIR\sqldrivers\" -Force
-        }
 
+        if ($sqlSrc) {
+          $destDir = "$env:OUT_DIR\sqldrivers"
+          $destFile = Join-Path $destDir "qsqlite.dll"
+
+          New-Item -ItemType Directory -Force -Path $destDir | Out-Null
+
+          if (-not (Test-Path $destFile)) {
+            Copy-Item $sqlSrc.FullName $destFile -Force
+          }
+        }
     - name: Verify
       shell: pwsh
       run: |
