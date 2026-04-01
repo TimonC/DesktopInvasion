@@ -39,12 +39,14 @@ jobs:
       shell: pwsh
       timeout-minutes: 1
       run: |
-        $log = "smoke.log"
+        $out = "smoke_stdout.log"
+        $err = "smoke_stderr.log"
         $proc = Start-Process -FilePath "$env:OUT_DIR\DesktopInvasion.exe" `
-          -PassThru -NoNewWindow -RedirectStandardOutput $log -RedirectStandardError $log
+          -PassThru -NoNewWindow -RedirectStandardOutput $out -RedirectStandardError $err
         Start-Sleep -Seconds 5
+        Get-Content $out, $err -ErrorAction SilentlyContinue | Set-Content smoke.log
         if ($proc.HasExited -and $proc.ExitCode -ne 0) {
-          Get-Content $log -ErrorAction SilentlyContinue
+          Get-Content smoke.log
           Write-Error "App crashed. Exit code: $($proc.ExitCode)"; exit 1
         }
         if (-not $proc.HasExited) { $proc.Kill() }
