@@ -54,7 +54,7 @@ int PokemonDatabase::initialize() {
     }
 
     QDir dbDir(basePath);
-    if (!dbDir.exists() && !dbDir.mkpath(".")) {
+    if (!dbDir.exists() && !dbDir.mkpath("basePath")) {
         DB_ERR("Failed to create database directory: " << dbDir.path());
         return -1;
     }
