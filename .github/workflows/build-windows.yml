@@ -1,112 +1,101 @@
 name: Build Windows (MSVC)
 
 on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: windows-latest
 
-    env:
-      OUT_DIR: output\DesktopInvasion-Windows
-
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-    - uses: jurplel/install-qt-action@v4
+    - name: Install Qt (MSVC)
+      uses: jurplel/install-qt-action@v4
       with:
         version: '6.8.0'
-        host: windows
-        target: desktop
-        arch: win64_msvc2022_64
+        host: 'windows'
+        target: 'desktop'
+        arch: 'win64_msvc2022_64'
         cache: true
 
-    - name: Configure
-      shell: bash
+    - name: Configure CMake
       run: cmake -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
+      shell: bash
 
     - name: Build
-      shell: bash
       run: cmake --build build --config Release --parallel
+      shell: bash
 
     - name: Package
-      shell: pwsh
+      shell: powershell
       run: |
-        $exePath = Get-ChildItem -Recurse build | Where-Object { $_.Name -eq "DesktopInvasion.exe" } | Select-Object -First 1
-        if (-not $exePath) { exit 1 }
+        $outputDir = "output\DesktopInvasion-Windows"
+        New-Item -ItemType Directory -Force -Path $outputDir | Out-Null
 
-        New-Item -ItemType Directory -Force -Path $env:OUT_DIR | Out-Null
-        Copy-Item $exePath.FullName $env:OUT_DIR\
+        $exePath = Get-ChildItem -Path build -Recurse -Filter "DesktopInvasion.exe" |
+                   Where-Object { $_.FullName -match "Release" } |
+                   Select-Object -First 1 -ExpandProperty FullName
 
-        $qmlDir = "$pwd\qml"
-
-        if (Test-Path $qmlDir) {
-          windeployqt6 --release --compiler-runtime --no-translations --qmldir $qmlDir "$env:OUT_DIR\DesktopInvasion.exe"
-        } else {
-          windeployqt6 --release --compiler-runtime --no-translations "$env:OUT_DIR\DesktopInvasion.exe"
+        if (-not $exePath) {
+          $exePath = Get-ChildItem -Path build -Recurse -Filter "DesktopInvasion.exe" |
+                     Select-Object -First 1 -ExpandProperty FullName
         }
 
-        $qtPath = $env:Qt6_DIR
-        $sqlSrc = Get-ChildItem -Recurse "$qtPath" -Filter qsqlite.dll | Select-Object -First 1
+        if (-not $exePath) {
+          Write-Error "Executable not found!"
+          Get-ChildItem -Path build -Recurse -Filter "*.exe"
+          exit 1
+        }
 
-        if ($sqlSrc) {
-          $destDir = "$env:OUT_DIR\sqldrivers"
-          $destFile = Join-Path $destDir "qsqlite.dll"
+        Write-Host "Found exe: $exePath"
+        Copy-Item $exePath "$outputDir\"
 
-          New-Item -ItemType Directory -Force -Path $destDir | Out-Null
+        windeployqt6 --release --compiler-runtime --no-translations --verbose 2 --qmldir "$pwd\qml" "$outputDir\DesktopInvasion.exe"
 
-          if (-not (Test-Path $destFile)) {
-            Copy-Item $sqlSrc.FullName $destFile -Force
+        $vcRedistDir = "${env:VCToolsRedistDir}x64\Microsoft.VC143.CRT"
+        if (Test-Path $vcRedistDir) {
+          Get-ChildItem "$vcRedistDir\*.dll" | ForEach-Object {
+            Copy-Item $_.FullName "$outputDir\" -Force
           }
         }
-    - name: Verify
-      shell: pwsh
-      run: |
-        Get-ChildItem -Recurse $env:OUT_DIR
+
+        Get-ChildItem $outputDir | Select-Object Name, Length
 
     - name: Smoke test
-      shell: pwsh
+      shell: powershell
       timeout-minutes: 1
       run: |
-        $env:QT_QPA_PLATFORM="offscreen"
-        $env:QT_DEBUG_PLUGINS="1"
+        $exe = "output\DesktopInvasion-Windows\DesktopInvasion.exe"
 
-        $exePath = "$env:OUT_DIR\DesktopInvasion.exe"
-
-        $outFile = "smoke_stdout.log"
-        $errFile = "smoke_stderr.log"
-
-        $proc = Start-Process -FilePath $exePath `
-          -ArgumentList "--smoke-test" `
-          -PassThru `
-          -NoNewWindow `
-          -RedirectStandardOutput $outFile `
-          -RedirectStandardError $errFile
-
-        Start-Sleep -Seconds 10
-
-        if (!$proc.HasExited) {
-          Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
+        if (-not (Test-Path $exe)) {
+          Write-Error "Exe not found for smoke test: $exe"
+          exit 1
         }
 
-        $stdout = if (Test-Path $outFile) { Get-Content $outFile } else { @() }
-        $stderr = if (Test-Path $errFile) { Get-Content $errFile } else { @() }
+        $proc = Start-Process -FilePath $exe -PassThru -NoNewWindow
 
-        $log = @()
-        if ($stdout.Count -gt 0) { $log += "--- STDOUT ---"; $log += $stdout }
-        if ($stderr.Count -gt 0) { $log += "--- STDERR ---"; $log += $stderr }
-        if ($log.Count -eq 0) { $log = "NO OUTPUT" }
+        Start-Sleep -Seconds 5
 
-        $log | Out-File -FilePath smoke.log -Encoding utf8
+        if ($proc.HasExited) {
+          $code = $proc.ExitCode
+          if ($code -ne 0) {
+            Write-Error "App crashed on startup. Exit code: $code"
+            exit 1
+          } else {
+            Write-Host "App exited with code 0 within 5 seconds"
+          }
+        } else {
+          Write-Host "Smoke test passed"
+          $proc.Kill()
+        }
 
-    - name: Upload smoke log
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: smoke-log-windows
-        path: smoke.log
-
-    - name: Upload build
+    - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: DesktopInvasion-Windows
