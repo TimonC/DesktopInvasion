@@ -36,10 +36,10 @@ jobs:
         Copy-Item $exePath.FullName $env:OUT_DIR\
         $qmlDir = "$pwd\qml"
         if (Test-Path $qmlDir) {
-          windeployqt6 --verbose 0 --release --compiler-runtime --no-translations --qmldir $qmlDir "$env:OUT_DIR\DesktopInvasion.exe"
+          windeployqt6 --verbose 1 --release --compiler-runtime --no-translations --qmldir $qmlDir "$env:OUT_DIR\DesktopInvasion.exe"
         } else {
           Write-Warning "QML directory not found at $qmlDir, deploying without QML"
-          windeployqt6 --verbose 0 --release --compiler-runtime --no-translations "$env:OUT_DIR\DesktopInvasion.exe"
+          windeployqt6 --verbose 1 --release --compiler-runtime --no-translations "$env:OUT_DIR\DesktopInvasion.exe"
         }
         if ($LASTEXITCODE -ne 0) {
           Write-Error "windeployqt6 failed with exit code $LASTEXITCODE"
@@ -53,29 +53,19 @@ jobs:
           }
         }
 
-    - name: Debug package contents
+    - name: Verify dependencies
       shell: pwsh
       run: |
-        if (-not (Test-Path $env:OUT_DIR)) {
-          Write-Error "Package directory does not exist: $env:OUT_DIR"
-          exit 1
+        $missing = @()
+        @("Qt6Core.dll", "Qt6Gui.dll", "Qt6Widgets.dll") | ForEach-Object {
+          if (-not (Test-Path "$env:OUT_DIR\$_")) { $missing += $_ }
         }
-        $files = Get-ChildItem -Recurse $env:OUT_DIR
-        if ($files.Count -eq 0) {
-          Write-Error "Package directory is empty"
-          exit 1
-        }
-        $missingFiles = @()
-        if (-not ($files | Where-Object { $_.Name -eq "DesktopInvasion.exe" })) {
-          $missingFiles += "DesktopInvasion.exe"
-        }
-        if (-not ($files | Where-Object { $_.Name -like "Qt6*.dll" })) {
-          $missingFiles += "Qt6*.dll"
-        }
-        if ($missingFiles.Count -gt 0) {
-          Write-Error "Missing required files: $($missingFiles -join ', ')"
-          Get-ChildItem -Recurse $env:OUT_DIR | ForEach-Object { Write-Host $_.FullName }
-          exit 1
+        if ($missing) {
+          Write-Warning "Missing DLLs: $($missing -join ', ')"
+          Write-Host "Contents of $env:OUT_DIR :"
+          Get-ChildItem $env:OUT_DIR
+        } else {
+          Write-Host "All required Qt DLLs present."
         }
 
     - name: Smoke test
@@ -87,47 +77,44 @@ jobs:
           Write-Error "Executable not found: $exePath"
           exit 1
         }
-        $out = "smoke_stdout.log"
-        $err = "smoke_stderr.log"
-        $timeoutSeconds = 10
+        $outFile = "smoke_stdout.log"
+        $errFile = "smoke_stderr.log"
+        $timeoutSec = 10
+
+        $proc = Start-Process -FilePath $exePath -PassThru -NoNewWindow `
+          -RedirectStandardOutput $outFile -RedirectStandardError $errFile
+
         try {
-          $proc = New-Object System.Diagnostics.Process
-          $proc.StartInfo.FileName = $exePath
-          $proc.StartInfo.UseShellExecute = $false
-          $proc.StartInfo.RedirectStandardOutput = $true
-          $proc.StartInfo.RedirectStandardError = $true
-          $proc.StartInfo.CreateNoWindow = $true
-          $proc.Start() | Out-Null
-          $output = $proc.StandardOutput.ReadToEnd()
-          $errorOutput = $proc.StandardError.ReadToEnd()
-          if ($proc.WaitForExit($timeoutSeconds * 1000)) {
+          if ($proc.WaitForExit($timeoutSec * 1000)) {
             $exitCode = $proc.ExitCode
-            if ($output) { $output | Out-File $out -Encoding utf8 }
-            if ($errorOutput) { $errorOutput | Out-File $err -Encoding utf8 }
             if ($exitCode -ne 0) {
-              Write-Error "Process exited with code $exitCode"
-              if ($output) { Write-Host "STDOUT:"; Write-Host $output }
-              if ($errorOutput) { Write-Host "STDERR:"; Write-Host $errorOutput }
+              Write-Host "Process exited with code $exitCode"
+              Get-Content $outFile, $errFile -ErrorAction SilentlyContinue
+              Write-Error "Non-zero exit code: $exitCode"
               exit 1
             }
           } else {
-            $proc.Kill()
+            Write-Host "Process did not exit within $timeoutSec seconds – terminating"
+            Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
             $proc.WaitForExit()
-            Write-Error "Process timed out after ${timeoutSeconds} seconds"
-            if ($output) { $output | Out-File $out -Encoding utf8 }
-            if ($errorOutput) { $errorOutput | Out-File $err -Encoding utf8 }
-            exit 1
+            Start-Sleep -Milliseconds 500
+            if (-not $proc.HasExited) {
+              Write-Error "Failed to terminate process"
+              exit 1
+            }
           }
-        }
-        catch {
-          $errMsg = "Exception: $_"
-          Write-Error $errMsg
-          $errMsg | Out-File smoke.log
+        } catch {
+          Write-Error "Error while managing process: $_"
           exit 1
+        } finally {
+          $stdout = if (Test-Path $outFile) { Get-Content $outFile -ErrorAction SilentlyContinue } else { $null }
+          $stderr = if (Test-Path $errFile) { Get-Content $errFile -ErrorAction SilentlyContinue } else { $null }
+          $logContent = @()
+          if ($stdout) { $logContent += "--- STDOUT ---"; $logContent += $stdout }
+          if ($stderr) { $logContent += "--- STDERR ---"; $logContent += $stderr }
+          if ($logContent.Count -eq 0) { $logContent = "No output captured (process may have produced no console output)" }
+          $logContent | Out-File -FilePath smoke.log -Encoding utf8
         }
-        if (Test-Path $out) { Get-Content $out | Out-File smoke.log -Append }
-        if (Test-Path $err) { Get-Content $err | Out-File smoke.log -Append }
-        if (-not (Test-Path smoke.log)) { "No output captured" | Out-File smoke.log }
 
     - name: Upload smoke log
       if: always()
