@@ -194,7 +194,7 @@ Rectangle {
 
             Text {
                 width: parent.width*0.75
-                text: "DesktopInvasion is a desktop pet game that spawns sprites on top of your desktop screen. Battle wild sprites with a MOUSE DOUBLE CLICK. In a battle you can catch wild sprites or train those that you have already caught. DesktopInvasion can be controlled from the \"system tray bar\"; that's that section in the corner of your desktop where you have the icons for your Wifi, Bluetooth, etc. If you RIGHT CLICK the DesktopInvasion icon, you can:\n\n• Open the game menu\n• Toggle whether the sprites are active \n• Toggle \"Pet mode\" to interact with your sprites\n• Manage your saved games\n• Quit DesktopInvasion"
+                text: "DesktopInvasion is a desktop pet game that spawns sprites on top of your desktop screen. Battle wild sprites with a MOUSE DOUBLE CLICK. In a battle you can catch wild sprites or train those that you have already caught. DesktopInvasion can be controlled from the SYSTEM TRAY; that's that section in the corner of your desktop where you have the icons for your Wifi, Bluetooth, etc. If you RIGHT CLICK the DesktopInvasion icon, you can:\n\n• Open the game menu\n• Toggle whether the sprites are active \n• Toggle \"Pet mode\" to interact with your sprites\n• Manage your saved games\n• Quit DesktopInvasion"
                 font.family: root.dotGothicFont
                 font.pixelSize: root.fontSizeMd
                 color: "#ffffff"
@@ -208,7 +208,7 @@ Rectangle {
 
             Text {
                 width: parent.width*0.8
-                text: "DesktopInvasion is a passion project that is available for free. I have never and will never seek any fees or donations for this game. This game makes extensive use of material that I do not own, namely the Pokémon sprite assets as well as the Pokémon gameplay. It is my sincere belief that I have used this material in a spirit of appreciation. Apart from moderate use of LLM's, all code is written by me, with gameplay based on widely available sources on gen-4 Pokémon gameplay. Note that I have simplified the gameplay somewhat, namely by excluding abilities, a large number of moves, and items."
+                text: "DesktopInvasion is a passion project that is available for free. I have never and will never seek any fees or donations for this game. This game makes extensive use of material that I do not own, namely the Pokémon sprite assets as well as the Pokémon gameplay. It is my sincere belief that I have used this material in a spirit of appreciation. Apart from moderate use of LLM's, all source code is written by me, with gameplay based on widely available sources on gen-4 Pokémon gameplay. Note that I have simplified the gameplay by, among other things, excluding items, abilities and a large number of moves."
                 font.family: root.dotGothicFont
                 font.pixelSize: root.fontSizeMd
                 color: "#ffffff"
