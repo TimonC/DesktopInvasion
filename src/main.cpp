@@ -11,17 +11,7 @@
 #include <PokemonDatabase.h>
 #include <StartupManager.h>
 
-#ifdef Q_OS_WIN
-#include <windows.h>
-#endif
-
 int main(int argc, char *argv[]) {
-
-#ifdef Q_OS_WIN
-    AllocConsole();
-    freopen("CONOUT$", "w", stdout);
-    freopen("CONOUT$", "w", stderr);
-#endif
 
 #ifdef Q_OS_LINUX
     qputenv("QT_QPA_PLATFORM", "xcb");
