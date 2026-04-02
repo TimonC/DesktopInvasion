@@ -43,6 +43,7 @@ const PokeRoll weightedSamplePokemon(int pokemonLvl, const std::vector<int>& una
                    nor has a higher evolution below that level. */
                 const Poke* poke = getPoke(pokeId);
                 bool isEligible = false;
+                bool noEvolves = false;
                 int parentLevel = kEvolutionParentLevel[pokeId];
                 int eligibleEvolveLevel = -1;
                 if(poke->eligible_evolve_count>0){
@@ -51,6 +52,9 @@ const PokeRoll weightedSamplePokemon(int pokemonLvl, const std::vector<int>& una
 
                 if (parentLevel == -1) {
                     isEligible = true;
+                    if(eligibleEvolveLevel == -1){
+                        noEvolves = true;
+                    }
                 } else if (parentLevel <= level) {
                     isEligible = true;
                 }
@@ -58,7 +62,9 @@ const PokeRoll weightedSamplePokemon(int pokemonLvl, const std::vector<int>& una
                 if (isEligible) {
                     int weight = calculatePokeWeight(poke->catch_rate, level);
                     if (eligibleEvolveLevel != -1 && eligibleEvolveLevel <= level){
-                        weight = weight / 6; //three times less weight for above-evolution levels
+                        weight = weight / 5; //five times less weight for above-evolution levels
+                    }else if(noEvolves){
+                        weight = weight / 2; //half the weight for no-evolution pokemon
                     }
                     if (weight > 0) {
                         validPokemon.push_back(pokeId);
