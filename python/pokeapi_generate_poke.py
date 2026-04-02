@@ -209,12 +209,16 @@ for pokemon in pokemons:
 
 print("Propagating moves through evolution chains (forward only)...")
 for pokemon in pokemons:
-    pokemon['move_dict'] = {}
+    pokemon['move_dict_tm'] = set()
+    pokemon['move_dict_non_tm'] = {}
     for move in pokemon['eligible_moves']:
         mid = move['move_id']
         lvl = move['level']
-        if mid not in pokemon['move_dict'] or lvl < pokemon['move_dict'][mid]:
-            pokemon['move_dict'][mid] = lvl
+        if lvl == -1:
+            pokemon['move_dict_tm'].add(mid)
+        else:
+            if mid not in pokemon['move_dict_non_tm'] or lvl < pokemon['move_dict_non_tm'][mid]:
+                pokemon['move_dict_non_tm'][mid] = lvl
 
 changed = True
 iteration = 0
@@ -224,19 +228,31 @@ while changed:
     for pokemon in pokemons:
         if pokemon['id'] not in evolution_parents:
             continue
-        cur = pokemon['move_dict']
+        cur_tm = pokemon['move_dict_tm']
+        cur_non_tm = pokemon['move_dict_non_tm']
         for parent_id in evolution_parents[pokemon['id']]:
             parent = next(p for p in pokemons if p['id'] == parent_id)
-            for mid, lvl in parent['move_dict'].items():
-                if mid not in cur or lvl < cur[mid]:
-                    cur[mid] = lvl
+            for mid in parent['move_dict_tm']:
+                if mid not in cur_tm:
+                    cur_tm.add(mid)
                     changed = True
-        pokemon['move_dict'] = cur
+            for mid, lvl in parent['move_dict_non_tm'].items():
+                if mid not in cur_non_tm or lvl < cur_non_tm[mid]:
+                    cur_non_tm[mid] = lvl
+                    changed = True
+        pokemon['move_dict_tm'] = cur_tm
+        pokemon['move_dict_non_tm'] = cur_non_tm
     print(f"  Propagation iteration {iteration}: {'changed' if changed else 'stable'}")
 
 print("Converting move dictionaries back to list format...")
 for pokemon in pokemons:
-    moves = [{'move_id': mid, 'level': lvl} for mid, lvl in pokemon['move_dict'].items()]
+    moves = []
+    all_move_ids = pokemon['move_dict_tm'] | set(pokemon['move_dict_non_tm'].keys())
+    for mid in all_move_ids:
+        if mid in pokemon['move_dict_tm']:
+            moves.append({'move_id': mid, 'level': -1})
+        if mid in pokemon['move_dict_non_tm']:
+            moves.append({'move_id': mid, 'level': pokemon['move_dict_non_tm'][mid]})
     moves.sort(key=lambda x: (x['level'] if x['level'] != -1 else float('inf'), x['move_id']))
     pokemon['eligible_moves'] = moves
 
@@ -316,13 +332,8 @@ def generate_pokemon_data_direct():
         source_content += f"    &poke_{poke_id},\n"
     source_content += "};\n\n"
 
-
-
-    source_content += "// Evolution parent level map\n"
-    source_content += "// For any Pokémon ID, this gives the level at which it evolves from its previous form\n"
-    source_content += "// Returns -1 if the Pokémon has no previous evolution\n"
     source_content += "constexpr int kEvolutionParentLevel[] = {\n"
-    source_content += "    -1,  // Index 0 unused\n"
+    source_content += "    -1,\n"
     for poke_id in range(1, MAX_POKEMON_ID + 1):
         level = evolution_parent_level[poke_id]
         pokemon = next(p for p in pokemons if p['id'] == poke_id)
