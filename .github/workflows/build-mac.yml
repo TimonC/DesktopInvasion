@@ -54,7 +54,7 @@ jobs:
         codesign --force --deep --sign - "$APP_PATH" 2>/dev/null || true
         codesign --verify --verbose "$APP_PATH" 2>/dev/null || true
 
-        DMG_NAME="$APP_NAME-macOS.dmg"
+        DMG_NAME="$APP_NAME.dmg"
         hdiutil create -volname "$APP_NAME" -srcfolder "$APP_PATH" -ov -format UDZO "$DMG_NAME"
         if [ $? -ne 0 ]; then
           echo "Error: hdiutil failed"
@@ -113,5 +113,5 @@ jobs:
 
     - uses: actions/upload-artifact@v4
       with:
-        name: DesktopInvasion-macOS
-        path: DesktopInvasion-macOS.dmg
+        name: DesktopInvasion
+        path: DesktopInvasion.dmg
