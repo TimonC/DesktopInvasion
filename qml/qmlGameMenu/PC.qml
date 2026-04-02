@@ -418,6 +418,7 @@ Item {
             source:       "qrc:/assets/HGSS/reordered_icons.png"
             readonly property int spriteWidth:  40
             readonly property int spriteHeight: 30
+            scale: displayed ? 1.05 : 1
             sourceClipRect: Qt.rect(0, parent.frameIndex * spriteHeight, spriteWidth, spriteHeight)
             smooth:       false
             antialiasing: false
