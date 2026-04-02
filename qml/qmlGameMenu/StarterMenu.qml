@@ -334,8 +334,8 @@ Rectangle {
                     MouseArea {
                         id: nameMouseArea
                         anchors.fill: parent
-                        hoverEnabled: true
                         cursorShape: undefined
+                        hoverEnabled: true
                         onClicked: {
                             if (!root.inNameEditMode) {
                                 root.toggleNameEditMode()
@@ -604,8 +604,8 @@ Rectangle {
                     MouseArea {
                         id: nickNameMouseArea
                         anchors.fill: parent
-                        hoverEnabled: true
                         cursorShape: undefined
+                        hoverEnabled: true
                         onClicked: {
                             if (!root.inNickNameEditMode) {
                                 root.toggleNickNameEditMode()
@@ -633,3 +633,4 @@ Rectangle {
         }
     }
 }
+
