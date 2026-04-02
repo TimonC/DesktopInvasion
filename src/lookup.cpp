@@ -54,12 +54,12 @@ const PokeRoll weightedSamplePokemon(int pokemonLvl, const std::vector<int>& una
                 } else if (parentLevel <= level) {
                     isEligible = true;
                 }
-                if (eligibleEvolveLevel != -1 && eligibleEvolveLevel <= level){
-                    isEligible = false;
-                }
 
                 if (isEligible) {
                     int weight = calculatePokeWeight(poke->catch_rate, level);
+                    if (eligibleEvolveLevel != -1 && eligibleEvolveLevel <= level){
+                        weight = weight / 6; //three times less weight for above-evolution levels
+                    }
                     if (weight > 0) {
                         validPokemon.push_back(pokeId);
                         totalWeight += weight;
