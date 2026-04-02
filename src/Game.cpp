@@ -482,14 +482,21 @@ QVariantMap Game::pokemonToMenuState(int slot, const PokemonState& p) {
 
     std::vector<EligibleEntry> eligible_move;
     std::vector<EligibleEntry> eligible_tm_move;
+    std::unordered_set<int> seen_non_tm_ids;
+
     for (int i = 0; i < poke->eligible_move_count; i++) {
         int moveLevel = poke->eligible_moves[i].level;
-        if (moveLevel == -1) {
-            eligible_tm_move.push_back({ moveLevel, poke->eligible_moves[i].move_id });
+        int moveId = poke->eligible_moves[i].move_id;
+        if (moveLevel == -1) { //these are always at the end of the list so it works
+            if (seen_non_tm_ids.find(moveId) == seen_non_tm_ids.end()) {
+                eligible_tm_move.push_back({ moveLevel, moveId });
+            }
         } else if (p.lvl >= moveLevel) {
-            eligible_move.push_back({ moveLevel, poke->eligible_moves[i].move_id });
+            eligible_move.push_back({ moveLevel, moveId });
+            seen_non_tm_ids.insert(moveId);
         }
     }
+
     eligible_tm_move = m_db.filterKnownTMs(eligible_tm_move);
     std::vector<EligibleEntry> eligible;
     eligible.reserve(eligible_move.size() + eligible_tm_move.size());
