@@ -103,10 +103,13 @@ const PokeRoll weightedSamplePokemon(int pokemonLvl, const std::vector<int>& una
      This determines the quality of reward drops.
 
      There's always:
-        -50% chance: no reward
-        -45% chance: ball reward, with quality based on quality percent
+        -65% chance: no reward
+        -30% chance: ball reward, with quality based on quality percent
         -5%  chance: a new TM
     */
+    const int tmRewardBound = 5;
+    const int ballRewardBound = 30 + tmRewardBound;
+
     const Poke* poke = getPoke(selectedId);
     int weight = calculatePokeWeight(poke->catch_rate, pokemonLvl);
     int minWeight = calculatePokeWeight(1, pokemonLvl);  //rarest
@@ -118,7 +121,7 @@ const PokeRoll weightedSamplePokemon(int pokemonLvl, const std::vector<int>& una
 
 
     int tmId = 0, ballCount = 0, ballType = 0;
-    if (rewardType <= 5) {
+    if (rewardType <= tmRewardBound) {
         std::vector<int> availableTmIds;
         for (int i = 0; i < kTmCount; ++i) {
             if (std::find(unavailableTmIds.begin(), unavailableTmIds.end(), kAllTmIds[i]) == unavailableTmIds.end()) {
@@ -129,7 +132,7 @@ const PokeRoll weightedSamplePokemon(int pokemonLvl, const std::vector<int>& una
             std::uniform_int_distribution<int> dist(0, (int)availableTmIds.size() - 1);
             tmId = availableTmIds[dist(rng)];
         }
-    } else if (rewardType <= 50) {
+    } else if (rewardType <= ballRewardBound) {
         static std::uniform_int_distribution<int> tierDist(1, 1000);
         int tierRoll = tierDist(rng);
 
