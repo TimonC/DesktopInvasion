@@ -65,6 +65,25 @@ jobs:
           }
         }
 
+        # Create README.txt – plain text, no HTML, no heredoc
+        $readmeLines = @(
+          "After unzipping the file, run DesktopInvasion.exe to start the game.",
+          "",
+          "If automatic startup on pc boot isn't working, you might have to unzip",
+          "DesktopInvasion (or move all its contents) to the folder:",
+          "C:/Users/<USERNAME>/AppData/Local/DesktopInvasion",
+          "",
+          "Requires a modern x64-bit Visual C++ Redistributable.",
+          "You likely already have this installed. If not, download it from:",
+          "https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170#latest-supported-redistributable-version",
+          "",
+          "This desktop pet game is a fan creation without any official release,",
+          "so you will have to authorize the app upon running it the first time."
+        )
+        $readmePath = Join-Path $outputDir "README.txt"
+        Set-Content -Path $readmePath -Value $readmeLines -Encoding UTF8
+        Write-Host "Created $readmePath"
+
         Get-ChildItem $outputDir | Select-Object Name, Length
 
     - name: Smoke test
