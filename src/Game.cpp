@@ -138,8 +138,9 @@ void Game::setGameActive(bool active) {
 
 void Game::initializeGame(bool openStarter) {
     bool hasParty = false;
-    for (const auto& p : m_db.party())
+    for (const auto& p : m_db.party()){
         if (!p.empty()) { hasParty = true; break; }
+    }
 
     if (!hasParty && openStarter) {
         qDebug() << "Starting new game!";
@@ -150,8 +151,9 @@ void Game::initializeGame(bool openStarter) {
         qDebug() << "Save loaded — party size:" << m_db.partySize();
     }
 
-    if (!m_db.wild().empty())
+    if (!m_db.wild().empty()){
         qDebug() << "Resuming wild Pokemon:" << QString::fromStdString(m_db.wild().name);
+    }
 
     auto trainerNames = m_db.listTrainerNames();
     m_trayIcon->createContextMenu(trainerNames, m_db.currentSaveId());
