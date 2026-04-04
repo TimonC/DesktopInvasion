@@ -217,6 +217,7 @@ Rectangle {
                         MouseArea {
                             anchors.fill: parent
                             cursorShape: undefined
+                            hoverEnabled: false
                             onClicked: Qt.openUrlExternally(root.linkURL)
                         }
                     }

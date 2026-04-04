@@ -242,7 +242,7 @@ void Game::openStarterMenu(){
     else
         m_starterMenu->setSource(QUrl("qrc:/qml/qmlGameMenu/StarterMenu.qml"));
 
-    m_starterMenu->setCursor(QCursor(QPixmap(":/assets/XY/pointer.png"), 6, 6));
+    /* m_starterMenu->setCursor(QCursor(QPixmap(":/assets/XY/pointer.png"), 6, 6)); */
     m_starterMenu->setTitle("DesktopInvasion");
     m_starterMenu->setResizeMode(QQuickView::SizeRootObjectToView);
 
