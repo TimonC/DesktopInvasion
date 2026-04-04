@@ -20,8 +20,8 @@ Rectangle {
     readonly property int labelHeight: Math.round(30 * uiScale)
     readonly property int contentSpacing: Math.round(8 * uiScale)
     readonly property color dividerColor: "#3d3d3d"
-    property string linkText: "google.com"
-    property string linkURL: "https://www.google.com"
+    property string linkText: "desktopinvasion.com"
+    property string linkURL: "https://www.desktopinvasion.com"
     property bool inNameEditMode: false
     property bool inNickNameEditMode: false
     property color subheaderColor: "#aaaaaa"
@@ -191,7 +191,7 @@ Rectangle {
                 Item { width: parent.width; height: root.pad }
                 Text {
                     width: root.width*0.8
-                    text: "DesktopInvasion is a passion project that is available for free. I have never and will never seek any fees or donations for this game. This game makes extensive use of material that I do not own, namely the Pokémon sprite assets as well as the Pokémon gameplay. It is my sincere belief that I have used this material in a spirit of fair use. Apart from moderate use of LLM's, all source code is written by me, with gameplay based on widely available sources on gen-4 gameplay. Note that I have simplified the gameplay by, among other things, excluding items, abilities and a large number of moves."
+                    text: "DesktopInvasion is a non-commercial passion project that is available for free. I have never and will never seek any fees or donations for this game. This game makes extensive use of material that I do not own, namely the Pokémon sprite assets as well as the Pokémon gameplay. It is my sincere belief that I have used this material in a spirit of fair use. Apart from moderate use of LLMs, all source code is written by me, with gameplay based on widely available sources on gen-4 gameplay. Note that I have simplified the gameplay by, among other things, excluding items, abilities and a large number of moves."
                     font.family: root.dotGothicFont
                     font.pixelSize: root.fontSizeMd
                     color: "#ffffff"
