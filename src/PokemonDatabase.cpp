@@ -52,8 +52,9 @@ int PokemonDatabase::initialize() {
     DB_LOG("Windows mode — using local db folder: " << basePath);
 #endif
 #ifdef Q_OS_MAC
-    basePath = QCoreApplication::applicationDirPath() + "/db";
-    DB_LOG("Mac mode — using local db folder: " << basePath);
+    basePath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
+               + "/Library/Application Support/DesktopInvasion";
+    DB_LOG("Mac mode — using Application Support: " << basePath);
 #endif
 #ifdef Q_OS_LINUX
     QString appDataLocation = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
