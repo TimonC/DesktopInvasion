@@ -34,7 +34,7 @@ export QML_SOURCES_PATHS=/app/qml
     --appdir AppDir \
     --executable AppDir/usr/bin/DesktopInvasion \
     --desktop-file AppDir/usr/share/applications/DesktopInvasion.desktop \
-    --icon-file /app/src/assets/icon/icon.png \
+    --icon-file /app/assets/icon/icon.png \
     --plugin qt \
     --output appimage
 
