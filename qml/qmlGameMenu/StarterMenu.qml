@@ -21,7 +21,7 @@ Rectangle {
     readonly property int contentSpacing: Math.round(8 * uiScale)
     readonly property color dividerColor: "#3d3d3d"
     property string linkText: "desktopinvasion.com"
-    property string linkURL: "https://www.desktopinvasion.com"
+    property string linkURL: "https://www.desktopinvasion.com/?page=credits"
     property bool inNameEditMode: false
     property bool inNickNameEditMode: false
     property color subheaderColor: "#aaaaaa"
