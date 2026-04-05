@@ -106,9 +106,10 @@ def extract_evolution_data(species_url, current_poke_id):
         return []
     response = urllib.request.urlopen(evolution_chain_url)
     evolution_data = json.loads(response.read().decode('utf-8'))
-    return find_next_evolutions(evolution_data.get('chain', {}), current_poke_id)
+    return find_next_evolutions(evolution_data.get('chain', {}), current_poke_id, arrived_at_level=0)
 
-def find_next_evolutions(chain, target_id):
+
+def find_next_evolutions(chain, target_id, arrived_at_level=0):
     species_url = chain.get('species', {}).get('url', '')
     if species_url:
         parts = species_url.rstrip('/').split('/')
@@ -129,7 +130,12 @@ def find_next_evolutions(chain, target_id):
                                 })
 
                 level_up_levels = [e['level'] for e in evolutions if e['level'] > 0]
-                fallback = min(level_up_levels) if level_up_levels else 30
+                if level_up_levels:
+                    fallback = min(level_up_levels)
+                elif arrived_at_level > 30:
+                    fallback = arrived_at_level + 5
+                else:
+                    fallback = 30
 
                 for e in evolutions:
                     if e['level'] == -1:
@@ -138,7 +144,10 @@ def find_next_evolutions(chain, target_id):
                 return evolutions
 
     for evolution in chain.get('evolves_to', []):
-        result = find_next_evolutions(evolution, target_id)
+        next_arrived = extract_evolution_condition(evolution)
+        if next_arrived == -1:
+            next_arrived = arrived_at_level
+        result = find_next_evolutions(evolution, target_id, arrived_at_level=next_arrived)
         if result is not None and len(result) > 0:
             return result
     return []
