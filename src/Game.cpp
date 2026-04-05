@@ -760,7 +760,7 @@ void Game::updatePartyXP(const std::array<int,6>& spread) {
         PokemonState p = m_db.party()[i];
         if (p.empty()) continue;
 
-        int xpGain = spread[i]*1000;
+        int xpGain = spread[i];
         int oldXP  = p.currentXP;
         int oldLvl = p.lvl;
 
