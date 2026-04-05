@@ -35,8 +35,8 @@ GameMenu::GameMenu()
     const double menuHeight = 945.0;
     QRect availableGeometry = QGuiApplication::primaryScreen()->availableGeometry();
 
-    const double scaleW = std::min(1.0, static_cast<double>(availableGeometry.width())/menuWidth);
-    const double scaleH = std::min(1.0, static_cast<double>(availableGeometry.height())/menuHeight);
+    const double scaleW = std::min(1.0, static_cast<double>(0.85*availableGeometry.width())/menuWidth);
+    const double scaleH = std::min(1.0, static_cast<double>(0.85*availableGeometry.height())/menuHeight);
     const double uiScale = std::min(scaleW, scaleH);
 
     if(m_menuRoot){
