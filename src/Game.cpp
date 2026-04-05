@@ -379,6 +379,9 @@ void Game::setRandomSpawnPoint(){
     std::uniform_int_distribution<int> distX(0, screen.width()-64*Globals::scale());
     std::uniform_int_distribution<int> distY(0, screen.height()-64*Globals::scale());
     m_spawnPoint = QPoint(distX(m_rng), distY(m_rng));
+
+    std::uniform_int_distribution<int> distDirection(0,3);
+    m_spawnDirection =  distDirection(m_rng);
 }
 
 
