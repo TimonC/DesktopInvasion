@@ -47,10 +47,6 @@ private:
     const int                m_spawnDelay_ms = 500;
     bool                     m_menuClosing = false;
 
-    int m_ballGetCount = 0;
-    int m_tmGetId = 0;
-    int m_ballGetId = 0;
-
     void initializeGame(bool openStarter = true);
     void spawnPokemon();
     void safelyRemoveBattleScene();

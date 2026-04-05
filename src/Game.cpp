@@ -342,10 +342,6 @@ void Game::spawnPokemon() {
             const PokeRoll roll = Lookup::weightedSamplePokemon(lvl, unavailableTmList, m_rng);
             const Poke* wildPoke = Lookup::getPoke(roll.poke_id);
 
-            m_tmGetId=roll.tmId;
-            m_ballGetCount=roll.ballCount;
-            m_ballGetId=roll.ballId;
-
             PokemonState w;
             w.pokedex_id = roll.poke_id;
             w.name       = wildPoke->name;
@@ -361,7 +357,7 @@ void Game::spawnPokemon() {
                     moveIndex++;
                 }
             }
-            m_db.setWild(w);
+            m_db.setWild(w, roll.tmId, roll.ballCount, roll.ballId);
         }
 
         m_wildPokemon = new WildPokemon(m_db.wild().pokedex_id, m_spawnPoint, m_spawnDirection);
@@ -796,10 +792,11 @@ void Game::updatePartyXP(const std::array<int,6>& spread) {
     }
 
 
-    m_db.changePokeball(m_ballGetCount, m_ballGetId);
-    m_db.addTechnicalMove(m_tmGetId);
+    std::array<int, 3> rewards = m_db.loadRewards();
+    m_db.addTechnicalMove(rewards[0]);
+    m_db.changePokeball(rewards[1], rewards[2]);
 
-    m_activeBattle->showUpdateAndEndBattle(spread, lvlUps, evolves, m_tmGetId, m_ballGetCount, m_ballGetId);
+    m_activeBattle->showUpdateAndEndBattle(spread, lvlUps, evolves, rewards[0], rewards[1], rewards[2]);
 }
 
 void Game::handleEvolvePokemon(int boxIndex, int slot, int targetPokedexId, const std::string& nickName) {

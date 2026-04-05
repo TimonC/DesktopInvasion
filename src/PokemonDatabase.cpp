@@ -186,6 +186,13 @@ bool PokemonDatabase::createTables() {
         move3         INTEGER DEFAULT 0,
         FOREIGN KEY(save_id) REFERENCES saves(save_id)
     ))");
+    run(R"(CREATE TABLE IF NOT EXISTS rewards (
+        save_id       INTEGER PRIMARY KEY,
+        tm_get        INTEGER DEFAULT 0,
+        ball_get      INTEGER DEFAULT 0,
+        which_ball    INTEGER DEFAULT 0,
+        FOREIGN KEY(save_id) REFERENCES saves(save_id)
+    ))");
     run(R"(CREATE TABLE IF NOT EXISTS party_slots (
         save_id       INTEGER NOT NULL,
         slot          INTEGER NOT NULL,
@@ -493,6 +500,23 @@ bool PokemonDatabase::dbWriteWild(const PokemonState& p) {
     return ok;
 }
 
+bool PokemonDatabase::dbSetRewards(int tmGet, int ballGet, int whichBall){
+    QSqlQuery q;
+    q.prepare(R"(
+        INSERT OR REPLACE INTO rewards (save_id, tm_get, ball_get, which_ball)
+        VALUES (?, ?, ?, ?)
+    )");
+
+    q.addBindValue(m_saveId);
+    q.addBindValue(tmGet);
+    q.addBindValue(ballGet);
+    q.addBindValue(whichBall);
+    bool ok = q.exec();
+    if(!ok) logQuery(q);
+    else DB_LOG("Rewards set for wild pokemon");
+    return ok;
+}
+
 bool PokemonDatabase::dbWritePartySlot(int slot, const PokemonState& p) {
     QSqlQuery q;
     q.prepare(R"(UPDATE party_slots SET
@@ -538,10 +562,11 @@ bool PokemonDatabase::dbDeletePCSlot(int box, int slot) {
     return ok;
 }
 
-void PokemonDatabase::setWild(const PokemonState& p) {
+void PokemonDatabase::setWild(const PokemonState& p, int tmGet, int ballGet, int whichBall) {
     DB_LOG("setWild: " << (p.empty() ? "empty" : QString::fromStdString(p.name)));
     m_wild = p;
     dbWriteWild(p);
+    dbSetRewards(tmGet, ballGet, whichBall);
 }
 
 void PokemonDatabase::clearWild() {
@@ -595,6 +620,23 @@ bool PokemonDatabase::loadBox(int box) {
 bool PokemonDatabase::isBoxLoaded(int box) const {
     return m_boxCache.count(box) > 0;
 }
+
+std::array<int, 3> PokemonDatabase::loadRewards(){
+    QSqlQuery q;
+    q.prepare("SELECT tm_get, ball_get, which_ball FROM rewards WHERE save_id=?");
+    q.addBindValue(m_saveId);
+    if(q.exec() && q.next()){
+        return {
+            q.value(0).toInt(),
+            q.value(1).toInt(),
+            q.value(2).toInt()
+        };
+    } else {
+        DB_WARN("loadRewards: no row for save_id=" << m_saveId << " — returning empty reward");
+        logQuery(q);
+        return {0,0,0};
+    }
+};
 
 const std::array<PokemonState, BOX_SIZE>& PokemonDatabase::getBox(int box) const {
     assert(isBoxLoaded(box));
@@ -912,7 +954,6 @@ std::array<int, 3> PokemonDatabase::loadPokeballs() {
     } else {
         logQuery(q);
     }
-    DB_LOG("loadPokeballs: [" << counts[0] << ", " << counts[1] << ", " << counts[2] << "]");
     return counts;
 }
 
@@ -948,9 +989,6 @@ bool PokemonDatabase::addTechnicalMove(int moveId) {
     int rowsAffected = q.numRowsAffected();
     if (rowsAffected == 1) {
         DB_LOG("addTechnicalMove: inserted move_id=" << moveId);
-    } else if (rowsAffected == 0) {
-        DB_LOG("addTechnicalMove: ignored move_id=" << moveId
-               << " (already exists in technical_moves)");
     }
 
     return true;

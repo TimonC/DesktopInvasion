@@ -125,7 +125,6 @@ const PokeRoll weightedSamplePokemon(int pokemonLvl, const std::vector<int>& una
     std::uniform_int_distribution<int> rewardTypeDist(1, 100);
     int rewardType = rewardTypeDist(rng);
 
-
     int tmId = 0, ballCount = 0, ballType = 0;
     if (rewardType <= tmRewardBound) {
         std::vector<int> availableTmIds;

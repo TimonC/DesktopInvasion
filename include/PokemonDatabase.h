@@ -56,7 +56,7 @@ public:
     bool             deleteSave(int save_id);
     std::vector<int> listSaveIds();
     const PokemonState& wild() const { return m_wild; }
-    void setWild(const PokemonState& p);
+    void setWild(const PokemonState& p, int tmGet, int ballGet, int whichBall);
     void clearWild();
     const std::array<PokemonState, PARTY_SIZE>& party() const { return m_party; }
     void setPartySlot(int slot, const PokemonState& p);
@@ -81,6 +81,7 @@ public:
     bool               changePokeball(int delta, int row);
     bool               addTechnicalMove(int moveId);
     bool               hasTechnicalMove(int moveId);
+    std::array<int, 3> loadRewards();
     std::vector<int>  getTechnicalMoveList();
     std::vector<int>   filterKnownTMs(const std::vector<int>& moveIds);
     std::vector<EligibleEntry> filterKnownTMs(const std::vector<EligibleEntry>& entries);
@@ -100,6 +101,7 @@ private:
     PokemonState rowToPokemon     (const QSqlQuery& q);
     void         writePokemonToRow(QSqlQuery& q, const PokemonState& p);
     bool dbWriteWild     (const PokemonState& p);
+    bool dbSetRewards(int tmGet, int ballGet, int whichBall);
     bool dbWritePartySlot(int slot, const PokemonState& p);
     bool dbWritePCSlot   (int box, int slot, const PokemonState& p);
     bool dbDeletePCSlot  (int box, int slot);
