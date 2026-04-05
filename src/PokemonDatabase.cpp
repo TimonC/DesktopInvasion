@@ -455,9 +455,18 @@ void PokemonDatabase::writePokemonToRow(QSqlQuery& q, const PokemonState& p) {
 }
 
 bool PokemonDatabase::loadWildAndParty() {
-    DB_LOG("Loading wild and party for save_id=" << m_saveId);
     QSqlQuery q;
     bool ok = true;
+
+    q.prepare("SELECT name FROM saves WHERE save_id=?");
+    q.addBindValue(m_saveId);
+    if (q.exec()) {
+        if (q.next()) {
+            DB_LOG("Loading wild pokemon and party for trainer: " << q.value(0).toString());
+        } else {
+            DB_WARN("No save row found for save_id=" << m_saveId);
+        }
+    }else { logQuery(q); ok = false; }
 
     q.prepare("SELECT * FROM wild_slot WHERE save_id=?");
     q.addBindValue(m_saveId);
@@ -715,9 +724,6 @@ GameState PokemonDatabase::loadGameState() {
         state.name             = q.value("name").toString().toStdString();
         state.current_box      = q.value("current_box").toInt();
         state.unlocked_boxes   = q.value("unlocked_boxes").toInt();
-        DB_LOG("loadGameState: name=" << QString::fromStdString(state.name)
-               << " current_box=" << state.current_box
-               << " unlocked_boxes=" << state.unlocked_boxes);
     } else {
         DB_WARN("loadGameState: no row for save_id=" << m_saveId << " — writing defaults");
         logQuery(q);
@@ -781,17 +787,6 @@ bool PokemonDatabase::swapByPos(int boxX, int slotX, int boxY, int slotY) {
     bool ok2 = dbWritePartySlot(pSlot, m_party[pSlot]);
     if (!ok1 || !ok2) DB_ERR("swapByPos: party <-> PC write failed");
     return ok1 & ok2;
-}
-
-bool PokemonDatabase::toggleExpShare() {
-    Defaults d = loadDefaults();
-    d.expShareOn = !d.expShareOn;
-    DB_LOG("toggleExpShare -> " << (d.expShareOn ? "ON" : "OFF"));
-    return writeDefaults(d);
-}
-
-bool PokemonDatabase::isExpShareOn() const {
-    return const_cast<PokemonDatabase*>(this)->loadDefaults().expShareOn;
 }
 
 PokemonState* PokemonDatabase::cachePtr(int box, int slot) {
@@ -896,9 +891,6 @@ Defaults PokemonDatabase::loadDefaults() {
         d.lvlRangeDown = q.value("lvl_range_down").toInt();
         d.expShareOn   = q.value("exp_share_on").toBool();
         d.petModeOn    = q.value("pet_mode_on").toBool();
-        DB_LOG("loadDefaults: scale=" << d.scale << " speed=" << d.speed
-               << " lvlUp=" << d.lvlRangeUp << " lvlDown=" << d.lvlRangeDown
-               << " expShare=" << d.expShareOn << " petMode=" << d.petModeOn);
     } else {
         DB_WARN("loadDefaults: no row for save_id=" << m_saveId << " — returning defaults");
         logQuery(q);
@@ -907,9 +899,6 @@ Defaults PokemonDatabase::loadDefaults() {
 }
 
 bool PokemonDatabase::writeDefaults(const Defaults& d) {
-    DB_LOG("writeDefaults: scale=" << d.scale << " speed=" << d.speed
-           << " lvlUp=" << d.lvlRangeUp << " lvlDown=" << d.lvlRangeDown
-           << " expShare=" << d.expShareOn << " petMode=" << d.petModeOn);
     QSqlQuery q;
     q.prepare(R"(UPDATE defaults SET
         scale=?, speed=?, lvl_range_up=?, lvl_range_down=?, exp_share_on=?, pet_mode_on=?

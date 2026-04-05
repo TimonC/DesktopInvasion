@@ -70,8 +70,6 @@ public:
     GameState loadGameState();
     bool      saveGameState(const GameState& state);
     bool swapByPos(int boxX, int slotX, int boxY, int slotY);
-    bool toggleExpShare();
-    bool isExpShareOn() const;
     bool renamePokemon  (int box, int slot, const std::string& newName);
     bool setPokemonMoves(int box, int slot, const int moves[4]);
     bool setPokemonMove (int box, int slot, int moveIndex, int moveId);
