@@ -30,6 +30,7 @@ cd /app/build
 mkdir -p AppDir/usr/plugins/sqldrivers/
 cp /opt/Qt/6.8.0/gcc_64/plugins/sqldrivers/libqsqlite.so AppDir/usr/plugins/sqldrivers/
 rm -f /opt/Qt/6.8.0/gcc_64/plugins/sqldrivers/libqsqlmimer.so 2>/dev/null #remove problematic driver
+cp /app/build/AppDir/usr/share/icons/hicolor/256x256/apps/desktop-invasion.png /app/build/AppDir/.DirIcon
 export QMAKE=/opt/Qt/6.8.0/gcc_64/bin/qmake
 export QML_SOURCES_PATHS=/app/qml
 /opt/linuxdeploy/AppRun \
@@ -42,4 +43,3 @@ export QML_SOURCES_PATHS=/app/qml
 mkdir -p /app/output
 cp *.AppImage /app/output/
 mv /app/output/Desktop_Invasion-x86_64.AppImage /app/output/DesktopInvasion.AppImage 2>/dev/null || true
-
