@@ -3,15 +3,6 @@ import QtQuick.Controls 2.15
 import "../Style/PokeColor.js" as PokeColor
 
 Rectangle {
-    MouseArea {
-        anchors.fill: parent
-        cursorShape: undefined
-        hoverEnabled: false
-        onClicked: {
-            if (root.inNameEditMode) root.toggleNameEditMode()
-            if (root.inNickNameEditMode) root.toggleNickNameEditMode()
-        }
-    }
     id: root
     color: "#2b2b2b"
     property double uiScale: 1
@@ -99,6 +90,21 @@ Rectangle {
         nickNameField.text = nickName
         inNickNameEditMode = false
     }
+
+    // Modal overlay that blocks all clicks while editing
+    Rectangle {
+        anchors.fill: parent
+        color: "transparent"
+        visible: root.inNameEditMode || root.inNickNameEditMode
+        z: 1
+        MouseArea {
+            anchors.fill: parent
+            cursorShape: undefined
+            // Consume clicks to prevent them from reaching underlying elements
+            onClicked: { /* do nothing, just block */ }
+        }
+    }
+
     component SpriteTile: Rectangle {
         id: tile
         signal clicked()
@@ -279,6 +285,7 @@ Rectangle {
                 Item {
                     width: parent.width
                     height: Math.round(44 * uiScale)
+                    z: 2 // above modal overlay
                     Rectangle {
                         anchors.fill: parent
                         radius: 4
@@ -319,10 +326,6 @@ Rectangle {
                         selectByMouse: root.inNameEditMode
                         Keys.onReturnPressed: root.finishNameEditing()
                         Keys.onEscapePressed: root.cancelNameEditing()
-                        onFocusChanged: {
-                            if (!activeFocus && root.inNameEditMode)
-                                root.cancelNameEditing()
-                        }
                     }
                     Text {
                         anchors { left: parent.left; verticalCenter: parent.verticalCenter; leftMargin: Math.round(10 * uiScale) }
@@ -549,6 +552,7 @@ Rectangle {
                 Item {
                     width: parent.width
                     height: Math.round(44 * uiScale)
+                    z: 2 // above modal overlay
                     Rectangle {
                         anchors.fill: parent
                         radius: 4
@@ -589,10 +593,6 @@ Rectangle {
                         selectByMouse: root.inNickNameEditMode
                         Keys.onReturnPressed: root.finishNickNameEditing()
                         Keys.onEscapePressed: root.cancelNickNameEditing()
-                        onFocusChanged: {
-                            if (!activeFocus && root.inNickNameEditMode)
-                                root.cancelNickNameEditing()
-                        }
                     }
                     Text {
                         anchors { left: parent.left; verticalCenter: parent.verticalCenter; leftMargin: Math.round(10 * uiScale) }
@@ -634,4 +634,3 @@ Rectangle {
         }
     }
 }
-
