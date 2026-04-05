@@ -11,15 +11,27 @@ namespace Lookup {
 // At lower levels, the exponential decay affects lower-catch rate
 // (i.e., rarer) Pokemon more strongly, so that they won't appear
 // as often (or never when truncated to zero).
-static int calculatePokeWeight(int catchRate, int level) {
+//
+// Range is compressed starting at lvl 40 to increase lower-rarity spawn
+
+    static int calculatePokeWeight(int catchRate, int level) {
     static constexpr double DECAY_RATE = 0.1;
     int threshold = static_cast<int>(255.0 * std::exp(-DECAY_RATE * level));
     threshold = std::max(threshold, 1);
 
+    int weight;
     if (catchRate >= threshold) {
-        return catchRate;
+        weight = catchRate;
+    } else {
+        weight = catchRate * catchRate / threshold;
     }
-    return catchRate * catchRate / threshold;
+
+    // Compress the range at high levels
+    if (level >= 40) {
+        weight = static_cast<int>(std::pow(weight, 0.7) * std::pow(255, 0.3));
+    }
+
+    return weight;
 }
 
 static int applyPostEvolveReduction(int weight, int level) {

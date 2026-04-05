@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
 #endif
 
 #ifdef DEV_MODE
-   testWeightedSamplePokemon();
+   /* testWeightedSamplePokemon(); */
 #else
     if(app.shouldExit()){
         qDebug() << "DesktopInvasion is already running!";
