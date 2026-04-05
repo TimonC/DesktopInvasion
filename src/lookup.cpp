@@ -138,9 +138,6 @@ const PokeRoll weightedSamplePokemon(int pokemonLvl, const std::vector<int>& una
             tmId = availableTmIds[dist(rng)];
         }
     } else if (rewardType <= ballRewardBound) {
-        std::uniform_int_distribution<int> tierDist(1, 1000);
-        int tierRoll = tierDist(rng);
-
         struct Reward { int ballType; int count; };
         std::vector<Reward> tiers;
 
@@ -158,8 +155,8 @@ const PokeRoll weightedSamplePokemon(int pokemonLvl, const std::vector<int>& una
             tiers = {{3,1}};                               // Master Ball
         }
 
-        int tierIndex = (tierRoll * static_cast<int>(tiers.size()) - 1) / 1000;
-        tierIndex = std::clamp(tierIndex, 0, static_cast<int>(tiers.size()) - 1);
+        std::uniform_int_distribution<int> tierDist(0, (int)tiers.size() - 1);
+        int tierIndex = tierDist(rng);
         ballType = tiers[tierIndex].ballType;
         ballCount = tiers[tierIndex].count;
     }
