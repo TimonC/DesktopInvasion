@@ -8,7 +8,20 @@ jobs:
       APP_NAME: DesktopInvasion
     steps:
     - uses: actions/checkout@v4
-
+    - name: Generate .icns from PNG
+      run: |
+        mkdir -p assets/icon/icon.iconset
+        sips -z 16 16     assets/icon/icon.png --out assets/icon/icon.iconset/icon_16x16.png
+        sips -z 32 32     assets/icon/icon.png --out assets/icon/icon.iconset/icon_16x16@2x.png
+        sips -z 32 32     assets/icon/icon.png --out assets/icon/icon.iconset/icon_32x32.png
+        sips -z 64 64     assets/icon/icon.png --out assets/icon/icon.iconset/icon_32x32@2x.png
+        sips -z 128 128   assets/icon/icon.png --out assets/icon/icon.iconset/icon_128x128.png
+        sips -z 256 256   assets/icon/icon.png --out assets/icon/icon.iconset/icon_128x128@2x.png
+        sips -z 256 256   assets/icon/icon.png --out assets/icon/icon.iconset/icon_256x256.png
+        sips -z 512 512   assets/icon/icon.png --out assets/icon/icon.iconset/icon_256x256@2x.png
+        sips -z 512 512   assets/icon/icon.png --out assets/icon/icon.iconset/icon_512x512.png
+        sips -z 1024 1024 assets/icon/icon.png --out assets/icon/icon.iconset/icon_512x512@2x.png
+        iconutil -c icns assets/icon/icon.iconset -o assets/icon/icon.icns
     - uses: jurplel/install-qt-action@v4
       with:
         version: '6.8.0'
@@ -16,13 +29,10 @@ jobs:
         target: desktop
         arch: clang_64
         cache: true
-
     - run: cmake -B build -DCMAKE_BUILD_TYPE=Release
       shell: bash
-
     - run: cmake --build build --parallel
       shell: bash
-
     - name: Package
       run: |
         APP_PATH=$(find build -name "$APP_NAME.app" -type d | head -1)
@@ -32,28 +42,23 @@ jobs:
           exit 1
         fi
         echo "Found app bundle at: $APP_PATH"
-
         macdeployqt "$APP_PATH" -qmldir=qml
         if [ $? -ne 0 ]; then
           echo "Error: macdeployqt failed"
           exit 1
         fi
-
         INFO_PLIST="$APP_PATH/Contents/Info.plist"
         if [ ! -f "$INFO_PLIST" ]; then
           echo "Error: Info.plist not found"
           exit 1
         fi
-
         /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$INFO_PLIST" 2>/dev/null || \
           /usr/libexec/PlistBuddy -c "Add :CFBundleIdentifier string com.github.${GITHUB_ACTOR}.$APP_NAME" "$INFO_PLIST"
         /usr/libexec/PlistBuddy -c "Print :LSMinimumSystemVersion" "$INFO_PLIST" 2>/dev/null || \
           /usr/libexec/PlistBuddy -c "Add :LSMinimumSystemVersion string 11.0" "$INFO_PLIST"
-
         xattr -cr "$APP_PATH" 2>/dev/null || true
         codesign --force --deep --sign - "$APP_PATH" 2>/dev/null || true
         codesign --verify --verbose "$APP_PATH" 2>/dev/null || true
-
         DMG_NAME="$APP_NAME.dmg"
         hdiutil create -volname "$APP_NAME" -srcfolder "$APP_PATH" -ov -format UDZO "$DMG_NAME"
         if [ $? -ne 0 ]; then
@@ -61,13 +66,11 @@ jobs:
           exit 1
         fi
         codesign --force --sign - "$DMG_NAME" 2>/dev/null || true
-
         if [ ! -f "$DMG_NAME" ]; then
           echo "Error: DMG file not created"
           exit 1
         fi
         echo "DMG created successfully: $DMG_NAME"
-
     - name: Smoke test
       timeout-minutes: 1
       run: |
@@ -76,18 +79,14 @@ jobs:
           echo "Error: .app bundle not found for smoke test"
           exit 1
         fi
-
         EXECUTABLE="$APP_PATH/Contents/MacOS/$APP_NAME"
         if [ ! -f "$EXECUTABLE" ]; then
           echo "Error: Executable not found: $EXECUTABLE"
           exit 1
         fi
-
         QT_QPA_PLATFORM=offscreen "$EXECUTABLE" > smoke.log 2>&1 &
         APP_PID=$!
-
         sleep 5
-
         if kill -0 $APP_PID 2>/dev/null; then
           echo "Smoke test passed - app is running"
           kill $APP_PID
@@ -103,14 +102,12 @@ jobs:
           fi
           echo "Smoke test passed - app exited cleanly"
         fi
-
     - name: Upload smoke log
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: smoke-log-macos
         path: smoke.log
-
     - uses: actions/upload-artifact@v4
       with:
         name: DesktopInvasion
