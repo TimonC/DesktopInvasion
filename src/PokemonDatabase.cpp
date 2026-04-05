@@ -939,9 +939,21 @@ bool PokemonDatabase::addTechnicalMove(int moveId) {
     q.addBindValue(m_saveId);
     q.addBindValue(moveId);
     bool ok = q.exec();
-    if (!ok) logQuery(q);
-    else DB_LOG("addTechnicalMove: move_id=" << moveId);
-    return ok;
+
+    if (!ok) {
+        logQuery(q);
+        return false;
+    }
+
+    int rowsAffected = q.numRowsAffected();
+    if (rowsAffected == 1) {
+        DB_LOG("addTechnicalMove: inserted move_id=" << moveId);
+    } else if (rowsAffected == 0) {
+        DB_LOG("addTechnicalMove: ignored move_id=" << moveId
+               << " (already exists in technical_moves)");
+    }
+
+    return true;
 }
 
 bool PokemonDatabase::hasTechnicalMove(int moveId) {
