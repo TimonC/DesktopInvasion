@@ -122,7 +122,7 @@ const PokeRoll weightedSamplePokemon(int pokemonLvl, const std::vector<int>& una
     int maxWeight = calculatePokeWeight(255, pokemonLvl); //most common
     int qualityPercent = std::clamp((maxWeight - weight) * 100 / (maxWeight - minWeight), 0, 100);
 
-    static std::uniform_int_distribution<int> rewardTypeDist(1, 100);
+    std::uniform_int_distribution<int> rewardTypeDist(1, 100);
     int rewardType = rewardTypeDist(rng);
 
 
@@ -139,7 +139,7 @@ const PokeRoll weightedSamplePokemon(int pokemonLvl, const std::vector<int>& una
             tmId = availableTmIds[dist(rng)];
         }
     } else if (rewardType <= ballRewardBound) {
-        static std::uniform_int_distribution<int> tierDist(1, 1000);
+        std::uniform_int_distribution<int> tierDist(1, 1000);
         int tierRoll = tierDist(rng);
 
         struct Reward { int ballType; int count; };
@@ -178,7 +178,7 @@ QString getRandomFlavorText(int pokeDexId, std::mt19937& rng) {
         kPokeFlavor_heartgold, kPokeFlavor_soulsilver
     };
 
-    static std::uniform_int_distribution<int> dists[4] = {
+    std::uniform_int_distribution<int> dists[4] = {
         std::uniform_int_distribution<int>(0, 15),
         std::uniform_int_distribution<int>(3, 15),
         std::uniform_int_distribution<int>(6, 15),
@@ -195,7 +195,7 @@ QString getRandomFlavorText(int pokeDexId, std::mt19937& rng) {
 }
 
     Nature getRandomNature(std::mt19937 &rng){
-       static std::uniform_int_distribution<int> dist(0, 24);
+        std::uniform_int_distribution<int> dist(0, 24);
        return static_cast<Nature>(dist(rng));
     }
 

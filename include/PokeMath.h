@@ -23,7 +23,7 @@ namespace PokeMath{
 
 // https://bulbapedia.bulbagarden.net/wiki/Damage (modified, not all parameters are included in DesktopInvasion)
     inline int calculateDamage(const DamageParams& p, std::mt19937& rng) {
-        static std::uniform_int_distribution<int> damageRandomDist(85, 100);
+        std::uniform_int_distribution<int> damageRandomDist(85, 100);
 
         // Combine all percentage modifiers into a single multiplier
         // Use int64_t literals to prevent overflow
@@ -71,26 +71,26 @@ namespace PokeMath{
         return speed >> 1; // division by 2 using bit shift
     }
     inline bool calculateParalysisHit(std::mt19937& rng){
-        static std::uniform_int_distribution<int> paralysisDist(0, 3);
+        std::uniform_int_distribution<int> paralysisDist(0, 3);
         return paralysisDist(rng) != 0; // 75% chance to hit (1 in 4 to fail)
     }
 
 // https://bulbapedia.bulbagarden.net/wiki/Confusion_(status_condition)#Effect
     inline bool calculateConfusionHit(std::mt19937& rng){
-        static std::uniform_int_distribution<int> confusionDist(0, 1);
+        std::uniform_int_distribution<int> confusionDist(0, 1);
         return confusionDist(rng) == 0; // 50% chance to hit
     }
 
 // https://bulbapedia.bulbagarden.net/wiki/Freeze_(status_condition)#Effect
     inline bool calculateFreezeBreak(std::mt19937& rng){
-        static std::uniform_int_distribution<int> freezeDist(0, 4);
+        std::uniform_int_distribution<int> freezeDist(0, 4);
         return freezeDist(rng) == 0; // 20% chance to break
     }
 
 // https://bulbapedia.bulbagarden.net/wiki/Sleep_(status_condition)#Effect
     inline int calculateAilmentTurns(Ailment ailment, std::mt19937& rng){
         if(ailment == Ailment::Confusion || ailment == Ailment::Sleep){
-            static std::uniform_int_distribution<int> ailmentTurnsDist(2, 5);
+            std::uniform_int_distribution<int> ailmentTurnsDist(2, 5);
             return ailmentTurnsDist(rng);
         }
         return -1;
@@ -188,7 +188,7 @@ namespace PokeMath{
         int modifiedAccuracy = calculateModifiedAccuracy(accuracy, modifier);
         if (modifiedAccuracy >= 100) return true;
         if (modifiedAccuracy <= 0) return false;
-        static std::uniform_int_distribution<int> accuracyDist(1, 100);
+        std::uniform_int_distribution<int> accuracyDist(1, 100);
         return accuracyDist(rng) <= modifiedAccuracy;
     }
 
@@ -207,7 +207,7 @@ namespace PokeMath{
         if (critRate >= 2) return true;
 
         static constexpr int chances[2] = {16, 8};
-        static std::uniform_int_distribution<int> dist(1, chances[critRate]);
+        std::uniform_int_distribution<int> dist(1, chances[critRate]);
         return dist(rng) == 1;
     }
 
@@ -216,12 +216,12 @@ namespace PokeMath{
         if (chance >= 100) return true;
         if (chance <= 0) return false;
 
-        static std::uniform_int_distribution<int> effectDist(1, 100);
+        std::uniform_int_distribution<int> effectDist(1, 100);
         return effectDist(rng) <= chance;
     }
 
     inline bool checkSpeedTie(std::mt19937& rng) {
-        static std::uniform_int_distribution<int> speedTieDist(0, 1);
+        std::uniform_int_distribution<int> speedTieDist(0, 1);
         return speedTieDist(rng) == 0;
     }
 
