@@ -21,7 +21,7 @@ GEN4_VERSION_GROUPS = [
     'heartgold-soulsilver'
 ]
 
-POKEMON_WITH_VALID_DASH = ["Ho-oh", "Porygon-Z"]
+POKEMON_WITH_VALID_DASH = ["ho-oh", "porygon-z"]
 
 pokemons = []
 
@@ -153,6 +153,8 @@ def extract_evolution_condition(evolution):
 def format_pokemon_name(name):
     if not name:
         return name
+    if name.lower()=="mr-mime":
+        return "MR. MIME"
     if name.lower() not in [p.lower() for p in POKEMON_WITH_VALID_DASH]:
         name = name.split("-")[0]
     return name.upper()
