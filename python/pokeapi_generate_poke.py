@@ -22,6 +22,9 @@ GEN4_VERSION_GROUPS = [
 ]
 
 POKEMON_WITH_VALID_DASH = ["ho-oh", "porygon-z"]
+#below have catch rate of 45, and as spawn rate is weighted by catch rate,
+#these are too common for legendaries. therefore I set them to 15
+POKEMON_TO_SET_CATCH_RATE_TO_15 = ["mew", "celebi", "phione"]
 
 pokemons = []
 
@@ -184,7 +187,10 @@ for poke_id in range(1, MAX_POKEMON_ID + 1):
     if species_url:
         response = urllib.request.urlopen(species_url)
         species_data = json.loads(response.read().decode('utf-8'))
-        catch_rate = species_data.get('capture_rate', 0)
+        if poke_data.get('name', '') in POKEMON_TO_SET_CATCH_RATE_TO_15:
+            catch_rate = 15
+        else:
+            catch_rate = species_data.get('capture_rate', 0)
         eligible_evolves = extract_evolution_data(species_url, poke_id)
 
     pokemons.append({

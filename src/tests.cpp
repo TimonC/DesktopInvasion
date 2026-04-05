@@ -5,6 +5,10 @@
 void testWeightedSamplePokemon() {
     std::mt19937 rng(std::random_device{}());
 
+    const std::vector<int> testLevels = { 10, 20, 30, 50, 70, 90};
+    const std::vector<int> noTms = {};
+    const int N = 100000;
+
     const std::vector<std::pair<int, QString>> testPokemon = {
         // early route commons
         {10,  "Caterpie"},
@@ -48,9 +52,6 @@ void testWeightedSamplePokemon() {
         {385, "Jirachi"},
     };
 
-    const std::vector<int> testLevels = {1, 10, 30, 40, 50, 75, 100};
-    const std::vector<int> noTms = {};
-    const int N = 100000;
 
     QString header = QString("%1").arg("Pokemon", -14)
                    + QString("%1").arg("catch", 6)
