@@ -10,6 +10,7 @@
 #include <Game.h>
 #include <PokemonDatabase.h>
 #include <StartupManager.h>
+#include <tests.h>
 
 int main(int argc, char *argv[]) {
 
@@ -27,6 +28,7 @@ int main(int argc, char *argv[]) {
 #endif
 
 #ifdef DEV_MODE
+   testWeightedSamplePokemon();
 #else
     if(app.shouldExit()){
         qDebug() << "DesktopInvasion is already running!";
