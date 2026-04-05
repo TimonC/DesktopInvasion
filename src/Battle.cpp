@@ -18,12 +18,11 @@ Battle::Battle(QPoint initialOppPos, int initialOppDirection, PokemonState wildS
 
     direction(initialOppDirection);
 
-    const char* env =  getenv("DOCKER_ENV");
-    if(env &&  strcmp(env, "dev") == 0){
+#ifdef DEV_MODE
         setSource(QUrl("../qml/BattleScene.qml"));
-    }else{
+#else
         setSource(QUrl("qrc:/qml/BattleScene.qml"));
-    }
+#endif
 
     m_battleScene = rootObject();
     assert(m_battleScene);

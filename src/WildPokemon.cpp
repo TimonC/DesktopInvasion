@@ -25,12 +25,11 @@ WildPokemon::WildPokemon(int pokedexId, QPoint spawnPoint, int spawnDirection, b
         setPosition(QPoint(screen.width()/2, screen.height()/2));
     }
 
-    const char* env =  getenv("DOCKER_ENV");
-    if(env && strcmp(env, "dev") == 0){
-        setSource(QUrl("../qml/PokemonSprite.qml"));
-    }else{
-        setSource(QUrl("qrc:/qml/PokemonSprite.qml"));
-    }
+#ifdef DEV_MODE
+    setSource(QUrl("../qml/PokemonSprite.qml"));
+#else
+    setSource(QUrl("qrc:/qml/PokemonSprite.qml"));
+#endif
 
     bool isBig = info->spriteSheet==SpriteSheet::Big;
     m_sprite = rootObject();

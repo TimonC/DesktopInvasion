@@ -20,16 +20,15 @@ GameMenu::GameMenu()
 
     rootContext()->setContextProperty("menuBridge", this);
 
-    const char* env = getenv("DOCKER_ENV");
-    if (env && strcmp(env, "dev") == 0)
+#ifdef DEV_MODE
         setSource(QUrl("../qml/qmlGameMenu/Menu.qml"));
-    else
+#else
         setSource(QUrl("qrc:/qml/qmlGameMenu/Menu.qml"));
-    m_menuRoot = rootObject();
+#endif
 
+    m_menuRoot = rootObject();
     setCursor(QCursor(QPixmap(":/assets/XY/pointer.png"), 6, 6));
     setTitle("DesktopInvasion");
-
 
     /* //Hardcoded values in the root qml (derived from simple log) */
     const double menuWidth = 1361.0;

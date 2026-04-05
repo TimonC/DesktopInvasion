@@ -22,6 +22,20 @@ static int calculatePokeWeight(int catchRate, int level) {
     return catchRate * catchRate / threshold;
 }
 
+static int applyPostEvolveReduction(int weight, int level) {
+    const float midpoint = 60.0f;
+    const float k = 0.10f;
+    float factor = 1.0f - 1.0f / (1.0f + std::exp(-k * (level - midpoint)));
+    return static_cast<int>(weight * factor);
+}
+
+static int applyNoEvolveReduction(int weight, int level) {
+    const float midpoint = 20.0f;
+    const float k = 0.2f;
+    float factor = 1.0f / (1.0f + std::exp(-k * (level - midpoint)));
+    return static_cast<int>(weight * factor);
+}
+
 const PokeRoll weightedSamplePokemon(int pokemonLvl, const std::vector<int>& unavailableTmIds, std::mt19937& rng) {
     static std::array<std::vector<int>, 101> precomputedValidPokemon;
     static std::array<std::vector<int>, 101> precomputedCumulativeWeights;
@@ -62,9 +76,9 @@ const PokeRoll weightedSamplePokemon(int pokemonLvl, const std::vector<int>& una
                 if (isEligible) {
                     int weight = calculatePokeWeight(poke->catch_rate, level);
                     if (eligibleEvolveLevel != -1 && eligibleEvolveLevel <= level){
-                        weight = weight / 5; //five times less weight for above-evolution levels
+                        weight = applyPostEvolveReduction(weight, level);
                     }else if(noEvolves){
-                        weight = weight / 2; //half the weight for no-evolution pokemon
+                        weight = applyNoEvolveReduction(weight, level);
                     }
                     if (weight > 0) {
                         validPokemon.push_back(pokeId);

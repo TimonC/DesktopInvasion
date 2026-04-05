@@ -8,7 +8,6 @@ services:
       - QT_QPA_PLATFORM=xcb
       - XDG_RUNTIME_DIR=/tmp/xdg
       - TZ=Europe/Berlin
-      - DOCKER_ENV=dev
       - VALGRIND_MODE=0
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
@@ -27,7 +26,6 @@ services:
     container_name: desktopinvasion-build-linux
     entrypoint: ["./build_linux.sh"]
     environment:
-      - DOCKER_ENV=prod
       - VALGRIND_MODE=0
     volumes:
       - ./app/output:/app/output

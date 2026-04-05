@@ -26,12 +26,13 @@ int main(int argc, char *argv[]) {
         }
 #endif
 
-    const char* env =  getenv("DOCKER_ENV");
-    bool isDev = (env && strcmp(env, "dev") == 0);
-    if(!isDev && app.shouldExit()){
+#ifdef DEV_MODE
+#else
+    if(app.shouldExit()){
         qDebug() << "DesktopInvasion is already running!";
         return 0;
     }
+#endif
 
     QCoreApplication::setOrganizationName("DesktopInvasion");
     QCoreApplication::setApplicationName("DesktopInvasion");

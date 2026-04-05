@@ -236,11 +236,12 @@ void Game::openStarterMenu(){
     m_trayIcon->setVisible(false);
 
     m_starterMenu = new QQuickView();
-    const char* env = getenv("DOCKER_ENV");
-    if (env && strcmp(env, "dev") == 0)
+
+#ifdef DEV_MODE
         m_starterMenu->setSource(QUrl("../qml/qmlGameMenu/StarterMenu.qml"));
-    else
+#else
         m_starterMenu->setSource(QUrl("qrc:/qml/qmlGameMenu/StarterMenu.qml"));
+#endif
 
     /* m_starterMenu->setCursor(QCursor(QPixmap(":/assets/XY/pointer.png"), 6, 6)); */
     m_starterMenu->setTitle("DesktopInvasion");
@@ -759,7 +760,7 @@ void Game::updatePartyXP(const std::array<int,6>& spread) {
         PokemonState p = m_db.party()[i];
         if (p.empty()) continue;
 
-        int xpGain = spread[i];
+        int xpGain = spread[i]*1000;
         int oldXP  = p.currentXP;
         int oldLvl = p.lvl;
 

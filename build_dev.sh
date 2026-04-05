@@ -23,7 +23,7 @@ if [ "$VALGRIND_MODE" = "1" ]; then
 
     mkdir -p build_valgrind
     cd build_valgrind
-    cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-g -O0" ..
+    cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-g -O0" -DDEV_MODE=ON ..
     ninja
 
     valgrind \
@@ -37,10 +37,10 @@ if [ "$VALGRIND_MODE" = "1" ]; then
     ls -la /app/logs/
 
 else
-    # HMR mode
+    # Hot Reload mode
     mkdir -p build
     cd build
-    cmake -G Ninja ..
+    cmake -G Ninja -DDEV_MODE=ON ..
     ninja
 
     echo "Starting DesktopInvasion with HMR"

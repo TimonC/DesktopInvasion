@@ -106,6 +106,11 @@ target_link_libraries(DesktopInvasion PRIVATE
     Qt6::Sql
 )
 
+option(DEV_MODE "Enable dev mode" OFF)
+if(DEV_MODE)
+    target_compile_definitions(DesktopInvasion PRIVATE DEV_MODE)
+endif()
+
 message(STATUS "Building DesktopInvasion")
 message(STATUS "  Qt version:     ${Qt6_VERSION}")
 message(STATUS "  Build type:     ${CMAKE_BUILD_TYPE}")
