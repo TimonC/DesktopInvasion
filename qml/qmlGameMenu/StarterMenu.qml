@@ -275,7 +275,7 @@ Rectangle {
                 Item { width: parent.width; height: root.pad }
                 Text {
                     width: root.width - 2 * root.pad
-                    text: "Choose your trainer name:"
+                    text: root.inNameEditMode ? "[PRESS ENTER TO CONFIRM] Choose your trainer name:" : "Choose your trainer name:"
                     font.family: root.dotGothicFont
                     font.pixelSize: root.fontSizeMd
                     color: "#ffffff"
@@ -542,7 +542,7 @@ Rectangle {
                 Item { width: parent.width; height: root.pad }
                 Text {
                     width: root.width - 2 * root.pad
-                    text: "(Optional) choose a nickname for your starter:"
+                    text: root.inNickNameEditMode ? "[PRESS ENTER TO CONFIRM] Choose a nickname for your starter:" : "(Optional) Choose a nickname for your starter:"
                     font.family: root.dotGothicFont
                     font.pixelSize: root.fontSizeMd
                     color: "#ffffff"
