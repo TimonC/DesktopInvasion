@@ -588,21 +588,26 @@ BattleActionResult BattleMoveHandler::applyMove(const Move* _move, Battler* cast
             result.addEffect(BattleActionResult::HEAL, caster, caster, healAmount);
         }
 
-        damageLanded  = damage > 0;
-    } else {
+        if(!noEffect){
+            BattleActionResult secondaryResult = applySecondaryEffects(_move, caster, target, damage>0, otherHasHadTurn);
+            result.effects.reserve(result.effects.size() + secondaryResult.effects.size());
+            result.effects.insert(result.effects.end(), secondaryResult.effects.begin(), secondaryResult.effects.end());
+        }
+
+    } else { //Non-damaging (i.e. status) moves
         if (_move->healing > 0) {
             int healAmount = PokeMath::calculateHeal(caster->pokeState.stats[0], _move->healing);
             result.addEffect(BattleActionResult::HEAL, caster, caster, healAmount);
         }
+        if (combinedEffectiveness==0 && (_move->ailment!=Ailment::Confusion && _move->ailment!=Ailment::Null)){
+            result.addEffect(BattleActionResult::NO_EFFECT, caster, target);
+        }else{
+            BattleActionResult secondaryResult = applySecondaryEffects(_move, caster, target, true, otherHasHadTurn);
+            result.effects.reserve(result.effects.size() + secondaryResult.effects.size());
+            result.effects.insert(result.effects.end(), secondaryResult.effects.begin(), secondaryResult.effects.end());
+        }
     }
 
-    if (combinedEffectiveness==0 && (_move->ailment!=Ailment::Confusion && _move->ailment!=Ailment::Null)){
-        result.addEffect(BattleActionResult::NO_EFFECT, caster, target);
-    }else{
-        BattleActionResult secondaryResult = applySecondaryEffects(_move, caster, target, true, otherHasHadTurn);
-        result.effects.reserve(result.effects.size() + secondaryResult.effects.size());
-        result.effects.insert(result.effects.end(), secondaryResult.effects.begin(), secondaryResult.effects.end());
-    }
     return result;
 }
 
