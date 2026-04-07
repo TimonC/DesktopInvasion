@@ -23,7 +23,7 @@ BattleMoveHandler::BattleMoveHandler(const PokemonState& wildState, const std::a
         if(_move==nullptr) break;
         n_moves+=1;
     };
-    if(n_moves==0){//fallback for pokemon without moves
+    if(n_moves==0){//fallback for pokemon without moves, always give Pound
         m_battleOpponent->pokeState.moves[0] = Lookup::getMove(1);
         n_moves+=1;;
     }
