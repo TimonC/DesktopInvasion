@@ -11,18 +11,15 @@ fi
 echo "Analyzing: $FILE"
 > "$OUTPUT"
 
-echo "=== SUMMARY ===" >> "$OUTPUT"
 grep "ERROR SUMMARY\|LEAK SUMMARY\|definitely lost\|indirectly lost" "$FILE" | tail -6 >> "$OUTPUT"
 
 echo "" >> "$OUTPUT"
-echo "=== YOUR CODE ERRORS ===" >> "$OUTPUT"
 awk '
 /^==.*== [A-Z]/ { block = $0; next }
 /\.cpp:|\.h:/ && !/\/usr|\/opt/ { print block; print; block = ""; count++ }
 ' "$FILE" | sort -u >> "$OUTPUT"
 
 echo "" >> "$OUTPUT"
-echo "=== DEFINITE LEAKS IN YOUR CODE ===" >> "$OUTPUT"
 awk '
 /definitely lost/ { inblock=1; block=$0; next }
 inblock && /\.cpp:|\.h:/ && !/\/usr|\/opt/ { print block; print; inblock=0; next }

@@ -1,8 +1,12 @@
-# assets/
-# src/data_move.cpp
-# src/data_poke.cpp
-# src/data_poke_asset.cpp
-# src/data_poke_flavor.cpp
+assets/
+
+src/data_move.cpp
+src/data_poke.cpp
+src/data_poke_asset.cpp
+src/data_poke_flavor.cpp
+
+filter_valgrond_log.sh
+move_names_longer_than_eight_characters.txt
 
 wipe_github_actions.sh
 
