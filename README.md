@@ -4,7 +4,7 @@ This is the public repository for DesktopInvasion: a fanmade Pokémon desktop pe
 If you have any questions about DesktopInvasion, please contact me at desktopinvasion@gmail.com
 
 ## Download
-Available for Windows, Mac, and Linux (X11/XWayland required). Get it [here](https://www.desktopinvasion.com/?pages=download).
+Available for Windows, Mac, and Linux (X11/XWayland required). Get it [here](https://www.desktopinvasion.com/?page=download).
 
 ## Credits
 No assets used in the game are included in this repository. DesktopInvasion is a non-commercial fan project that is available for free. I have never and will never seek any fees or donations for this game. This game makes extensive use of material that I do not own. It is my sincere belief that I have used this material in a spirit of fair use. Apart from moderate use of LLMs, all source code is written by me, with gameplay based on widely available sources. See more [here](https://desktopinvasion.com/?page=credits).
